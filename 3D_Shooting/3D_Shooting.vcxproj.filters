@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\imgui">
+      <UniqueIdentifier>{f4e0d318-18d5-43ec-a2fd-2729337ee475}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs">
+      <UniqueIdentifier>{616a77bd-5bef-4d6d-9eca-543091ce041e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\BasicLib">
+      <UniqueIdentifier>{bdc7ffea-b5be-415e-b282-a8e9e6dee316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\BasicLib\Headers">
+      <UniqueIdentifier>{f5e352ff-bbc3-4c6f-ad84-503a3cd3bf6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\BasicLib\Sources">
+      <UniqueIdentifier>{9a046d17-844d-45fb-aa3a-70094f61190e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib">
+      <UniqueIdentifier>{d5f70c2d-2905-44ea-942b-caa3863eb6c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Components">
+      <UniqueIdentifier>{e8f0d000-a313-443a-824f-3d6399a20180}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Components\Headers">
+      <UniqueIdentifier>{45586e64-de81-49a9-a1c8-556ee2e1ffd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Components\Sources">
+      <UniqueIdentifier>{6633ae1e-c7c5-4f84-a8ea-7e2a2d877d27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Objects">
+      <UniqueIdentifier>{56401874-20df-424a-a6ac-534eed4e6fc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Objects\Headers">
+      <UniqueIdentifier>{81cda30a-07c1-42b4-822c-ebedfc3978ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Objects\Sources">
+      <UniqueIdentifier>{578859e6-1994-40a8-8e89-33aea61d69a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\StandardLib\Shaders">
+      <UniqueIdentifier>{88bcc0ef-e470-456a-b536-fc989b8b6f02}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainCamera.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BaseDevice.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BaseHelper.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BaseTexture.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BlendState.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\FrameResource.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\Light.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\MeshHelper.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\PipelineState.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\RootSignature.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\UILayer.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BaseMesh.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\PrimDevice.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\Transform.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\CollisionManager.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\GameObject.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\Stage.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\Behavior.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStage.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\Steering.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Objects\BehaviorSteering.cpp">
+      <Filter>Libs\StandardLib\Objects\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\App.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BaseScene.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\Camera.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\IObject.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\Collision.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\Component.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainCamera.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Project.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectUtil.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseTexture.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseMesh.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseMath.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseHelper.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseCommon.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\Light.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseScene.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\VertexHelper.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\FrameResource.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\MeshHelper.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\PipelineState.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\RootSignature.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\UILayer.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BlendState.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BasicInclude.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseDevice.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\StepTimer.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\PrimDevice.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\InputDevice.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseMathInc.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\targetver.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\Component.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\Transform.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\Behavior.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\Constants.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\GameObject.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\Stage.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\StandardInclude.h">
+      <Filter>Libs\StandardLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\IObject.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\Collision.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\Camera.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\CollisionManager.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\BcStaticDraw.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\StateMachine.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStage.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\BehaviorSteering.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\DxHelper.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\App.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\TransHelper.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\d3dx12.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\BcINCConstant.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\BcINCLighting.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\BcINCShadow.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\BcINCStructs.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\INCShadowmap.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\SpINC2dConstant.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\SpINCConstant.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\SpINCPixel.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Common\Library\StandardLib\Shaders\SpINCStructs.hlsli">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcPSPNTPL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcPSPNTPLShadow.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcVSPNTBonePL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcVSPNTBonePLShadow.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcVSPNTStaticPL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\BcVSPNTStaticPLShadow.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPCSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPCStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPCTSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPCTStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPNStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPNTStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPNTStaticShadow.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPTSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpPSPTStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPCSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPCStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPCTSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPCTStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPNStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPNTStatic.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPNTStaticShadow.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\SpVSPTSprite.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\VSShadowmap.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="3DShooting.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
