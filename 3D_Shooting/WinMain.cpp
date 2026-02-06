@@ -22,6 +22,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		FreeLibrary(hUser32);
 	}
 
-	shooting::BaseDevice device(1280, 800, L"BaseCrossDx12");
+	shooting::BaseDevice device(1280, 800, L"3D_Shooting");
 	return shooting::App::Run(&device, hInstance, nCmdShow);
 }

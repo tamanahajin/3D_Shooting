@@ -49,6 +49,7 @@ namespace shooting {
 		param.quaternion = Quat(quat);
 		param.position = Vec3(5.0f, 2.0f, 5.0f);
 		AddGameObject<WallBox>(param);
+		// ’n–Ê
 		param.scale = Vec3(50.0f, 1.0f, 50.0f);
 		param.position = Vec3(0.0f, -0.5, 0.0f);
 		AddGameObject<FixedBox>(param);
@@ -69,7 +70,7 @@ namespace shooting {
 		CreateSeekObject();
 		param.scale = Vec3(0.25f, 0.25f, 0.25f);
 		param.quaternion = Quat();
-		param.position = Vec3(0.0f, 0.125f, 0.0f);
+		param.position = Vec3(0.0f, 0.325f, 0.0f);
 		AddGameObject<Player>(param);
 	}
 

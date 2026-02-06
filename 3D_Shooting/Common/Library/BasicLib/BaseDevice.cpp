@@ -10,6 +10,7 @@
 //*********************************************************
 
 #include "stdafx.h"
+#include <d3d12sdklayers.h>
 
 namespace shooting {
 
@@ -108,6 +109,13 @@ namespace shooting {
 			D3D_FEATURE_LEVEL_12_1,//D3D_FEATURE_LEVEL_11_0を書き換え
 			IID_PPV_ARGS(&m_device)
 		));
+		//ComPtr<ID3D12InfoQueue> infoQueue;
+		//if (SUCCEEDED(m_device.As(&infoQueue)) && infoQueue)
+		//{
+		//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+		//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+		//}
 		m_activeAdapterLuid = m_gpuAdapterDescs[m_activeAdapter].desc.AdapterLuid;
 
 		// コマンド キューを記述して作成します。

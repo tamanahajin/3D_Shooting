@@ -1019,10 +1019,6 @@ public: \
     ShaderName(); \
 };
 
-//#define IMPLEMENT_DX12SHADER(ShaderName, CsoFilename) \
-//template<> std::unique_ptr<ShaderName, Dx12Shader<ShaderName>::Deleter> Dx12Shader<ShaderName>::m_ptr{}; \
-//ShaderName::ShaderName() : Dx12Shader<ShaderName>(CsoFilename) {}
-
 		//シェーダ実体用マクロ
 #define IMPLEMENT_DX12SHADER(ShaderName,CsoFilename) std::unique_ptr<ShaderName, ShaderName::Deleter> ShaderName::m_ptr; \
 	ShaderName::ShaderName() : \

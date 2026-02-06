@@ -366,7 +366,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Common\assimp\include;$(ProjectDir)Common\assimp\build\include;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Common\assimp\include;$(ProjectDir)Common\assimp\build\include;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>

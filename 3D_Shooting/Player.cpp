@@ -1,11 +1,12 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
 	Player::Player(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
-		m_Speed(6.0f)
+		m_Speed(6.0f),
+		m_IsGround(false)
 	{
 		m_transParam = param;
 	}
@@ -13,7 +14,7 @@ namespace shooting {
 	Vec2 Player::GetInputState() const
 	{
 		Vec2 ret;
-		//ƒRƒ“ƒgƒ[ƒ‰‚Ìæ“¾
+		//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã®å–å¾—
 		//auto cntlVec = App::GetInputDevice().GetControlerVec();
 		//ret.x = 0.0f;
 		//ret.y = 0.0f;
@@ -25,9 +26,9 @@ namespace shooting {
 		//}
 		//return ret;
 
-		// ƒL[ƒ{[ƒh“ü—Íæ“¾
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
 		auto keyVec = GetInputKey();
-		// ƒL[ƒ{[ƒh“ü—Í‚ª‚ ‚ê‚Î—Dæ‚·‚é
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›ãŒã‚ã‚Œã°å„ªå…ˆã™ã‚‹
 		if (keyVec.x != 0.0f || keyVec.y != 0.0f)
 		{
 			ret = keyVec;
@@ -39,18 +40,18 @@ namespace shooting {
 	{
 		Vec2 ret(0.0f, 0.0f);
 
-		// ƒL[ƒ{[ƒh“ü—Íæ“¾
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
 		const auto& input = App::GetInputDevice();
 
-		// ¶‰EiXj
+		// å·¦å³ï¼ˆXï¼‰
 		if (input.KeyDown('A') || input.KeyDown(VK_LEFT))  ret.x -= 1.0f;
 		if (input.KeyDown('D') || input.KeyDown(VK_RIGHT)) ret.x += 1.0f;
 
-		// ‘OŒãiYj¦‚±‚ÌƒNƒ‰ƒX‚Å‚Í ret.y ‚ğu‘O(+) / Œã(-)v‚Æ‚µ‚Äg‚¤
+		// å‰å¾Œï¼ˆYï¼‰â€»ã“ã®ã‚¯ãƒ©ã‚¹ã§ã¯ ret.y ã‚’ã€Œå‰(+) / å¾Œ(-)ã€ã¨ã—ã¦ä½¿ã†
 		if (input.KeyDown('W') || input.KeyDown(VK_UP))    ret.y += 1.0f;
 		if (input.KeyDown('S') || input.KeyDown(VK_DOWN))  ret.y -= 1.0f;
 
-		// Î‚ßˆÚ“®‚ª‘¬‚­‚È‚ç‚È‚¢‚æ‚¤‚É³‹K‰»
+		// æ–œã‚ç§»å‹•ãŒé€Ÿããªã‚‰ãªã„ã‚ˆã†ã«æ­£è¦åŒ–
 		if (ret.length() > 1.0f)
 		{
 			ret.normalize();
@@ -61,35 +62,35 @@ namespace shooting {
 	Vec3 Player::GetMoveVector() const
 	{
 		Vec3 angle(0, 0, 0);
-		//“ü—Í‚Ìæ“¾
+		//å…¥åŠ›ã®å–å¾—
 		auto inPut = GetInputState();
 		float moveX = inPut.x;
 		float moveZ = inPut.y;
 		if (moveX != 0 || moveZ != 0)
 		{
-			float moveLength = 0;	//“®‚¢‚½‚ÌƒXƒs[ƒh
+			float moveLength = 0;	//å‹•ã„ãŸæ™‚ã®ã‚¹ãƒ”ãƒ¼ãƒ‰
 			auto ptrTransform = GetComponent<Transform>();
 			auto ptrCamera = GetStage()->GetCamera();
-			//is•ûŒü‚ÌŒü‚«‚ğŒvZ
+			//é€²è¡Œæ–¹å‘ã®å‘ãã‚’è¨ˆç®—
 			auto front = ptrTransform->GetPosition() - ptrCamera->GetEye();
 			front.y = 0;
 			front.normalize();
-			//is•ûŒüŒü‚«‚©‚ç‚ÌŠp“x‚ğZo
+			//é€²è¡Œæ–¹å‘å‘ãã‹ã‚‰ã®è§’åº¦ã‚’ç®—å‡º
 			float frontAngle = atan2(front.z, front.x);
-			//ƒRƒ“ƒgƒ[ƒ‰‚ÌŒü‚«ŒvZ
+			//å‘ãè¨ˆç®—
 			Vec2 moveVec(moveX, moveZ);
 			float moveSize = moveVec.length();
-			//ƒRƒ“ƒgƒ[ƒ‰‚ÌŒü‚«‚©‚çŠp“x‚ğŒvZ
+			//å‘ãã‹ã‚‰è§’åº¦ã‚’è¨ˆç®—
 			float cntlAngle = atan2(-moveX, moveZ);
-			//ƒg[ƒ^ƒ‹‚ÌŠp“x‚ğZo
+			//ãƒˆãƒ¼ã‚¿ãƒ«ã®è§’åº¦ã‚’ç®—å‡º
 			float totalAngle = frontAngle + cntlAngle;
-			//Šp“x‚©‚çƒxƒNƒgƒ‹‚ğì¬
+			//è§’åº¦ã‹ã‚‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆ
 			angle = Vec3(cos(totalAngle), 0, sin(totalAngle));
-			//³‹K‰»‚·‚é
+			//æ­£è¦åŒ–ã™ã‚‹
 			angle.normalize();
-			//ˆÚ“®ƒTƒCƒY‚ğİ’èB
+			//ç§»å‹•ã‚µã‚¤ã‚ºã‚’è¨­å®šã€‚
 			angle *= moveSize;
-			//Y²‚Í•Ï‰»‚³‚¹‚È‚¢
+			//Yè»¸ã¯å¤‰åŒ–ã•ã›ãªã„
 			angle.y = 0;
 		}
 		return angle;
@@ -105,7 +106,7 @@ namespace shooting {
 			pos += angle * elapsedTime * m_Speed;
 			GetComponent<Transform>()->SetPosition(pos);
 		}
-		//‰ñ“]‚ÌŒvZ
+		//å›è»¢ã®è¨ˆç®—
 		if (angle.length() > 0.0f)
 		{
 			auto utilPtr = GetBehavior<UtilBehavior>();
@@ -118,24 +119,24 @@ namespace shooting {
 		GetStage()->SetSharedGameObject(L"Player", GetThis<Player>());
 
 		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
-		//CollisionSphereÕ“Ë”»’è‚ğ•t‚¯‚é
-		auto ptrColl = AddComponent<CollisionSphere>();
-		//d—Í‚ğ‚Â‚¯‚é
+		ptrShadow->AddBaseMesh(L"DEFAULT_CAPSULE");
+		//CollisionCapsuleè¡çªåˆ¤å®šã‚’ä»˜ã‘ã‚‹
+		auto ptrColl = AddComponent<CollisionCapsule>();
+		//é‡åŠ›ã‚’ã¤ã‘ã‚‹
 		auto ptrGra = AddComponent<Gravity>();
 
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
-		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
+		ptrDraw->AddBaseMesh(L"DEFAULT_CAPSULE");
 		ptrDraw->AddBaseTexture(L"TRACE3_TX");
-		//“§–¾ˆ—
+		//é€æ˜å‡¦ç†
 		SetAlphaActive(true);
-		//ƒJƒƒ‰‚ğ“¾‚é
+		//ã‚«ãƒ¡ãƒ©ã‚’å¾—ã‚‹
 		auto ptrCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
-		
+
 		if (ptrCamera)
 		{
-			//MainCamera‚Å‚ ‚é
-			//MainCamera‚É’–Ú‚·‚éƒIƒuƒWƒFƒNƒgiƒvƒŒƒCƒ„[j‚Ìİ’è
+			//MainCameraã§ã‚ã‚‹
+			//MainCameraã«æ³¨ç›®ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ï¼‰ã®è¨­å®š
 			ptrCamera->SetTargetObject(GetThis<GameObject>());
 			ptrCamera->SetTargetToAt(Vec3(0, 0.25f, 0));
 		}
@@ -144,12 +145,72 @@ namespace shooting {
 	void Player::OnUpdate(double elapsedTime)
 	{
 		m_InputHandler.PushHandle(GetThis<Player>());
+
+		// ç§»å‹•
 		MovePlayer();
+
+		// ã‚¸ãƒ£ãƒ³ãƒ—ï¼ˆåœ°é¢ã«ã„ã‚‹ã¨ãã®ã¿ï¼‰
+		if (App::GetInputDevice().KeyDown(VK_SPACE))
+		{
+			OnPushA();
+		}
+
+		// ãƒ•ãƒ¬ãƒ¼ãƒ ã®æœ€å¾Œã«åœ°é¢åˆ¤å®šã‚’ãƒªã‚»ãƒƒãƒˆ
+		// æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã§ OnCollisionExecute ãŒå‘¼ã°ã‚Œã‚Œã°å†ã³ true ã«ãªã‚‹
+		m_IsGround = false;
 	}
 
 	void Player::OnPushA()
 	{
-		auto grav = GetComponent<Gravity>();
-		grav->StartJump(Vec3(0, 4.0f, 0));
+		OutputDebugStringA(m_IsGround ? "OnPushA:åœ°é¢ã«ç€åœ°ã—ã¦ã„ã‚‹\n" : "OnPushA:ç©ºä¸­ã ã‚ˆ\n");
+		if (m_IsGround)
+		{
+			auto grav = GetComponent<Gravity>();
+			grav->StartJump(Vec3(0, 4.0f, 0));
+			OutputDebugStringA("ã‚¸ãƒ£ãƒ³ãƒ—ã—ã¾ã—ãŸ\n");
+		}
+	}
+
+	void Player::OnCollisionEnter(const CollisionPair& pair)
+	{
+		OutputDebugStringA("OnCollisionEnterå‘¼ã°ã‚ŒãŸ\n");
+		CheckGroundCollision(pair);
+	}
+
+	void Player::OnCollisionExecute(const CollisionPair& pair)
+	{
+		// ç¶™ç¶šçš„ãªè¡çªã§ã‚‚åœ°é¢åˆ¤å®šã‚’æ›´æ–°
+		CheckGroundCollision(pair);
+	}
+
+	void Player::CheckGroundCollision(const CollisionPair& pair)
+	{
+		// è¡çªæ³•ç·šã®Yæˆåˆ†ã‚’ãƒã‚§ãƒƒã‚¯ï¼ˆä¸Šå‘ãã®æ³•ç·š = åœ°é¢ã¨ã®è¡çªï¼‰
+		// 0.7f ã¯ç´„45åº¦ï¼ˆcos(45Â°) â‰ˆ 0.707ï¼‰
+		// ã“ã‚Œã‚ˆã‚Šå¤§ãã„ = ã‚ˆã‚Šæ°´å¹³ã«è¿‘ã„é¢ = åœ°é¢ã¨ã¿ãªã™
+		if (pair.m_SrcHitNormal.y > 0.7f)
+		{
+			m_IsGround = true;
+
+			char buf[256];
+			sprintf_s(buf, "åœ°é¢æ¤œå‡º: æ³•ç·šY=%.3f\n", pair.m_SrcHitNormal.y);
+			OutputDebugStringA(buf);
+
+			// é‡åŠ›é€Ÿåº¦ã‚’ãƒªã‚»ãƒƒãƒˆï¼ˆåœ°é¢ã«ç€åœ°ï¼‰
+			auto grav = GetComponent<Gravity>();
+			auto gravVel = grav->GetGravityVelocity();
+
+			// ä¸‹å‘ãã®é€Ÿåº¦ã®å ´åˆã®ã¿ãƒªã‚»ãƒƒãƒˆï¼ˆç€åœ°æ™‚ï¼‰
+			if (gravVel.y < 0.0f)
+			{
+				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
+			}
+		}
+		else
+		{
+			char buf[256];
+			sprintf_s(buf, "å£/å¤©äº•æ¤œå‡º: æ³•ç·šY=%.3f\n", pair.m_SrcHitNormal.y);
+			OutputDebugStringA(buf);
+		}
 	}
 }

@@ -24,10 +24,6 @@ namespace shooting {
 	}
 	Collision::~Collision() {}
 
-	bool Collision::GetFixed() const
-	{
-		return m_Fixed;
-	}
 	bool Collision::IsFixed() const
 	{
 		return m_Fixed;
@@ -236,6 +232,15 @@ namespace shooting {
 			m_SleepCheckWorldMatrix = WorldMat;
 			m_SleepCheckTimer = 0.0f;
 		}
+	}
+
+	bool Collision::IsDebugDraw() const
+	{
+		return m_IsDebugDraw;
+	}
+	void Collision::SetDebugDraw(bool b)
+	{
+		m_IsDebugDraw = b;
 	}
 
 	//ëÄçÏ

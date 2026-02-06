@@ -644,7 +644,5 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateIcosahedron(ID3D12GraphicsCommandList* pCommandList, float size);
-
-
 	};
 }

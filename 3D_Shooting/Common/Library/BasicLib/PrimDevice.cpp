@@ -1,6 +1,25 @@
+//*********************************************************
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//*********************************************************
+
+/*!
+@file PrimDevice.cpp
+@brief デバイス親クラス　実体
+@copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
+ MIT License URL: https://opensource.org/license/mit
+*/
 #include "stdafx.h"
 
 namespace shooting {
+
+	using namespace Microsoft::WRL;
 
 	PrimDevice::PrimDevice(UINT width, UINT height, std::wstring name) :
 		m_width(width),

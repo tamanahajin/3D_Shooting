@@ -52,6 +52,9 @@
     <Filter Include="Libs\StandardLib\Shaders">
       <UniqueIdentifier>{88bcc0ef-e470-456a-b536-fc989b8b6f02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="シェーダー">
+      <UniqueIdentifier>{6403bb8b-604f-467b-b20a-ea2eb530326b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainCamera.cpp">

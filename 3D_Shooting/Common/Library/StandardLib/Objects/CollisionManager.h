@@ -9,6 +9,9 @@
 
 namespace shooting {
 
+	/// <summary>
+	/// 衝突ペアの情報を保持する構造体。
+	/// </summary>
 	struct CollisionPair {
 		std::weak_ptr<Collision> m_Src;
 		std::weak_ptr<Collision> m_Dest;
@@ -246,11 +249,19 @@ namespace shooting {
 		float GetMiscPerformanceTime() const;
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief 一回のターンにおけるコリジョン判定数を得る
+		@brief 一回のフレームにおけるコリジョン判定数を得る
 		@return	ピースサイズ
 		*/
 		//--------------------------------------------------------------------------------------
 		UINT GetCollisionCountOfTern() const;
+		/// <summary>
+		/// 現在のフレームのキープされている衝突ペア配列を取得
+		/// </summary>
+		/// <returns>衝突ペア配列の参照</returns>
+		const std::vector<CollisionPair>& GetPairVec() const
+		{
+			return m_CollisionPairVec[m_KeepIndex];
+		}
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief 初期化

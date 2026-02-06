@@ -808,4 +808,3 @@ typedef const XMMATRIX& FXMMATRIX;
 
 
 }
-//end basecross

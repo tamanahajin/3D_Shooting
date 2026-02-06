@@ -89,7 +89,7 @@ namespace shooting {
 		auto rootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault", true);
 		pCommandList->SetGraphicsRootSignature(rootSignature.Get());
 		//PipelineState
-		auto shadowPipeline = PipelineStatePool::GetPipelineState(L"PNTShadowmap", false);
+		auto shadowPipeline = PipelineStatePool::GetPipelineState(L"PNTShadowMap", false);
 		if (shadowPipeline)
 		{
 			pCommandList->SetPipelineState(shadowPipeline.Get());

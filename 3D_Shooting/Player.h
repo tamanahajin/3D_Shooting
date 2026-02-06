@@ -17,6 +17,11 @@ namespace shooting {
 		InputHandler<Player> m_InputHandler;
 		//スピード
 		float m_Speed;
+		// 地面にいるかどうか
+		bool m_IsGround;
+
+		// 地面衝突判定の共通処理
+		void CheckGroundCollision(const CollisionPair& pair);
 	public:
 		Player(const std::shared_ptr<Stage>& StagePtr, const TransParam& param);
 		virtual ~Player() {}
@@ -24,6 +29,10 @@ namespace shooting {
 		virtual void OnCreate()override;
 		//更新時処理
 		virtual void OnUpdate(double elapsedTime);
+		//衝突開始時処理
+		virtual void OnCollisionEnter(const CollisionPair& pair)override;
+		//衝突継続時処理
+		virtual void OnCollisionExecute(const CollisionPair& pair)override;
 		//Aボタン
 		void OnPushA();
 		//Bボタン

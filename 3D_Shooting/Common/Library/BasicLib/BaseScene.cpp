@@ -492,7 +492,8 @@ namespace shooting {
 		RegisterMesh(L"DEFAULT_CUBE", mesh);
 		mesh = BaseMesh::CreateSphere(pCommandList, 1.0f, 18);
 		RegisterMesh(L"DEFAULT_SPHERE", mesh);
-
+		mesh = BaseMesh::CreateCapsule(pCommandList, 1.0f, 1.0f, 16);
+		RegisterMesh(L"DEFAULT_CAPSULE", mesh);
 
 
 	}

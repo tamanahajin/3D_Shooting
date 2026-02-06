@@ -8,6 +8,9 @@
 
 namespace shooting {
 
+	/// <summary>
+	/// 空間分割による衝突判定の最適化のために使用される、4分木構造のノードを表す構造体
+	/// </summary>
 	struct CollisionPiece {
 		CollisionPiece* m_Children[4];
 		AABB m_AABB;
@@ -442,7 +445,7 @@ namespace shooting {
 
 	void CollisionManager::OnUpdate(double elapsedTime)
 	{
-		//keepのチェック
+		// 1.キープされているペアをチェック
 		m_TempKeepVec.clear();
 		m_TempExitVec.clear();
 		for (auto& v : m_CollisionPairVec[m_KeepIndex])
