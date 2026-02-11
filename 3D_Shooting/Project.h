@@ -16,3 +16,8 @@
 #include "Character.h"
 #include "Player.h"
 #include "GameStage.h"
+#include "IBullet.h"
+#include "Bullet.h"
+#include "IBulletPool.h"
+#include "BulletPool.h"
+#include "BulletManager.h"

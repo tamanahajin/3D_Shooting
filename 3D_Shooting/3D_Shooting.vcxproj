@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Common\Library\BasicLib\App.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BaseDevice.cpp" />
@@ -60,6 +62,10 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletManager.h" />
+    <ClInclude Include="BulletPool.h" />
+    <ClInclude Include="BulletType.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Common\Library\BasicLib\App.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseCommon.h" />
@@ -105,6 +111,8 @@
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h" />
     <ClInclude Include="Common\Library\StandardLib\StandardInclude.h" />
     <ClInclude Include="GameStage.h" />
+    <ClInclude Include="IBullet.h" />
+    <ClInclude Include="IBulletPool.h" />
     <ClInclude Include="MainCamera.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Project.h" />

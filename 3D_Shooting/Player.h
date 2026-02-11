@@ -19,11 +19,13 @@ namespace shooting {
 		float m_Speed;
 		// ’n–Ê‚É‚¢‚é‚©‚Ç‚¤‚©
 		bool m_IsGround;
+		// ’e”­ËŠÔŠu
+		double m_ShotCool = 0.0;
 
 		// ’n–ÊÕ“Ë”»’è‚Ì‹¤’Êˆ—
 		void CheckGroundCollision(const CollisionPair& pair);
 	public:
-		Player(const std::shared_ptr<Stage>& StagePtr, const TransParam& param);
+		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}
 		//\’zˆ—
 		virtual void OnCreate()override;

@@ -55,6 +55,12 @@
     <Filter Include="シェーダー">
       <UniqueIdentifier>{6403bb8b-604f-467b-b20a-ea2eb530326b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Bullet">
+      <UniqueIdentifier>{f05ee6fa-cae5-4167-8df6-785171611ce2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Bullet">
+      <UniqueIdentifier>{e4cd0e38-f530-41e6-9762-5245a69ee509}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainCamera.cpp">
@@ -167,6 +173,12 @@
     </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>ソース ファイル\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletManager.cpp">
+      <Filter>ソース ファイル\Bullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -325,6 +337,24 @@
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IBullet.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletType.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletPool.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletManager.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="IBulletPool.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

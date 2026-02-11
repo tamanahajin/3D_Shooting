@@ -158,22 +158,44 @@ namespace shooting {
 		// フレームの最後に地面判定をリセット
 		// 次フレームで OnCollisionExecute が呼ばれれば再び true になる
 		m_IsGround = false;
+
+		// 発射クールダウン更新
+		m_ShotCool -= elapsedTime;
+
+		const auto& input = App::GetInputDevice();
+		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
+
+		if (fireInput && m_ShotCool <= 0.0)
+		{
+			auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
+			if (bulletMgr)
+			{
+				auto trans = GetComponent<Transform>();
+
+				// 銃口位置（前方＋少し上）
+				Vec3 muzzle = trans->GetPosition()
+					+ trans->GetForward() * 0.8f
+					+ Vec3(0.0f, 0.25f, 0.0f);
+
+				Quat rot = trans->GetTransParam().quaternion;
+
+				bulletMgr->Fire<DefaultBullet>(muzzle, rot);
+				m_ShotCool = 0.12; // 連射間隔（好みで調整）
+			}
+		}
 	}
 
 	void Player::OnPushA()
 	{
-		OutputDebugStringA(m_IsGround ? "OnPushA:地面に着地している\n" : "OnPushA:空中だよ\n");
 		if (m_IsGround)
 		{
 			auto grav = GetComponent<Gravity>();
 			grav->StartJump(Vec3(0, 4.0f, 0));
-			OutputDebugStringA("ジャンプしました\n");
 		}
 	}
 
 	void Player::OnCollisionEnter(const CollisionPair& pair)
 	{
-		OutputDebugStringA("OnCollisionEnter呼ばれた\n");
 		CheckGroundCollision(pair);
 	}
 
@@ -192,10 +214,6 @@ namespace shooting {
 		{
 			m_IsGround = true;
 
-			char buf[256];
-			sprintf_s(buf, "地面検出: 法線Y=%.3f\n", pair.m_SrcHitNormal.y);
-			OutputDebugStringA(buf);
-
 			// 重力速度をリセット（地面に着地）
 			auto grav = GetComponent<Gravity>();
 			auto gravVel = grav->GetGravityVelocity();
@@ -205,12 +223,6 @@ namespace shooting {
 			{
 				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
 			}
-		}
-		else
-		{
-			char buf[256];
-			sprintf_s(buf, "壁/天井検出: 法線Y=%.3f\n", pair.m_SrcHitNormal.y);
-			OutputDebugStringA(buf);
 		}
 	}
 }

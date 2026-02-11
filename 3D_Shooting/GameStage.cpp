@@ -34,7 +34,6 @@ namespace shooting {
 
 	}
 
-
 	void GameStage::OnCreate()
 	{
 		//ƒJƒƒ‰‚Æƒ‰ƒCƒg‚Ìİ’è
@@ -72,6 +71,9 @@ namespace shooting {
 		param.quaternion = Quat();
 		param.position = Vec3(0.0f, 0.325f, 0.0f);
 		AddGameObject<Player>(param);
+
+		// ’eŠÇ—
+		auto bulletMgr = AddGameObject<BulletManager>();
 	}
 
 
