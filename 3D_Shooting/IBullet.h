@@ -13,7 +13,5 @@ namespace shooting {
 		{
 		}
 		virtual ~IBullet() {}
-		//XVˆ—
-		//virtual void OnUpdate(double elapsedTime);
 	};
 }

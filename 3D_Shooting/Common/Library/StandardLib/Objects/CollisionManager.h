@@ -13,11 +13,17 @@ namespace shooting {
 	/// 衝突ペアの情報を保持する構造体。
 	/// </summary>
 	struct CollisionPair {
+		// 衝突元のコリジョンへの弱参照
 		std::weak_ptr<Collision> m_Src;
+		// 衝突先のコリジョンへの弱参照
 		std::weak_ptr<Collision> m_Dest;
+		// 衝突法線ベクトル
 		Vec3 m_SrcHitNormal;
+		// 計算された衝突点
 		Vec3 m_CalcHitPoint;
+		// 衝突元の計算に使う中心点
 		Vec3 m_SrcCalcHitCenter;
+		// 衝突先の計算に使う中心点
 		Vec3 m_DestCalcHitCenter;
 		CollisionPair() :
 			m_SrcHitNormal(0),

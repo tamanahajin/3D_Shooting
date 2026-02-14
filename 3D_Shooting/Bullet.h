@@ -22,6 +22,10 @@ namespace shooting {
 		virtual void OnCreate()override;
 		//更新時処理
 		virtual void OnUpdate(double elapsedTime);
+		//衝突開始時処理
+		virtual void OnCollisionEnter(const CollisionPair& pair)override;
+		//衝突継続時処理
+		virtual void OnCollisionExecute(const CollisionPair& pair)override;
 
 		void ResetLife() noexcept
 		{

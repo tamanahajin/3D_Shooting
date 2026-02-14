@@ -29,6 +29,10 @@ namespace shooting {
 		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
 		ptrDraw->SetOwnShadowActive(true);
+
+		auto dmg = AddComponent<DamageDealer>();
+		dmg->SetDamage(3);
+		dmg->SetDestroyOnHit(true);
 	}
 
 	void DefaultBullet::OnUpdate(double elapsedTime)
@@ -56,5 +60,48 @@ namespace shooting {
 	void DefaultBullet::SetActive(bool active) noexcept
 	{
 		m_IsActive = active;
+	}
+
+	void DefaultBullet::OnCollisionEnter(const CollisionPair& pair)
+	{
+		if (!m_IsActive) return;
+
+		// --- 例：プレイヤーに当たったら無視したい場合（任意） ---
+		// 相手オブジェクトを取れるなら、タグで弾消し対象を絞るのが安全
+		// auto other = pair.m_DstObject;  // ←ここは CollisionPair に合わせて
+		// if (other && other->FindTag(L"Player")) return;
+
+		auto other = pair.m_Dest.lock();
+		if(!other) return;
+
+		auto otherObj = other->GetGameObject();
+		if (!otherObj) return;
+
+		// 相手がHPを持っているならダメージ
+		if (auto hp = otherObj->GetComponent<Health>(false))
+		{
+			DamageInfo info;
+			info.m_Damage = GetComponent<DamageDealer>()->GetDamage();
+			info.m_Instigator = GetThis<GameObject>();
+			// info.hitPoint = pair...;
+			// info.hitNormal = pair...;
+
+			hp->ApplyDamage(info);
+		}
+
+		// 当たったら消す
+		SetActive(false);
+
+		// すぐ見えなくしたいなら（次フレームのプール回収を待たない）
+		//SetUpdateActive(false);
+		//if (auto trans = GetComponent<Transform>())
+		//{
+		//	trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
+		//}
+	}
+
+	void DefaultBullet::OnCollisionExecute(const CollisionPair& pair)
+	{
+		//OnCollisionEnter(pair);
 	}
 }

@@ -95,7 +95,8 @@ namespace shooting {
 	{
 		auto ptrTransform = GetComponent<Transform>();
 		ptrTransform->SetPosition(m_StartPos);
-		ptrTransform->SetScale(0.125f, 0.25f, 0.25f);
+		//ptrTransform->SetScale(0.125f, 0.25f, 0.25f);
+		ptrTransform->SetScale(0.25f, 0.25f, 0.25f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
 		//オブジェクトのグループを得る
@@ -103,7 +104,8 @@ namespace shooting {
 		//グループに自分自身を追加
 		group->IntoGroup(GetThis<SeekObject>());
 		//Obbの衝突判定をつける
-		auto ptrColl = AddComponent<CollisionObb>();
+		//auto ptrColl = AddComponent<CollisionObb>();
+		 auto ptrColl = AddComponent<CollisionCapsule>();
 		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
@@ -111,14 +113,32 @@ namespace shooting {
 		PtrSep->SetGameObjectGroup(group);
 		//影をつける
 		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_CUBE");
+		ptrShadow->AddBaseMesh(L"DEFAULT_CAPSULE");
 
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->SetFogEnabled(true);
-		ptrDraw->AddBaseMesh(L"DEFAULT_CUBE");
+		ptrDraw->AddBaseMesh(L"DEFAULT_CAPSULE");
 		ptrDraw->AddBaseTexture(L"TRACE_TX");
 		//透明処理をする
 		SetAlphaActive(true);
+		AddTag(L"Enemy");
+		auto hp = AddComponent<Health>();
+		hp->SetMaxHP(20);
+		hp->SetHP(20);
+
+		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
+		{
+			// 被弾演出、無敵時間開始、SE など
+			 //self->StartInvincible(1.0);
+		};
+
+		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
+		{
+			// 死亡処理（リトライ、ゲームオーバー、死亡演出など）
+			// self->SetUpdateActive(false);
+			self->GetStage()->RemoveGameObject(self);
+		};
+
 
 		//ステートマシンの構築
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));

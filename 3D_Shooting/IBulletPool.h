@@ -12,7 +12,6 @@ namespace shooting {
 		}
 		virtual ~IBulletPool() = default;
 		virtual void OnUpdate(double elapsedTime) override = 0;
-		//virtual void Add() = 0;
 		virtual void AllClear() = 0;
 	};
 }

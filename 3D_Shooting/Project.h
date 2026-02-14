@@ -21,3 +21,4 @@
 #include "IBulletPool.h"
 #include "BulletPool.h"
 #include "BulletManager.h"
+#include "DamageInfo.h"

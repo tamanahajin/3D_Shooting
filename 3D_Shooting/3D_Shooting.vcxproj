@@ -42,7 +42,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Collision.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Component.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Transform.cpp" />
@@ -97,7 +99,9 @@
     <ClInclude Include="Common\Library\StandardLib\Components\BcStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Collision.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Component.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Transform.h" />
@@ -110,6 +114,7 @@
     <ClInclude Include="Common\Library\StandardLib\Objects\StateMachine.h" />
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h" />
     <ClInclude Include="Common\Library\StandardLib\StandardInclude.h" />
+    <ClInclude Include="DamageInfo.h" />
     <ClInclude Include="GameStage.h" />
     <ClInclude Include="IBullet.h" />
     <ClInclude Include="IBulletPool.h" />

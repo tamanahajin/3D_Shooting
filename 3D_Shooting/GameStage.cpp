@@ -20,10 +20,10 @@ namespace shooting {
 		//配列の初期化
 		//配列の初期化
 		std::vector<Vec3> vec = {
-			{ 0, 0.125f, 10.0f },
-			{ 10.0f, 0.125f, 0.0f },
-			{ -10.0f, 0.125f, 0.0f },
-			{ 0, 0.125f, -10.0f },
+			{ 0, 0.525f, 10.0f },
+			{ 10.0f, 0.525f, 0.0f },
+			{ -10.0f, 0.525f, 0.0f },
+			{ 0, 0.525f, -10.0f },
 		};
 
 		//配置オブジェクトの作成
@@ -73,7 +73,7 @@ namespace shooting {
 		AddGameObject<Player>(param);
 
 		// 弾管理
-		auto bulletMgr = AddGameObject<BulletManager>();
+		AddGameObject<BulletManager>();
 	}
 
 

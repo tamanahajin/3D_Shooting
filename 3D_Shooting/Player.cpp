@@ -140,6 +140,22 @@ namespace shooting {
 			ptrCamera->SetTargetObject(GetThis<GameObject>());
 			ptrCamera->SetTargetToAt(Vec3(0, 0.25f, 0));
 		}
+
+		auto hp = AddComponent<Health>();
+		hp->SetMaxHP(20);
+		hp->SetHP(20);
+
+		//hp->m_onDamaged = [self = GetThis<Player>()](const DamageInfo& info)
+		//	{
+		//		// 被弾演出、無敵時間開始、SE など
+		//		// self->StartInvincible(1.0);
+		//	};
+
+		//hp->m_onDeath = [self = GetThis<Player>()](const DamageInfo& info)
+		//	{
+		//		// 死亡処理（リトライ、ゲームオーバー、死亡演出など）
+		//		// self->SetUpdateActive(false);
+		//	};
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -174,8 +190,8 @@ namespace shooting {
 
 				// 銃口位置（前方＋少し上）
 				Vec3 muzzle = trans->GetPosition()
-					+ trans->GetForward() * 0.8f
-					+ Vec3(0.0f, 0.25f, 0.0f);
+					+ trans->GetForward() * 0.2f
+					+ Vec3(0.0f, 0.055f, 0.0f);
 
 				Quat rot = trans->GetTransParam().quaternion;
 

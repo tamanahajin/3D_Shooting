@@ -180,6 +180,12 @@
     <ClCompile Include="BulletManager.cpp">
       <Filter>ソース ファイル\Bullet</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -355,6 +361,15 @@
     </ClInclude>
     <ClInclude Include="IBulletPool.h">
       <Filter>ヘッダー ファイル\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\Health.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageInfo.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

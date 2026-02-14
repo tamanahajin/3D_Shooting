@@ -2476,7 +2476,13 @@ namespace shooting {
 				return  (Mat4x4)XMMatrixTranspose(mat);
 			}
 
-
+			template<typename T>
+			static T Clamp(const T& v, const T& lo, const T& hi)
+			{
+				if (v < lo) return lo;
+				if (hi < v) return hi;
+				return v;
+			}
 
 
 			//static physx::PxVec3 ToPxVec3(const Vec3& v) {

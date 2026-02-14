@@ -33,7 +33,6 @@ namespace shooting {
 		std::vector<uint32_t> m_FreeIndices;     // 再利用可能なインデックス
 		
 	public:
-		//BulletPool(const std::shared_ptr<Stage>& stagePtr);
 		explicit BulletPool(const std::shared_ptr<Stage>& stagePtr)
 			: IBulletPool(stagePtr)
 		{
@@ -92,6 +91,7 @@ namespace shooting {
 				}
 			}
 		}
+
 		void AllClear() override
 		{
 			m_FreeIndices.clear();
@@ -138,7 +138,7 @@ namespace shooting {
 
 				if (auto db = std::dynamic_pointer_cast<DefaultBullet>(slot.bullet))
 				{
-					db->ResetLife();   // ← 下で追加する関数
+					db->ResetLife();
 					db->SetActive(true);
 				}
 
