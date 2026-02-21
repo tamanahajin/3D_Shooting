@@ -116,5 +116,20 @@ namespace shooting {
 		virtual void Exit(const std::shared_ptr<SeekObject>& Obj)override;
 	};
 
+	//--------------------------------------------------------------------------------------
+	//	‹ó’†•‚—V“G
+	//--------------------------------------------------------------------------------------
+	class FloatingEnemy : public GameObject {
+		Vec3 m_StartPos;
+		Vec3 m_MoveOffset;
+		double m_TotalTime;
+		float m_FloatSpeed;
+		float m_MoveRange;
+	public:
+		FloatingEnemy(const std::shared_ptr<Stage>& stage, const Vec3& startPos, float floatSpeed = 0.5f, float moveRange = 2.0f);
+		virtual ~FloatingEnemy();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override;
+	};
 
 }

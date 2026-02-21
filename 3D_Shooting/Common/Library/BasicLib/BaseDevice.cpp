@@ -453,6 +453,7 @@ namespace shooting {
 
 				if (m_enableUI)
 				{
+					m_uiLayer->SetCrosshairEnabled(true);
 					m_uiLayer->Render(m_frameIndex);
 				}
 

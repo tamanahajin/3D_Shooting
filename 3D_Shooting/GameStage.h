@@ -28,6 +28,8 @@ namespace shooting {
 		//追いかけるオブジェクトの作成
 		void CreateSeekObject();
 
+		void CreateFloatingEnemies();
+
 		virtual void OnCreate()override;
 	};
 

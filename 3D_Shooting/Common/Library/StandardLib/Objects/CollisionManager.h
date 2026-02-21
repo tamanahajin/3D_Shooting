@@ -34,6 +34,17 @@ namespace shooting {
 		}
 	};
 
+	struct RaycastHit
+	{
+		std::weak_ptr<GameObject> m_Object;
+		std::weak_ptr<Collision>  m_Collision;
+		Vec3  m_Point{ 0,0,0 };
+		Vec3  m_Normal{ 0,1,0 };
+		float m_Distance{ 0.0f };
+	};
+
+	
+
 	//--------------------------------------------------------------------------------------
 	//	衝突判定マネージャ
 	//--------------------------------------------------------------------------------------
@@ -268,6 +279,28 @@ namespace shooting {
 		{
 			return m_CollisionPairVec[m_KeepIndex];
 		}
+
+		// dir は正規化して渡す想定（中でも保険で normalize します）
+		bool Raycast(
+			const Vec3& origin,
+			const Vec3& dir,
+			float maxDist,
+			RaycastHit& outHit,
+			const std::shared_ptr<GameObject>& ignoreObj = nullptr
+		);
+
+		/// <summary>
+		/// 太い線の当たり判定
+		/// </summary>
+		bool SphereCast(
+			const Vec3& origin,
+			const Vec3& dir,
+			float maxDist,
+			float radius,
+			RaycastHit& outHit,
+			const std::shared_ptr<GameObject>& ignoreObj = nullptr
+		);
+
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief 初期化

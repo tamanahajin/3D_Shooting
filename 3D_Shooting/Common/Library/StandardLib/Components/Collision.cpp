@@ -183,7 +183,7 @@ namespace shooting {
 		{
 			return;
 		}
-		m_SleepTime = true;
+		m_SleepTime = f;
 	}
 
 	void Collision::SleepCheckSet()

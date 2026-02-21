@@ -438,6 +438,346 @@ namespace shooting {
 		}
 	}
 
+	bool CollisionManager::Raycast(
+		const Vec3& origin,
+		const Vec3& dir,
+		float maxDist,
+		RaycastHit& outHit,
+		const std::shared_ptr<GameObject>& ignoreObj
+	)
+	{
+		if (maxDist <= 0.0f) return false;
+
+		Vec3 nDir = dir;
+		nDir.normalize();
+
+		// レイを「超小さい球のスイープ」として扱う（ゼロ半径だと数値的に不安定な実装もあるので微小値）
+		const float kRayRadius = 0.001f;
+
+		// elapsedTime=1.0 として、velocity を「この1秒で maxDist 進む速度」にする
+		const float kElapsed = 1.0f;
+		const Vec3  rayVel = nDir * maxDist;
+
+		SPHERE rayStart(origin, kRayRadius);
+
+		bool  hitAny = false;
+		float bestDist = maxDist + 1.0f;
+
+		auto& objVec = GetStage()->GetGameObjectVec();
+
+		for (auto& obj : objVec)
+		{
+			if (!obj) continue;
+			if (!obj->IsUpdateActive()) continue;
+			if (ignoreObj && obj == ignoreObj) continue;
+
+			auto col = obj->GetComponent<Collision>(false);
+			if (!col) continue;
+			if (!col->IsUpdateActive()) continue;
+
+			float hitTime = 0.0f;
+
+			// --- Sphere ---
+			if (auto sp = std::dynamic_pointer_cast<CollisionSphere>(col))
+			{
+				SPHERE target = sp->GetSphere();
+				if (HitTest::CollisionTestSphereSphere(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					Vec3 n = p - target.m_Center;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					Vec3 hitPoint = target.m_Center + n * target.m_Radius;
+					//float dist = bsmUtil::length(hitPoint - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = hitPoint;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			// --- Capsule ---
+			if (auto cap = std::dynamic_pointer_cast<CollisionCapsule>(col))
+			{
+				CAPSULE target = cap->GetCapsule();
+				if (HitTest::CollisionTestSphereCapsule(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					// 既存の最近接点計算を流用（点pの最近接点retが「当たり点」扱い）
+					SPHERE chk(p, kRayRadius);
+					Vec3 ret;
+					HitTest::SPHERE_CAPSULE(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			// --- OBB ---
+			if (auto obb = std::dynamic_pointer_cast<CollisionObb>(col))
+			{
+				OBB target = obb->GetObb();
+				if (HitTest::CollisionTestSphereObb(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					SPHERE chk(p, kRayRadius);
+					Vec3 ret;
+					HitTest::SPHERE_OBB(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			// --- Rect(Plane) ---
+			if (auto rc = std::dynamic_pointer_cast<CollisionRect>(col))
+			{
+				COLRECT target = rc->GetColRect();
+				if (HitTest::CollisionTestSphereRect(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					SPHERE chk(p, kRayRadius);
+					Vec3 ret;
+					HitTest::SPHERE_COLRECT(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+		}
+
+		return hitAny;
+	}
+
+	bool CollisionManager::SphereCast(
+		const Vec3& origin,
+		const Vec3& dir,
+		float maxDist,
+		float radius,
+		RaycastHit& outHit,
+		const std::shared_ptr<GameObject>& ignoreObj
+	)
+	{
+		if (maxDist <= 0.0f) return false;
+
+		Vec3 nDir = dir;
+		nDir.normalize();
+
+		const float kRadius = (radius > 0.0f) ? radius : 0.001f;
+
+		const float kElapsed = 1.0f;
+		const Vec3  rayVel = nDir * maxDist;
+
+		SPHERE rayStart(origin, kRadius);
+
+		bool  hitAny = false;
+		float bestDist = maxDist + 1.0f;
+
+		auto& objVec = GetStage()->GetGameObjectVec();
+
+		for (auto& obj : objVec)
+		{
+			if (!obj) continue;
+			if (!obj->IsUpdateActive()) continue;
+			if (ignoreObj && obj == ignoreObj) continue;
+
+			auto col = obj->GetComponent<Collision>(false);
+			if (!col) continue;
+			if (!col->IsUpdateActive()) continue;
+
+			float hitTime = 0.0f;
+
+			if (auto sp = std::dynamic_pointer_cast<CollisionSphere>(col))
+			{
+				SPHERE target = sp->GetSphere();
+				if (HitTest::CollisionTestSphereSphere(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					Vec3 n = p - target.m_Center;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					Vec3 hitPoint = target.m_Center + n * target.m_Radius;
+					//float dist = bsmUtil::length(hitPoint - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = hitPoint;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			if (auto cap = std::dynamic_pointer_cast<CollisionCapsule>(col))
+			{
+				CAPSULE target = cap->GetCapsule();
+				if (HitTest::CollisionTestSphereCapsule(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					SPHERE chk(p, kRadius);
+					Vec3 ret;
+					HitTest::SPHERE_CAPSULE(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			if (auto obb = std::dynamic_pointer_cast<CollisionObb>(col))
+			{
+				OBB target = obb->GetObb();
+				if (HitTest::CollisionTestSphereObb(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					SPHERE chk(p, kRadius);
+					Vec3 ret;
+					HitTest::SPHERE_OBB(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+
+			if (auto rc = std::dynamic_pointer_cast<CollisionRect>(col))
+			{
+				COLRECT target = rc->GetColRect();
+				if (HitTest::CollisionTestSphereRect(rayStart, rayVel, target, 0.0f, kElapsed, hitTime))
+				{
+					Vec3 p = origin + rayVel * hitTime;
+
+					SPHERE chk(p, kRadius);
+					Vec3 ret;
+					HitTest::SPHERE_COLRECT(chk, target, ret);
+
+					Vec3 n = p - ret;
+					if (bsmUtil::dot(n, n) < 1e-8f) n = -nDir;
+					n.normalize();
+
+					//float dist = bsmUtil::length(ret - origin);
+					const float dist = hitTime * maxDist;
+
+					if (dist < bestDist)
+					{
+						bestDist = dist;
+						outHit.m_Object = obj;
+						outHit.m_Collision = col;
+						outHit.m_Point = ret;
+						outHit.m_Normal = n;
+						outHit.m_Distance = dist;
+						hitAny = true;
+					}
+				}
+				continue;
+			}
+		}
+
+		return hitAny;
+	}
+
 	void CollisionManager::OnCreate()
 	{
 		pImpl->m_MiscPerformance.SetActive(true);

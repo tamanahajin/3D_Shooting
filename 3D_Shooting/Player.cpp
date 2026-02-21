@@ -131,15 +131,20 @@ namespace shooting {
 		//透明処理
 		SetAlphaActive(true);
 		//カメラを得る
-		auto ptrCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
+		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
+		m_CollisionManager = GetStage()->GetCollisionManager();
+		m_BulletManager = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
+		//m_BulletManager = GetStage()->GetBulletManager();
 
-		if (ptrCamera)
+		if (m_MainCamera)
 		{
 			//MainCameraである
 			//MainCameraに注目するオブジェクト（プレイヤー）の設定
-			ptrCamera->SetTargetObject(GetThis<GameObject>());
-			ptrCamera->SetTargetToAt(Vec3(0, 0.25f, 0));
+			m_MainCamera->SetTargetObject(GetThis<GameObject>());
+			m_MainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
 		}
+
+		AddTag(L"Player");
 
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
@@ -184,19 +189,42 @@ namespace shooting {
 		if (fireInput && m_ShotCool <= 0.0)
 		{
 			auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-			if (bulletMgr)
+			if (bulletMgr && m_CollisionManager)
 			{
 				auto trans = GetComponent<Transform>();
 
-				// 銃口位置（前方＋少し上）
+				// 銃口
 				Vec3 muzzle = trans->GetPosition()
 					+ trans->GetForward() * 0.2f
 					+ Vec3(0.0f, 0.055f, 0.0f);
 
-				Quat rot = trans->GetTransParam().quaternion;
+				// カメラレイ（クロスヘア=画面中央）
+				Vec3 rayOrigin = m_MainCamera->GetEye();
+				Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
+				rayDir.normalize();
 
-				bulletMgr->Fire<DefaultBullet>(muzzle, rot);
-				m_ShotCool = 0.12; // 連射間隔（好みで調整）
+				// まず「カメラ → 前方」へRaycastして狙い点を作る
+				const float aimMaxDist = 1000; // 既存
+				RaycastHit hit;
+				Vec3 aimPoint = rayOrigin + rayDir * aimMaxDist;
+
+				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>()))
+				{
+					aimPoint = hit.m_Point;
+				}
+
+				// 弾の方向は「銃口 → aimPoint」
+				Vec3 shotDir = aimPoint - muzzle;
+				if (shotDir.length() < 1e-6f) return;
+				shotDir.normalize();
+
+				// ここが重要：rot をプレイヤーの回転のままにしない
+				//Quat rot = bsmUtil::MakeBulletQuatFromDir(shotDir); // 下に例
+				const Vec3 localForward = Vec3(0, 0, 1); // まずこれを試す（前=-Z想定）
+				Quat rot = bsmUtil::MakeFromToQuat(localForward, shotDir);
+
+				bulletMgr->FireByType(m_CurrentBullet, muzzle, rot);
+				m_ShotCool = 0.12;
 			}
 		}
 	}

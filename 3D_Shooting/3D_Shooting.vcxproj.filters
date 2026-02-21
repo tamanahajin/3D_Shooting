@@ -186,6 +186,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\DamageEffect.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -371,6 +374,9 @@
     <ClInclude Include="DamageInfo.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">
@@ -402,6 +408,9 @@
     </None>
     <None Include="Common\Library\StandardLib\Shaders\SpINCStructs.hlsli">
       <Filter>Libs\StandardLib\Shaders</Filter>
+    </None>
+    <None Include="Shader\DamageEffect.hlsli">
+      <Filter>シェーダー</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -476,6 +485,12 @@
     </FxCompile>
     <FxCompile Include="Common\Library\StandardLib\Shaders\VSShadowmap.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PSDamageEffect.hlsl">
+      <Filter>シェーダー</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VSDamageEffect.hlsl">
+      <Filter>シェーダー</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

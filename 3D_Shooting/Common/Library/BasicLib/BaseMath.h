@@ -2484,6 +2484,88 @@ namespace shooting {
 				return v;
 			}
 
+			// MIN関数
+			template<typename T>
+			static T Min(const T& v, const T& o)
+			{
+				if (v < o) return v;
+				return o;
+			}
+
+			// MAX関数
+			template<typename T>
+			static T Max(const T& v, const T& o)
+			{
+				if (v < o) return o;
+				return v;
+			}
+
+			static Quat MakeBulletQuatFromDir(const Vec3& dir)
+			{
+				Vec3 d = dir;
+				d.normalize();
+
+				// 「-Z が前」のとき、d=(0,0,-1) で yaw=0 になる
+				float yaw = std::atan2(d.x, -d.z);
+				float pitch = std::asin(bsmUtil::Clamp(d.y, -1.0f, 1.0f));
+
+				Quat qYaw;   qYaw.rotationAxis(Vec3(0, 1, 0), yaw);
+				Quat qPitch; qPitch.rotationAxis(Vec3(1, 0, 0), pitch);
+
+				Quat q = qPitch * qYaw;
+				q.normalize();
+				return q;
+			}
+
+			static Quat MakeFromToQuat(const Vec3& from, const Vec3& to)
+			{
+				Vec3 f = from; f.normalize();
+				Vec3 t = to;   t.normalize();
+
+				float c = bsmUtil::dot(f, t);
+
+				// ほぼ同じ方向
+				if (c > 0.9999f)
+				{
+					Quat q; q.identity(); // もしidentity関数が無ければ axis回転0で
+					return q;
+				}
+
+				// ほぼ逆向き
+				if (c < -0.9999f)
+				{
+					Vec3 axis = bsmUtil::cross(Vec3(0, 1, 0), f);
+					if (bsmUtil::length(axis) < 1e-6f)
+					{
+						axis = bsmUtil::cross(Vec3(1, 0, 0), f);
+					}
+					axis.normalize();
+					Quat q;
+					q.rotationAxis(axis, XM_PI);
+					q.normalize();
+					return q;
+				}
+
+				Vec3 axis = bsmUtil::cross(f, t);
+				axis.normalize();
+
+				float angle = std::acos(bsmUtil::Clamp(c, -1.0f, 1.0f));
+
+				Quat q;
+				q.rotationAxis(axis, angle);
+				q.normalize();
+				return q;
+			}
+
+			static inline bool IsFiniteFloat(float v)
+			{
+				return std::isfinite(v);
+			}
+
+			static inline bool IsFiniteVec3(const Vec3& v)
+			{
+				return IsFiniteFloat(v.x) && IsFiniteFloat(v.y) && IsFiniteFloat(v.z);
+			}
 
 			//static physx::PxVec3 ToPxVec3(const Vec3& v) {
 			//	return physx::PxVec3(v.x, v.y, v.z);

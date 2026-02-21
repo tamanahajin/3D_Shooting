@@ -1,5 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include "IBulletPool.h"
+#include "BulletType.h"
+#include "Bullet.h"
 
 namespace shooting {
 
@@ -50,16 +53,30 @@ namespace shooting {
 		}
 
 		// プレイヤーなどから呼ぶ「発射API」
-		/*template <class BulletType>
-		void Fire(const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(1, 1, 1))
-		{
-			auto* pool = GetOrCreatePool<BulletType>();
-			pool->Spawn(pos, rot, scale);
-		}*/
 		template <class BulletType>
-		void Fire(const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.2f, 0.2f, 0.2f))
+		void Fire(const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
 		{
 			GetOrCreatePool<BulletType>()->Spawn(pos, rot, scale);
+		}
+
+		// タイプ別発射API
+		void FireByType(BulletType type, const Vec3& pos, const Quat& rot,
+						const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
+		{
+			switch (type)
+			{
+			case BulletType::Default:
+				Fire<DefaultBullet>(pos, rot, scale);
+				break;
+			case BulletType::Bomb:
+				Fire<BombBullet>(pos, rot, scale);
+				break;
+
+				// 他タイプはまだ未実装なら Default にフォールバック
+			default:
+				Fire<DefaultBullet>(pos, rot, scale);
+				break;
+			}
 		}
 	};
 }

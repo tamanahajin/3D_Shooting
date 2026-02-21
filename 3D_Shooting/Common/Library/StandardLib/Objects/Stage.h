@@ -1,6 +1,5 @@
 #pragma once
-#include "IObject.h"
-#include "GameObject.h"
+#include "stdafx.h"
 
 namespace shooting {
 
@@ -25,6 +24,8 @@ namespace shooting {
 
 		// ƒRƒŠƒWƒ‡ƒ“ŠÇ—Ò
 		std::shared_ptr<CollisionManager> m_collisionManager;
+
+		//std::shared_ptr<BulletManager> m_BulletManager;
 	protected:
 		ID3D12Device* m_pDevice;
 		std::shared_ptr<Camera> m_camera;
@@ -94,6 +95,10 @@ namespace shooting {
 		{
 			return m_collisionManager;
 		}
+		//std::shared_ptr<BulletManager> GetBulletManager() const
+		//{
+		//	return m_BulletManager;
+		//}
 		std::vector<std::shared_ptr<GameObject>>& GetGameObjectVec()
 		{
 			return m_gameObjectVec;

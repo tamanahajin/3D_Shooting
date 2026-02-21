@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Project.h"
 
 namespace shooting {
 
@@ -21,9 +22,14 @@ namespace shooting {
 		bool m_IsGround;
 		// ’e”­ËŠÔŠu
 		double m_ShotCool = 0.0;
+		std::shared_ptr<MainCamera> m_MainCamera;
+		std::shared_ptr<CollisionManager> m_CollisionManager;
+		std::shared_ptr<BulletManager> m_BulletManager;
 
 		// ’n–ÊÕ“Ë”»’è‚Ì‹¤’Êˆ—
 		void CheckGroundCollision(const CollisionPair& pair);
+		// Œ»İ‚Ì’eƒ^ƒCƒv
+		BulletType m_CurrentBullet = BulletType::Bomb;
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}

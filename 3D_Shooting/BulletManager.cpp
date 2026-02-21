@@ -15,6 +15,7 @@ namespace shooting {
 
 		// –‘O‚Éƒv[ƒ‹ì¬
 		GetOrCreatePool<DefaultBullet>();
+		GetOrCreatePool<BombBullet>();
 	}
 
 	void BulletManager::OnUpdate(double elapsedTime)

@@ -319,15 +319,15 @@ namespace shooting {
 	Vec3 Transform::GetVelocity() const
 	{
 		// 1. 前回のフレームからの経過時間を取得
-		auto ElapsedTime = (float)Scene::GetElapsedTime();
+		const float dt = bsmUtil::Max(1e-4f, (float)Scene::GetElapsedTime());
 		
 		// 2. 位置の変化量を計算
-		Vec3 Velocity = m_param.position - m_beforeParam.position;
+		Vec3 v = (m_param.position - m_beforeParam.position) / dt;
 		
-		// 3. 時間で割って速度に変換
-		Velocity /= ElapsedTime;
+		if (v.isNaN() || v.isInfinite())
+			return Vec3(0, 0, 0);
 		
-		return Velocity;
+		return v;
 	}
 
 

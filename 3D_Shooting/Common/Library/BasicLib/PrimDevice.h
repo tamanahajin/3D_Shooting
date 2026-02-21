@@ -66,6 +66,23 @@ namespace shooting {
 		void SetWindowBounds(int left, int top, int right, int bottom);
 		std::wstring GetAssetFullPath(LPCWSTR assetName);
 
+		// フレーム確定後に参照するマウス状態
+		struct MouseFrameState
+		{
+			int x = 0;          // 現在座標
+			int y = 0;
+			int deltaX = 0;     // このフレームの移動量（累積確定）
+			int deltaY = 0;
+			int wheelDelta = 0; // このフレームのホイール量（±120の累積）
+			bool hasPos = false;
+		};
+
+		// WindowProc から呼ぶ
+		virtual void OnMouseWheel(int wheelDelta);
+
+		// ゲーム側（カメラなど）から参照する
+		const MouseFrameState& GetMouseFrameState() const { return m_mouseFrame; }
+
 	protected:
 		void GetHardwareAdapter(
 			_In_ IDXGIFactory1* pFactory,
@@ -96,11 +113,26 @@ namespace shooting {
 		// Override to be able to start without Dx11on12 UI for PIX. PIX doesn't support 11 on 12. 
 		bool m_enableUI;
 
+		// 1フレーム分の入力を確定させる（OnUpdateDrawの先頭で呼ぶ）
+		void FlushMouseInputForFrame();
 	private:
 		// Root assets path.
 		std::wstring m_assetsPath;
 
 		// Window title.
 		std::wstring m_title;
+
+		// ---- メッセージで届く入力をここに累積（フレーム開始時に確定→クリア） ----
+		int  m_mouseAccumDX = 0;
+		int  m_mouseAccumDY = 0;
+		int  m_wheelAccum = 0;
+
+		// ---- 最新の絶対座標 ----
+		int  m_mouseX = 0;
+		int  m_mouseY = 0;
+		bool m_mouseHasPos = false;
+
+		// ---- フレーム確定値 ----
+		MouseFrameState m_mouseFrame;
 	};
 }

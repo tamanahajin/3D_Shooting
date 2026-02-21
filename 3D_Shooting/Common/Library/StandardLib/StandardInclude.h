@@ -17,6 +17,7 @@
 //#include "Components/Rigidbody.h"
 #include "Components/Gravity.h"
 #include "Components/Collision.h"
+#include "Components/DamageEffect.h"
 #include "Objects/CollisionManager.h"
 #include "Objects/Stage.h"
 

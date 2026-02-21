@@ -151,6 +151,8 @@ namespace shooting {
 				nullptr,		// We aren't using menus.
 				hInstance,
 				pPrimDevice);
+			//m_inputDevice.SetHwnd(m_hwnd);
+			m_inputDevice.AttachWindow(m_hwnd);
 			SetInitData();
 			//COMの初期化
 			//サウンドなどで使用する
@@ -469,13 +471,33 @@ namespace shooting {
 			return 0;
 
 		case WM_MOUSEMOVE:
-			if (pPrimDevice && static_cast<UINT8>(wParam) == MK_LBUTTON)
+			if (pPrimDevice)
 			{
-				UINT x = LOWORD(lParam);
-				UINT y = HIWORD(lParam);
-				pPrimDevice->OnMouseMove(x, y);
+				const UINT x = LOWORD(lParam);
+				const UINT y = HIWORD(lParam);
+
+				// 右ボタン or 左ボタンで動いたら通知
+				if (wParam & MK_RBUTTON)
+				{
+					pPrimDevice->OnMouseMove(x, y);
+					InvalidateRect(hWnd, nullptr, FALSE);
+				}
+				// 必要なら左も残す
+				else if (wParam & MK_LBUTTON)
+				{
+					pPrimDevice->OnMouseMove(x, y);
+					InvalidateRect(hWnd, nullptr, FALSE);
+				}
 			}
 			return 0;
+
+		case WM_MOUSEWHEEL:
+		{
+			const int delta = GET_WHEEL_DELTA_WPARAM(wParam); // 120単位が基本
+			App::GetInputDevice().AddWheelDelta(delta);
+			InvalidateRect(hWnd, nullptr, FALSE); // WM_PAINT駆動なら必須
+		}
+		return 0;
 
 		case WM_LBUTTONDOWN:
 		{
@@ -491,6 +513,17 @@ namespace shooting {
 			UINT y = HIWORD(lParam);
 			pPrimDevice->OnLeftButtonUp(x, y);
 		}
+		return 0;
+
+		case WM_RBUTTONDOWN:
+			SetCapture(hWnd);
+			InvalidateRect(hWnd, nullptr, FALSE);
+			return 0;
+
+		case WM_RBUTTONUP:
+			ReleaseCapture();
+			InvalidateRect(hWnd, nullptr, FALSE);
+			return 0;
 		return 0;
 
 		case WM_DESTROY:

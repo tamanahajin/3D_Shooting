@@ -4,6 +4,7 @@
 */
 
 #include "stdafx.h"
+#include "DamageEffect.h"
 
 namespace shooting {
 
@@ -389,6 +390,11 @@ namespace shooting {
 			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
 			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+
+			if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
+			{
+				dmg->OnDraw(pCommandList); // 通常描画の後にアウトラインを重ねる
+			}
 		}
 
 	}

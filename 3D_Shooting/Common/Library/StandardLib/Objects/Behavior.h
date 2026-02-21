@@ -2,8 +2,6 @@
 #include "IObject.h"
 #include "BaseMath.h"
 
-using namespace shooting::bsm;
-
 namespace shooting {
 
 	class GameObject;

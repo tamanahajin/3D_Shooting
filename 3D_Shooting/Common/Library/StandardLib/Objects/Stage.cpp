@@ -71,6 +71,7 @@ namespace shooting {
 		//カメラとライト
 		m_camera->OnUpdate(Scene::GetElapsedTime());
 		m_lightSet->OnUpdate(Scene::GetElapsedTime());
+		//m_BulletManager->OnUpdate(Scene::GetElapsedTime());
 	}
 
 	//衝突判定の更新（ステージから呼ぶ）
@@ -87,6 +88,7 @@ namespace shooting {
 	{
 		//コリジョン管理者の作成
 		m_collisionManager = ObjectFactory::Create<CollisionManager>(GetThis<Stage>());
+		//m_BulletManager = ObjectFactory::Create<BulletManager>(GetThis<Stage>());
 	}
 
 	void Stage::OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)

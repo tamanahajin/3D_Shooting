@@ -219,8 +219,8 @@ namespace shooting {
 
 			}
 #endif
-			//App::GetInputDevice().ResetControlerState();
-			App::GetInputDevice().ResetKeyboardState();
+			App::GetInputDevice().Update();
+			FlushMouseInputForFrame();
 			OnUpdate();
 			OnRender();
 			SetToBefore();
@@ -282,5 +282,53 @@ namespace shooting {
 		{
 			PostQuitMessage(1);
 		}
+	}
+
+	//void PrimDevice::OnMouseMove(UINT x, UINT y)
+	//{
+	//	const int ix = static_cast<int>(x);
+	//	const int iy = static_cast<int>(y);
+
+	//	if (!m_mouseHasPos)
+	//	{
+	//		m_mouseX = ix;
+	//		m_mouseY = iy;
+	//		m_mouseHasPos = true;
+	//		return;
+	//	}
+
+	//	const int dx = ix - m_mouseX;
+	//	const int dy = iy - m_mouseY;
+
+	//	m_mouseX = ix;
+	//	m_mouseY = iy;
+
+	//	// メッセージ間の移動量を累積しておく（フレーム開始時に確定）
+	//	m_mouseAccumDX += dx;
+	//	m_mouseAccumDY += dy;
+	//}
+
+	void PrimDevice::OnMouseWheel(int wheelDelta)
+	{
+		// wheelDelta は通常 ±120 が来る（複数回分もあり得る）
+		m_wheelAccum += wheelDelta;
+	}
+
+	void PrimDevice::FlushMouseInputForFrame()
+	{
+		// 最新の絶対座標
+		m_mouseFrame.x = m_mouseX;
+		m_mouseFrame.y = m_mouseY;
+		m_mouseFrame.hasPos = m_mouseHasPos;
+
+		// このフレームの入力として確定
+		m_mouseFrame.deltaX = m_mouseAccumDX;
+		m_mouseFrame.deltaY = m_mouseAccumDY;
+		m_mouseFrame.wheelDelta = m_wheelAccum;
+
+		// 次フレームに備えてクリア
+		m_mouseAccumDX = 0;
+		m_mouseAccumDY = 0;
+		m_wheelAccum = 0;
 	}
 }

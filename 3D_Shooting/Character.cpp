@@ -95,7 +95,6 @@ namespace shooting {
 	{
 		auto ptrTransform = GetComponent<Transform>();
 		ptrTransform->SetPosition(m_StartPos);
-		//ptrTransform->SetScale(0.125f, 0.25f, 0.25f);
 		ptrTransform->SetScale(0.25f, 0.25f, 0.25f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
@@ -104,8 +103,7 @@ namespace shooting {
 		//グループに自分自身を追加
 		group->IntoGroup(GetThis<SeekObject>());
 		//Obbの衝突判定をつける
-		//auto ptrColl = AddComponent<CollisionObb>();
-		 auto ptrColl = AddComponent<CollisionCapsule>();
+		auto ptrColl = AddComponent<CollisionCapsule>();
 		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
@@ -122,23 +120,29 @@ namespace shooting {
 		//透明処理をする
 		SetAlphaActive(true);
 		AddTag(L"Enemy");
+
+		// ダメージエフェクトコンポーネントを追加
+		auto damageEffect = AddComponent<DamageEffect>();
+		damageEffect->SetOutlineWidth(0.03f); // 輪郭の太さを設定
+
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
 
 		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			// 被弾演出、無敵時間開始、SE など
-			 //self->StartInvincible(1.0);
+			// ダメージエフェクトを開始（専用シェーダーで赤い輪郭を描画）
+			auto effect = self->GetComponent<DamageEffect>();
+			if (effect)
+			{
+				effect->StartEffect(0.2f); // 0.2秒間エフェクト表示
+			}
 		};
 
 		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			// 死亡処理（リトライ、ゲームオーバー、死亡演出など）
-			// self->SetUpdateActive(false);
 			self->GetStage()->RemoveGameObject(self);
 		};
-
 
 		//ステートマシンの構築
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
@@ -157,7 +161,6 @@ namespace shooting {
 		auto ptrUtil = GetBehavior<UtilBehavior>();
 		ptrUtil->RotToHead(1.0f);
 	}
-
 
 	Vec3 SeekObject::GetTargetPos()const
 	{
@@ -239,7 +242,90 @@ namespace shooting {
 	{
 	}
 
+	//--------------------------------------------------------------------------------------
+	//	空中浮遊敵
+	//--------------------------------------------------------------------------------------
+	FloatingEnemy::FloatingEnemy(const std::shared_ptr<Stage>& stage, const Vec3& startPos, float floatSpeed, float moveRange) :
+		GameObject(stage),
+		m_StartPos(startPos),
+		m_MoveOffset(0.0f),
+		m_TotalTime(0.0),
+		m_FloatSpeed(floatSpeed),
+		m_MoveRange(moveRange)
+	{
+		m_transParam.position = startPos;
+	}
 
+	FloatingEnemy::~FloatingEnemy() {}
 
+	void FloatingEnemy::OnCreate()
+	{
+		auto ptrTransform = GetComponent<Transform>();
+		ptrTransform->SetPosition(m_StartPos);
+		ptrTransform->SetScale(0.3f, 0.3f, 0.3f);
+		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
+
+		// 衝突判定（重力なし）
+		auto ptrColl = AddComponent<CollisionSphere>();
+
+		// 影
+		auto ptrShadow = AddComponent<ShadowMap>();
+		ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
+
+		// 描画
+		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
+		ptrDraw->SetFogEnabled(true);
+		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
+		ptrDraw->AddBaseTexture(L"TRACE_TX");
+		SetAlphaActive(true);
+
+		// タグ
+		AddTag(L"Enemy");
+
+		// ダメージエフェクトコンポーネントを追加
+		auto damageEffect = AddComponent<DamageEffect>();
+		damageEffect->SetOutlineWidth(0.025f); // 球体用の輪郭の太さ
+		damageEffect->SetEffectDuration(0.25f); // 少し長めに表示
+
+		// HP
+		auto hp = AddComponent<Health>();
+		hp->SetMaxHP(10);
+		hp->SetHP(10);
+
+		hp->m_OnDamaged = [self = GetThis<FloatingEnemy>()](const DamageInfo& info)
+		{
+			// ダメージエフェクトを開始
+			auto effect = self->GetComponent<DamageEffect>();
+			if (effect)
+			{
+				effect->StartEffect();
+			}
+		};
+
+		hp->m_OnDeath = [self = GetThis<FloatingEnemy>()](const DamageInfo& info)
+		{
+			self->GetStage()->RemoveGameObject(self);
+		};
+	}
+
+	void FloatingEnemy::OnUpdate(double elapsedTime)
+	{
+		m_TotalTime += elapsedTime * m_FloatSpeed;
+
+		// 上下に浮遊
+		m_MoveOffset.y = (float)sin(m_TotalTime) * m_MoveRange;
+
+		auto ptrTrans = GetComponent<Transform>();
+		Vec3 newPos = m_StartPos + m_MoveOffset;
+		ptrTrans->SetPosition(newPos);
+
+		// ゆっくり回転
+		Quat rot = ptrTrans->GetQuaternion();
+		rot *= Quat(Vec3(0, 1, 0), (float)(elapsedTime * 0.5));
+		ptrTrans->SetQuaternion(rot);
+
+		// 大きさ
+		ptrTrans->SetScale(1.0f, 1.0f, 1.0f);
+	}
 
 }

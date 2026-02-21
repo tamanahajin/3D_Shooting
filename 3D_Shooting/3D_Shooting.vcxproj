@@ -43,6 +43,7 @@
     <ClCompile Include="Common\Library\StandardLib\Components\Collision.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Component.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\DamageEffect.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="Common\Library\StandardLib\Components\Collision.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Component.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
@@ -137,6 +139,7 @@
     <None Include="Common\Library\StandardLib\Shaders\SpINCConstant.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\SpINCPixel.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\SpINCStructs.hlsli" />
+    <None Include="Shader\DamageEffect.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Common\Library\StandardLib\Shaders\BcPSPNTPL.hlsl">
@@ -282,6 +285,25 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shader\PSDamageEffect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shader\VSDamageEffect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

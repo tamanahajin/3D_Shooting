@@ -22,6 +22,13 @@
 
 namespace shooting {
 
+	struct CrosshairDesc
+	{
+		bool  enabled = false;
+		float gap = 6.0f;   // ’†S‚Ì‹ó‚«
+		float len = 10.0f;  // ü‚Ì’·‚³
+		float thickness = 1.0f;   // ü‚Ì‘¾‚³
+	};
 
 	class UILayer
 	{
@@ -33,6 +40,13 @@ namespace shooting {
 		void ReleaseResources();
 		void Resize(Microsoft::WRL::ComPtr<ID3D12Resource>* ppRenderTargets, UINT width, UINT height);
 
+		void SetCrosshairEnabled(bool e) { m_crosshair.enabled = e; }
+		void SetCrosshairStyle(float gap, float len, float thickness)
+		{
+			m_crosshair.gap = gap;
+			m_crosshair.len = len;
+			m_crosshair.thickness = thickness;
+		}
 	private:
 		UINT FrameCount() { return static_cast<UINT>(m_wrappedRenderTargets.size()); }
 		void Initialize(ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue);
@@ -59,5 +73,7 @@ namespace shooting {
 		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_textBrush;
 		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
 		std::vector<TextBlock> m_textBlocks;
+
+		CrosshairDesc m_crosshair;
 	};
 }

@@ -34,10 +34,28 @@ namespace shooting {
 
 	}
 
+	// ‹ó’†•‚—V“G‚Ìì¬
+	void GameStage::CreateFloatingEnemies()
+	{
+		std::vector<Vec3> positions = {
+			{ 5.0f, 3.0f, 5.0f },
+			{ -5.0f, 4.0f, 5.0f },
+			{ 5.0f, 3.5f, -5.0f },
+			{ -5.0f, 4.5f, -5.0f },
+			{ 0.0f, 5.0f, 8.0f },
+		};
+
+		for (const auto& pos : positions)
+		{
+			AddGameObject<FloatingEnemy>(pos);
+		}
+	}
+
 	void GameStage::OnCreate()
 	{
 		//ƒJƒƒ‰‚Æƒ‰ƒCƒg‚Ìİ’è
-		m_camera = ObjectFactory::Create<MainCamera>();
+		m_camera = ObjectFactory::Create<MainCamera>(GetThis<Stage>());
+		//m_camera = ObjectFactory::Create<MainCamera>();
 		m_camera->SetEye(Vec3(0, 3.43f, -6.37f));
 		m_camera->SetAt(Vec3(0, 0.125f, 0));
 		m_lightSet = ObjectFactory::Create<LightSet>();
@@ -67,9 +85,11 @@ namespace shooting {
 
 
 		CreateSeekObject();
-		param.scale = Vec3(0.25f, 0.25f, 0.25f);
+		CreateFloatingEnemies();  // ‹ó’†•‚—V“G‚ğ’Ç‰Á
+
+		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();
-		param.position = Vec3(0.0f, 0.325f, 0.0f);
+		param.position = Vec3(0.0f, 0.525f, 0.0f);
 		AddGameObject<Player>(param);
 
 		// ’eŠÇ—

@@ -135,6 +135,43 @@ namespace shooting {
 				textBlock.layout,
 				m_textBrush.Get());
 		}
+
+		// クロスヘア描画（線4本）
+		if (m_crosshair.enabled)
+		{
+			// 中央（1px線をシャープに見せるため 0.5 を足す）
+			const float cx = std::floor(m_width * 0.5f) + 0.5f;
+			const float cy = std::floor(m_height * 0.5f) + 0.5f;
+
+			const float g = m_crosshair.gap;
+			const float L = m_crosshair.len;
+			const float t = m_crosshair.thickness;
+
+			// 上
+			m_d2dDeviceContext->DrawLine(
+				D2D1::Point2F(cx, cy - g - L),
+				D2D1::Point2F(cx, cy - g),
+				m_textBrush.Get(), t);
+
+			// 下
+			m_d2dDeviceContext->DrawLine(
+				D2D1::Point2F(cx, cy + g),
+				D2D1::Point2F(cx, cy + g + L),
+				m_textBrush.Get(), t);
+
+			// 左
+			m_d2dDeviceContext->DrawLine(
+				D2D1::Point2F(cx - g - L, cy),
+				D2D1::Point2F(cx - g, cy),
+				m_textBrush.Get(), t);
+
+			// 右
+			m_d2dDeviceContext->DrawLine(
+				D2D1::Point2F(cx + g, cy),
+				D2D1::Point2F(cx + g + L, cy),
+				m_textBrush.Get(), t);
+		}
+
 		m_d2dDeviceContext->EndDraw();
 
 		// Release our wrapped render target resource. Releasing
@@ -236,5 +273,7 @@ namespace shooting {
 			smallFontSize,
 			L"en-us",
 			&m_textFormat));
+
+		m_d2dDeviceContext->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	}
 }
