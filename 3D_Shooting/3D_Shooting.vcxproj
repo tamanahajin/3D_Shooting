@@ -40,6 +40,7 @@
     <ClCompile Include="Common\Library\BasicLib\UILayer.cpp" />
     <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Collision.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Component.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="Common\Library\BasicLib\UILayer.h" />
     <ClInclude Include="Common\Library\BasicLib\VertexHelper.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BcStaticDraw.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Collision.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Component.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h" />

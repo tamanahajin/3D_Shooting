@@ -443,7 +443,8 @@ namespace shooting {
 		const Vec3& dir,
 		float maxDist,
 		RaycastHit& outHit,
-		const std::shared_ptr<GameObject>& ignoreObj
+		const std::shared_ptr<GameObject>& ignoreObj,
+		std::initializer_list<std::wstring> ignoreTags
 	)
 	{
 		if (maxDist <= 0.0f) return false;
@@ -470,6 +471,15 @@ namespace shooting {
 			if (!obj) continue;
 			if (!obj->IsUpdateActive()) continue;
 			if (ignoreObj && obj == ignoreObj) continue;
+			if (ignoreTags.size() != 0)
+			{
+				bool ignored = false;
+				for (const auto& t : ignoreTags)
+				{
+					if (obj->FindTag(t)) { ignored = true; break; }
+				}
+				if (ignored) continue;
+			}
 
 			auto col = obj->GetComponent<Collision>(false);
 			if (!col) continue;
@@ -617,7 +627,8 @@ namespace shooting {
 		float maxDist,
 		float radius,
 		RaycastHit& outHit,
-		const std::shared_ptr<GameObject>& ignoreObj
+		const std::shared_ptr<GameObject>& ignoreObj,
+		std::initializer_list<std::wstring> ignoreTags
 	)
 	{
 		if (maxDist <= 0.0f) return false;
@@ -642,6 +653,15 @@ namespace shooting {
 			if (!obj) continue;
 			if (!obj->IsUpdateActive()) continue;
 			if (ignoreObj && obj == ignoreObj) continue;
+			if (ignoreTags.size() != 0)
+			{
+				bool ignored = false;
+				for (const auto& t : ignoreTags)
+				{
+					if (obj->FindTag(t)) { ignored = true; break; }
+				}
+				if (ignored) continue;
+			}
 
 			auto col = obj->GetComponent<Collision>(false);
 			if (!col) continue;

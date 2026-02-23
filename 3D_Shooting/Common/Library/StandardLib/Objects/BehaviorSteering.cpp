@@ -16,8 +16,8 @@ namespace shooting {
 		float m_MaxForce;
 		Impl() :
 			m_Weight(1.0f),
-			m_MaxSpeed(10.0f),
-			m_MaxForce(30.0f)
+			m_MaxSpeed(5.0f),
+			m_MaxForce(20.0f)
 		{
 		}
 		~Impl() {}

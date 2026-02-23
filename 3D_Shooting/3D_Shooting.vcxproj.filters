@@ -189,6 +189,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\DamageEffect.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -375,6 +378,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
   </ItemGroup>

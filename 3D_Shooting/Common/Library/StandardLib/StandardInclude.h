@@ -31,4 +31,5 @@
 //#include "Components/BcBoneDraw.h"
 #include "Components/Health.h"
 #include "Components/DamageDealer.h"
+#include "Components/BombAimPreview.h"
 

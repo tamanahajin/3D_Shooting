@@ -3,58 +3,70 @@
 
 namespace shooting {
 
+	//============================================================
+	// DefaultBullet
+	//============================================================
 	DefaultBullet::DefaultBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param)
 		: IBullet(stagePtr)
-		, m_Speed(15.0f)
-		, m_IsActive(true)
-		, m_LifeTime(5.0)
-		, m_ElapsedTime(0.0)
 	{
-		// ★重要：ObjectFactory::Create はコンストラクタ直後に OnCreate() を呼ぶので、
-		// OnCreate の前に初期Transformを渡したいならここで保持しておく
-		m_transParam = param; // Player と同じ方式（GameObject側にある想定）
+		// ObjectFactory::Create はコンストラクタ直後に OnCreate() を呼ぶので
+		// Transform初期値を先に持たせたい場合はここで保存する
+		m_transParam = param;
+
+		m_IsActive = false;
 	}
 
 	void DefaultBullet::OnCreate()
 	{
-		ID3D12GraphicsCommandList* pCommandList = BaseScene::Get()->m_pTgtCommandList;
-		//OBB衝突判定を付ける
+		// 衝突
 		auto ptrColl = AddComponent<CollisionSphere>();
 		ptrColl->SetFixed(false);
-		//タグをつける
+
+		// タグ
 		AddTag(L"Bullet");
+
+		// 描画
 		auto ptrShadow = AddComponent<ShadowMap>();
 		ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
+
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
 		ptrDraw->SetOwnShadowActive(true);
 
+		// ダメージ（このプロジェクトでは OnCollisionEnter 内で ApplyDamage している）
 		auto dmg = AddComponent<DamageDealer>();
 		dmg->SetDamage(3);
 		dmg->SetDestroyOnHit(true);
 
+		// 無視オブジェクト
 		if (auto col = GetComponent<Collision>(false))
 		{
 			col->AddExcludeCollisionTag(L"Player");
+			col->AddExcludeCollisionTag(L"Bullet");
 		}
 	}
 
 	void DefaultBullet::OnUpdate(double elapsedTime)
 	{
-		// 寿命の計算
+		if (!m_IsActive) return;
+
+		// 寿命
 		m_ElapsedTime += elapsedTime;
 		if (m_ElapsedTime >= m_LifeTime)
 		{
 			SetActive(false);
+			SetUpdateActive(false);
 			return;
 		}
 
-		// 進行方向に移動
-		auto ptrTrans = GetComponent<Transform>();
-		auto& param = ptrTrans->GetTransParam();
-		Vec3 forward = ptrTrans->GetForward();
-		param.position += forward * m_Speed * static_cast<float>(elapsedTime);
+		// 前進
+		if (auto ptrTrans = GetComponent<Transform>())
+		{
+			auto& param = ptrTrans->GetTransParam();
+			Vec3 forward = ptrTrans->GetForward();
+			param.position += forward * m_Speed * static_cast<float>(elapsedTime);
+		}
 	}
 
 	bool DefaultBullet::IsActive() const noexcept
@@ -71,72 +83,60 @@ namespace shooting {
 	{
 		if (!m_IsActive) return;
 
-		// --- 例：プレイヤーに当たったら無視したい場合（任意） ---
-		// 相手オブジェクトを取れるなら、タグで弾消し対象を絞るのが安全
-		// auto other = pair.m_DstObject;  // ←ここは CollisionPair に合わせて
-		// if (other && other->FindTag(L"Player")) return;
-
 		auto other = pair.m_Dest.lock();
-		if(!other) return;
+		if (!other) return;
 
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
+		// プレイヤーは除外
 		if (otherObj->FindTag(L"Player")) return;
 
-		// 相手がHPを持っているならダメージ
+		// 相手がHPを持っていればダメージ
 		if (auto hp = otherObj->GetComponent<Health>(false))
 		{
 			DamageInfo info;
 			info.m_Damage = GetComponent<DamageDealer>()->GetDamage();
 			info.m_Instigator = GetThis<GameObject>();
-			// info.hitPoint = pair...;
-			// info.hitNormal = pair...;
-
 			hp->ApplyDamage(info);
 		}
 
-		// 当たったら消す
+		// 命中で終了（プール回収は BulletPool 側）
 		SetActive(false);
-
-		// すぐ見えなくしたいなら（次フレームのプール回収を待たない）
 		SetUpdateActive(false);
-		if (auto trans = GetComponent<Transform>())
-		{
-			trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
-		}
 	}
 
 	void DefaultBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		//OnCollisionEnter(pair);
+		// 必要なら Enter と同様に扱う
+		// OnCollisionEnter(pair);
 	}
 
+
+
+
+	//============================================================
+	// BombBullet
+	//============================================================
 	BombBullet::BombBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param)
 		: DefaultBullet(stagePtr, param)
 	{
-		// ResetLife() はプール側が呼ぶ（DefaultBulletの機構を利用）
-		// ここでは爆弾特有の初期値だけ持つ
 	}
 
 	void BombBullet::OnCreate()
 	{
-		// まず DefaultBullet と同じ構成（CollisionSphere / Draw / DamageDealer / Exclude Player）を作る
+		// まず通常弾の部品をそのまま使う（衝突・描画・DamageDealer 等）
 		DefaultBullet::OnCreate();
 
-		// タグを追加しておくとデバッグに便利
+		// ボム用タグ（デバッグ用）
 		AddTag(L"Bomb");
 
-		// DamageDealer を「爆発用」に更新（単発ヒットで消すのは自前でやるので false）
+		// ボムは「爆発中に複数ヒット」させたいので DestroyOnHit は false 推奨
 		if (auto dd = GetComponent<DamageDealer>(false))
 		{
 			dd->SetDamage(m_ExplosionDamage);
 			dd->SetDestroyOnHit(false);
 		}
-
-		// ここで見た目のメッシュ/テクスチャを差し替えたいなら
-		// BcPNTStaticDraw を取得して設定変更してOK
-		// (例) bomb用のテクスチャがあるなら AddBaseTexture など
 	}
 
 	void BombBullet::OnUpdate(double elapsedTime)
@@ -145,48 +145,59 @@ namespace shooting {
 
 		if (!m_Exploding)
 		{
-			//============================
-			// Flying：移動 + 信管
-			//============================
+			// 信管（保険）
 			m_FuseTime -= elapsedTime;
 			if (m_FuseTime <= 0.0)
 			{
-				// 何にも当たらなくても爆発（firstHitは無し）
 				StartExplosion(nullptr);
 				return;
 			}
 
-			// 前進（DefaultBulletのprivate速度に触れないため、こちらで移動を実装）
-			if (auto trans = GetComponent<Transform>())
+			auto trans = GetComponent<Transform>();
+			if (!trans) return;
+
+			auto& tp = trans->GetTransParam();
+
+			if (m_UseBallistic)
 			{
-				auto& tp = trans->GetTransParam();
-				Vec3 forward = trans->GetForward();
-				tp.position += forward * m_Speed * static_cast<float>(elapsedTime);
+				// 発射からの経過 t
+				m_FlyTime += static_cast<float>(elapsedTime);
+
+				// 解析式：p(t)=p0+v0*t+0.5*g*t^2
+				const float t = m_FlyTime;
+				tp.position = m_StartPos + (m_V0 * t) + (m_Gravity * (0.5f * t * t));
+
+				// 現在速度：v(t)=v0+g*t（必要なら）
+				m_Velocity = m_V0 + (m_Gravity * t);
+
+				// --- ここが “プレビュー終点” と一致させるコツ ---
+				// プレビューは 0..T を描いて終わりなので、実弾も T で終わらせる（=到達で爆発）
+				if (m_FlyTime >= m_TotalT)
+				{
+					tp.position = m_TargetPos;   // 最後をピタッと合わせる
+					StartExplosion(nullptr);     // 到達で爆発（不要ならコメントアウトして停止などに変更）
+					return;
+				}
+			}
+			else
+			{
+				// ターゲット無し等：従来通り（直進+重力）でもOK
+				const float dt = static_cast<float>(elapsedTime);
+				m_Velocity += m_Gravity * dt;
+				tp.position += m_Velocity * dt;
 			}
 		}
 		else
 		{
-			//============================
-			// Exploding：短時間だけ範囲当たり判定を維持
-			//============================
 			m_ExplosionTimer -= elapsedTime;
 			if (m_ExplosionTimer <= 0.0)
 			{
-				// 爆発終了 → 弾をプールへ戻す
 				SetActive(false);
 				SetUpdateActive(false);
-
-				// 画面外へ退避（プールがやってるのと同じ）
-				if (auto trans = GetComponent<Transform>())
-				{
-					trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
-					// スケールも戻す（次回スポーン時に違和感が出ないように）
-					trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
-				}
+				return;
 			}
 		}
 	}
-
 	void BombBullet::OnCollisionEnter(const CollisionPair& pair)
 	{
 		if (!IsActive()) return;
@@ -197,24 +208,23 @@ namespace shooting {
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
-		// 自分（プレイヤー）には当てない
 		if (otherObj->FindTag(L"Player")) return;
 
-		// 飛翔中に当たったら即爆発
 		if (!m_Exploding)
 		{
+			// 飛翔中に何かに当たったら即爆発
 			StartExplosion(otherObj);
 			return;
 		}
 
-		// 爆発中は、触れた相手へ範囲ダメージ（多重ヒット防止付き）
+		// 爆発中は範囲ダメージ（多重ヒット防止あり）
 		TryApplyExplosionDamage(otherObj);
 	}
 
 	void BombBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// 爆風は一瞬なので、Enterだけでも充分なことが多い。
-		// ただし、Collisionシステムの仕様によっては Execute の方が確実な場合もある。
+		// 爆風が短い場合 Enter だけで十分なことが多い。
+		// もし衝突イベントの仕様で Execute の方が確実ならここで処理する。
 		if (m_Exploding)
 		{
 			OnCollisionEnter(pair);
@@ -228,29 +238,23 @@ namespace shooting {
 		m_Exploding = true;
 		m_ExplosionTimer = m_ExplosionDuration;
 
-		// 爆発開始時の信管値は無意味になるので、適当に0へ
-		m_FuseTime = 0.0;
-
-		// ヒット履歴をクリア
+		m_Velocity = Vec3(0, 0, 0);
+		// ヒット記録クリア
 		m_HitOnce.clear();
 
-		// 「爆風」を当たり判定として表現する：
-		// CollisionSphere が Transform のスケールに追従する前提で、スケールを一気に大きくする。
-		// もし追従しない場合は、CollisionSphere 側の SetRadius/SetScale など適切なAPIに置き換えてください。
+		// 爆風範囲を「スケール拡大」で表現
 		if (auto trans = GetComponent<Transform>())
 		{
 			trans->SetScale(Vec3(m_ExplosionScale, m_ExplosionScale, m_ExplosionScale));
 		}
 
-		// 着弾した相手がいるなら、開始時点で必ずダメージを入れる
-		// （爆発開始時はすでに衝突中なので、Enterが再発しない可能性があるため）
+		// 着弾先があるなら即ダメージ（爆発開始時点で衝突中の可能性があるため）
 		if (firstHit)
 		{
 			TryApplyExplosionDamage(firstHit);
 		}
 
-		// ここで「爆発エフェクト」「サウンド」「カメラシェイク」等を鳴らすのが定番
-		// 例：GetStage()->AddGameObject<ExplosionVFX>(...) など
+		// ここで爆発VFX/SE/カメラシェイク等を入れるのが定番
 	}
 
 	void BombBullet::TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target)
@@ -264,11 +268,9 @@ namespace shooting {
 		}
 		m_HitOnce.insert(target.get());
 
-		// HPを持つ相手にダメージ
 		if (auto hp = target->GetComponent<Health>(false))
 		{
 			DamageInfo info;
-			// DamageDealerがあるならそれを優先、無ければ m_ExplosionDamage
 			int dmg = m_ExplosionDamage;
 			if (auto dd = GetComponent<DamageDealer>(false))
 			{
@@ -277,9 +279,96 @@ namespace shooting {
 
 			info.m_Damage = dmg;
 			info.m_Instigator = GetThis<GameObject>();
-			// info.m_HitPoint / m_HitNormal は取れるなら pair から設定するとより良い
-
 			hp->ApplyDamage(info);
 		}
+	}
+
+	bool BombBullet::SolveBallistic_ApexHeight(
+		const Vec3& p0, const Vec3& p1,
+		const Vec3& gravity, float arcHeight,
+		Vec3& outV0, float& outT) const
+	{
+		const float g = -gravity.y;
+		if (g <= 1e-6f) return false;
+
+		const float apexY = bsmUtil::Max(p0.y, p1.y) + arcHeight;
+
+		const float h0 = bsmUtil::Max(0.0f, apexY - p0.y);
+		const float h1 = bsmUtil::Max(0.0f, apexY - p1.y);
+
+		const float vY0 = std::sqrt(2.0f * g * h0);
+		const float tUp = vY0 / g;
+		const float tDown = std::sqrt(2.0f * h1 / g);
+		const float T = bsmUtil::Max(0.001f, tUp + tDown);
+
+		const Vec3 deltaXZ(p1.x - p0.x, 0.0f, p1.z - p0.z);
+		const Vec3 vXZ = deltaXZ * (1.0f / T);
+
+		outV0 = Vec3(vXZ.x, vY0, vXZ.z);
+		outT = T;
+		return true;
+	}
+
+	void BombBullet::ResetForSpawn() noexcept
+	{
+		DefaultBullet::ResetForSpawn();
+
+		m_FuseTime = FUSE_TIME;
+		m_Exploding = false;
+		m_ExplosionTimer = 0.0;
+		m_HitOnce.clear();
+
+		m_FlyTime = 0.0f;
+		m_TotalT = 0.0f;
+		m_UseBallistic = false;
+
+		auto trans = GetComponent<Transform>();
+		if (!trans)
+		{
+			m_HasTarget = false;
+			return;
+		}
+
+		// 発射時の基準点 p0
+		m_StartPos = trans->GetTransParam().position;
+
+		// ターゲットが無い場合は保険で直進
+		if (!m_HasTarget)
+		{
+			m_V0 = trans->GetForward() * m_Speed;
+			m_Velocity = m_V0;
+			return;
+		}
+
+		const Vec3 deltaXZ(m_TargetPos.x - m_StartPos.x, 0.0f, m_TargetPos.z - m_StartPos.z);
+		const float distXZ = deltaXZ.length();
+		const float arcHeight = m_ArcHeight + distXZ * 0.1f;
+
+		// ターゲット弾道（プレビューと同じ解き方）
+		Vec3 v0;
+		float T = 0.0f;
+		if (SolveBallistic_ApexHeight(m_StartPos, m_TargetPos, m_Gravity, arcHeight, v0, T))
+		{
+			m_V0 = v0;
+			m_TotalT = T;
+			m_UseBallistic = true;
+
+			// 今の速度（見た目回転などに使うなら）
+			m_Velocity = m_V0;
+
+			// ターゲットに到達する前に信管爆発しないよう保険
+			// （到達時に爆発させるなら、この保険は実質不要）
+			m_FuseTime = bsmUtil::Max(m_FuseTime, (double)T + 0.2);
+		}
+		else
+		{
+			// 解けなければ直進にフォールバック
+			m_V0 = trans->GetForward() * m_Speed;
+			m_Velocity = m_V0;
+			m_UseBallistic = false;
+		}
+
+		// 使い回し事故防止
+		m_HasTarget = false;
 	}
 }

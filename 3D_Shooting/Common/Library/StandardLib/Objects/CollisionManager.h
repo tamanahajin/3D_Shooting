@@ -286,7 +286,8 @@ namespace shooting {
 			const Vec3& dir,
 			float maxDist,
 			RaycastHit& outHit,
-			const std::shared_ptr<GameObject>& ignoreObj = nullptr
+			const std::shared_ptr<GameObject>& ignoreObj = nullptr,
+			std::initializer_list<std::wstring> ignoreTags = {}
 		);
 
 		/// <summary>
@@ -298,7 +299,8 @@ namespace shooting {
 			float maxDist,
 			float radius,
 			RaycastHit& outHit,
-			const std::shared_ptr<GameObject>& ignoreObj = nullptr
+			const std::shared_ptr<GameObject>& ignoreObj = nullptr,
+			std::initializer_list<std::wstring> ignoreTags = {}
 		);
 
 		//--------------------------------------------------------------------------------------

@@ -30,6 +30,8 @@ namespace shooting {
 		void CheckGroundCollision(const CollisionPair& pair);
 		// åªç›ÇÃíeÉ^ÉCÉv
 		BulletType m_CurrentBullet = BulletType::Bomb;
+
+		std::shared_ptr<BombAimPreview> m_BombPreview;
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}

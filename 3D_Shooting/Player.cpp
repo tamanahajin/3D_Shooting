@@ -161,6 +161,8 @@ namespace shooting {
 		//		// 死亡処理（リトライ、ゲームオーバー、死亡演出など）
 		//		// self->SetUpdateActive(false);
 		//	};
+
+		m_BombPreview = AddComponent<BombAimPreview>();
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -177,53 +179,152 @@ namespace shooting {
 		}
 
 		// フレームの最後に地面判定をリセット
-		// 次フレームで OnCollisionExecute が呼ばれれば再び true になる
 		m_IsGround = false;
 
 		// 発射クールダウン更新
 		m_ShotCool -= elapsedTime;
 
 		const auto& input = App::GetInputDevice();
+
+		// --- 入力 ---
 		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
 
+		// プレビュー表示は「右クリック押しっぱ」で出す（好みで変えてOK）
+		const bool previewInput = input.KeyDown(VK_RBUTTON);
+
+		// どちらか使うなら狙い点を計算する
+		const bool needAim = (previewInput || fireInput);
+
+		// --- 狙い点計算（Raycast） ---
+		Vec3 muzzle(0, 0, 0);
+
+		// ★弾発射用：Enemy に当たってOK（Bulletだけ無視）
+		Vec3 aimPointShot(0, 0, 0);
+		Vec3 hitNormalShot(0, 1, 0);
+		bool hasHitShot = false;
+
+		// ★プレビュー用：Enemy と Bullet を無視（床/壁だけ拾う）
+		Vec3 aimPointPreview(0, 0, 0);
+		Vec3 hitNormalPreview(0, 1, 0);
+		bool hasHitPreview = false;
+
+		// ★回転も 2 種類（弾用 / プレビュー用）
+		Quat shotRot;
+		Quat shotRotPreview;
+
+		if (m_MainCamera && m_CollisionManager)
+		{
+			auto trans = GetComponent<Transform>();
+
+			// 銃口
+			muzzle = trans->GetPosition()
+				+ trans->GetForward() * 0.2f
+				+ Vec3(0.0f, 0.055f, 0.0f);
+
+			// カメラレイ（クロスヘア=画面中央）
+			Vec3 rayOrigin = m_MainCamera->GetEye();
+			Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
+			rayDir.normalize();
+
+			const float aimMaxDist = 1000.0f;
+
+			// ----------------------------
+			// ① 弾用（Enemyは拾う / Bulletは無視）
+			// ----------------------------
+			{
+				RaycastHit hit;
+				aimPointShot = rayOrigin + rayDir * aimMaxDist;
+
+				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>(), { L"Bullet" }))
+				{
+					hasHitShot = true;
+					aimPointShot = hit.m_Point;
+					hitNormalShot = hit.m_Normal;
+				}
+
+				// rot（銃口→aimPointShot）
+				Vec3 shotDir = aimPointShot - muzzle;
+				if (shotDir.length() > 1e-6f)
+				{
+					shotDir.normalize();
+					const Vec3 localForward = Vec3(0, 0, 1);
+					shotRot = bsmUtil::MakeFromToQuat(localForward, shotDir);
+				}
+			}
+
+			// ----------------------------
+			// ② プレビュー用（Enemy/Bulletを無視）
+			// ----------------------------
+			{
+				RaycastHit hit;
+				aimPointPreview = rayOrigin + rayDir * aimMaxDist;
+
+				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy" }))
+				{
+					hasHitPreview = true;
+					aimPointPreview = hit.m_Point;
+					hitNormalPreview = hit.m_Normal;
+				}
+
+				// rot（銃口→aimPointPreview）
+				Vec3 shotDir = aimPointPreview - muzzle;
+				if (shotDir.length() > 1e-6f)
+				{
+					shotDir.normalize();
+					const Vec3 localForward = Vec3(0, 0, 1);
+					shotRotPreview = bsmUtil::MakeFromToQuat(localForward, shotDir);
+				}
+			}
+		}
+
+		// --- BombAimPreview 更新 ---
+		if (m_BombPreview)
+		{
+			const float kArcHeight = 1.5f;
+			const Vec3  kGravity(0, -20.0f, 0);
+			const float kExplosionRadius = 2.0f;
+
+			const bool visible = (previewInput);
+
+			m_BombPreview->SetPreviewInput(
+				true,                 // ★true固定をやめる
+				muzzle,
+				aimPointPreview,         // ★プレビュー用
+				hitNormalPreview,        // ★プレビュー用
+				hasHitPreview,           // ★プレビュー用
+				kArcHeight,
+				kGravity,
+				kExplosionRadius
+			);
+		}
+
+		// --- 発射 ---
 		if (fireInput && m_ShotCool <= 0.0)
 		{
 			auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-			if (bulletMgr && m_CollisionManager)
+
+			const float kArcHeight = 1.5f;
+			const Vec3  kGravity(0, -20.0f, 0);
+			const float kExplosionRadius = 2.0f;
+
+			// ここでは例として「ボムの時だけ」分岐（あなたの BulletType 管理に合わせてOK）
+			if (m_CurrentBullet == BulletType::Bomb)
 			{
-				auto trans = GetComponent<Transform>();
+				const Vec3 scale(0.1f, 0.1f, 0.1f);
 
-				// 銃口
-				Vec3 muzzle = trans->GetPosition()
-					+ trans->GetForward() * 0.2f
-					+ Vec3(0.0f, 0.055f, 0.0f);
+				bulletMgr->FireEx<BombBullet>(muzzle, shotRotPreview, scale,
+								[&](BombBullet& b)
+								{
+									// ★プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
+									b.SetAimFromPreview(aimPointPreview, kArcHeight, kGravity, kExplosionRadius);
+								});
 
-				// カメラレイ（クロスヘア=画面中央）
-				Vec3 rayOrigin = m_MainCamera->GetEye();
-				Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
-				rayDir.normalize();
-
-				// まず「カメラ → 前方」へRaycastして狙い点を作る
-				const float aimMaxDist = 1000; // 既存
-				RaycastHit hit;
-				Vec3 aimPoint = rayOrigin + rayDir * aimMaxDist;
-
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>()))
-				{
-					aimPoint = hit.m_Point;
-				}
-
-				// 弾の方向は「銃口 → aimPoint」
-				Vec3 shotDir = aimPoint - muzzle;
-				if (shotDir.length() < 1e-6f) return;
-				shotDir.normalize();
-
-				// ここが重要：rot をプレイヤーの回転のままにしない
-				//Quat rot = bsmUtil::MakeBulletQuatFromDir(shotDir); // 下に例
-				const Vec3 localForward = Vec3(0, 0, 1); // まずこれを試す（前=-Z想定）
-				Quat rot = bsmUtil::MakeFromToQuat(localForward, shotDir);
-
-				bulletMgr->FireByType(m_CurrentBullet, muzzle, rot);
+				m_ShotCool = 3.0;
+			}
+			else
+			{
+				// 通常弾は Enemy を拾う狙い点＆回転のまま
+				bulletMgr->Fire<DefaultBullet>(muzzle, shotRot);
 				m_ShotCool = 0.12;
 			}
 		}

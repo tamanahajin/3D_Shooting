@@ -3,8 +3,8 @@
 
 namespace shooting {
 
-	BulletManager::BulletManager(const std::shared_ptr<Stage>& stagePtr) :
-		GameObject(stagePtr)
+	BulletManager::BulletManager(const std::shared_ptr<Stage>& stagePtr)
+		: GameObject(stagePtr)
 	{
 	}
 
@@ -13,7 +13,7 @@ namespace shooting {
 		// 共有登録
 		GetStage()->SetSharedGameObject(L"BulletManager", GetThis<BulletManager>());
 
-		// 事前にプール作成
+		// 事前にプール作成（ここで必要な弾だけ作ればOK）
 		GetOrCreatePool<DefaultBullet>();
 		GetOrCreatePool<BombBullet>();
 	}
@@ -22,9 +22,8 @@ namespace shooting {
 	{
 		for (auto& pool : m_Pools)
 		{
-			if (pool) { pool->OnUpdate(elapsedTime); }
+			if (pool) { pool->OnUpdate(elapsedTime); } // Poolは回収だけ担当
 		}
 	}
 
-	
 }

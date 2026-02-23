@@ -1,90 +1,147 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
+#include <unordered_set>
+#include <DirectXMath.h>
 
 namespace shooting {
-	
-	class DefaultBullet : public IBullet {
+
+	//============================================================
+	// DefaultBulletï¼ˆé€šå¸¸å¼¾ï¼‰
+	//============================================================
+	class DefaultBullet : public IBullet
+	{
 	private:
-		float m_Speed;
-		bool m_IsActive;
-		//õ–½
-		double m_LifeTime;
-		//Œo‰ßŠÔ
-		double m_ElapsedTime;
+		float  m_Speed = 15.0f;
+		bool   m_IsActive = false;
+
+		// å¯¿å‘½ï¼ˆç§’ï¼‰
+		double m_LifeTime = 5.0;
+		// çµŒéæ™‚é–“ï¼ˆç§’ï¼‰
+		double m_ElapsedTime = 0.0;
+
 	public:
 		DefaultBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
-		virtual ~DefaultBullet() {}
+		virtual ~DefaultBullet() = default;
 
-		bool IsActive() const noexcept;
-		void SetActive(bool active) noexcept;
+		// ----- IBullet -----
+		bool IsActive() const noexcept override;
+		void SetActive(bool active) noexcept override;
 
-		//\’zˆ—
-		virtual void OnCreate()override;
-		//XVˆ—
-		virtual void OnUpdate(double elapsedTime);
-		//Õ“ËŠJnˆ—
-		virtual void OnCollisionEnter(const CollisionPair& pair)override;
-		//Õ“ËŒp‘±ˆ—
-		virtual void OnCollisionExecute(const CollisionPair& pair)override;
-
-		void ResetLife() noexcept
+		/// <summary>
+		/// ãƒ—ãƒ¼ãƒ«ã‹ã‚‰å†åˆ©ç”¨ã•ã‚Œã‚‹ç›´å‰ã«å‘¼ã°ã‚Œã‚‹ã€‚
+		/// å¯¿å‘½ã ã‘ã‚’ãƒªã‚»ãƒƒãƒˆã—ã¦ Active ã«ã™ã‚‹ã€‚
+		/// </summary>
+		virtual void ResetForSpawn() noexcept override
 		{
 			m_ElapsedTime = 0.0;
 			SetActive(true);
 		}
+
+		// ----- GameObject -----
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override;
+		virtual void OnCollisionEnter(const CollisionPair& pair) override;
+		virtual void OnCollisionExecute(const CollisionPair& pair) override;
 	};
 
-	/// <summary>
-	/// ƒQ[ƒ€“àu”š’e’evFŠOü“–‚½‚è/’…’e/ŠÔ‚Å”š”­‚µA”ÍˆÍƒ_ƒ[ƒW‚ğ—^‚¦‚é
-	///
-	/// d—vƒ|ƒCƒ“ƒgF
-	/// - BulletPool ‚Í DefaultBullet ‚ğ dynamic_cast ‚µ‚Ä IsActive()/ResetLife() ‚ğŒ©‚éİŒv
-	///   ¨ BombBullet ‚ğ DefaultBullet ”h¶‚É‚·‚é‚ÆA‚»‚Ì‚Ü‚Üƒv[ƒ‹‰^—p‚Å‚«‚é
-	/// </summary>
+
+	//============================================================
+	// BombBulletï¼ˆãƒœãƒ å¼¾ï¼šç¯„å›²æ”»æ’ƒï¼‰
+	//
+	// æ–¹å¼ï¼š
+	//  1) é£›ç¿”ä¸­ï¼šä¿¡ç®¡ï¼ˆFuseï¼‰ã‚’æ¸›ã‚‰ã™ / ä½•ã‹ã«å½“ãŸã£ãŸã‚‰çˆ†ç™ºé–‹å§‹
+	//  2) çˆ†ç™ºä¸­ï¼šçŸ­æ™‚é–“ã ã‘ã€Œçˆ†é¢¨åˆ¤å®šã€ã‚’å‡ºã—ã¦ç¯„å›²ãƒ€ãƒ¡ãƒ¼ã‚¸
+	//
+	// æ³¨æ„ï¼š
+	//  çˆ†é¢¨ã®ç¯„å›²ã¯ã“ã“ã§ã¯ã€ŒTransformã®Scaleã‚’ä¸€æ°—ã«å¤§ããã™ã‚‹ã€ã“ã¨ã§è¡¨ç¾ã€‚
+	//  ã‚‚ã— CollisionSphere ãŒ Scale ã«è¿½å¾“ã—ãªã„è¨­è¨ˆãªã‚‰ã€CollisionSphere ã®åŠå¾„APIã«ç½®ãæ›ãˆã‚‹ã€‚
+	//============================================================
 	class BombBullet : public DefaultBullet
 	{
 	private:
-		// ”òãÄƒpƒ‰ƒ[ƒ^
+		// é£›ç¿”é€Ÿåº¦ï¼ˆDefaultBulletã®é€Ÿåº¦ã¨ã¯åˆ¥æ‰±ã„ã«ã—ã¦ã„ã‚‹ï¼‰
 		float  m_Speed = 10.0f;
 
-		// MŠÇi•bjF0‚É‚È‚é‚Æ”š”­‚Ö
-		double m_FuseTime = 1.0;
+		// çˆ†ç™ºã¾ã§ã®æ™‚é–“
+		// å®šæ•°
+		const double FUSE_TIME = 3.0f;
+		double m_FuseTime = FUSE_TIME;
 
-		// ”š”­ó‘Ô
+		Vec3  m_Velocity = Vec3(0, 0, 0);
+		Vec3  m_Gravity = Vec3(0, -9.8f, 0); // Y+ãŒä¸Šã®åº§æ¨™ç³»ãªã‚‰ã“ã‚Œ
+		Vec3  m_TargetPos = Vec3(0, 0, 0);
+		bool  m_HasTarget = false;
+		float m_ArcHeight = 1.5f;
+		Vec3  m_StartPos = Vec3(0, 0, 0);   // p0ï¼ˆç™ºå°„æ™‚ä½ç½®ï¼‰
+		Vec3  m_V0 = Vec3(0, 0, 0);   // v0ï¼ˆç™ºå°„æ™‚åˆé€Ÿï¼‰
+		float m_FlyTime = 0.0f;          // ç™ºå°„ã‹ã‚‰ã®çµŒé t
+		float m_TotalT = 0.0f;          // ç›®æ¨™åˆ°é”ã«å¿…è¦ãª T
+		bool  m_UseBallistic = false;     // ã‚¿ãƒ¼ã‚²ãƒƒãƒˆå¼¾é“ã‚’ä½¿ã†ã‹
+
+		// çˆ†ç™ºçŠ¶æ…‹
 		bool   m_Exploding = false;
-		double m_ExplosionDuration = 0.08; // ”š•—‚ª—LŒø‚ÈŠÔi’Z‚­j
+		double m_ExplosionDuration = 0.08; // çˆ†é¢¨ãŒæœ‰åŠ¹ãªæ™‚é–“
 		double m_ExplosionTimer = 0.0;
 
-		// ”š•—‚Ì‘å‚«‚³iTransform‚ÌScale‚ğ‘å‚«‚­‚µ‚Ä”ÍˆÍ•\Œ»‚·‚é‘z’èj
+		// çˆ†é¢¨ã®ã‚¹ã‚±ãƒ¼ãƒ«ï¼ˆTransform.Scaleï¼‰
 		float  m_ExplosionScale = 3.0f;
 
-		// ”ÍˆÍƒ_ƒ[ƒW
+		// ç¯„å›²ãƒ€ãƒ¡ãƒ¼ã‚¸
 		int    m_ExplosionDamage = 12;
 
-		// “¯‚¶‘Šè‚É‘½dƒqƒbƒg‚µ‚È‚¢‚½‚ß‚Ì‹L˜^i”š”­’†‚¾‚¯g‚¤j
+		// çˆ†ç™ºä¸­ã®å¤šé‡ãƒ’ãƒƒãƒˆé˜²æ­¢
 		std::unordered_set<const GameObject*> m_HitOnce;
+
+		bool SolveBallistic_ApexHeight(
+			const Vec3& p0, const Vec3& p1,
+			const Vec3& gravity, float arcHeight,
+			Vec3& outV0, float& outT
+		) const;
 
 	public:
 		BombBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
-		virtual ~BombBullet() {}
+		virtual ~BombBullet() = default;
 
-		// ƒRƒ“ƒ|[ƒlƒ“ƒg¶¬
+		// ----- IBullet -----
+		void ResetForSpawn() noexcept override;
+
+		void OnReturnToPool() noexcept override
+		{
+			if (auto trans = GetComponent<Transform>())
+			{
+				trans->SetScale(Vec3(0.1f, 0.1f, 0.1f));
+			}
+		}
+
+		// ----- Bom -----
+		void SetTarget(const Vec3& target)
+		{
+			m_TargetPos = target;
+			m_HasTarget = true;
+		}
+
+		void SetAimFromPreview(const Vec3& target, float arcHeight, const Vec3& gravity, float explosionRadius)
+		{
+			m_TargetPos = target;
+			m_HasTarget = true;
+
+			m_ArcHeight = arcHeight;
+			m_Gravity = gravity;
+
+			// CollisionSphere ã®åŠå¾„ãŒã€Œscale * 0.5ã€ä»•æ§˜ãªã®ã§ã€
+			// radius ã‚’åˆã‚ã›ãŸã„ãªã‚‰ scale = radius * 2 ã«ã™ã‚‹ã®ãŒåŸºæœ¬ã€‚
+			m_ExplosionScale = explosionRadius * 2.0f;
+		}
+
+		// ----- GameObject -----
 		void OnCreate() override;
-
-		// “Æ©XViFlying / Explodingj
 		void OnUpdate(double elapsedTime) override;
-
-		// ’…’e‚µ‚½‚ç‘¦”š”­
 		void OnCollisionEnter(const CollisionPair& pair) override;
-
-		// •K—v‚È‚çŒp‘±Õ“Ë‚Å‚àˆ—‚µ‚½‚¢ê‡‚Ég—p
 		void OnCollisionExecute(const CollisionPair& pair) override;
 
 	private:
-		// ”š”­ŠJn
 		void StartExplosion(const std::shared_ptr<GameObject>& firstHit);
-
-		// ”š”­’†‚É“–‚½‚Á‚½‘ÎÛ‚Öƒ_ƒ[ƒW
 		void TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target);
 	};
+
 }
