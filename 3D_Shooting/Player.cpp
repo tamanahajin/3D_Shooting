@@ -134,7 +134,6 @@ namespace shooting {
 		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
 		m_CollisionManager = GetStage()->GetCollisionManager();
 		m_BulletManager = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-		//m_BulletManager = GetStage()->GetBulletManager();
 
 		if (m_MainCamera)
 		{
@@ -163,6 +162,7 @@ namespace shooting {
 		//	};
 
 		m_BombPreview = AddComponent<BombAimPreview>();
+		m_BombPreview->SetTuning(GetBombTuning());
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -192,23 +192,16 @@ namespace shooting {
 		// プレビュー表示は「右クリック押しっぱ」で出す（好みで変えてOK）
 		const bool previewInput = input.KeyDown(VK_RBUTTON);
 
-		// どちらか使うなら狙い点を計算する
-		const bool needAim = (previewInput || fireInput);
-
 		// --- 狙い点計算（Raycast） ---
 		Vec3 muzzle(0, 0, 0);
 
-		// ★弾発射用：Enemy に当たってOK（Bulletだけ無視）
 		Vec3 aimPointShot(0, 0, 0);
 		Vec3 hitNormalShot(0, 1, 0);
 		bool hasHitShot = false;
 
-		// ★プレビュー用：Enemy と Bullet を無視（床/壁だけ拾う）
 		Vec3 aimPointPreview(0, 0, 0);
 		Vec3 hitNormalPreview(0, 1, 0);
 		bool hasHitPreview = false;
-
-		// ★回転も 2 種類（弾用 / プレビュー用）
 		Quat shotRot;
 		Quat shotRotPreview;
 
@@ -284,17 +277,12 @@ namespace shooting {
 			const Vec3  kGravity(0, -20.0f, 0);
 			const float kExplosionRadius = 2.0f;
 
-			const bool visible = (previewInput);
-
 			m_BombPreview->SetPreviewInput(
-				true,                 // ★true固定をやめる
+				true,
 				muzzle,
-				aimPointPreview,         // ★プレビュー用
-				hitNormalPreview,        // ★プレビュー用
-				hasHitPreview,           // ★プレビュー用
-				kArcHeight,
-				kGravity,
-				kExplosionRadius
+				aimPointPreview,
+				hitNormalPreview,
+				hasHitPreview
 			);
 		}
 
@@ -307,7 +295,7 @@ namespace shooting {
 			const Vec3  kGravity(0, -20.0f, 0);
 			const float kExplosionRadius = 2.0f;
 
-			// ここでは例として「ボムの時だけ」分岐（あなたの BulletType 管理に合わせてOK）
+			// ここでは例として「ボムの時だけ」分岐
 			if (m_CurrentBullet == BulletType::Bomb)
 			{
 				const Vec3 scale(0.1f, 0.1f, 0.1f);
@@ -315,15 +303,14 @@ namespace shooting {
 				bulletMgr->FireEx<BombBullet>(muzzle, shotRotPreview, scale,
 								[&](BombBullet& b)
 								{
-									// ★プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
-									b.SetAimFromPreview(aimPointPreview, kArcHeight, kGravity, kExplosionRadius);
+									// プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
+									b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning());
 								});
 
 				m_ShotCool = 3.0;
 			}
 			else
 			{
-				// 通常弾は Enemy を拾う狙い点＆回転のまま
 				bulletMgr->Fire<DefaultBullet>(muzzle, shotRot);
 				m_ShotCool = 0.12;
 			}

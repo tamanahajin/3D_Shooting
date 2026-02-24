@@ -239,20 +239,20 @@ namespace shooting {
 		@return	PhysXオブジェクトのポインタ
 		*/
 		//--------------------------------------------------------------------------------------
-		//physx::PxPhysics* GetPxPhysics()
-		//{
-		//	return m_pPhysics;
-		//}
+		physx::PxPhysics* GetPxPhysics()
+		{
+			return m_pPhysics;
+		}
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	PhysXシーンを得る
 		@return	PhysXシーンのポインタ
 		*/
 		//--------------------------------------------------------------------------------------
-		//physx::PxScene* GetPxScene()
-		//{
-		//	return m_pScene;
-		//}
+		physx::PxScene* GetPxScene()
+		{
+			return m_pScene;
+		}
 		static double GetElapsedTime()
 		{
 			return s_elapsedTime;
@@ -348,17 +348,17 @@ namespace shooting {
 
 		//以下、PhysX関連
 		// PhysX内で利用するアロケーター
-		//physx::PxDefaultAllocator m_defaultAllocator;
-		//// エラー時用のコールバックでエラー内容が入ってる
-		//physx::PxDefaultErrorCallback m_defaultErrorCallback;
-		//// 上位レベルのSDK(PxPhysicsなど)をインスタンス化する際に必要
-		//physx::PxFoundation* m_pFoundation = nullptr;
-		//// 実際に物理演算を行う
-		//physx::PxPhysics* m_pPhysics = nullptr;
-		//// シミュレーションをどう処理するかの設定でマルチスレッドの設定もできる
-		//physx::PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
-		//// シミュレーションする空間の単位でActorの追加などもここで行う
-		//physx::PxScene* m_pScene = nullptr;
+		physx::PxDefaultAllocator m_defaultAllocator;
+		// エラー時用のコールバックでエラー内容が入ってる
+		physx::PxDefaultErrorCallback m_defaultErrorCallback;
+		// 上位レベルのSDK(PxPhysicsなど)をインスタンス化する際に必要
+		physx::PxFoundation* m_pFoundation = nullptr;
+		// 実際に物理演算を行う
+		physx::PxPhysics* m_pPhysics = nullptr;
+		// シミュレーションをどう処理するかの設定でマルチスレッドの設定もできる
+		physx::PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
+		// シミュレーションする空間の単位でActorの追加などもここで行う
+		physx::PxScene* m_pScene = nullptr;
 
 		// Updates the shadow copies of the constant buffers.
 		virtual void UpdateConstantBuffers() = 0;

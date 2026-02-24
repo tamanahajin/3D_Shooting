@@ -39,20 +39,13 @@ namespace shooting {
 		const Vec3& start,
 		const Vec3& target,
 		const Vec3& hitNormal,
-		bool hasHit,
-		float arcHeight,
-		const Vec3& gravity,
-		float explosionRadius)
+		bool hasHit)
 	{
 		m_Visible = visible;
 		m_Start = start;
 		m_Target = target;
 		m_HitNormal = hitNormal;
 		m_HasHit = hasHit;
-
-		m_ArcHeight = arcHeight;
-		m_Gravity = gravity;
-		m_ExplosionRadius = explosionRadius;
 	}
 
 	void BombAimPreview::OnUpdate(double /*elapsedTime*/)
@@ -77,12 +70,12 @@ namespace shooting {
 		// ------------------------------------------------------------
 		const Vec3 deltaXZ(m_Target.x - m_Start.x, 0.0f, m_Target.z - m_Start.z);
 		const float distXZ = deltaXZ.length();
-		const float arcHeight = (m_ArcHeight + distXZ * 0.1f);
+		const float arcHeight = m_Tuning.arcHeightBase + distXZ * m_Tuning.arcHeightPerDistXZ;
 
 		// ’e“¹‚Ì‰‘¬‚Æ—˜_”òãÄŽžŠÔ
 		Vec3 v0;
 		float T = 0.0f;
-		if (!SolveBallistic_ApexHeight(m_Start, m_Target, m_Gravity, arcHeight, v0, T))
+		if (!SolveBallistic_ApexHeight(m_Start, m_Target, m_Tuning.gravity, arcHeight, v0, T))
 		{
 			SetDotsVisible(false);
 			return;
@@ -123,7 +116,7 @@ namespace shooting {
 				const Vec3 prevP = p;
 
 				// ŽÀ’e‚Æ“¯‚¶XV‡
-				v += m_Gravity * dt;
+				v += m_Tuning.gravity * dt;
 				p += v * dt;
 
 				// “r’†‚Å•Ç‚È‚Ç‚É“–‚½‚é‚È‚çA‚»‚±‚ÅŽ~‚ß‚éiŽÀ’e‚ÍÕ“Ë‚Å”š”­ŠJŽn‚·‚é‚Ì‚Åj
@@ -172,7 +165,7 @@ namespace shooting {
 			const float c = std::cos(ang);
 			const float s = std::sin(ang);
 
-			Vec3 rp = ringCenter + lift + (t * (c * m_ExplosionRadius)) + (b * (s * m_ExplosionRadius));
+			Vec3 rp = ringCenter + lift + (t * (c * m_Tuning.explosionRadius)) + (b * (s * m_Tuning.explosionRadius));
 
 			if (auto tr = m_RingDots[i]->GetComponent<Transform>())
 			{

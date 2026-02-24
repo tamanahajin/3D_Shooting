@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BombTuning.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Character.cpp" />
@@ -66,6 +67,7 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BombTuning.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletManager.h" />
     <ClInclude Include="BulletPool.h" />
@@ -403,7 +405,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Common\assimp\include;$(ProjectDir)Common\assimp\build\include;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Common\assimp\include;$(ProjectDir)Common\assimp\build\include;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;$(ProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -411,7 +413,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\Common\assimp\build\lib\$(Configuration);$(ProjectDir)..\Common\assimp\build\contrib\zlib\$(Configuration);C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\lib\Debug;C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\PhysX\lib\Debug;C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\Assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\Common\assimp\build\lib\$(Configuration);$(ProjectDir)..\Common\assimp\build\contrib\zlib\$(Configuration);C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\lib\Debug;C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\PhysX\lib\Debug;C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\Assimp\lib;C:\Users\taman\source\repos\3D_Shooting\3D_Shooting\Common\PhysX\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc145-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc145-mtd.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>

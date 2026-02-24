@@ -61,7 +61,7 @@
 using namespace DirectX;
 
 //PhysX
-//#include "PxPhysicsAPI.h"
+#include "PxPhysicsAPI.h"
 //assimp
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure

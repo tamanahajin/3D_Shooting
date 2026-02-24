@@ -192,6 +192,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="BombTuning.cpp">
+      <Filter>ソース ファイル\Bullet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -382,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BombTuning.h">
+      <Filter>ヘッダー ファイル\Bullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

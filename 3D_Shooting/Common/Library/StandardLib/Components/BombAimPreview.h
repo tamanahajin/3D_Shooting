@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <vector>
 #include <cmath>
+#include "BombTuning.h"
 
 namespace shooting {
 
@@ -57,14 +58,18 @@ namespace shooting {
 		bool  m_HasHit = false;
 
 		// 弾道パラメータ（BombBullet と揃える）
-		Vec3  m_Gravity = Vec3(0, -9.8f, 0);
-		float m_ArcHeight = 2.5f;
-		float m_ExplosionRadius = 2.0f; // 見た目の円の半径（実際の爆発範囲と揃える）
+		//Vec3  m_Gravity = Vec3(0, -9.8f, 0);
+		//float m_ArcHeight = 2.5f;
+		//float m_ExplosionRadius = 2.0f; // 見た目の円の半径（実際の爆発範囲と揃える）
+		BombTuning m_Tuning{};
 	public:
 		explicit BombAimPreview(const std::shared_ptr<GameObject>& go)
 			: Component(go)
 		{
 		}
+
+		const BombTuning& GetTuning() const { return m_Tuning; }
+		void SetTuning(const BombTuning& t) { m_Tuning = GetBombTuning(); }
 
 		void OnCreate() override;
 
@@ -74,10 +79,7 @@ namespace shooting {
 			const Vec3& start,
 			const Vec3& target,
 			const Vec3& hitNormal,
-			bool hasHit,
-			float arcHeight,
-			const Vec3& gravity,
-			float explosionRadius
+			bool hasHit
 		);
 
 		void OnUpdate(double elapsedTime) override;

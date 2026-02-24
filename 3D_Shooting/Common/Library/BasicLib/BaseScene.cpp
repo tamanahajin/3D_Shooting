@@ -52,11 +52,11 @@ namespace shooting {
 
 	BaseScene::~BaseScene()
 	{
-		//PxCloseExtensions();
-		//m_pScene->release();
-		//m_pDispatcher->release();
-		//m_pPhysics->release();
-		//m_pFoundation->release();
+		PxCloseExtensions();
+		m_pScene->release();
+		m_pDispatcher->release();
+		m_pPhysics->release();
+		m_pFoundation->release();
 	}
 
 	UINT BaseScene::GetSrvNextIndex()
@@ -471,22 +471,22 @@ namespace shooting {
 	{
 		m_pTgtCommandList = pCommandList;
 		//PhysXŠÖ˜A
-		//m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_defaultAllocator, m_defaultErrorCallback);
-		//if (!m_pFoundation)
-		//{
-		//	return;
-		//}
-		//m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, physx::PxTolerancesScale(), true);
-		//if (!m_pPhysics)
-		//{
-		//	return;
-		//}
-		//m_pDispatcher = physx::PxDefaultCpuDispatcherCreate(8);
-		//physx::PxSceneDesc scene_desc(m_pPhysics->getTolerancesScale());
-		//scene_desc.gravity = physx::PxVec3(0, -9, 0);
-		//scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;
-		//scene_desc.cpuDispatcher = m_pDispatcher;
-		//m_pScene = m_pPhysics->createScene(scene_desc);
+		m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_defaultAllocator, m_defaultErrorCallback);
+		if (!m_pFoundation)
+		{
+			return;
+		}
+		m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, physx::PxTolerancesScale(), true);
+		if (!m_pPhysics)
+		{
+			return;
+		}
+		m_pDispatcher = physx::PxDefaultCpuDispatcherCreate(8);
+		physx::PxSceneDesc scene_desc(m_pPhysics->getTolerancesScale());
+		scene_desc.gravity = physx::PxVec3(0, -9, 0);
+		scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;
+		scene_desc.cpuDispatcher = m_pDispatcher;
+		m_pScene = m_pPhysics->createScene(scene_desc);
 
 		auto mesh = BaseMesh::CreateCube(pCommandList, 1.0f);
 		RegisterMesh(L"DEFAULT_CUBE", mesh);

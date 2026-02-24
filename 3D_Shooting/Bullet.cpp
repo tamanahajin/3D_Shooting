@@ -342,7 +342,7 @@ namespace shooting {
 
 		const Vec3 deltaXZ(m_TargetPos.x - m_StartPos.x, 0.0f, m_TargetPos.z - m_StartPos.z);
 		const float distXZ = deltaXZ.length();
-		const float arcHeight = m_ArcHeight + distXZ * 0.1f;
+		const float arcHeight = m_ArcHeight + distXZ * m_ArcHeightPerDistXZ;
 
 		// ターゲット弾道（プレビューと同じ解き方）
 		Vec3 v0;

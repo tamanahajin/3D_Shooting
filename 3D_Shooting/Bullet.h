@@ -77,6 +77,7 @@ namespace shooting {
 		float m_FlyTime = 0.0f;          // 発射からの経過 t
 		float m_TotalT = 0.0f;          // 目標到達に必要な T
 		bool  m_UseBallistic = false;     // ターゲット弾道を使うか
+		float m_ArcHeightPerDistXZ = 0.0f;
 
 		// 爆発状態
 		bool   m_Exploding = false;
@@ -120,17 +121,18 @@ namespace shooting {
 			m_HasTarget = true;
 		}
 
-		void SetAimFromPreview(const Vec3& target, float arcHeight, const Vec3& gravity, float explosionRadius)
+		void SetAimFromPreview(const Vec3& target, const BombTuning& t)
 		{
 			m_TargetPos = target;
 			m_HasTarget = true;
 
-			m_ArcHeight = arcHeight;
-			m_Gravity = gravity;
+			m_ArcHeight = t.arcHeightBase;
+			m_Gravity = t.gravity;
+			m_ArcHeightPerDistXZ = t.arcHeightPerDistXZ;
 
 			// CollisionSphere の半径が「scale * 0.5」仕様なので、
 			// radius を合わせたいなら scale = radius * 2 にするのが基本。
-			m_ExplosionScale = explosionRadius * 2.0f;
+			m_ExplosionScale = t.explosionRadius * 2.0f;
 		}
 
 		// ----- GameObject -----
