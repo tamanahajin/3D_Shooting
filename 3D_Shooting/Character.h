@@ -47,6 +47,8 @@ namespace shooting {
 		Vec3 m_Force;
 		//ë¨ìx
 		Vec3 m_Velocity;
+		double m_SteeringUpdateTimer = 0.0;
+		double m_SteeringUpdateInterval = 0.05;
 	public:
 		//ç\ízÇ∆îjä¸
 		SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos);

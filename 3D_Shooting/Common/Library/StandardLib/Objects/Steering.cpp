@@ -256,24 +256,34 @@ namespace shooting {
 
 	Vec3 Steering::Separation(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj)
 	{
-		Vec3 SteeringForce(0, 0, 0);
-		auto Vec = Group->GetGroupVector();
-		for (auto Ptr : Vec)
+		Vec3 steeringForce(0, 0, 0);
+		const auto& vec = Group->GetGroupVector();
+		// 自分の Transform / 位置は1回だけ取得
+		auto myTransform = MyObj->GetComponent<Transform>();
+		const Vec3 myPos = myTransform->GetWorldPosition();
+
+		for (const auto& weakObj : vec)
 		{
-			if (!Ptr.expired())
+			auto obj = weakObj.lock();
+			if (!obj || obj == MyObj)
 			{
-				auto PtrObj = Ptr.lock();
-				if (PtrObj != MyObj)
-				{
-					PtrObj->GetComponent<Transform>();
-					Vec3 ToAgent
-						= MyObj->GetComponent<Transform>()->GetWorldPosition()
-						- PtrObj->GetComponent<Transform>()->GetWorldPosition();
-					SteeringForce += bsmUtil::normalize(ToAgent) / bsmUtil::length(ToAgent);
-				}
+				continue;
 			}
+
+			auto otherTransform = obj->GetComponent<Transform>();
+			Vec3 toAgent = myPos - otherTransform->GetWorldPosition();
+
+			const float distSq = bsmUtil::lengthSqr(toAgent);
+			if (distSq <= 1e-6f)
+			{
+				continue;
+			}
+
+			// normalize(v) / length(v) と同じ向きだが、sqrt不要
+			steeringForce += toAgent * (1.0f / distSq);
 		}
-		return SteeringForce;
+
+		return steeringForce;
 	}
 
 

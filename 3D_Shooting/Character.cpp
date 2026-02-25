@@ -148,18 +148,36 @@ namespace shooting {
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
 		//最初のステートをSeekFarStateに設定
 		m_StateMachine->ChangeState(SeekFarState::Instance());
+
+		m_SteeringUpdateTimer = (double)((reinterpret_cast<std::uintptr_t>(this) & 3)) * 0.0125;
 	}
 
 
 	//操作
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
-		m_Force = Vec3(0);
-		//ステートマシンのUpdateを行う
-		//この中でステートの切り替えが行われる
-		m_StateMachine->Update();
-		auto ptrUtil = GetBehavior<UtilBehavior>();
-		ptrUtil->RotToHead(1.0f);
+		m_SteeringUpdateTimer -= elapsedTime;
+
+		// 操舵計算は20Hzだけ
+		if (m_SteeringUpdateTimer <= 0.0)
+		{
+			m_SteeringUpdateTimer += m_SteeringUpdateInterval;
+
+			m_Force = Vec3(0);
+			m_StateMachine->Update(); // この中で SetForce / ApplyForce される
+		}
+		else
+		{
+			// 前回の force を使って移動だけ継続
+			ApplyForce();
+		}
+
+		// 向き更新は velocity ベース
+		if (bsmUtil::lengthSqr(m_Velocity) > 1e-6f)
+		{
+			auto ptrUtil = GetBehavior<UtilBehavior>();
+			ptrUtil->RotToHead(m_Velocity, 0.35f);
+		}
 	}
 
 	Vec3 SeekObject::GetTargetPos()const
@@ -323,9 +341,6 @@ namespace shooting {
 		Quat rot = ptrTrans->GetQuaternion();
 		rot *= Quat(Vec3(0, 1, 0), (float)(elapsedTime * 0.5));
 		ptrTrans->SetQuaternion(rot);
-
-		// 大きさ
-		ptrTrans->SetScale(1.0f, 1.0f, 1.0f);
 	}
 
 }

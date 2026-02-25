@@ -155,22 +155,25 @@ namespace shooting {
 		template <typename T>
 		std::shared_ptr<T> GetComponent(bool exceptionActive = true)const
 		{
-			auto Ptr = SearchDynamicComponent<T>();
-			if (Ptr)
+			auto it = m_componentMap.find(std::type_index(typeid(T)));
+			if (it != m_componentMap.end())
 			{
-				//指定の型のコンポーネントが見つかった
-				return Ptr;
+				return std::static_pointer_cast<T>(it->second);
 			}
-			else
+
+			auto ptr = SearchDynamicComponent<T>();
+			if (ptr)
 			{
-				if (exceptionActive)
-				{
-					throw BaseException(
-						L"コンポーネントが見つかりません",
-						Util::GetWSTypeName<T>(),
-						L"GameObject::GetComponent<T>()"
-					);
-				}
+				return ptr;
+			}
+
+			if (exceptionActive)
+			{
+				throw BaseException(
+					L"コンポーネントが見つかりません",
+					Util::GetWSTypeName<T>(),
+					L"GameObject::GetComponent<T>()"
+				);
 			}
 			return nullptr;
 		}
@@ -211,28 +214,15 @@ namespace shooting {
 		template <typename T>
 		std::shared_ptr<T> GetBehavior()
 		{
-			auto Ptr = SearchBehavior(std::type_index(typeid(T)));
-			if (Ptr)
+			auto ptr = SearchBehavior(std::type_index(typeid(T)));
+			if (ptr)
 			{
-				//指定の型の行動が見つかった
-				auto RetPtr = std::dynamic_pointer_cast<T>(Ptr);
-				if (RetPtr)
-				{
-					return RetPtr;
-				}
-				else
-				{
-					throw std::runtime_error("行動がありましたが、型キャストできません");
-				}
+				return std::static_pointer_cast<T>(ptr);
 			}
-			else
-			{
-				//無ければ新たに制作する
-				std::shared_ptr<T> newPtr = ObjectFactory::Create<T>(GetThis<GameObject>());
-				AddMakedBehavior(std::type_index(typeid(T)), newPtr);
-				return newPtr;
-			}
-			return nullptr;
+
+			std::shared_ptr<T> newPtr = ObjectFactory::Create<T>(GetThis<GameObject>());
+			AddMakedBehavior(std::type_index(typeid(T)), newPtr);
+			return newPtr;
 		}
 
 		/// <summary>
