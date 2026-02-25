@@ -366,13 +366,24 @@ namespace shooting {
 	{
 		pImpl->m_MiscPerformance.Start();
 		auto& ObjVec = GetStage()->GetGameObjectVec();
-		//コリジョンブロックのクリア
+		
+		// コリジョンブロックのクリア
 		pImpl->m_CollisionBlocks.AllClear();
+		
+		// 不要なオブジェクトを早期スキップ
 		for (auto& v : ObjVec)
 		{
+			if (!v->IsUpdateActive()) continue;
+			
+			auto col = v->GetComponent<Collision>(false);
+			if (!col) continue;  
+			if (!col->IsUpdateActive()) continue;
+			if (col->IsSleep()) continue;  // スリープ中はスキップ
+			
 			pImpl->m_CollisionBlocks.SetCollisionBlock(v);
 		}
-		//各ブロックごとに判定を行う
+		
+		// 各ブロックごとに判定を行う
 		pImpl->m_CollisionBlocks.SetNewCollision(GetThis<CollisionManager>());
 		pImpl->m_MiscPerformance.End();
 	}

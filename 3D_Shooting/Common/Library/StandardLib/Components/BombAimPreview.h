@@ -6,7 +6,6 @@
 
 namespace shooting {
 
-	/// 表示用の小さい球（予測線・リングに使う）
 	class PreviewDot : public GameObject
 	{
 	public:
@@ -18,50 +17,45 @@ namespace shooting {
 
 		void OnCreate() override
 		{
-			// 衝突は不要
-			// 見た目だけ欲しいので Draw だけ付ける
 			auto draw = AddComponent<BcPNTStaticDraw>();
 			draw->AddBaseMesh(L"DEFAULT_SPHERE");
-			//draw->AddBaseTexture(L"WALL_TX"); // 手持ちの適当なテクスチャでOK
 			draw->SetOwnShadowActive(false);
-
-			// Stage更新は不要（位置は外からTransformを触って動かす）
 			SetUpdateActive(false);
 		}
 
 		void OnUpdate(double /*elapsedTime*/) override {}
 	};
 
-	/// <summary>
-	/// ボム弾の発射前プレビュー
-	/// ・軌道：点列
-	/// ・爆発範囲：円（リング）を点で表現
-	/// </summary>
 	class BombAimPreview : public Component
 	{
 	private:
-		// 表示用ドット
 		std::vector<std::shared_ptr<PreviewDot>> m_PathDots;
 		std::vector<std::shared_ptr<PreviewDot>> m_RingDots;
 
-		// パラメータ
-		int   m_PathCount = 20;
-		int   m_RingCount = 32;
+		int   m_PathCount = 8;
+		int   m_RingCount = 12;
 		float m_PathDotScale = 0.06f;
 		float m_RingDotScale = 0.08f;
 
-		// 予測の入力（Player側が毎フレームセットする）
 		bool  m_Visible = false;
-		Vec3  m_Start = Vec3(0, 0, 0);     // muzzle
-		Vec3  m_Target = Vec3(0, 0, 0);    // 着弾点
-		Vec3  m_HitNormal = Vec3(0, 1, 0); // 地面法線
+		Vec3  m_Start = Vec3(0, 0, 0);
+		Vec3  m_Target = Vec3(0, 0, 0);
+		Vec3  m_HitNormal = Vec3(0, 1, 0);
 		bool  m_HasHit = false;
 
-		// 弾道パラメータ（BombBullet と揃える）
-		//Vec3  m_Gravity = Vec3(0, -9.8f, 0);
-		//float m_ArcHeight = 2.5f;
-		//float m_ExplosionRadius = 2.0f; // 見た目の円の半径（実際の爆発範囲と揃える）
 		BombTuning m_Tuning{};
+		float m_MaxRange = 500.0f;
+
+		bool  m_DotsShown = false;
+		bool  m_HasCachedLayout = false;
+		float m_RebuildTimer = 0.0f;
+		float m_RebuildInterval = 0.05f;
+		float m_StartRebuildThreshold = 0.05f;
+		float m_TargetRebuildThreshold = 0.10f;
+
+		Vec3  m_LastBuiltStart = Vec3(0, 0, 0);
+		Vec3  m_LastBuiltTarget = Vec3(0, 0, 0);
+
 	public:
 		explicit BombAimPreview(const std::shared_ptr<GameObject>& go)
 			: Component(go)
@@ -69,11 +63,13 @@ namespace shooting {
 		}
 
 		const BombTuning& GetTuning() const { return m_Tuning; }
-		void SetTuning(const BombTuning& t) { m_Tuning = GetBombTuning(); }
+		void SetTuning(const BombTuning& t) { m_Tuning = t; }
+
+		void SetMaxRange(float maxRange) { m_MaxRange = maxRange; }
+		float GetMaxRange() const { return m_MaxRange; }
 
 		void OnCreate() override;
 
-		/// Player側から毎フレームこれを呼ぶ想定
 		void SetPreviewInput(
 			bool visible,
 			const Vec3& start,
@@ -88,7 +84,6 @@ namespace shooting {
 		static Vec3 SafeNormalize(const Vec3& v);
 		static void MakeTangentBasis(const Vec3& n, Vec3& outT, Vec3& outB);
 
-		// 弾道（頂点高さ方式）を解く：v0 と飛行時間 T
 		bool SolveBallistic_ApexHeight(
 			const Vec3& p0,
 			const Vec3& p1,

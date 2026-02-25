@@ -163,6 +163,7 @@ namespace shooting {
 
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
+		m_BombPreview->SetMaxRange(20.0f); // 最大到達距離を設定
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -205,6 +206,8 @@ namespace shooting {
 		Quat shotRot;
 		Quat shotRotPreview;
 
+		const float aimMaxDist = m_BombPreview ? m_BombPreview->GetMaxRange() : 20.0f;
+
 		if (m_MainCamera && m_CollisionManager)
 		{
 			auto trans = GetComponent<Transform>();
@@ -218,8 +221,6 @@ namespace shooting {
 			Vec3 rayOrigin = m_MainCamera->GetEye();
 			Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
 			rayDir.normalize();
-
-			const float aimMaxDist = 1000.0f;
 
 			// ----------------------------
 			// ① 弾用（Enemyは拾う / Bulletは無視）

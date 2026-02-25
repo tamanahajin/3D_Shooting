@@ -139,7 +139,7 @@ namespace shooting {
 		// クロスヘア描画（線4本）
 		if (m_crosshair.enabled)
 		{
-			// 中央（1px線をシャープに見せるため 0.5 を足す）
+			// 中央
 			const float cx = std::floor(m_width * 0.5f) + 0.5f;
 			const float cy = std::floor(m_height * 0.5f) + 0.5f;
 
