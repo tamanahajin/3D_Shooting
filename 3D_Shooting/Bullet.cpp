@@ -9,8 +9,8 @@ namespace shooting {
 	DefaultBullet::DefaultBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param)
 		: IBullet(stagePtr)
 	{
-		// ObjectFactory::Create はコンストラクタ直後に OnCreate() を呼ぶので
-		// Transform初期値を先に持たせたい場合はここで保存する
+		// ObjectFactory::Create のコンストラクタから OnCreate() を呼ぶので
+		// Transformの初期値を先に設定したい場合はここで保管する
 		m_transParam = param;
 
 		m_IsActive = false;
@@ -34,7 +34,7 @@ namespace shooting {
 		ptrDraw->AddBaseTexture(L"WALL_TX");
 		ptrDraw->SetOwnShadowActive(true);
 
-		// ダメージ（このプロジェクトでは OnCollisionEnter 内で ApplyDamage している）
+		// ダメージ（このプロジェクトでは OnCollisionEnter から ApplyDamage を呼ぶ）
 		auto dmg = AddComponent<DamageDealer>();
 		dmg->SetDamage(3);
 		dmg->SetDestroyOnHit(true);
@@ -92,7 +92,7 @@ namespace shooting {
 		// プレイヤーは除外
 		if (otherObj->FindTag(L"Player")) return;
 
-		// 相手がHPを持っていればダメージ
+		// 相手がHP持っていればダメージ
 		if (auto hp = otherObj->GetComponent<Health>(false))
 		{
 			DamageInfo info;
@@ -101,14 +101,14 @@ namespace shooting {
 			hp->ApplyDamage(info);
 		}
 
-		// 命中で終了（プール回収は BulletPool 側）
+		// ここで終了（プールから再利用は BulletPool 側）
 		SetActive(false);
 		SetUpdateActive(false);
 	}
 
 	void DefaultBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// 必要なら Enter と同様に扱う
+		// 必要なら Enter と同様に処理
 		// OnCollisionEnter(pair);
 	}
 
@@ -125,13 +125,13 @@ namespace shooting {
 
 	void BombBullet::OnCreate()
 	{
-		// まず通常弾の部品をそのまま使う（衝突・描画・DamageDealer 等）
+		// まず通常弾の分（衝突・描画・DamageDealer 等）
 		DefaultBullet::OnCreate();
 
 		// ボム用タグ（デバッグ用）
 		AddTag(L"Bomb");
 
-		// ボムは「爆発中に複数ヒット」させたいので DestroyOnHit は false 推奨
+		// ボムは「複数に範囲ヒット」がメインなので DestroyOnHit を false にする
 		if (auto dd = GetComponent<DamageDealer>(false))
 		{
 			dd->SetDamage(m_ExplosionDamage);
@@ -145,7 +145,7 @@ namespace shooting {
 
 		if (!m_Exploding)
 		{
-			// 信管（保険）
+			// 飛行中（信管）
 			m_FuseTime -= elapsedTime;
 			if (m_FuseTime <= 0.0)
 			{
@@ -163,25 +163,25 @@ namespace shooting {
 				// 発射からの経過 t
 				m_FlyTime += static_cast<float>(elapsedTime);
 
-				// 解析式：p(t)=p0+v0*t+0.5*g*t^2
+				// 弾道式：p(t)=p0+v0*t+0.5*g*t^2
 				const float t = m_FlyTime;
 				tp.position = m_StartPos + (m_V0 * t) + (m_Gravity * (0.5f * t * t));
 
 				// 現在速度：v(t)=v0+g*t（必要なら）
 				m_Velocity = m_V0 + (m_Gravity * t);
 
-				// --- ここが “プレビュー終点” と一致させるコツ ---
-				// プレビューは 0..T を描いて終わりなので、実弾も T で終わらせる（=到達で爆発）
+				// --- 重要： 「プレビュー終点」 と一致させるコツ ---
+				// プレビューは 0..T で描画して終了なので、弾側も T で終了または着弾させる
 				if (m_FlyTime >= m_TotalT)
 				{
-					tp.position = m_TargetPos;   // 最後をピタッと合わせる
-					StartExplosion(nullptr);     // 到達で爆発（不要ならコメントアウトして停止などに変更）
+					tp.position = m_TargetPos;   // 最後ぴったりと合わせる
+					StartExplosion(nullptr);     // 着弾で爆発（不要ならコメントアウトして停止など）
 					return;
 				}
 			}
 			else
 			{
-				// ターゲット無し等：従来通り（直進+重力）でもOK
+				// ターゲットなし：従来の直進（+重力）でもOK
 				const float dt = static_cast<float>(elapsedTime);
 				m_Velocity += m_Gravity * dt;
 				tp.position += m_Velocity * dt;
@@ -212,19 +212,19 @@ namespace shooting {
 
 		if (!m_Exploding)
 		{
-			// 飛翔中に何かに当たったら即爆発
+			// 飛行中に何かに当たったら即爆発
 			StartExplosion(otherObj);
 			return;
 		}
 
-		// 爆発中は範囲ダメージ（多重ヒット防止あり）
+		// 爆発中は範囲ダメージ（多重ヒット防止）
 		TryApplyExplosionDamage(otherObj);
 	}
 
 	void BombBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// 爆風が短い場合 Enter だけで十分なことが多い。
-		// もし衝突イベントの仕様で Execute の方が確実ならここで処理する。
+		// 爆発セット後場合 Enter だけでは不十分なときある。
+		// 連続衝突イベントの仕様次第で Execute の方が確実ならここで処理する。
 		if (m_Exploding)
 		{
 			OnCollisionEnter(pair);
@@ -248,13 +248,13 @@ namespace shooting {
 			trans->SetScale(Vec3(m_ExplosionScale, m_ExplosionScale, m_ExplosionScale));
 		}
 
-		// 着弾先があるなら即ダメージ（爆発開始時点で衝突中の可能性があるため）
+		// 弾側が誰かなら即ダメージ（爆発開始時点で衝突中の可能性があるため）
 		if (firstHit)
 		{
 			TryApplyExplosionDamage(firstHit);
 		}
 
-		// ここで爆発VFX/SE/カメラシェイク等を入れるのが定番
+		// ここで爆発VFX/SE/カメラシェイク出すのが理想
 	}
 
 	void BombBullet::TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target)
@@ -268,6 +268,7 @@ namespace shooting {
 		}
 		m_HitOnce.insert(target.get());
 
+		// ダメージ適用
 		if (auto hp = target->GetComponent<Health>(false))
 		{
 			DamageInfo info;
@@ -280,6 +281,41 @@ namespace shooting {
 			info.m_Damage = dmg;
 			info.m_Instigator = GetThis<GameObject>();
 			hp->ApplyDamage(info);
+		}
+
+		// --- 吹き飛ばし処理（Gravityコンポーネントを利用） ---
+		if (auto gravity = target->GetComponent<Gravity>(false))
+		{
+			// 爆発中心から対象への方向を計算
+			auto bombTrans = GetComponent<Transform>();
+			auto targetTrans = target->GetComponent<Transform>();
+			if (bombTrans && targetTrans)
+			{
+				Vec3 explosionCenter = bombTrans->GetPosition();
+				Vec3 targetPos = targetTrans->GetPosition();
+				Vec3 knockbackDir = targetPos - explosionCenter;
+				
+				// 水平方向の吹き飛ばし
+				knockbackDir.y = 0.0f;
+				float distance = knockbackDir.length();
+				
+				if (distance > 0.01f)
+				{
+					knockbackDir.normalize();
+					
+					// 距離に応じて威力を調整（近いほど強い）
+					float maxKnockbackDist = m_ExplosionScale * 0.5f; // 爆発半径
+					float strength = 1.0f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
+					strength = bsmUtil::Max(strength, 0.3f);
+					
+					// 吹き飛ばしベクトル（水平方向 + 上方向）
+					Vec3 knockbackVelocity = knockbackDir * (15.0f * strength); // 水平方向の速度
+					knockbackVelocity.y = 20.0f * strength; // 上方向の速度
+					
+					// Gravityコンポーネントの速度を上書き（既存のジャンプ機能を流用）
+					gravity->SetGravityVelocity(knockbackVelocity);
+				}
+			}
 		}
 	}
 
@@ -329,10 +365,10 @@ namespace shooting {
 			return;
 		}
 
-		// 発射時の基準点 p0
+		// 発射時の起点 p0
 		m_StartPos = trans->GetTransParam().position;
 
-		// ターゲットが無い場合は保険で直進
+		// ターゲットなければ信管で直進
 		if (!m_HasTarget)
 		{
 			m_V0 = trans->GetForward() * m_Speed;
@@ -344,7 +380,7 @@ namespace shooting {
 		const float distXZ = deltaXZ.length();
 		const float arcHeight = m_ArcHeight + distXZ * m_ArcHeightPerDistXZ;
 
-		// ターゲット弾道（プレビューと同じ解き方）
+		// ターゲット弾道（プレビューと同一計算）
 		Vec3 v0;
 		float T = 0.0f;
 		if (SolveBallistic_ApexHeight(m_StartPos, m_TargetPos, m_Gravity, arcHeight, v0, T))
@@ -353,22 +389,22 @@ namespace shooting {
 			m_TotalT = T;
 			m_UseBallistic = true;
 
-			// 今の速度（見た目回転などに使うなら）
+			// 初速（向き回転などに使うなら）
 			m_Velocity = m_V0;
 
-			// ターゲットに到達する前に信管爆発しないよう保険
-			// （到達時に爆発させるなら、この保険は実質不要）
+			// ターゲットに到達する前に信管が切れないよう信管
+			// （着弾に爆発させないなら、この信管は事実上不要）
 			m_FuseTime = bsmUtil::Max(m_FuseTime, (double)T + 0.2);
 		}
 		else
 		{
-			// 解けなければ直進にフォールバック
+			// 解けなかったら従来の直進にフォールバック
 			m_V0 = trans->GetForward() * m_Speed;
 			m_Velocity = m_V0;
 			m_UseBallistic = false;
 		}
 
-		// 使い回し事故防止
+		// 繰り返し時の防止
 		m_HasTarget = false;
 	}
 }

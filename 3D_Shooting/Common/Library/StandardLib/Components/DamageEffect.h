@@ -1,6 +1,6 @@
 ﻿/*!
 @file DamageEffectComponent.h
-@brief ダメージエフェクトコンポーネント（外周アウトライン）
+@brief ダメージエフェクトコンポーネント（モデル全体を赤くする）
 */
 
 #pragma once
@@ -8,14 +8,14 @@
 
 namespace shooting {
 
-	// ダメージアウトライン用シェーダ
-	//  - VSDamageEffect.hlsl : 法線方向に頂点を押し出す（膨張）
+	// ダメージエフェクト用シェーダ
+	//  - VSDamageEffect.hlsl : 通常の頂点変換
 	//  - PSDamageEffect.hlsl : 赤色で塗る（alpha = damage）
 	DECLARE_DX12SHADER(VSDamageEffect)
 	DECLARE_DX12SHADER(PSDamageEffect)
 
 	//--------------------------------------------------------------------------------------
-	/// ダメージアウトライン用コンスタントバッファ（HLSLの DamageEffect.hlsli と一致させる）
+	/// ダメージエフェクト用コンスタントバッファ（HLSLの DamageEffect.hlsli と一致させる）
 	///
 	/// HLSL側：
 	/// cbuffer OutlineCB : register(b0)
@@ -27,13 +27,13 @@ namespace shooting {
 	///     float2 _pad;
 	/// };
 	///
-	/// ※D3D12のCBは256byte境界に配置されますが、ここは「構造体の内容」を一致させればOKです。
+	/// ※gOutlineWidthは使用しませんが、HLSL側との互換性のため残しています
 	//--------------------------------------------------------------------------------------
 	struct DamageEffectConstantBuffer
 	{
 		XMFLOAT4X4 World;       //!< ワールド行列（転置済みで渡す前提）
 		XMFLOAT4X4 ViewProj;    //!< ViewProj行列（転置済みで渡す前提）
-		float      OutlineWidth; //!< 輪郭の太さ（モデル単位）
+		float      OutlineWidth; //!< 未使用（互換性のため残す）
 		float      Damage;       //!< 0..1（1が最大、0で消える）
 		XMFLOAT2   Pad;          //!< 16byteアライン用
 	};
@@ -42,14 +42,14 @@ namespace shooting {
 	/// ダメージエフェクトコンポーネント
 	///
 	/// 目的：
-	///   被弾中に「外周だけ」赤い輪郭（アウトライン）を描く。
+	///   被弾中にモデル全体を薄く赤くする。
 	///
-	/// 方式（定番）：
+	/// 方式：
 	///   1) いつも通りモデルを描く（通常PSO）
-	///   2) その後に、このコンポーネントで同じメッシュを「もう一度」描く（アウトラインPSO）
-	///      - Cull = FRONT（表面を捨て、裏面だけ描く）→ 外周だけ見えやすい
-	///      - VSで法線方向に少し膨らませる          → 輪郭の幅になる
-	///      - DepthWrite = OFF（深度を書かない）     → Zを汚さない
+	///   2) その後に、このコンポーネントで同じメッシュを「もう一度」描く（ダメージエフェクトPSO）
+	///      - Cull = BACK（通常の裏面カリング）
+	///      - アルファブレンド有効
+	///      - DepthWrite = OFF（深度を書かない）→ Zを汚さない
 	///
 	/// 注意：
 	///   このコンポーネント単体では「描画順」を保証できないので、
@@ -61,14 +61,14 @@ namespace shooting {
 		double m_EffectTimer = 0.0;     //!< 残り時間（秒）
 		bool   m_IsEffectActive = false;//!< エフェクト有効フラグ
 		float  m_EffectDuration = 0.2f; //!< 持続時間（秒）
-		float  m_OutlineWidth = 0.02f;  //!< 輪郭の太さ（モデル単位）
+		float  m_OutlineWidth = 0.02f;  //!< 未使用（互換性のため残す）
 
 		// GPUへ渡す定数
 		DamageEffectConstantBuffer m_ConstantBuffer{};
 		size_t m_ConstantBufferIndex = 0; //!< FrameResource内のCBスロット番号
 
-		// アウトライン用PSOのキー（PipelineStatePoolに登録して使い回す）
-		static constexpr const wchar_t* kOutlinePSOKey = L"DamageEffectOutline";
+		// ダメージエフェクト用PSOのキー（PipelineStatePoolに登録して使い回す）
+		static constexpr const wchar_t* kDamageEffectPSOKey = L"DamageEffectOverlay";
 
 	public:
 		//--------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace shooting {
 		virtual ~DamageEffect();
 
 		//--------------------------------------------------------------------------------------
-		/// 初期化（CB確保＆アウトラインPSO作成）
+		/// 初期化（CB確保＆ダメージエフェクトPSO作成）
 		//--------------------------------------------------------------------------------------
 		virtual void OnCreate() override;
 
@@ -118,20 +118,20 @@ namespace shooting {
 		void SetEffectDuration(float duration) { m_EffectDuration = duration; }
 
 		//--------------------------------------------------------------------------------------
-		/// 輪郭太さ設定
+		/// 輪郭太さ設定（未使用だが互換性のため残す）
 		//--------------------------------------------------------------------------------------
 		void SetOutlineWidth(float width) { m_OutlineWidth = width; }
 
 		//--------------------------------------------------------------------------------------
-		/// 輪郭太さ取得
+		/// 輪郭太さ取得（未使用だが互換性のため残す）
 		//--------------------------------------------------------------------------------------
 		float GetOutlineWidth() const { return m_OutlineWidth; }
 
 	private:
 		// 定数（行列・damage等）を更新
 		void UpdateConstantBuffer();
-		// アウトラインPSOが未作成なら作る（OnCreateで呼ぶ）
-		void EnsureOutlinePipelineState();
+		// ダメージエフェクトPSOが未作成なら作る（OnCreateで呼ぶ）
+		void EnsureDamageEffectPipelineState();
 	};
 
 } // namespace shooting

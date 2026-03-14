@@ -1,6 +1,6 @@
 /*!
 @file DamageEffectComponent.cpp
-@brief ダメージエフェクトコンポーネント 実体（外周アウトライン）
+@brief ダメージエフェクトコンポーネント 実体（モデル全体を赤くする）
 */
 
 #include "stdafx.h"
@@ -37,9 +37,9 @@ namespace shooting {
 		}
 
 		//==========================================================
-		// 2) アウトライン用PSOを作成（未作成なら）
+		// 2) ダメージエフェクト用PSOを作成（未作成なら）
 		//==========================================================
-		EnsureOutlinePipelineState();
+		EnsureDamageEffectPipelineState();
 	}
 
 	void DamageEffect::OnUpdate(double elapsedTime)
@@ -77,27 +77,32 @@ namespace shooting {
 		m_EffectTimer = 0.0;
 	}
 
-	void DamageEffect::EnsureOutlinePipelineState()
+	void DamageEffect::EnsureDamageEffectPipelineState()
 	{
 		// すでに作られていれば何もしない
-		ComPtr<ID3D12PipelineState> outlinePSO = PipelineStatePool::GetPipelineState(kOutlinePSOKey);
-		if (outlinePSO)
+		ComPtr<ID3D12PipelineState> damageEffectPSO = PipelineStatePool::GetPipelineState(kDamageEffectPSOKey);
+		if (damageEffectPSO)
 		{
 			return;
 		}
 
 		//==========================================================
-		// アウトラインPSO（外周輪郭）を作る
+		// ダメージエフェクトPSO（モデル全体を赤くする）を作る
 		//  - 入力レイアウトは PNT（Position/Normal/Tex）に合わせる
 		//  - RootSignature は BaseCrossDefault を使う（あなたの3D描画と同じ）
-		//  - Cull = FRONT：表面を捨てて裏面だけ描く → 外周が残りやすい
+		//  - Cull = BACK（通常の裏面カリング）
 		//  - DepthWrite = OFF：深度を書かない → Zを汚さない
+		//  - DepthBias：Zファイティングを防ぐため、少し手前に描画
+		//  - AlphaBlend = ON：赤色を半透明で重ねる
 		//==========================================================
 		CD3DX12_RASTERIZER_DESC rasterizerState(D3D12_DEFAULT);
-		rasterizerState.CullMode = D3D12_CULL_MODE_FRONT; // ★ここが肝
+		rasterizerState.CullMode = D3D12_CULL_MODE_BACK; // 通常の裏面カリング
+		rasterizerState.DepthBias = -1000;               // 負の値でカメラ側に近づける（Zファイティング対策）
+		rasterizerState.DepthBiasClamp = 0.0f;
+		rasterizerState.SlopeScaledDepthBias = -1.0f;
 
 		CD3DX12_DEPTH_STENCIL_DESC depthStencil(D3D12_DEFAULT);
-		depthStencil.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // ★深度は書かない
+		depthStencil.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 深度は書かない
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 		ZeroMemory(&psoDesc, sizeof(psoDesc));
@@ -126,8 +131,7 @@ namespace shooting {
 
 		psoDesc.RasterizerState = rasterizerState;
 
-		// PSDamageEffect は alpha = damage を返すので、ここはアルファブレンドにしておくとフェードが自然
-		// もっと強い輪郭にしたいなら GetOpaqueBlend() + PSのalphaを1にする、でもOK。
+		// アルファブレンドを有効にしてモデル全体に赤色を重ねる
 		psoDesc.BlendState = BlendState::GetAlphaBlendEx();
 
 		psoDesc.DepthStencilState = depthStencil;
@@ -139,10 +143,10 @@ namespace shooting {
 		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		psoDesc.SampleDesc.Count = 1;
 
-		ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&outlinePSO)));
-		NAME_D3D12_OBJECT(outlinePSO);
+		ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&damageEffectPSO)));
+		NAME_D3D12_OBJECT(damageEffectPSO);
 
-		PipelineStatePool::AddPipelineState(kOutlinePSOKey, outlinePSO);
+		PipelineStatePool::AddPipelineState(kDamageEffectPSOKey, damageEffectPSO);
 	}
 
 	void DamageEffect::UpdateConstantBuffer()
@@ -183,18 +187,10 @@ namespace shooting {
 		damageValue = bsmUtil::Max(0.0f, std::min(1.0f, damageValue));
 
 		m_ConstantBuffer.Damage = damageValue;
-		m_ConstantBuffer.OutlineWidth = m_OutlineWidth;
+		m_ConstantBuffer.OutlineWidth = m_OutlineWidth; // 未使用だが互換性のため設定
 
 		// Pad は使わないが念のため
 		m_ConstantBuffer.Pad = XMFLOAT2(0, 0);
-
-		//==========================================================
-		// 非一様スケールがある場合の注意：
-		//   法線変換は「逆転置」が理想です。
-		//   ただし、現状のVSDamageEffect.hlslは gWorld で法線を変換しているので、
-		//   非一様スケールが強いと輪郭が歪む可能性があります。
-		//   → 本格対応したい場合は HLSL側に normalMatrix を追加するのが定石。
-		//==========================================================
 	}
 
 	void DamageEffect::OnDraw(ID3D12GraphicsCommandList* pCommandList)
@@ -219,8 +215,8 @@ namespace shooting {
 		);
 
 		// 3) PSO / RootSignature 設定
-		ComPtr<ID3D12PipelineState> outlinePSO = PipelineStatePool::GetPipelineState(kOutlinePSOKey, true);
-		pCommandList->SetPipelineState(outlinePSO.Get());
+		ComPtr<ID3D12PipelineState> damageEffectPSO = PipelineStatePool::GetPipelineState(kDamageEffectPSOKey, true);
+		pCommandList->SetPipelineState(damageEffectPSO.Get());
 
 		ComPtr<ID3D12RootSignature> rs = RootSignaturePool::GetRootSignature(L"BaseCrossDefault", true);
 		pCommandList->SetGraphicsRootSignature(rs.Get());
@@ -232,7 +228,7 @@ namespace shooting {
 			.m_baseConstantBuffer->GetGPUVirtualAddress()
 		);
 
-		// 5) 同じメッシュをもう一度描く（これがアウトライン）
+		// 5) 同じメッシュをもう一度描く（これがダメージエフェクト）
 		//
 		// 注意：ここでは「BcPNTStaticDraw を持っている」ことを前提にしています。
 		//       もし SpPNTStaticDraw を使っている場合は、メッシュ参照方法を合わせてください。

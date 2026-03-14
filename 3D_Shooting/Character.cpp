@@ -131,11 +131,11 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			// ダメージエフェクトを開始（専用シェーダーで赤い輪郭を描画）
+			// ダメージエフェクト
 			auto effect = self->GetComponent<DamageEffect>();
 			if (effect)
 			{
-				effect->StartEffect(0.2f); // 0.2秒間エフェクト表示
+				effect->StartEffect(0.5f);
 			}
 		};
 
