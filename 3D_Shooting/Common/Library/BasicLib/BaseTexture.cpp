@@ -170,4 +170,3 @@ namespace shooting {
 	}
 
 }
-//end basecross

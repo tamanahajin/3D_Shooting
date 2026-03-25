@@ -198,6 +198,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\ExplosionEffect.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -393,6 +396,9 @@
       <Filter>ヘッダー ファイル\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
   </ItemGroup>

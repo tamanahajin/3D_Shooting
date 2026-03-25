@@ -18,6 +18,7 @@
 #include "Components/Gravity.h"
 #include "Components/Collision.h"
 #include "Components/DamageEffect.h"
+#include "Components/ExplosionEffect.h"
 #include "Objects/CollisionManager.h"
 #include "Objects/Stage.h"
 

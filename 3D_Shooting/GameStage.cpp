@@ -5,6 +5,7 @@
 
 #include "stdafx.h"
 #include "Project.h"
+#include <random>
 
 namespace shooting {
 
@@ -17,28 +18,63 @@ namespace shooting {
 	{
 		//オブジェクトのグループを作成する
 		auto group = CreateSharedObjectGroup(L"SeekGroup");
-		//配列の初期化
-		//配列の初期化
-		std::vector<Vec3> vec = {
-			{ 0, 0.525f, 10.0f },
-			{ 10.0f, 0.525f, 0.0f },
-			{ -10.0f, 0.525f, 0.0f },
-			{ 0, 0.525f, -15.0f },
-			{ 0, 0.525f, -16.0f },
-			{ 0, 0.525f, -17.0f },
-			{ 15, 0.525f, 0.0f },
-			{ 20, 0.525f, -10.0f },
-			{ -15, 0.525f, -10.0f },
-			{ -20, 0.525f, -10.0f },
-			{ 0, 0.525f, -7.0f },
-		};
-
-		//配置オブジェクトの作成
-		for (size_t count = 0; count < vec.size(); count++)
+		
+		// 生成する敵の数
+		const size_t enemyCount = 20;
+		
+		// ランダム配置のパラメータ
+		const float minDistance = 5.0f;   // 最小距離
+		const float maxDistance = 20.0f;  // 最大距離
+		const float yPosition = 0.525f;   // Y座標（地面の高さ）
+		
+		std::vector<Vec3> positions;
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> distRadius(minDistance, maxDistance);
+		std::uniform_real_distribution<float> distAngle(0.0f, XM_2PI);
+		
+		for (size_t count = 0; count < enemyCount; count++)
 		{
-			AddGameObject<SeekObject>(vec[count]);
+			Vec3 position;
+			bool validPosition = false;
+			int attempts = 0;
+			const int maxAttempts = 50;
+			
+			while (!validPosition && attempts < maxAttempts)
+			{
+				// 極座標でランダムな位置を生成
+				float radius = distRadius(gen);
+				float angle = distAngle(gen);
+				
+				position = Vec3(
+					radius * cosf(angle),
+					yPosition,
+					radius * sinf(angle)
+				);
+				
+				// 他のオブジェクトとの最小距離をチェック
+				validPosition = true;
+				for (const auto& existingPos : positions)
+				{
+					float dist = (position - existingPos).length();
+					if (dist < minDistance * 0.5f)
+					{
+						validPosition = false;
+						break;
+					}
+				}
+				
+				attempts++;
+			}
+			
+			positions.push_back(position);
 		}
-
+		
+		// 配置オブジェクトの作成
+		for (const auto& pos : positions)
+		{
+			AddGameObject<SeekObject>(pos);
+		}
 	}
 
 	// 空中浮遊敵の作成
@@ -74,7 +110,7 @@ namespace shooting {
 		param.position = Vec3(5.0f, 2.0f, 5.0f);
 		AddGameObject<WallBox>(param);
 		// 地面
-		param.scale = Vec3(50.0f, 1.0f, 50.0f);
+		param.scale = Vec3(150.0f, 1.0f, 150.0f);
 		param.position = Vec3(0.0f, -0.5, 0.0f);
 		AddGameObject<FixedBox>(param);
 

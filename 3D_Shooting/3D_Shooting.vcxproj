@@ -46,6 +46,7 @@
     <ClCompile Include="Common\Library\StandardLib\Components\Component.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\DamageDealer.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\DamageEffect.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\ExplosionEffect.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="Common\Library\StandardLib\Components\Component.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h" />

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Project.h"
+#include <iostream>
 
 namespace shooting {
 
@@ -103,7 +104,6 @@ namespace shooting {
 
 		// ここで終了（プールから再利用は BulletPool 側）
 		SetActive(false);
-		SetUpdateActive(false);
 	}
 
 	void DefaultBullet::OnCollisionExecute(const CollisionPair& pair)
@@ -128,7 +128,7 @@ namespace shooting {
 		// まず通常弾の分（衝突・描画・DamageDealer 等）
 		DefaultBullet::OnCreate();
 
-		// ボム用タグ（デバッグ用）
+		// タグ
 		AddTag(L"Bomb");
 
 		// ボムは「複数に範囲ヒット」がメインなので DestroyOnHit を false にする
@@ -237,15 +237,34 @@ namespace shooting {
 
 		m_Exploding = true;
 		m_ExplosionTimer = m_ExplosionDuration;
-
 		m_Velocity = Vec3(0, 0, 0);
-		// ヒット記録クリア
 		m_HitOnce.clear();
+
+		Vec3 explosionPos(0.0f, 0.0f, 0.0f);
 
 		// 爆風範囲を「スケール拡大」で表現
 		if (auto trans = GetComponent<Transform>())
 		{
+			explosionPos = trans->GetPosition();
 			trans->SetScale(Vec3(m_ExplosionScale, m_ExplosionScale, m_ExplosionScale));
+		}
+
+
+		// ゲームオブジェクト
+		SetDrawActive(false);
+		SetShadowActive(false);
+
+		// 爆発VFX生成
+		{
+			TransParam fxParam;
+			fxParam.position = explosionPos;
+			fxParam.scale = Vec3(1.0f, 1.0f, 1.0f);
+			fxParam.quaternion = Quat();
+
+			auto fx = GetStage()->AddGameObject<ExplosionEffect>(fxParam);
+			fx->SetLifeTime(0.2f);
+			fx->SetScaleRange(0.15f, bsmUtil::Max(1.4f, m_ExplosionScale * 0.9f));
+			fx->SetTextureKey(L"EXPLOSION_FIRE_TX");
 		}
 
 		// 弾側が誰かなら即ダメージ（爆発開始時点で衝突中の可能性があるため）
@@ -253,8 +272,6 @@ namespace shooting {
 		{
 			TryApplyExplosionDamage(firstHit);
 		}
-
-		// ここで爆発VFX/SE/カメラシェイク出すのが理想
 	}
 
 	void BombBullet::TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target)

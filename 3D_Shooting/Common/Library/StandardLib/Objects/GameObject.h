@@ -20,6 +20,8 @@ namespace shooting {
 		bool m_updateActive;
 		// draw‚Ì—LŒø–³Œø
 		bool m_drawActive;
+		// ‰e‚Ì—LŒø–³Œø
+		bool m_shadowActive;
 		// “§–¾‚©‚Ç‚¤‚©
 		bool m_alphaActive;
 
@@ -85,6 +87,7 @@ namespace shooting {
 			m_transParam(),
 			m_updateActive(true),
 			m_drawActive(true),
+			m_shadowActive(true),
 			m_alphaActive(false)
 		{
 		}
@@ -107,6 +110,14 @@ namespace shooting {
 		void SetDrawActive(bool active)
 		{
 			m_drawActive = active;
+		}
+		bool IsShadowActive() const
+		{
+			return m_shadowActive;
+		}
+		void SetShadowActive(bool active)
+		{
+			m_shadowActive = active;
 		}
 		bool IsAlphaActive() const
 		{

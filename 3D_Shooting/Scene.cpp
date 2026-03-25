@@ -34,6 +34,10 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"TRACE3_TX", texture);
 
+		texFile = App::GetRelativeAssetsDir() + L"Textures/particle_fire.png";
+		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
+		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
+
 		//ステージ作成
 		ResetActiveStage<GameStage>(pDevice);
 	}

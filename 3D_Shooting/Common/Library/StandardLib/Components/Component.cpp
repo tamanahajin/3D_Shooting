@@ -10,7 +10,7 @@ namespace shooting {
 	Component::Component(const std::shared_ptr<GameObject>& gameObjectPtr) :
 		m_gameObject(gameObjectPtr),
 		m_updateActive(true),
-		m_drawActive(false)
+		m_drawActive(true)
 	{
 	}
 

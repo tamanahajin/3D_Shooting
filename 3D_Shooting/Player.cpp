@@ -149,11 +149,15 @@ namespace shooting {
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
 
-		//hp->m_onDamaged = [self = GetThis<Player>()](const DamageInfo& info)
-		//	{
-		//		// 被弾演出、無敵時間開始、SE など
-		//		// self->StartInvincible(1.0);
-		//	};
+		hp->m_OnDamaged = [self = GetThis<Player>()](const DamageInfo& info)
+		{
+			// ダメージエフェクトを開始
+			auto effect = self->GetComponent<DamageEffect>();
+			if (effect)
+			{
+				effect->StartEffect();
+			}
+		};
 
 		//hp->m_onDeath = [self = GetThis<Player>()](const DamageInfo& info)
 		//	{

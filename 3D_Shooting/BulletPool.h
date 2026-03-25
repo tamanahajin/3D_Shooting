@@ -85,12 +85,14 @@ namespace shooting {
 					slot.active = false;
 
 					slot.bullet->SetUpdateActive(false);
+					slot.bullet->SetDrawActive(true);
+					slot.bullet->SetShadowActive(true);
 					slot.bullet->OnReturnToPool();
 
 					if (auto trans = slot.bullet->GetComponent<Transform>())
 					{
 						trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
-						trans->SetScale(Vec3(1.0f, 1.0f, 1.0f)); // ƒ{ƒ€‘Îô
+						trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
 					}
 
 					m_FreeIndices.push_back(static_cast<uint32_t>(i));

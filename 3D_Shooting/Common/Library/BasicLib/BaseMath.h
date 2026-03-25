@@ -2557,6 +2557,11 @@ namespace shooting {
 				return q;
 			}
 
+			static float Lerp(float a, float b, float t)
+			{
+				return a + (b - a) * t;
+			}
+
 			static inline bool IsFiniteFloat(float v)
 			{
 				return std::isfinite(v);

@@ -149,6 +149,13 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
+				// 影の描画フラグチェック
+				if (!this->IsShadowActive())
+				{
+					++it;
+					continue;
+				}
+
 				//指定の型のコンポーネントが見つかった
 				it2->second->OnShadowDraw(pCommandList);
 			}
@@ -166,6 +173,13 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
+				// 描画フラグチェック
+				if (!this->IsDrawActive())
+				{
+					++it;
+					continue;
+				}
+
 				//指定の型のコンポーネントが見つかった
 				it2->second->OnSceneDraw(pCommandList);
 			}
