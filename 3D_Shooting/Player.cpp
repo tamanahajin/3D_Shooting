@@ -159,11 +159,23 @@ namespace shooting {
 			}
 		};
 
-		//hp->m_onDeath = [self = GetThis<Player>()](const DamageInfo& info)
-		//	{
-		//		// 死亡処理（リトライ、ゲームオーバー、死亡演出など）
-		//		// self->SetUpdateActive(false);
-		//	};
+		hp->m_OnDeath = [self = GetThis<Player>()](const DamageInfo& info)
+		{
+			// 死亡処理
+			// プレイヤーを無効化
+			self->SetUpdateActive(false);
+			self->SetDrawActive(false);
+			
+			// ゲームオーバー処理などをここに追加可能
+			// 例: リトライ画面表示、ゲームオーバーUIなど
+		};
+
+		// ダメージエフェクトコンポーネントを追加
+		//auto damageEffect = AddComponent<DamageEffect>();
+		//damageEffect->SetOutlineWidth(0.035f);
+		//damageEffect->SetEffectDuration(0.3f);
+		auto damageEffect = AddComponent<DamageEffect>();
+		damageEffect->SetOutlineWidth(0.03f);
 
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
@@ -334,6 +346,30 @@ namespace shooting {
 	void Player::OnCollisionEnter(const CollisionPair& pair)
 	{
 		CheckGroundCollision(pair);
+
+		// 敵との衝突をチェック
+		auto other = pair.m_Dest.lock();
+		if (!other) return;
+
+		auto otherObj = other->GetGameObject();
+		if (!otherObj) return;
+
+		// 敵タグを持つオブジェクトとの衝突か確認
+		if (otherObj->FindTag(L"Enemy"))
+		{
+			// Healthコンポーネントを取得してダメージを適用
+			auto hp = GetComponent<Health>();
+			if (hp && !hp->IsDead())
+			{
+				// ダメージ情報を作成（敵との接触は1ダメージ）
+				DamageInfo damageInfo;
+				damageInfo.m_Damage = 1;
+				//damageInfo.m_Attacker = otherObj;
+					
+				// ダメージを適用
+				hp->ApplyDamage(damageInfo);
+			}
+		}
 	}
 
 	void Player::OnCollisionExecute(const CollisionPair& pair)

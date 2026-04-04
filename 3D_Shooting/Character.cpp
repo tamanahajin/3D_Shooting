@@ -123,7 +123,7 @@ namespace shooting {
 
 		// ダメージエフェクトコンポーネントを追加
 		auto damageEffect = AddComponent<DamageEffect>();
-		damageEffect->SetOutlineWidth(0.03f); // 輪郭の太さを設定
+		damageEffect->SetOutlineWidth(0.03f);
 
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
