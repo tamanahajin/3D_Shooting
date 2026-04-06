@@ -201,6 +201,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\ExplosionEffect.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -400,6 +403,9 @@
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

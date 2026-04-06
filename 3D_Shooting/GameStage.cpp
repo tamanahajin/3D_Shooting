@@ -94,6 +94,19 @@ namespace shooting {
 		}
 	}
 
+	int GameStage::GetAliveEnemyCount() const
+	{
+		std::vector<std::shared_ptr<GameObject>> enemies;
+		GetUsedTagObjectVec(L"Enemy", enemies);
+		return static_cast<int>(enemies.size());
+	}
+
+	int GameStage::GetDefeatedEnemyCount() const
+	{
+		const int defeated = m_totalEnemyCount - GetAliveEnemyCount();
+		return (defeated > 0) ? defeated : 0;
+	}
+
 	void GameStage::OnCreate()
 	{
 		//ƒJƒƒ‰‚Æƒ‰ƒCƒg‚Ìİ’è

@@ -1,23 +1,4 @@
-//*********************************************************
-//
-// Copyright (c) Microsoft. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//*********************************************************
-
-/*!
-@file UILayer.h
-@brief UIï∂éöóÒÉNÉâÉX
-@copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
- MIT License URL: https://opensource.org/license/mit
-*/
-
 #pragma once
-
 #include "stdafx.h"
 
 namespace shooting {
@@ -25,9 +6,9 @@ namespace shooting {
 	struct CrosshairDesc
 	{
 		bool  enabled = false;
-		float gap = 6.0f;   // íÜêSÇÃãÛÇ´
-		float len = 10.0f;  // ê¸ÇÃí∑Ç≥
-		float thickness = 1.0f;   // ê¸ÇÃëæÇ≥
+		float gap = 6.0f;
+		float len = 10.0f;
+		float thickness = 1.0f;
 	};
 
 	class UILayer
@@ -36,9 +17,25 @@ namespace shooting {
 		UILayer(UINT frameCount, ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue);
 
 		void UpdateLabels(const std::wstring& uiText);
+
+		void ClearDrawCommands();
+		void AddTextBlock(
+			const std::wstring& text,
+			const D2D1_RECT_F& rect,
+			DWRITE_TEXT_ALIGNMENT align = DWRITE_TEXT_ALIGNMENT_LEADING);
+
+		void AddProgressBar(
+			const D2D1_RECT_F& rect,
+			float value,
+			float maxValue,
+			const std::wstring& label = L"");
+
 		void Render(UINT frameIndex);
 		void ReleaseResources();
 		void Resize(Microsoft::WRL::ComPtr<ID3D12Resource>* ppRenderTargets, UINT width, UINT height);
+
+		float GetWidth() const { return m_width; }
+		float GetHeight() const { return m_height; }
 
 		void SetCrosshairEnabled(bool e) { m_crosshair.enabled = e; }
 		void SetCrosshairStyle(float gap, float len, float thickness)
@@ -47,11 +44,12 @@ namespace shooting {
 			m_crosshair.len = len;
 			m_crosshair.thickness = thickness;
 		}
+
 	private:
 		UINT FrameCount() { return static_cast<UINT>(m_wrappedRenderTargets.size()); }
 		void Initialize(ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue);
+		IDWriteTextFormat* ResolveTextFormat(DWRITE_TEXT_ALIGNMENT align) const;
 
-		// Render target dimensions
 		float m_width;
 		float m_height;
 
@@ -59,7 +57,15 @@ namespace shooting {
 		{
 			std::wstring text;
 			D2D1_RECT_F layout;
-			IDWriteTextFormat* pFormat;
+			IDWriteTextFormat* pFormat = nullptr;
+		};
+
+		struct ProgressBarBlock
+		{
+			D2D1_RECT_F layout;
+			float value = 0.0f;
+			float maxValue = 1.0f;
+			std::wstring label;
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_d3d11DeviceContext;
@@ -71,9 +77,15 @@ namespace shooting {
 		std::vector<Microsoft::WRL::ComPtr<ID3D11Resource>> m_wrappedRenderTargets;
 		std::vector<Microsoft::WRL::ComPtr<ID2D1Bitmap1>> m_d2dRenderTargets;
 		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_textBrush;
-		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
+
+		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormatLeft;
+		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormatCenter;
+		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormatRight;
+
 		std::vector<TextBlock> m_textBlocks;
+		std::vector<ProgressBarBlock> m_progressBars;
 
 		CrosshairDesc m_crosshair;
 	};
+
 }

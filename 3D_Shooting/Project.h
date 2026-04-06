@@ -12,6 +12,7 @@
 
 //個別オブジェクト等
 #include "ProjectUtil.h"
+#include "UIManager.h"
 #include "MainCamera.h"
 #include "IBullet.h"
 #include "Bullet.h"

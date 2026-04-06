@@ -38,7 +38,9 @@
     <ClCompile Include="Common\Library\BasicLib\PipelineState.cpp" />
     <ClCompile Include="Common\Library\BasicLib\PrimDevice.cpp" />
     <ClCompile Include="Common\Library\BasicLib\RootSignature.cpp" />
-    <ClCompile Include="Common\Library\BasicLib\UILayer.cpp" />
+    <ClCompile Include="Common\Library\BasicLib\UILayer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp" />
@@ -66,6 +68,7 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +138,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli" />

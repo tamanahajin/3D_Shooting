@@ -1,23 +1,13 @@
-/*!
-@file GameStage.h
-@brief ゲームステージクラス
-*/
-
-
-#pragma once
-
-
 #pragma once
 #include "stdafx.h"
 
-
 namespace shooting {
 
-	//--------------------------------------------------------------------------------------
-	// ゲームステージ
-	//--------------------------------------------------------------------------------------
-	class GameStage : public Stage {
-	protected:
+	class GameStage : public Stage
+	{
+	private:
+		int m_totalEnemyCount = 0;
+
 	public:
 		GameStage(ID3D12Device* pDevice) :
 			Stage(pDevice)
@@ -25,14 +15,14 @@ namespace shooting {
 		}
 		virtual ~GameStage() {}
 
-		//追いかけるオブジェクトの作成
 		void CreateSeekObject();
-
 		void CreateFloatingEnemies();
 
-		virtual void OnCreate()override;
+		int GetTotalEnemyCount() const { return m_totalEnemyCount; }
+		int GetAliveEnemyCount() const;
+		int GetDefeatedEnemyCount() const;
+
+		virtual void OnCreate() override;
 	};
-
-
 
 }

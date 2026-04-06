@@ -312,7 +312,7 @@ namespace shooting {
 			const Vec3  kGravity(0, -20.0f, 0);
 			const float kExplosionRadius = 2.0f;
 
-			// ここでは例として「ボムの時だけ」分岐
+			// ボム
 			if (m_CurrentBullet == BulletType::Bomb)
 			{
 				const Vec3 scale(0.1f, 0.1f, 0.1f);
@@ -324,8 +324,9 @@ namespace shooting {
 									b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning());
 								});
 
-				m_ShotCool = 3.0;
+				m_ShotCool = 1.0;
 			}
+			// 通常弾
 			else
 			{
 				bulletMgr->Fire<DefaultBullet>(muzzle, shotRot);

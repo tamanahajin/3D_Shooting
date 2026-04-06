@@ -61,19 +61,75 @@ namespace shooting {
 
 	void Scene::UpdateUI(std::unique_ptr<UILayer>& uiLayer)
 	{
-		auto device = BaseDevice::GetBaseDevice();
-		//1秒間に１回更新される安定したfpsを得る
-		auto fps = device->GetStableFps();
-		//1秒間に１回更新される安定したelapsedTimeを得る
-		auto elapsedTime = device->GetStableElapsedTime();
+		if (!uiLayer)
+		{
+			return;
+		}
 
-		std::wstring uiText = L"";
-		wchar_t buff[512];
-		swprintf_s(buff, 500, L"FPS: %.1f\n", fps);
-		uiText = buff;
-		swprintf_s(buff, 500, L"ElapsedTime: %.6f\n", elapsedTime);
-		uiText += buff;
-		uiLayer->UpdateLabels(uiText);
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+		if (!gameStage)
+		{
+			uiLayer->ClearDrawCommands();
+			return;
+		}
+
+		auto device = BaseDevice::GetBaseDevice();
+		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
+		auto hp = player ? player->GetComponent<Health>() : nullptr;
+
+		m_uiManager.BeginFrame();
+
+		// 右上：撃破数
+		{
+			wchar_t buff[128];
+			swprintf_s(
+				buff,
+				L"Kills  %d / %d",
+				gameStage->GetDefeatedEnemyCount(),
+				gameStage->GetTotalEnemyCount());
+
+			m_uiManager.AddText(
+				buff,
+				UIAnchor::TopRight,
+				{ -20.0f, 20.0f },
+				{ 260.0f, 40.0f },
+				UITextAlign::Right);
+		}
+
+		// 左上：デバッグ表示
+		{
+			wchar_t buff[256];
+			swprintf_s(
+				buff,
+				L"FPS: %.1f\nFrame: %.6f",
+				device->GetStableFps(),
+				device->GetStableElapsedTime());
+
+			m_uiManager.AddText(
+				buff,
+				UIAnchor::TopLeft,
+				{ 20.0f, 20.0f },
+				{ 260.0f, 70.0f },
+				UITextAlign::Left);
+		}
+
+		// 下中央：HPゲージ
+		if (hp)
+		{
+			wchar_t hpLabel[128];
+			swprintf_s(hpLabel, L"HP  %d / %d", hp->GetHP(), hp->GetMaxHP());
+
+			m_uiManager.AddProgressBar(
+				hpLabel,
+				static_cast<float>(hp->GetHP()),
+				static_cast<float>(hp->GetMaxHP()),
+				UIAnchor::BottomCenter,
+				{ 0.0f, -48.0f },
+				{ 320.0f, 28.0f });
+		}
+
+		uiLayer->SetCrosshairEnabled(true);
+		m_uiManager.Render(*uiLayer);
 	}
 
 	void Scene::Update(double elapsedTime)
