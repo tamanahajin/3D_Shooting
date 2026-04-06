@@ -41,6 +41,8 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
+	///	íTÇ∑çsìÆ
+	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Seek(const Vec3& Velocity, const Vec3& Target, const Vec3& Pos, float MaxSpeed)
 	{
 		Vec3 DesiredVelocity
@@ -48,6 +50,8 @@ namespace shooting {
 		return (DesiredVelocity - Velocity);
 	}
 
+	//--------------------------------------------------------------------------------------
+	///	ì¶Ç∞ÇÈçsìÆ
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Flee(const Vec3& Velocity, const Vec3& Target,
 						const Vec3& Pos, float MaxSpeed, float PanicDistance)
@@ -62,6 +66,8 @@ namespace shooting {
 		return (DesiredVelocity - Velocity);
 	}
 
+	//--------------------------------------------------------------------------------------
+	//	ìûíÖÇ∑ÇÈçsìÆ
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Arrive(const Vec3& Velocity, const Vec3& Target, const Vec3& Pos, float MaxSpeed, float Decl)
 	{
@@ -78,6 +84,8 @@ namespace shooting {
 		return Vec3(0, 0, 0);
 	}
 
+	//--------------------------------------------------------------------------------------
+	// í«ê’Ç∑ÇÈçsìÆ
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Pursuit(const Vec3& Velocity, const Vec3& Pos, const Vec3& Rot, float MaxSpeed,
 						   const Vec3& TargetVelocity, const Vec3& Target, const Vec3& TargetRot)
@@ -96,6 +104,8 @@ namespace shooting {
 	}
 
 
+	//--------------------------------------------------------------------------------------
+	//	úpújÇ∑ÇÈçsìÆ
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Wander(const Mat4x4 Matrix,
 						  float WanderRadius, float WanderDistance, float WanderJitter, Vec3& WanderTarget)

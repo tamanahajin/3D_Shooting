@@ -17,6 +17,7 @@ namespace shooting {
 		void SetMaxHP(int v) { m_MaxHP = v; m_Hp = std::min(m_Hp, m_MaxHP); }
 		void SetHP(int v) { m_Hp = bsmUtil::Clamp(v, 0, m_MaxHP); }
 		int  GetHP() const { return m_Hp; }
+		int  GetMaxHP() const { return m_MaxHP; }
 		bool IsDead() const { return m_Hp <= 0; }
 
 		// ダメージ適用（戻り値：死亡したか）
@@ -24,7 +25,7 @@ namespace shooting {
 
 		void SetInvincible(bool b) { m_Invincible = b; }
 
-		// 簡易イベント（好みで）
+		// イベント
 		std::function<void(const DamageInfo&)> m_OnDamaged;
 		std::function<void(const DamageInfo&)> m_OnDeath;
 	};

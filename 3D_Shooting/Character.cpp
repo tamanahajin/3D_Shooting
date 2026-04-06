@@ -222,7 +222,7 @@ namespace shooting {
 		float f = bsm::bsmUtil::length(Obj->GetComponent<Transform>()->GetPosition() - Obj->GetTargetPos());
 		if (f < Obj->GetStateChangeSize())
 		{
-			Obj->GetStateMachine()->ChangeState(SeekNearState::Instance());
+			//Obj->GetStateMachine()->ChangeState(SeekNearState::Instance());
 		}
 	}
 
