@@ -43,8 +43,6 @@ namespace shooting {
 			m_FogEnabled = b;
 		}
 
-
-
 		BcPNTStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
 		virtual ~BcPNTStaticDraw() {}
 		virtual void OnUpdateConstantBuffers()override;

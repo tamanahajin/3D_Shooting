@@ -38,6 +38,19 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
+		// 敵モデルの登録
+		auto enemyMesh = BaseMesh::CreateModelMesh(
+			pCommandList,
+			App::GetRelativeAssetsDir(),
+			L"Model/character-orc.fbx"
+		);
+		RegisterModelMesh(L"ENEMY_MODEL", enemyMesh);
+
+		// 敵モデルのテクスチャ
+		texFile = App::GetRelativeAssetsDir() + L"enemy_texture.png";
+		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
+		RegisterTexture(L"ENEMY_TEXTURE", texture);
+
 		//ステージ作成
 		ResetActiveStage<GameStage>(pDevice);
 	}
@@ -79,23 +92,6 @@ namespace shooting {
 
 		m_uiManager.BeginFrame();
 
-		// 右上：撃破数
-		{
-			wchar_t buff[128];
-			swprintf_s(
-				buff,
-				L"Kills  %d / %d",
-				gameStage->GetDefeatedEnemyCount(),
-				gameStage->GetTotalEnemyCount());
-
-			m_uiManager.AddText(
-				buff,
-				UIAnchor::TopRight,
-				{ -20.0f, 20.0f },
-				{ 260.0f, 40.0f },
-				UITextAlign::Right);
-		}
-
 		// 左上：デバッグ表示
 		{
 			wchar_t buff[256];
@@ -111,6 +107,23 @@ namespace shooting {
 				{ 20.0f, 20.0f },
 				{ 260.0f, 70.0f },
 				UITextAlign::Left);
+		}
+
+		// 右上：撃破数
+		{
+			wchar_t buff[128];
+			swprintf_s(
+				buff,
+				L"Kills  %d / %d",
+				gameStage->GetDefeatedEnemyCount(),
+				gameStage->GetTotalEnemyCount());
+
+			m_uiManager.AddText(
+				buff,
+				UIAnchor::TopRight,
+				{ -20.0f, 20.0f },
+				{ 260.0f, 40.0f },
+				UITextAlign::Right);
 		}
 
 		// 下中央：HPゲージ

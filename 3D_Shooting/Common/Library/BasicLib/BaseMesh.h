@@ -167,6 +167,7 @@ namespace shooting {
 		void InitAllMeshes();
 		void InitializeRequiredNodeMap(const aiNode* pNode);
 		void InitSingleMesh(uint32_t MeshIndex, const aiMesh* paiMesh);
+		void InitMultiMesh(uint32_t MeshIndex, const aiMesh* paiMesh);
 		void ReserveSpace(uint32_t NumVertices, uint32_t NumIndices);
 
 		void GetBoneTransforms(float AnimationTimeSec, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex = 0);
@@ -483,6 +484,19 @@ namespace shooting {
 			ID3D12GraphicsCommandList* pCommandList,
 			const std::wstring& dataDir, const std::wstring& dataFile,
 			UINT modelIndex = 0);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	複数のメッシュで構成されるモデルメッシュの作成
+		@param[in]	pCommandList	コマンドリスト
+		@param[in]	dataDir	データディレクトリ
+		@param[in]	dataFile　データファイル名
+		@return	BaseMeshのshared_ptrの配列
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::vector<std::shared_ptr<BaseMesh>> CreateModelMesh(
+			ID3D12GraphicsCommandList* pCommandList,
+			const std::wstring& dataDir,
+			const std::wstring& dataFile);
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	頂点の変更.<br />

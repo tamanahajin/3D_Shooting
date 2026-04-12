@@ -699,6 +699,43 @@ namespace shooting {
 		return nullptr;
 	}
 
+	void BaseScene::RegisterModelMesh(
+		const std::wstring& key,
+		const std::vector<std::shared_ptr<BaseMesh>>& meshes,
+		bool keyCheck)
+	{
+		if (keyCheck)
+		{
+			auto it = m_modelMeshMap.find(key);
+			if (it != m_modelMeshMap.end())
+			{
+				throw BaseException(
+					L"指定のキーのモデルメッシュがすでに存在します",
+					key,
+					L"BaseScene::RegisterModelMesh()"
+				);
+			}
+		}
+
+		m_modelMeshMap[key] = meshes;
+	}
+
+	const std::vector<std::shared_ptr<BaseMesh>>& BaseScene::GetModelMesh(
+		const std::wstring& key) const
+	{
+		auto it = m_modelMeshMap.find(key);
+		if (it != m_modelMeshMap.end())
+		{
+			return it->second;
+		}
+
+		throw BaseException(
+			L"指定のキーのモデルメッシュが見つかりません",
+			key,
+			L"BaseScene::GetModelMesh()"
+		);
+	}
+
 	void BaseScene::RegisterTexture(const std::wstring& key, const std::shared_ptr<BaseTexture>& texture, bool keyCheck)
 	{
 		if (keyCheck)

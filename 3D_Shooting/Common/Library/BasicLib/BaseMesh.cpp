@@ -105,57 +105,57 @@ Assimp::Importer importer;
 
 	}
 
-	bool BaseAssimp::InitMuliScene(std::vector <SkinningMeshSet>& meshSetVec) {
+	bool BaseAssimp::InitMuliScene(std::vector<SkinningMeshSet>& meshSetVec)
+	{
+		meshSetVec.clear();
+
+		m_Meshes.clear();
+		m_AllSkinnedVertices.clear();
+		m_AllIndices.clear();
+		m_SkinnedVertices.clear();
+		m_Indices.clear();
 
 		m_Meshes.resize(m_pScene->mNumMeshes);
+
 		unsigned int NumVertices = 0;
 		unsigned int NumIndices = 0;
 		CountVerticesAndIndices(NumVertices, NumIndices);
 		ReserveSpace(NumVertices, NumIndices);
 		InitAllMeshes();
-//		PopulateBuffers();
-		for (size_t i = 0; i < m_AllSkinnedVertices.size(); i++) {
+
+		for (size_t i = 0; i < m_AllSkinnedVertices.size(); i++)
+		{
 			std::vector<VertexPositionNormalTextureSkinning> vertices;
 			std::vector<uint32_t> indices;
-			for (auto& v : m_AllSkinnedVertices[i]) {
-				vertices.clear();
-				indices.clear();
-				VertexPositionNormalTextureSkinning tempV;
+
+			for (const auto& v : m_AllSkinnedVertices[i])
+			{
+				VertexPositionNormalTextureSkinning tempV{};
 				tempV.position = v.Position;
 				tempV.normal = v.Normal;
 				tempV.textureCoordinate = v.TexCoords;
-				for (int j = 0; j < MAX_NUM_BONES_PER_VERTEX; j++) {
+
+				for (int j = 0; j < MAX_NUM_BONES_PER_VERTEX; j++)
+				{
 					tempV.indices[j] = v.Bones.BoneIDs[j];
 					tempV.weights[j] = v.Bones.Weights[j];
 				}
+
 				vertices.push_back(tempV);
 			}
+
 			indices = m_AllIndices[i];
-			SkinningMeshSet meshSet;
-			meshSet.vertices = vertices;
-			meshSet.indices = indices;
-			meshSetVec.push_back(meshSet);
+
+			if (!vertices.empty() && !indices.empty())
+			{
+				SkinningMeshSet meshSet;
+				meshSet.vertices = std::move(vertices);
+				meshSet.indices = std::move(indices);
+				meshSetVec.push_back(std::move(meshSet));
+			}
 		}
 
-
-		//for (auto& v : m_SkinnedVertices) {
-		//	VertexPositionNormalTextureSkinning tempV;
-		//	tempV.position = v.Position;
-		//	tempV.normal = v.Normal;
-		//	tempV.textureCoordinate = v.TexCoords;
-		//	for (int i = 0; i < MAX_NUM_BONES_PER_VERTEX; i++) {
-		//		tempV.indices[i] = v.Bones.BoneIDs[i];
-		//		tempV.weights[i] = v.Bones.Weights[i];
-		//	}
-		//	vertices.push_back(tempV);
-		//}
-		//for (auto& i : m_Indices) {
-		//	indices.push_back(i);
-		//}
-
-
 		return true;
-
 	}
 
 
@@ -309,43 +309,81 @@ Assimp::Importer importer;
 	{
 		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 
-		// printf("Mesh %d\n", MeshIndex);
-		// Populate the vertex attribute vectors
-		SkinnedVertex v;
+		SkinnedVertex v{};
 
-		for (unsigned int i = 0; i < paiMesh->mNumVertices; i++) {
-
+		for (unsigned int i = 0; i < paiMesh->mNumVertices; i++)
+		{
 			const aiVector3D& pPos = paiMesh->mVertices[i];
-			// printf("%d: ", i); Vector3f v(pPos.x, pPos.y, pPos.z); v.Print();
 			v.Position = Vec3(pPos.x, pPos.y, pPos.z);
 
-			if (paiMesh->mNormals) {
+			if (paiMesh->mNormals)
+			{
 				const aiVector3D& pNormal = paiMesh->mNormals[i];
 				v.Normal = Vec3(pNormal.x, pNormal.y, pNormal.z);
 			}
-			else {
-				aiVector3D Normal(0.0f, 1.0f, 0.0f);
-				v.Normal = Vec3(Normal.x, Normal.y, Normal.z);
+			else
+			{
+				v.Normal = Vec3(0.0f, 1.0f, 0.0f);
 			}
 
-			const aiVector3D& pTexCoord = paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
-			v.TexCoords = Vec2(pTexCoord.x, pTexCoord.y);
+			const aiVector3D& pTexCoord =
+				paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
 
+			v.TexCoords = Vec2(pTexCoord.x, pTexCoord.y);
 			m_SkinnedVertices.push_back(v);
 		}
 
-		// Populate the index buffer
-		for (unsigned int i = 0; i < paiMesh->mNumFaces; i++) {
+		for (unsigned int i = 0; i < paiMesh->mNumFaces; i++)
+		{
 			const aiFace& Face = paiMesh->mFaces[i];
 			m_Indices.push_back(Face.mIndices[0]);
 			m_Indices.push_back(Face.mIndices[1]);
 			m_Indices.push_back(Face.mIndices[2]);
 		}
 
-		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, m_Meshes[MeshIndex].BaseVertex);
+		// 複数mesh版では m_SkinnedVertices は「このmeshだけ」なので BaseVertex は 0
+		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, 0);
 	}
 
+	void BaseAssimp::InitMultiMesh(uint32_t MeshIndex, const aiMesh* paiMesh)
+	{
+		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 
+		SkinnedVertex v{};
+
+		for (unsigned int i = 0; i < paiMesh->mNumVertices; i++)
+		{
+			const aiVector3D& pPos = paiMesh->mVertices[i];
+			v.Position = Vec3(pPos.x, pPos.y, pPos.z);
+
+			if (paiMesh->mNormals)
+			{
+				const aiVector3D& pNormal = paiMesh->mNormals[i];
+				v.Normal = Vec3(pNormal.x, pNormal.y, pNormal.z);
+			}
+			else
+			{
+				v.Normal = Vec3(0.0f, 1.0f, 0.0f);
+			}
+
+			const aiVector3D& pTexCoord =
+				paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
+
+			v.TexCoords = Vec2(pTexCoord.x, pTexCoord.y);
+			m_SkinnedVertices.push_back(v);
+		}
+
+		for (unsigned int i = 0; i < paiMesh->mNumFaces; i++)
+		{
+			const aiFace& Face = paiMesh->mFaces[i];
+			m_Indices.push_back(Face.mIndices[0]);
+			m_Indices.push_back(Face.mIndices[1]);
+			m_Indices.push_back(Face.mIndices[2]);
+		}
+
+		// 複数mesh版では m_SkinnedVertices は「このmeshだけ」なので BaseVertex は 0
+		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, 0);
+	}
 
 	void BaseAssimp::GetBoneTransforms(float TimeInSeconds, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex)
 	{
@@ -728,7 +766,56 @@ Assimp::Importer importer;
 		return nullptr;
 	}
 
+	std::vector<std::shared_ptr<BaseMesh>> BaseMesh::CreateModelMesh(
+		ID3D12GraphicsCommandList* pCommandList,
+		const std::wstring& dataDir,
+		const std::wstring& dataFile)
+	{
+		try
+		{
+			std::vector<std::shared_ptr<BaseMesh>> result;
 
+			const std::wstring modelFile = dataDir + dataFile;
+			if (modelFile.empty())
+			{
+				return result;
+			}
+
+			std::string mbModelFile;
+			Util::WStoMB(modelFile, mbModelFile);
+
+			// 1つのAssimpインスタンスを全meshで共有
+			std::shared_ptr<BaseAssimp> ptrBaseAssimp =
+				std::shared_ptr<BaseAssimp>(new BaseAssimp(mbModelFile));
+
+			std::vector<SkinningMeshSet> meshVec;
+			ptrBaseAssimp->InitMuliScene(meshVec);
+
+			for (const auto& meshSet : meshVec)
+			{
+				if (meshSet.vertices.empty() || meshSet.indices.empty())
+				{
+					continue;
+				}
+
+				std::shared_ptr<BaseMesh> mesh =
+					BaseMesh::CreateBaseMesh<VertexPositionNormalTextureSkinning>(
+					pCommandList,
+					meshSet.vertices,
+					meshSet.indices
+					);
+
+				mesh->m_BaseAssimp = ptrBaseAssimp;
+				result.push_back(mesh);
+			}
+
+			return result;
+		}
+		catch (...)
+		{
+			throw;
+		}
+	}
 
 
 

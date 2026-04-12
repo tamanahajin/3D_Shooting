@@ -95,43 +95,42 @@ namespace shooting {
 	{
 		auto ptrTransform = GetComponent<Transform>();
 		ptrTransform->SetPosition(m_StartPos);
-		ptrTransform->SetScale(0.25f, 0.25f, 0.25f);
+		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
 		//オブジェクトのグループを得る
 		auto group = GetStage()->GetSharedObjectGroup(L"SeekGroup");
-		//グループに自分自身を追加
 		group->IntoGroup(GetThis<SeekObject>());
-		//Obbの衝突判定をつける
+		
 		auto ptrColl = AddComponent<CollisionCapsule>();
-		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
 		auto PtrSep = GetBehavior<SeparationSteering>();
 		PtrSep->SetGameObjectGroup(group);
-		//影をつける
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_CAPSULE");
-
+		
+		// 描画
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->SetFogEnabled(true);
-		ptrDraw->AddBaseMesh(L"DEFAULT_CAPSULE");
-		ptrDraw->AddBaseTexture(L"TRACE_TX");
+		ptrDraw->AddBaseModelMesh(L"ENEMY_MODEL");
+		ptrDraw->AddBaseTexture(L"ENEMY_TEXTURE");
+		//影をつける
+		auto ptrShadow = AddComponent<ShadowMap>();
+		ptrShadow->AddBaseModelMesh(L"ENEMY_MODEL");
 		//透明処理をする
-		SetAlphaActive(true);
+		SetAlphaActive(false);
 		AddTag(L"Enemy");
 
-		// ダメージエフェクトコンポーネントを追加
+		// ダメージエフェクト
 		auto damageEffect = AddComponent<DamageEffect>();
 		damageEffect->SetOutlineWidth(0.03f);
 
+		// HP設定
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
 
 		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			// ダメージエフェクト
 			auto effect = self->GetComponent<DamageEffect>();
 			if (effect)
 			{
@@ -144,9 +143,8 @@ namespace shooting {
 			self->GetStage()->RemoveGameObject(self);
 		};
 
-		//ステートマシンの構築
+		// ステートマシン
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
-		//最初のステートをSeekFarStateに設定
 		m_StateMachine->ChangeState(SeekFarState::Instance());
 
 		m_SteeringUpdateTimer = (double)((reinterpret_cast<std::uintptr_t>(this) & 3)) * 0.0125;

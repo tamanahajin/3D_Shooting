@@ -216,6 +216,24 @@ namespace shooting {
 		std::shared_ptr<BaseMesh> GetMesh(const std::wstring& key);
 		//--------------------------------------------------------------------------------------
 		/*!
+		@brief	モデルメッシュをリソース登録する
+		@param[in]	key	リソースのキー
+		@param[in]	meshes	モデルメッシュ
+		@param[in]	keyCheck	キーの重複チェックするかどうか
+		@return	なし
+		*/
+		//--------------------------------------------------------------------------------------
+		void RegisterModelMesh(const std::wstring& key, const std::vector<std::shared_ptr<BaseMesh>>& meshes, bool keyCheck = true);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	登録されているモデルメッシュを取得する
+		@param[in]	key	リソースのキー
+		@return	モデルメッシュ
+		*/
+		//--------------------------------------------------------------------------------------
+		const std::vector<std::shared_ptr<BaseMesh>>& GetModelMesh(const std::wstring& key) const;
+		//--------------------------------------------------------------------------------------
+		/*!
 		@brief	テクスチャをリソース登録する
 		@param[in]	key	リソースのキー
 		@param[in]	texture	テクスチャ
@@ -301,6 +319,7 @@ namespace shooting {
 		std::shared_ptr<Stage> m_activeStage;
 		//mesh map
 		std::map<const std::wstring, std::shared_ptr<BaseMesh> > m_meshMap;
+		std::map<std::wstring, std::vector<std::shared_ptr<BaseMesh>>> m_modelMeshMap;
 		//texture map
 		std::map<const std::wstring, std::shared_ptr<BaseTexture> > m_textureMap;
 

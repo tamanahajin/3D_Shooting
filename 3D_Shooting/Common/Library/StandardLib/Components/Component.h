@@ -86,6 +86,46 @@ namespace shooting {
 			return nullptr;
 		}
 
+		size_t AddBaseModelMesh(const std::vector<std::shared_ptr<BaseMesh>>& mesh)
+		{
+			size_t size = m_meshVec.size();
+			m_meshVec.insert(m_meshVec.end(), mesh.begin(), mesh.end());
+			return size;
+		}
+		size_t AddBaseModelMesh(const std::wstring& key)
+		{
+			return AddBaseModelMesh(BaseScene::Get()->GetModelMesh(key));
+		}
+		std::shared_ptr<BaseMesh> GetBaseModelMesh(size_t index)
+		{
+			if (index >= m_meshVec.size())
+			{
+				throw BaseException(
+					L"指定のインデックスが範囲外です",
+					Util::SizeTToWStr(index),
+					L"BaseScene::GetBaseModelMesh()"
+				);
+			}
+			else
+			{
+				auto shptr = m_meshVec[index].lock();
+				if (shptr)
+				{
+					return shptr;
+				}
+				else
+				{
+					throw BaseException(
+						L"指定のメッシュは有効ではありません",
+						Util::SizeTToWStr(index),
+						L"BaseScene::GetMesh()"
+					);
+
+				}
+			}
+			return nullptr;
+		}
+
 		size_t AddBaseTexture(const std::shared_ptr<BaseTexture>& texture)
 		{
 			size_t size = m_textureVec.size();
@@ -127,6 +167,11 @@ namespace shooting {
 				}
 			}
 			return nullptr;
+		}
+
+		size_t GetBaseModelMeshCount() const
+		{
+			return m_meshVec.size();
 		}
 
 		bool IsUpdateActive() const
