@@ -21,6 +21,9 @@ namespace shooting {
 #define MAX_NUM_BONES_PER_VERTEX 4
 #define MAX_BONES (200)
 
+	class BaseMesh;
+	class BaseMaterial;
+
 	struct BasicMeshEntry
 	{
 		BasicMeshEntry()
@@ -120,8 +123,14 @@ namespace shooting {
 	struct SkinningMeshSet {
 		std::vector<VertexPositionNormalTextureSkinning> vertices;
 		std::vector<uint32_t> indices;
+		uint32_t sourceMeshIndex = 0;
 	};
 
+	struct ModelMaterialPart
+	{
+		std::shared_ptr<BaseMesh> mesh;
+		std::shared_ptr<BaseMaterial> material;
+	};
 
 	//--------------------------------------------------------------------------------------
 	///	Assimpローダー
@@ -154,12 +163,20 @@ namespace shooting {
 		int GetBoneId(const aiBone* pBone);
 		void LoadSingleBone(uint32_t MeshIndex, const aiBone* pBone, std::vector<SkinnedVertex>& SkinnedVertices, int BaseVertex);
 		void LoadMeshBones(uint32_t MeshIndex, const aiMesh* paiMesh, std::vector<SkinnedVertex>& SkinnedVertices, int BaseVertex);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	メッシュのテクスチャパスの取得
+		@param[in]	meshIndex	メッシュのインデックス
+		@return	メッシュのテクスチャパス
+		*/
+		//--------------------------------------------------------------------------------------
+		std::wstring GetMeshTexturePath(uint32_t meshIndex) const;
 		//シングルメッシュ用
 		bool InitSingleScene(UINT meshIndex, std::vector<VertexPositionNormalTextureSkinning>& vertices,
 							 std::vector<uint32_t>& indices);
 
 		//マルチメッシュ用
-		bool InitMuliScene(std::vector <SkinningMeshSet>& meshSetVec);
+		bool InitMultiScene(std::vector <SkinningMeshSet>& meshSetVec);
 
 
 		void CountVerticesAndIndices(uint32_t& NumVertices, uint32_t& NumIndices);
@@ -494,6 +511,19 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::vector<std::shared_ptr<BaseMesh>> CreateModelMesh(
+			ID3D12GraphicsCommandList* pCommandList,
+			const std::wstring& dataDir,
+			const std::wstring& dataFile);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	複数のメッシュとマテリアルで構成されるモデルメッシュの作成
+		@param[in]	pCommandList	コマンドリスト
+		@param[in]	dataDir	データディレクトリ
+		@param[in]	dataFile　データファイル名
+		@return	ModelMaterialPartの配列
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::vector<ModelMaterialPart> CreateModelMeshWithMaterial(
 			ID3D12GraphicsCommandList* pCommandList,
 			const std::wstring& dataDir,
 			const std::wstring& dataFile);

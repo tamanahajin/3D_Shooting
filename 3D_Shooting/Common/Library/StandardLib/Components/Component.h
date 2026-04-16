@@ -173,6 +173,10 @@ namespace shooting {
 		{
 			return m_meshVec.size();
 		}
+		size_t GetBaseTextureCount() const
+		{
+			return m_textureVec.size();
+		}
 
 		bool IsUpdateActive() const
 		{

@@ -407,6 +407,9 @@
     <ClInclude Include="UIManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BaseMaterial.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">

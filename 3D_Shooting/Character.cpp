@@ -112,7 +112,14 @@ namespace shooting {
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseModelMesh(L"ENEMY_MODEL");
-		ptrDraw->AddBaseTexture(L"ENEMY_TEXTURE");
+		const auto& enemyMeshes = BaseScene::Get()->GetModelMesh(L"ENEMY_MODEL");
+		for (size_t i = 0; i < enemyMeshes.size(); ++i)
+		{
+			const std::wstring materialKey =
+				L"ENEMY_MODEL_MAT_" + std::to_wstring(i);
+			ptrDraw->AddBaseMaterial(materialKey);
+		}
+		
 		//‰e‚ð‚Â‚¯‚é
 		auto ptrShadow = AddComponent<ShadowMap>();
 		ptrShadow->AddBaseModelMesh(L"ENEMY_MODEL");

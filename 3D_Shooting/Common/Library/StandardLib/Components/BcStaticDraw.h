@@ -24,6 +24,7 @@ namespace shooting {
 		float m_FogEnd = -40.0f;
 		XMFLOAT4 m_FogColor;
 		XMFLOAT3 m_FogVector;
+		std::vector<std::shared_ptr<BaseMaterial>> m_BaseMaterialVec;
 
 	public:
 		bool IsOwnShadowActive()const
@@ -41,6 +42,30 @@ namespace shooting {
 		void SetFogEnabled(bool b)
 		{
 			m_FogEnabled = b;
+		}
+		std::shared_ptr<BaseTexture> GetDrawTexture(size_t index);
+		void AddBaseMaterial(const std::wstring& key)
+		{
+			m_BaseMaterialVec.push_back(BaseScene::Get()->GetMaterial(key));
+		}
+
+		void AddBaseMaterial(const std::shared_ptr<BaseMaterial>& material)
+		{
+			m_BaseMaterialVec.push_back(material);
+		}
+
+		std::shared_ptr<BaseMaterial> GetBaseMaterial(size_t index) const
+		{
+			if (index >= m_BaseMaterialVec.size())
+			{
+				return nullptr;
+			}
+			return m_BaseMaterialVec[index];
+		}
+
+		size_t GetBaseMaterialCount() const
+		{
+			return m_BaseMaterialVec.size();
 		}
 
 		BcPNTStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr);

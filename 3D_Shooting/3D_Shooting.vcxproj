@@ -82,6 +82,7 @@
     <ClInclude Include="Common\Library\BasicLib\BaseCommon.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseDevice.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseHelper.h" />
+    <ClInclude Include="Common\Library\BasicLib\BaseMaterial.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseMath.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseMathInc.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseMesh.h" />

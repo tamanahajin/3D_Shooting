@@ -38,19 +38,27 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
-		// 敵モデルの登録
-		auto enemyMesh = BaseMesh::CreateModelMesh(
+		// 敵モデル + material
+		auto enemyParts = BaseMesh::CreateModelMeshWithMaterial(
 			pCommandList,
 			App::GetRelativeAssetsDir(),
 			L"Model/character-orc.fbx"
 		);
-		RegisterModelMesh(L"ENEMY_MODEL", enemyMesh);
 
-		// 敵モデルのテクスチャ
-		texFile = App::GetRelativeAssetsDir() + L"enemy_texture.png";
-		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
-		RegisterTexture(L"ENEMY_TEXTURE", texture);
+		std::vector<std::shared_ptr<BaseMesh>> enemyMeshes;
+		enemyMeshes.reserve(enemyParts.size());
 
+		for (size_t i = 0; i < enemyParts.size(); ++i)
+		{
+			enemyMeshes.push_back(enemyParts[i].mesh);
+
+			const std::wstring materialKey =
+				L"ENEMY_MODEL_MAT_" + std::to_wstring(i);
+
+			RegisterMaterial(materialKey, enemyParts[i].material, false);
+		}
+
+		RegisterModelMesh(L"ENEMY_MODEL", enemyMeshes);
 		//ステージ作成
 		ResetActiveStage<GameStage>(pDevice);
 	}

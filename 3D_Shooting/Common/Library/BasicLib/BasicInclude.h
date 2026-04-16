@@ -84,6 +84,7 @@ using namespace shooting::bsm;
 #include "Camera.h"
 #include "Light.h"
 #include "BaseMesh.h"
+#include "BaseMaterial.h"
 #include "BaseTexture.h"
 #include "App.h"
 #include "PrimDevice.h"

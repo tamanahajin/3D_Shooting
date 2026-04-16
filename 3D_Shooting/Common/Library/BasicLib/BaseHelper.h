@@ -681,6 +681,107 @@ namespace shooting {
 			return dRet * pow(10.0, -iLen);
 		}
 
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	文字列をwstringに変換する
+		@param[in]	s	元の文字列
+		@return	wstringに変換された文字列
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::wstring ToWStringSimple(const std::string& s)
+		{
+			return std::wstring(s.begin(), s.end());
+		}
+
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	パスの区切り文字を統一する
+		@param[in]	path	元のパス
+		@return	区切り文字が統一されたパス
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::wstring NormalizePath(std::wstring path)
+		{
+			for (auto& c : path)
+			{
+				if (c == L'\\')
+				{
+					c = L'/';
+				}
+			}
+			return path;
+		}
+
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	ディレクトリパスを得る
+		@param[in]	path	元のパス
+		@return	ディレクトリパス
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::wstring GetDirectoryPath(const std::wstring& path)
+		{
+			const size_t pos = path.find_last_of(L"/\\");
+			if (pos == std::wstring::npos)
+			{
+				return L"";
+			}
+			return path.substr(0, pos + 1);
+		}
+
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	絶対パスかどうかを判定する
+		@param[in]	path	元のパス
+		@return	絶対パスの場合はtrue、相対パスの場合はfalse
+		*/
+		//--------------------------------------------------------------------------------------
+		static bool IsAbsolutePath(const std::wstring& path)
+		{
+			if (path.size() >= 2 && path[1] == L':')
+			{
+				return true;
+			}
+			if (!path.empty() && (path[0] == L'/' || path[0] == L'\\'))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	テクスチャのパスを解決する
+		@param[in]	modelFile	モデルファイルのパス
+		@param[in]	textureFile	テクスチャファイルのパス
+		@return	解決されたテクスチャのパス
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::wstring ResolveTexturePath(
+			const std::wstring& modelFile,
+			const std::wstring& textureFile)
+		{
+			if (textureFile.empty())
+			{
+				return L"";
+			}
+
+			// embedded texture (*0 など) は今回は未対応
+			if (textureFile[0] == L'*')
+			{
+				return L"";
+			}
+
+			auto tex = NormalizePath(textureFile);
+			if (IsAbsolutePath(tex))
+			{
+				return tex;
+			}
+
+			return NormalizePath(GetDirectoryPath(modelFile) + tex);
+		}
+
+
 	};
 
 

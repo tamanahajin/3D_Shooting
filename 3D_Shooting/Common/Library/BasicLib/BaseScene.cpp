@@ -774,6 +774,41 @@ namespace shooting {
 		return nullptr;
 	}
 
+	void BaseScene::RegisterMaterial(
+		const std::wstring& key,
+		const std::shared_ptr<BaseMaterial>& material,
+		bool keyCheck)
+	{
+		if (keyCheck)
+		{
+			auto it = m_materialMap.find(key);
+			if (it != m_materialMap.end())
+			{
+				throw BaseException(
+					L"指定のキーのマテリアルがすでに存在します",
+					key,
+					L"BaseScene::RegisterMaterial()"
+				);
+			}
+		}
+
+		m_materialMap[key] = material;
+	}
+
+	std::shared_ptr<BaseMaterial> BaseScene::GetMaterial(const std::wstring& key)
+	{
+		auto it = m_materialMap.find(key);
+		if (it != m_materialMap.end())
+		{
+			return it->second;
+		}
+
+		throw BaseException(
+			L"指定のキーのマテリアルが見つかりません",
+			key,
+			L"BaseScene::GetMaterial()"
+		);
+	}
 
 	// Render the scene.
 	void BaseScene::Render(ID3D12CommandQueue* pCommandQueue, bool setBackbufferReadyForPresent)

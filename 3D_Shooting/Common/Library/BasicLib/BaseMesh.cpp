@@ -6,6 +6,7 @@
 */
 
 #include "stdafx.h"
+#include <filesystem>
 
 namespace shooting {
 
@@ -105,7 +106,7 @@ Assimp::Importer importer;
 
 	}
 
-	bool BaseAssimp::InitMuliScene(std::vector<SkinningMeshSet>& meshSetVec)
+	bool BaseAssimp::InitMultiScene(std::vector<SkinningMeshSet>& meshSetVec)
 	{
 		meshSetVec.clear();
 
@@ -151,6 +152,7 @@ Assimp::Importer importer;
 				SkinningMeshSet meshSet;
 				meshSet.vertices = std::move(vertices);
 				meshSet.indices = std::move(indices);
+				meshSet.sourceMeshIndex = static_cast<uint32_t>(i);
 				meshSetVec.push_back(std::move(meshSet));
 			}
 		}
@@ -305,6 +307,39 @@ Assimp::Importer importer;
 	}
 
 
+	std::wstring BaseAssimp::GetMeshTexturePath(uint32_t meshIndex) const
+	{
+		if (!m_pScene || meshIndex >= m_pScene->mNumMeshes)
+		{
+			return L"";
+		}
+
+		const aiMesh* mesh = m_pScene->mMeshes[meshIndex];
+		const unsigned int materialIndex = mesh->mMaterialIndex;
+
+		if (materialIndex >= m_pScene->mNumMaterials)
+		{
+			return L"";
+		}
+
+		const aiMaterial* material = m_pScene->mMaterials[materialIndex];
+		aiString texturePath;
+
+		if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0 &&
+			material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath) == aiReturn_SUCCESS)
+		{
+			return Util::ToWStringSimple(texturePath.C_Str());
+		}
+
+		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 &&
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == aiReturn_SUCCESS)
+		{
+			return Util::ToWStringSimple(texturePath.C_Str());
+		}
+
+		return L"";
+	}
+
 	void BaseAssimp::InitSingleMesh(uint32_t MeshIndex, const aiMesh* paiMesh)
 	{
 		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
@@ -329,7 +364,9 @@ Assimp::Importer importer;
 			const aiVector3D& pTexCoord =
 				paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
 
-			v.TexCoords = Vec2(pTexCoord.x, pTexCoord.y);
+			// FBX/Assimp から取得した UV は描画側の座標系と上下が逆になる場合があるため
+			// Vを反転して使用する
+			v.TexCoords = Vec2(pTexCoord.x, 1.0f - pTexCoord.y);
 			m_SkinnedVertices.push_back(v);
 		}
 
@@ -784,12 +821,11 @@ Assimp::Importer importer;
 			std::string mbModelFile;
 			Util::WStoMB(modelFile, mbModelFile);
 
-			// 1つのAssimpインスタンスを全meshで共有
 			std::shared_ptr<BaseAssimp> ptrBaseAssimp =
 				std::shared_ptr<BaseAssimp>(new BaseAssimp(mbModelFile));
 
 			std::vector<SkinningMeshSet> meshVec;
-			ptrBaseAssimp->InitMuliScene(meshVec);
+			ptrBaseAssimp->InitMultiScene(meshVec);
 
 			for (const auto& meshSet : meshVec)
 			{
@@ -798,12 +834,23 @@ Assimp::Importer importer;
 					continue;
 				}
 
-				std::shared_ptr<BaseMesh> mesh =
-					BaseMesh::CreateBaseMesh<VertexPositionNormalTextureSkinning>(
+				std::vector<VertexPositionNormalTexture> staticVertices;
+				staticVertices.reserve(meshSet.vertices.size());
+
+				for (const auto& v : meshSet.vertices)
+				{
+					VertexPositionNormalTexture sv{};
+					sv.position = v.position;
+					sv.normal = v.normal;
+					sv.textureCoordinate = v.textureCoordinate;
+					staticVertices.push_back(sv);
+				}
+
+				auto mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(
 					pCommandList,
-					meshSet.vertices,
+					staticVertices,
 					meshSet.indices
-					);
+				);
 
 				mesh->m_BaseAssimp = ptrBaseAssimp;
 				result.push_back(mesh);
@@ -817,6 +864,94 @@ Assimp::Importer importer;
 		}
 	}
 
+	std::vector<ModelMaterialPart> BaseMesh::CreateModelMeshWithMaterial(
+		ID3D12GraphicsCommandList* pCommandList,
+		const std::wstring& dataDir,
+		const std::wstring& dataFile)
+	{
+		try
+		{
+			std::vector<ModelMaterialPart> result;
 
+			const std::wstring modelFile = dataDir + dataFile;
+			if (modelFile.empty())
+			{
+				return result;
+			}
+
+			std::string mbModelFile;
+			Util::WStoMB(modelFile, mbModelFile);
+
+			auto ptrBaseAssimp = std::shared_ptr<BaseAssimp>(new BaseAssimp(mbModelFile));
+
+			std::vector<SkinningMeshSet> meshVec;
+			ptrBaseAssimp->InitMultiScene(meshVec);
+
+			for (const auto& meshSet : meshVec)
+			{
+				if (meshSet.vertices.empty() || meshSet.indices.empty())
+				{
+					continue;
+				}
+
+				std::vector<VertexPositionNormalTexture> staticVertices;
+				staticVertices.reserve(meshSet.vertices.size());
+
+				for (const auto& src : meshSet.vertices)
+				{
+					VertexPositionNormalTexture dst{};
+					dst.position = src.position;
+					dst.normal = src.normal;
+					dst.textureCoordinate = src.textureCoordinate;
+					staticVertices.push_back(dst);
+				}
+
+				auto mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(
+					pCommandList,
+					staticVertices,
+					meshSet.indices
+				);
+				mesh->m_BaseAssimp = ptrBaseAssimp;
+
+				auto material = std::make_shared<BaseMaterial>();
+
+				const auto relativeTexturePath =
+					ptrBaseAssimp->GetMeshTexturePath(meshSet.sourceMeshIndex);
+				const auto fullTexturePath =
+					Util::ResolveTexturePath(modelFile, relativeTexturePath);
+				OutputDebugString((L"[MAT] rel = " + relativeTexturePath + L"\n").c_str());
+				OutputDebugString((L"[MAT] full = " + fullTexturePath + L"\n").c_str());
+
+				if (!fullTexturePath.empty())
+				{
+					try
+					{
+						auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, fullTexturePath);
+						material->SetBaseColorTexture(texture);
+						OutputDebugString(L"[MAT] texture load ok\n");
+					}
+					catch (...)
+					{
+						OutputDebugString(L"[MAT] texture load failed\n");
+					}
+				}
+				else
+				{
+					OutputDebugString(L"[MAT] texture path empty\n");
+				}
+
+				ModelMaterialPart part;
+				part.mesh = mesh;
+				part.material = material;
+				result.push_back(std::move(part));
+			}
+
+			return result;
+		}
+		catch (...)
+		{
+			throw;
+		}
+	}
 
 }

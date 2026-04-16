@@ -60,6 +60,7 @@ namespace shooting {
 
 	void DamageEffect::StartEffect(float duration)
 	{
+		OutputDebugString(L"[DMG] StartEffect called\n");
 		// 0以下のdurationは事故りやすいので最低値を入れる
 		if (duration <= 0.0f)
 		{
@@ -96,13 +97,16 @@ namespace shooting {
 		//  - AlphaBlend = ON：赤色を半透明で重ねる
 		//==========================================================
 		CD3DX12_RASTERIZER_DESC rasterizerState(D3D12_DEFAULT);
-		rasterizerState.CullMode = D3D12_CULL_MODE_BACK; // 通常の裏面カリング
-		rasterizerState.DepthBias = -1000;               // 負の値でカメラ側に近づける（Zファイティング対策）
+		rasterizerState.CullMode = D3D12_CULL_MODE_NONE; // 裏面カリングなし
+		rasterizerState.DepthBias = 0;               // 負の値でカメラ側に近づける（Zファイティング対策）
 		rasterizerState.DepthBiasClamp = 0.0f;
-		rasterizerState.SlopeScaledDepthBias = -1.0f;
+		rasterizerState.SlopeScaledDepthBias = 0.0f;
+
 
 		CD3DX12_DEPTH_STENCIL_DESC depthStencil(D3D12_DEFAULT);
+		depthStencil.DepthEnable = FALSE;
 		depthStencil.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 深度は書かない
+		depthStencil.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 		ZeroMemory(&psoDesc, sizeof(psoDesc));
@@ -200,6 +204,8 @@ namespace shooting {
 			return;
 		}
 
+		OutputDebugString(L"[DMG] OnDraw called\n");
+
 		auto pBaseScene = BaseScene::Get();
 		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
 
@@ -235,20 +241,40 @@ namespace shooting {
 		auto drawComp = GetGameObject()->GetComponent<BcPNTStaticDraw>(false);
 		if (!drawComp)
 		{
+			OutputDebugString(L"[DMG] drawComp null\n");
 			return;
 		}
 
-		auto mesh = drawComp->GetBaseMesh(0);
-		if (!mesh)
-		{
-			return;
-		}
+		//auto mesh = drawComp->GetBaseMesh(0);
+		//if (!mesh)
+		//{
+		//	return;
+		//}
 
 		// IA設定（BcPNTStaticDraw と同じ）
+		//pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
+		//pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		//pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
-		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
-		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+
+		const size_t meshCount = drawComp->GetBaseModelMeshCount();
+		wchar_t buf[128];
+		swprintf_s(buf, L"[DMG] meshCount = %zu\n", meshCount);
+		OutputDebugString(buf);
+		for (size_t i = 0; i < meshCount; ++i)
+		{
+			auto mesh = drawComp->GetBaseModelMesh(i);
+			if (!mesh)
+			{
+				continue;
+			}
+
+			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
+			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+		}
 	}
 
 } // namespace shooting

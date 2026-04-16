@@ -19,6 +19,7 @@ namespace shooting {
 	class FrameResource;
 	class PrimDevice;
 	class Stage;
+	class BaseMaterial;
 
 	class BaseScene
 	{
@@ -253,6 +254,25 @@ namespace shooting {
 
 		//--------------------------------------------------------------------------------------
 		/*!
+		@brief	マテリアルをリソース登録する
+		@param[in]	key	リソースのキー
+		@param[in]	material	マテリアル
+		@param[in]	keyCheck	キーの重複チェックするかどうか
+		@return	なし
+		*/
+		//--------------------------------------------------------------------------------------
+		void RegisterMaterial(const std::wstring& key, const std::shared_ptr<BaseMaterial>& material, bool keyCheck = true);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	登録されているマテリアルを取得する
+		@param[in]	key	リソースのキー
+		@return	マテリアル
+		*/
+		//--------------------------------------------------------------------------------------
+		std::shared_ptr<BaseMaterial> GetMaterial(const std::wstring& key);
+
+		//--------------------------------------------------------------------------------------
+		/*!
 		@brief	PhysXオブジェクトを得る
 		@return	PhysXオブジェクトのポインタ
 		*/
@@ -322,6 +342,8 @@ namespace shooting {
 		std::map<std::wstring, std::vector<std::shared_ptr<BaseMesh>>> m_modelMeshMap;
 		//texture map
 		std::map<const std::wstring, std::shared_ptr<BaseTexture> > m_textureMap;
+		//material map
+		std::map<const std::wstring, std::shared_ptr<BaseMaterial> > m_materialMap;
 
 
 		static const float s_clearColor[4];

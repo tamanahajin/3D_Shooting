@@ -134,6 +134,7 @@ namespace shooting {
 		auto& viewport = scene->GetViewport();
 		std::shared_ptr<PerspecCamera> myCamera;
 		std::shared_ptr<LightSet> myLightSet;
+		std::shared_ptr<BaseTexture> firstTexture = GetDrawTexture(0);
 		if (!stage)
 		{
 			return;
@@ -144,16 +145,23 @@ namespace shooting {
 			myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
 			myLightSet = gameObject->GetLightSet();
 
-
 			//Transformコンポーネントを取り出す
 			auto ptrTrans = gameObject->GetComponent<Transform>();
 			auto& param = ptrTrans->GetTransParam();
 			//シーンのコンスタントバッファ
 			{
+				//if (GetBaseMaterialCount() > 0)
+				//{
+				//	auto material = GetBaseMaterial(0);
+				//	if (material)
+				//	{
+				//		firstTexture = material->GetBaseColorTexture();
+				//	}
+				//}
 
 				//初期化
 				m_ConstantBuffer = {};
-				if (GetBaseTexture(0))
+				if (firstTexture)
 				{
 					m_ConstantBuffer.activeFlg.y = 1;
 				}
@@ -281,8 +289,6 @@ namespace shooting {
 		auto depthGPUDsvs = pBaseScene->GetDepthSrvGpuHandles();
 		auto CbvSrvUavDescriptorHeap = pBaseScene->GetCbvSrvUavDescriptorHeap();
 
-		auto texture = GetBaseTexture(0);
-
 		ComPtr<ID3D12PipelineState> defaultPipelineState
 			= PipelineStatePool::GetPipelineState(L"BcPNTStatic", true);
 		ComPtr<ID3D12PipelineState> defaultShadowPipelineState
@@ -347,27 +353,10 @@ namespace shooting {
 		);
 		pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"s1"), samplerHandle2);
 
-		if (texture)
-		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
-				pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
-				texture->GetSrvIndex(),
-				pBaseScene->GetCbvSrvUavDescriptorHandleIncrementSize()
-			);
-			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"t1"), srvHandle);
-		}
-		else
-		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE srvNullHandle(
-				pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart()
-			);
-			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"t1"), srvNullHandle);
-		}
-
 		pCommandList->SetGraphicsRootConstantBufferView(
 			pBaseScene->GetGpuSlotID(L"b0"),
 			pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex]
-				.m_baseConstantBuffer->GetGPUVirtualAddress()
+			.m_baseConstantBuffer->GetGPUVirtualAddress()
 		);
 
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -380,16 +369,77 @@ namespace shooting {
 				continue;
 			}
 
+			auto texture = GetDrawTexture(i);
+
+			if (texture)
+			{
+				CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
+					pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
+					texture->GetSrvIndex(),
+					pBaseScene->GetCbvSrvUavDescriptorHandleIncrementSize()
+				);
+				pCommandList->SetGraphicsRootDescriptorTable(
+					pBaseScene->GetGpuSlotID(L"t1"),
+					srvHandle
+				);
+			}
+			else
+			{
+				CD3DX12_GPU_DESCRIPTOR_HANDLE srvNullHandle(
+					pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart()
+				);
+				pCommandList->SetGraphicsRootDescriptorTable(
+					pBaseScene->GetGpuSlotID(L"t1"),
+					srvNullHandle
+				);
+			}
+
+			// 通常描画
 			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
 			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 		}
 
+		// ダメージエフェクトがあれば描画
 		if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
 		{
+			OutputDebugString(L"[DMG] call DamageEffect::OnDraw from BcPNTStaticDraw\n");
 			dmg->OnDraw(pCommandList);
 		}
 	}
 
+	std::shared_ptr<BaseTexture> BcPNTStaticDraw::GetDrawTexture(size_t index)
+	{
+		// 1. material 優先
+		if (index < GetBaseMaterialCount())
+		{
+			auto material = GetBaseMaterial(index);
+			if (material)
+			{
+				auto tex = material->GetBaseColorTexture();
+				if (tex)
+				{
+					return tex;
+				}
+			}
+		}
 
+		// 2. 従来の texture
+		if (index < GetBaseTextureCount())
+		{
+			auto tex = GetBaseTexture(index);
+			if (tex)
+			{
+				return tex;
+			}
+		}
+
+		// 3. 最後の保険: 0番 texture
+		if (GetBaseTextureCount() > 0)
+		{
+			return GetBaseTexture(0);
+		}
+
+		return nullptr;
+	}
 }
