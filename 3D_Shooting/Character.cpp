@@ -109,20 +109,14 @@ namespace shooting {
 		PtrSep->SetGameObjectGroup(group);
 		
 		// 描画
-		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
+		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
 		ptrDraw->SetFogEnabled(true);
-		ptrDraw->AddBaseModelMesh(L"ENEMY_MODEL");
-		const auto& enemyMeshes = BaseScene::Get()->GetModelMesh(L"ENEMY_MODEL");
-		for (size_t i = 0; i < enemyMeshes.size(); ++i)
-		{
-			const std::wstring materialKey =
-				L"ENEMY_MODEL_MAT_" + std::to_wstring(i);
-			ptrDraw->AddBaseMaterial(materialKey);
-		}
-		
-		//影をつける
+		ptrDraw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
+		ptrDraw->AddBaseTexture(L"ENEMY_TEXTURE_SKINNED");
+
 		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseModelMesh(L"ENEMY_MODEL");
+		ptrShadow->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
+		ptrDraw->SetAnimationIndex(22);
 		//透明処理をする
 		SetAlphaActive(false);
 		AddTag(L"Enemy");
@@ -161,6 +155,17 @@ namespace shooting {
 	//操作
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
+		auto ptrDraw = GetComponent<BcPNTBoneDraw>();
+
+		m_totalTime += elapsedTime;
+
+		if (m_totalTime > 3600.0)
+		{
+			m_totalTime = fmod(m_totalTime, 10.0);
+		}
+
+		ptrDraw->UpdateAnimation(m_totalTime);
+
 		m_SteeringUpdateTimer -= elapsedTime;
 
 		// 操舵計算は20Hzだけ
@@ -264,88 +269,4 @@ namespace shooting {
 	void SeekNearState::Exit(const std::shared_ptr<SeekObject>& Obj)
 	{
 	}
-
-	//--------------------------------------------------------------------------------------
-	//	空中浮遊敵
-	//--------------------------------------------------------------------------------------
-	FloatingEnemy::FloatingEnemy(const std::shared_ptr<Stage>& stage, const Vec3& startPos, float floatSpeed, float moveRange) :
-		GameObject(stage),
-		m_StartPos(startPos),
-		m_MoveOffset(0.0f),
-		m_TotalTime(0.0),
-		m_FloatSpeed(floatSpeed),
-		m_MoveRange(moveRange)
-	{
-		m_transParam.position = startPos;
-	}
-
-	FloatingEnemy::~FloatingEnemy() {}
-
-	void FloatingEnemy::OnCreate()
-	{
-		auto ptrTransform = GetComponent<Transform>();
-		ptrTransform->SetPosition(m_StartPos);
-		ptrTransform->SetScale(0.3f, 0.3f, 0.3f);
-		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
-
-		// 衝突判定（重力なし）
-		auto ptrColl = AddComponent<CollisionSphere>();
-
-		// 影
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
-
-		// 描画
-		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
-		ptrDraw->SetFogEnabled(true);
-		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
-		ptrDraw->AddBaseTexture(L"TRACE_TX");
-		SetAlphaActive(true);
-
-		// タグ
-		AddTag(L"Enemy");
-
-		// ダメージエフェクトコンポーネントを追加
-		auto damageEffect = AddComponent<DamageEffect>();
-		damageEffect->SetOutlineWidth(0.025f); // 球体用の輪郭の太さ
-		damageEffect->SetEffectDuration(0.25f); // 少し長めに表示
-
-		// HP
-		auto hp = AddComponent<Health>();
-		hp->SetMaxHP(10);
-		hp->SetHP(10);
-
-		hp->m_OnDamaged = [self = GetThis<FloatingEnemy>()](const DamageInfo& info)
-		{
-			// ダメージエフェクトを開始
-			auto effect = self->GetComponent<DamageEffect>();
-			if (effect)
-			{
-				effect->StartEffect();
-			}
-		};
-
-		hp->m_OnDeath = [self = GetThis<FloatingEnemy>()](const DamageInfo& info)
-		{
-			self->GetStage()->RemoveGameObject(self);
-		};
-	}
-
-	void FloatingEnemy::OnUpdate(double elapsedTime)
-	{
-		m_TotalTime += elapsedTime * m_FloatSpeed;
-
-		// 上下に浮遊
-		m_MoveOffset.y = (float)sin(m_TotalTime) * m_MoveRange;
-
-		auto ptrTrans = GetComponent<Transform>();
-		Vec3 newPos = m_StartPos + m_MoveOffset;
-		ptrTrans->SetPosition(newPos);
-
-		// ゆっくり回転
-		Quat rot = ptrTrans->GetQuaternion();
-		rot *= Quat(Vec3(0, 1, 0), (float)(elapsedTime * 0.5));
-		ptrTrans->SetQuaternion(rot);
-	}
-
 }

@@ -7,13 +7,22 @@
 
 #include "stdafx.h"
 #include <filesystem>
+#include <sstream>
 
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	///	Assimpローダー
 	//--------------------------------------------------------------------------------------
+	static void DebugLogA(const std::string& s)
+	{
+		OutputDebugStringA(s.c_str());
+	}
 
+	static void DebugLogW(const std::wstring& s)
+	{
+		OutputDebugStringW(s.c_str());
+	}
 
 /*
 
@@ -36,13 +45,12 @@ Assimp::Importer importer;
 	{
 		try{
 
-			uint32_t flag = 0;
-			flag |= aiProcess_ConvertToLeftHanded;
+			uint32_t flag = ASSIMP_LOAD_FLAGS;
+			//flag |= aiProcess_ConvertToLeftHanded;
 			flag |= aiProcess_Triangulate;
 			m_importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // ←ピボットを読み込まない設定
 
-			m_pScene = m_importer.ReadFile(m_ModelFile,
-				ASSIMP_LOAD_FLAGS);
+			m_pScene = m_importer.ReadFile(m_ModelFile, flag);
 			if (nullptr == m_pScene) {
 				throw BaseException(
 					L"データの読み込みに失敗しました。",
@@ -161,6 +169,110 @@ Assimp::Importer importer;
 	}
 
 
+	bool BaseAssimp::InitMergedScene(
+		std::vector<VertexPositionNormalTextureSkinning>& vertices,
+		std::vector<uint32_t>& indices)
+	{
+		// 出力バッファをクリア
+		vertices.clear();
+		indices.clear();
+
+		// 内部データをすべてクリア
+		m_Meshes.clear();
+		m_SkinnedVertices.clear();
+		m_Indices.clear();
+		m_AllSkinnedVertices.clear();
+		m_AllIndices.clear();
+		m_BoneInfo.clear();
+		m_BoneNameToIndexMap.clear();
+		m_requiredNodeMap.clear();
+
+		// メッシュ配列を確保
+		m_Meshes.resize(m_pScene->mNumMeshes);
+
+		// 全メッシュの頂点数とインデックス数をカウント
+		unsigned int NumVertices = 0;
+		unsigned int NumIndices = 0;
+		CountVerticesAndIndices(NumVertices, NumIndices);
+		ReserveSpace(NumVertices, NumIndices);
+
+		// テクスチャ座標のデフォルト値
+		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+
+		// 全メッシュを結合して単一のメッシュデータを構築
+		for (unsigned int meshIndex = 0; meshIndex < m_pScene->mNumMeshes; ++meshIndex)
+		{
+			const aiMesh* paiMesh = m_pScene->mMeshes[meshIndex];
+			// 現在の頂点配列の末尾を基点インデックスとして記録
+			const uint32_t baseVertex = static_cast<uint32_t>(m_SkinnedVertices.size());
+
+			// 頂点データの読み込み
+			for (unsigned int i = 0; i < paiMesh->mNumVertices; ++i)
+			{
+				SkinnedVertex v{};
+
+				// 位置座標
+				const aiVector3D& pPos = paiMesh->mVertices[i];
+				v.Position = Vec3(pPos.x, pPos.y, pPos.z);
+
+				// 法線ベクトル
+				if (paiMesh->mNormals)
+				{
+					const aiVector3D& pNormal = paiMesh->mNormals[i];
+					v.Normal = Vec3(pNormal.x, pNormal.y, pNormal.z);
+				}
+				else
+				{
+					// 法線がない場合はデフォルトで上向きに設定
+					v.Normal = Vec3(0.0f, 1.0f, 0.0f);
+				}
+
+				// UV座標(テクスチャ座標)
+				const aiVector3D& pTexCoord =
+					paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
+
+				// FBX/Assimpから取得したUVは上下が反転している場合があるため、Vを反転
+				v.TexCoords = Vec2(pTexCoord.x, 1.0f - pTexCoord.y);
+				m_SkinnedVertices.push_back(v);
+			}
+
+			// インデックスデータの読み込み
+			for (unsigned int i = 0; i < paiMesh->mNumFaces; ++i)
+			{
+				const aiFace& Face = paiMesh->mFaces[i];
+				// baseVertexを加算してグローバルインデックスに変換
+				m_Indices.push_back(baseVertex + Face.mIndices[0]);
+				m_Indices.push_back(baseVertex + Face.mIndices[1]);
+				m_Indices.push_back(baseVertex + Face.mIndices[2]);
+			}
+
+			// ボーン情報の読み込み(スキニング用のウェイトとボーンインデックス)
+			LoadMeshBones(meshIndex, paiMesh, m_SkinnedVertices, baseVertex);
+		}
+
+		// 内部形式からエンジン用の頂点形式に変換
+		vertices.reserve(m_SkinnedVertices.size());
+		for (const auto& v : m_SkinnedVertices)
+		{
+			VertexPositionNormalTextureSkinning tempV{};
+			tempV.position = v.Position;
+			tempV.normal = v.Normal;
+			tempV.textureCoordinate = v.TexCoords;
+
+			// ボーンインデックスとウェイトをコピー
+			for (int i = 0; i < MAX_NUM_BONES_PER_VERTEX; ++i)
+			{
+				tempV.indices[i] = v.Bones.BoneIDs[i];
+				tempV.weights[i] = v.Bones.Weights[i];
+			}
+
+			vertices.push_back(tempV);
+		}
+
+		// インデックスバッファをコピー
+		indices = m_Indices;
+		return true;
+	}
 
 
 	void BaseAssimp::CountVerticesAndIndices(uint32_t& NumVertices, uint32_t& NumIndices) {
@@ -424,7 +536,8 @@ Assimp::Importer importer;
 
 	void BaseAssimp::GetBoneTransforms(float TimeInSeconds, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex)
 	{
-		if (AnimationIndex >= m_pScene->mNumAnimations) {
+		if (AnimationIndex >= m_pScene->mNumAnimations)
+		{
 			printf("Invalid animation index %d, max is %d\n", AnimationIndex, m_pScene->mNumAnimations);
 			assert(0);
 		}
@@ -435,23 +548,177 @@ Assimp::Importer importer;
 		float AnimationTimeTicks = CalcAnimationTimeTicks(TimeInSeconds, AnimationIndex);
 		const aiAnimation& Animation = *m_pScene->mAnimations[AnimationIndex];
 
+		static bool s_loggedSummary = false;
+		if (!s_loggedSummary && AnimationIndex == 3)
+		{
+			std::ostringstream oss;
+			oss << "\n[ANIM SUMMARY]\n";
+			oss << "index=" << AnimationIndex << "\n";
+			oss << "name=" << Animation.mName.C_Str() << "\n";
+			oss << "duration=" << Animation.mDuration << "\n";
+			oss << "ticksPerSecond=" << Animation.mTicksPerSecond << "\n";
+			oss << "channels=" << Animation.mNumChannels << "\n";
+			DebugLogA(oss.str());
+			s_loggedSummary = true;
+		}
+
+		if (AnimationIndex == 3)
+		{
+			static bool s_loggedChannels = false;
+			if (!s_loggedChannels)
+			{
+				std::ostringstream oss;
+				oss << "\n[ANIM CHANNELS]\n";
+
+				for (unsigned int i = 0; i < Animation.mNumChannels; ++i)
+				{
+					const aiNodeAnim* ch = Animation.mChannels[i];
+
+					double lastPos = (ch->mNumPositionKeys > 0)
+						? ch->mPositionKeys[ch->mNumPositionKeys - 1].mTime
+						: -1.0;
+
+					double lastRot = (ch->mNumRotationKeys > 0)
+						? ch->mRotationKeys[ch->mNumRotationKeys - 1].mTime
+						: -1.0;
+
+					double lastScl = (ch->mNumScalingKeys > 0)
+						? ch->mScalingKeys[ch->mNumScalingKeys - 1].mTime
+						: -1.0;
+
+					oss << "node=" << ch->mNodeName.C_Str()
+						<< " posKeys=" << ch->mNumPositionKeys
+						<< " lastPos=" << lastPos
+						<< " rotKeys=" << ch->mNumRotationKeys
+						<< " lastRot=" << lastRot
+						<< " sclKeys=" << ch->mNumScalingKeys
+						<< " lastScl=" << lastScl
+						<< "\n";
+				}
+
+				DebugLogA(oss.str());
+				s_loggedChannels = true;
+			}
+		}
+
+		if (AnimationIndex == 3)
+		{
+			static bool s_loggedFirstLast = false;
+			if (!s_loggedFirstLast)
+			{
+				std::ostringstream oss;
+				oss << "\n[ANIM FIRST/LAST VALUES]\n";
+
+				for (unsigned int i = 0; i < Animation.mNumChannels; ++i)
+				{
+					const aiNodeAnim* ch = Animation.mChannels[i];
+					oss << "node=" << ch->mNodeName.C_Str() << "\n";
+
+					if (ch->mNumPositionKeys > 0)
+					{
+						const auto& p0 = ch->mPositionKeys[0];
+						const auto& pN = ch->mPositionKeys[ch->mNumPositionKeys - 1];
+						oss << "  pos first t=" << p0.mTime
+							<< " v=(" << p0.mValue.x << "," << p0.mValue.y << "," << p0.mValue.z << ")\n";
+						oss << "  pos last  t=" << pN.mTime
+							<< " v=(" << pN.mValue.x << "," << pN.mValue.y << "," << pN.mValue.z << ")\n";
+					}
+
+					if (ch->mNumRotationKeys > 0)
+					{
+						const auto& r0 = ch->mRotationKeys[0];
+						const auto& rN = ch->mRotationKeys[ch->mNumRotationKeys - 1];
+
+						double dot =
+							r0.mValue.x * rN.mValue.x +
+							r0.mValue.y * rN.mValue.y +
+							r0.mValue.z * rN.mValue.z +
+							r0.mValue.w * rN.mValue.w;
+
+						oss << "  rot first t=" << r0.mTime
+							<< " q=(" << r0.mValue.x << "," << r0.mValue.y << "," << r0.mValue.z << "," << r0.mValue.w << ")\n";
+						oss << "  rot last  t=" << rN.mTime
+							<< " q=(" << rN.mValue.x << "," << rN.mValue.y << "," << rN.mValue.z << "," << rN.mValue.w << ")\n";
+						oss << "  rot dot(first,last)=" << dot << "\n";
+					}
+
+					if (ch->mNumScalingKeys > 0)
+					{
+						const auto& s0 = ch->mScalingKeys[0];
+						const auto& sN = ch->mScalingKeys[ch->mNumScalingKeys - 1];
+						oss << "  scl first t=" << s0.mTime
+							<< " v=(" << s0.mValue.x << "," << s0.mValue.y << "," << s0.mValue.z << ")\n";
+						oss << "  scl last  t=" << sN.mTime
+							<< " v=(" << sN.mValue.x << "," << sN.mValue.y << "," << sN.mValue.z << ")\n";
+					}
+				}
+
+				DebugLogA(oss.str());
+				s_loggedFirstLast = true;
+			}
+		}
+
+		if (AnimationIndex == 3 &&
+			(AnimationTimeTicks < 0.2f || ((float)Animation.mDuration - AnimationTimeTicks) < 0.2f))
+		{
+			char buf[256];
+			sprintf_s(buf,
+					  "[ANIM TICK] timeSec=%.6f tick=%.6f duration=%.6f\n",
+					  TimeInSeconds,
+					  AnimationTimeTicks,
+					  (float)Animation.mDuration);
+			OutputDebugStringA(buf);
+		}
+
 		ReadNodeHierarchy(AnimationTimeTicks, m_pScene->mRootNode, Identity, Animation);
 		Transforms.resize(m_BoneInfo.size());
 
-		for (uint32_t i = 0; i < m_BoneInfo.size(); i++) {
+		for (uint32_t i = 0; i < m_BoneInfo.size(); i++)
+		{
 			Transforms[i] = m_BoneInfo[i].FinalTransformation;
 		}
 	}
 
 	float BaseAssimp::CalcAnimationTimeTicks(float TimeInSeconds, unsigned int AnimationIndex)
 	{
-		float TicksPerSecond = (float)(m_pScene->mAnimations[AnimationIndex]->mTicksPerSecond != 0 ? m_pScene->mAnimations[AnimationIndex]->mTicksPerSecond : 25.0f);
-		float TimeInTicks = TimeInSeconds * TicksPerSecond;
-		// we need to use the integral part of mDuration for the total length of the animation
-		float Duration = 0.0f;
-		float fraction = modf((float)m_pScene->mAnimations[AnimationIndex]->mDuration, &Duration);
-		float AnimationTimeTicks = fmod(TimeInTicks, Duration);
-		return AnimationTimeTicks;
+		const double TicksPerSecond =
+			(m_pScene->mAnimations[AnimationIndex]->mTicksPerSecond != 0.0)
+			? m_pScene->mAnimations[AnimationIndex]->mTicksPerSecond
+			: 25.0;
+
+		const double RawDuration = m_pScene->mAnimations[AnimationIndex]->mDuration;
+		if (RawDuration <= 0.0)
+		{
+			return 0.0f;
+		}
+
+		// ループ終端の重複フレームを踏まないように、終端を少しだけ手前にする
+		const double LoopEpsilon = bsmUtil::Max(1e-3, RawDuration * 1e-4);
+		const double EffectiveDuration = bsmUtil::Max(RawDuration - LoopEpsilon, LoopEpsilon);
+
+		const double TimeInTicks = TimeInSeconds * TicksPerSecond;
+		const double Tick = fmod(TimeInTicks, EffectiveDuration);
+
+		return static_cast<float>(Tick);
+	}
+
+	float BaseAssimp::GetAnimationDurationSeconds(unsigned int AnimationIndex) const
+	{
+		if (!m_pScene || AnimationIndex >= m_pScene->mNumAnimations)
+		{
+			return 0.0f;
+		}
+
+		const aiAnimation* anim = m_pScene->mAnimations[AnimationIndex];
+		const double ticksPerSecond =
+			(anim->mTicksPerSecond != 0.0) ? anim->mTicksPerSecond : 25.0;
+
+		if (ticksPerSecond <= 0.0)
+		{
+			return 0.0f;
+		}
+
+		return static_cast<float>(anim->mDuration / ticksPerSecond);
 	}
 
 	void BaseAssimp::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNode, const Mat4x4& ParentTransform, const aiAnimation& Animation)
@@ -461,10 +728,12 @@ Assimp::Importer importer;
 		Mat4x4 NodeTransformation(pNode->mTransformation);
 
 		const aiNodeAnim* pNodeAnim = FindNodeAnim(Animation, NodeName);
+		
+		float AnimationDuration = (float)Animation.mDuration;
 
 		if (pNodeAnim) {
 			LocalTransform Transform;
-			CalcLocalTransform(Transform, AnimationTimeTicks, pNodeAnim);
+			CalcLocalTransform(Transform, AnimationTimeTicks, pNodeAnim, AnimationDuration);
 
 			Mat4x4 ScalingM;
 			ScalingM.scale(Vec3(
@@ -497,7 +766,7 @@ Assimp::Importer importer;
 
 			// Combine the above transformations
 			NodeTransformation = ScalingM * RotationM * TranslationM;
-			//			NodeTransformation = TranslationM * RotationM * ScalingM;
+			//NodeTransformation = TranslationM * RotationM * ScalingM;
 			NodeTransformation.transpose();
 		}
 
@@ -539,54 +808,96 @@ Assimp::Importer importer;
 		return NULL;
 	}
 
-	void BaseAssimp::CalcLocalTransform(LocalTransform& Transform, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
+	void BaseAssimp::CalcLocalTransform(LocalTransform& Transform,
+										float AnimationTimeTicks,
+										const aiNodeAnim* pNodeAnim,
+										float AnimationDuration)
 	{
-		CalcInterpolatedScaling(Transform.Scaling, AnimationTimeTicks, pNodeAnim);
-		CalcInterpolatedRotation(Transform.Rotation, AnimationTimeTicks, pNodeAnim);
-		CalcInterpolatedPosition(Transform.Translation, AnimationTimeTicks, pNodeAnim);
+		CalcInterpolatedScaling(Transform.Scaling, AnimationTimeTicks, pNodeAnim, AnimationDuration);
+		CalcInterpolatedRotation(Transform.Rotation, AnimationTimeTicks, pNodeAnim, AnimationDuration);
+		CalcInterpolatedPosition(Transform.Translation, AnimationTimeTicks, pNodeAnim, AnimationDuration);
 	}
 
 
 	uint32_t BaseAssimp::FindPosition(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 	{
-		for (uint32_t i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
+		for (uint32_t i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
+		{
 			float t = (float)pNodeAnim->mPositionKeys[i + 1].mTime;
-			if (AnimationTimeTicks < t) {
+			if (AnimationTimeTicks < t)
+			{
 				return i;
 			}
 		}
 
-		return 0;
+		return pNodeAnim->mNumPositionKeys - 1;
 	}
 
 
-	void BaseAssimp::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
+	void BaseAssimp::CalcInterpolatedPosition(
+		aiVector3D& Out,
+		float AnimationTimeTicks,
+		const aiNodeAnim* pNodeAnim,
+		float AnimationDuration)
 	{
-		// we need at least two values to interpolate...
-		if (pNodeAnim->mNumPositionKeys == 1) {
+		if (pNodeAnim->mNumPositionKeys == 1)
+		{
 			Out = pNodeAnim->mPositionKeys[0].mValue;
 			return;
 		}
 
-		uint32_t PositionIndex = FindPosition(AnimationTimeTicks, pNodeAnim);
-		uint32_t NextPositionIndex = PositionIndex + 1;
-		assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
-		float t1 = (float)pNodeAnim->mPositionKeys[PositionIndex].mTime;
-		if (t1 > AnimationTimeTicks) {
-			Out = pNodeAnim->mPositionKeys[PositionIndex].mValue;
-		}
-		else {
-			float t2 = (float)pNodeAnim->mPositionKeys[NextPositionIndex].mTime;
-			float DeltaTime = t2 - t1;
-			float Factor = (AnimationTimeTicks - t1) / DeltaTime;
-			assert(Factor >= 0.0f && Factor <= 1.0f);
-			const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
-			const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
-			aiVector3D Delta = End - Start;
-			Out = Start + Factor * Delta;
-		}
-	}
+		const uint32_t keyCount = pNodeAnim->mNumPositionKeys;
+		uint32_t i1 = FindPosition(AnimationTimeTicks, pNodeAnim);
+		uint32_t i2 = (i1 + 1) % keyCount;
 
+		float t1 = (float)pNodeAnim->mPositionKeys[i1].mTime;
+		float t2 = (float)pNodeAnim->mPositionKeys[i2].mTime;
+
+		if (i2 == 0)
+		{
+			t2 += AnimationDuration;
+			if (AnimationTimeTicks < t1)
+			{
+				AnimationTimeTicks += AnimationDuration;
+			}
+		}
+
+		float dt = t2 - t1;
+		if (dt <= 0.0f)
+		{
+			Out = pNodeAnim->mPositionKeys[i1].mValue;
+			return;
+		}
+
+		float t = (AnimationTimeTicks - t1) / dt;
+		t = bsmUtil::Clamp(t, 0.0f, 1.0f);
+
+		// root だけ滑らか補間
+		if (std::string(pNodeAnim->mNodeName.C_Str()) == "root" && keyCount >= 4)
+		{
+			uint32_t i0 = (i1 + keyCount - 1) % keyCount;
+			uint32_t i3 = (i2 + 1) % keyCount;
+
+			const aiVector3D& p0 = pNodeAnim->mPositionKeys[i0].mValue;
+			const aiVector3D& p1 = pNodeAnim->mPositionKeys[i1].mValue;
+			const aiVector3D& p2 = pNodeAnim->mPositionKeys[i2].mValue;
+			const aiVector3D& p3 = pNodeAnim->mPositionKeys[i3].mValue;
+
+			float t2v = t * t;
+			float t3v = t2v * t;
+
+			Out =
+				(p1 * 2.0f +
+				 (p2 - p0) * t +
+				 (p0 * 2.0f - p1 * 5.0f + p2 * 4.0f - p3) * t2v +
+				 (-p0 + p1 * 3.0f - p2 * 3.0f + p3) * t3v) * 0.5f;
+			return;
+		}
+
+		const aiVector3D& Start = pNodeAnim->mPositionKeys[i1].mValue;
+		const aiVector3D& End = pNodeAnim->mPositionKeys[i2].mValue;
+		Out = Start + t * (End - Start);
+	}
 
 	uint32_t BaseAssimp::FindRotation(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 	{
@@ -599,11 +910,14 @@ Assimp::Importer importer;
 			}
 		}
 
-		return 0;
+		return pNodeAnim->mNumRotationKeys - 1;
 	}
 
 
-	void BaseAssimp::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
+	void BaseAssimp::CalcInterpolatedRotation(aiQuaternion& Out,
+											  float AnimationTimeTicks,
+											  const aiNodeAnim* pNodeAnim,
+											  float AnimationDuration)
 	{
 		// we need at least two values to interpolate...
 		if (pNodeAnim->mNumRotationKeys == 1) {
@@ -612,22 +926,67 @@ Assimp::Importer importer;
 		}
 
 		uint32_t RotationIndex = FindRotation(AnimationTimeTicks, pNodeAnim);
-		uint32_t NextRotationIndex = RotationIndex + 1;
-		assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
+		uint32_t NextRotationIndex = (RotationIndex + 1) % pNodeAnim->mNumRotationKeys;
+
 		float t1 = (float)pNodeAnim->mRotationKeys[RotationIndex].mTime;
-		if (t1 > AnimationTimeTicks) {
-			Out = pNodeAnim->mRotationKeys[RotationIndex].mValue;
-		}
-		else {
-			float t2 = (float)pNodeAnim->mRotationKeys[NextRotationIndex].mTime;
-			float DeltaTime = t2 - t1;
-			float Factor = (AnimationTimeTicks - t1) / DeltaTime;
-			assert(Factor >= 0.0f && Factor <= 1.0f);
-			const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
-			const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
-			aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
+		float t2 = (float)pNodeAnim->mRotationKeys[NextRotationIndex].mTime;
+
+		if (NextRotationIndex == 0)
+		{
+			t2 += AnimationDuration;
+			if (AnimationTimeTicks < t1)
+			{
+				AnimationTimeTicks += AnimationDuration;
+			}
 		}
 
+		float DeltaTime = t2 - t1;
+		if (DeltaTime <= 0.0f)
+		{
+			Out = pNodeAnim->mRotationKeys[RotationIndex].mValue;
+			return;
+		}
+
+		float Factor = (AnimationTimeTicks - t1) / DeltaTime;
+		Factor = bsmUtil::Clamp(Factor, 0.0f, 1.0f);
+
+		if ((std::string(pNodeAnim->mNodeName.C_Str()) == "torso" ||
+			std::string(pNodeAnim->mNodeName.C_Str()) == "arm-left") &&
+			(AnimationTimeTicks < 0.5f || (AnimationDuration - AnimationTimeTicks) < 0.5f))
+		{
+			char buf[512];
+			sprintf_s(buf,
+					  "[ROT] node=%s tick=%.6f idx=%u next=%u t1=%.6f t2=%.6f factor=%.6f\n",
+					  pNodeAnim->mNodeName.C_Str(),
+					  AnimationTimeTicks,
+					  RotationIndex,
+					  NextRotationIndex,
+					  t1,
+					  t2,
+					  Factor
+			);
+			OutputDebugStringA(buf);
+		}
+
+		aiQuaternion StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
+		aiQuaternion EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
+
+		// 最短経路になるように符号をそろえる
+		float dot =
+			StartRotationQ.x * EndRotationQ.x +
+			StartRotationQ.y * EndRotationQ.y +
+			StartRotationQ.z * EndRotationQ.z +
+			StartRotationQ.w * EndRotationQ.w;
+
+		if (dot < 0.0f)
+		{
+			EndRotationQ.x = -EndRotationQ.x;
+			EndRotationQ.y = -EndRotationQ.y;
+			EndRotationQ.z = -EndRotationQ.z;
+			EndRotationQ.w = -EndRotationQ.w;
+		}
+
+		aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
 		Out.Normalize();
 	}
 
@@ -643,11 +1002,14 @@ Assimp::Importer importer;
 			}
 		}
 
-		return 0;
+		return pNodeAnim->mNumScalingKeys - 1;
 	}
 
 
-	void BaseAssimp::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
+	void BaseAssimp::CalcInterpolatedScaling(aiVector3D& Out,
+											 float AnimationTimeTicks,
+											 const aiNodeAnim* pNodeAnim,
+											 float AnimationDuration)
 	{
 		// we need at least two values to interpolate...
 		if (pNodeAnim->mNumScalingKeys == 1) {
@@ -656,22 +1018,33 @@ Assimp::Importer importer;
 		}
 
 		uint32_t ScalingIndex = FindScaling(AnimationTimeTicks, pNodeAnim);
-		uint32_t NextScalingIndex = ScalingIndex + 1;
-		assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
+		uint32_t NextScalingIndex = (ScalingIndex + 1) % pNodeAnim->mNumScalingKeys;
+
 		float t1 = (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime;
-		if (t1 > AnimationTimeTicks) {
+		float t2 = (float)pNodeAnim->mScalingKeys[NextScalingIndex].mTime;
+
+		if (NextScalingIndex == 0)
+		{
+			t2 += AnimationDuration;
+			if (AnimationTimeTicks < t1)
+			{
+				AnimationTimeTicks += AnimationDuration;
+			}
+		}
+
+		float DeltaTime = t2 - t1;
+		if (DeltaTime <= 0.0f)
+		{
 			Out = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
+			return;
 		}
-		else {
-			float t2 = (float)pNodeAnim->mScalingKeys[NextScalingIndex].mTime;
-			float DeltaTime = t2 - t1;
-			float Factor = (AnimationTimeTicks - (float)t1) / DeltaTime;
-			assert(Factor >= 0.0f && Factor <= 1.0f);
-			const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
-			const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
-			aiVector3D Delta = End - Start;
-			Out = Start + Factor * Delta;
-		}
+
+		float Factor = (AnimationTimeTicks - t1) / DeltaTime;
+		Factor = bsmUtil::Clamp(Factor, 0.0f, 1.0f);
+
+		const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
+		const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
+		Out = Start + Factor * (End - Start);
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -782,10 +1155,6 @@ Assimp::Importer importer;
 				if (vertices.size() > 0 && indices.size() > 0) {
 					std::shared_ptr<BaseMesh> mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTextureSkinning>(pCommandList, vertices, indices);
 					mesh->m_BaseAssimp = ptrBaseAssimp;
-
-					////アニメーションテスト
-					//std::vector<Mat4x4> Transforms;
-					//ptrBaseAssimp->GetBoneTransforms(0.0f, Transforms);
 
 
 					return mesh;
@@ -919,8 +1288,6 @@ Assimp::Importer importer;
 					ptrBaseAssimp->GetMeshTexturePath(meshSet.sourceMeshIndex);
 				const auto fullTexturePath =
 					Util::ResolveTexturePath(modelFile, relativeTexturePath);
-				OutputDebugString((L"[MAT] rel = " + relativeTexturePath + L"\n").c_str());
-				OutputDebugString((L"[MAT] full = " + fullTexturePath + L"\n").c_str());
 
 				if (!fullTexturePath.empty())
 				{
@@ -928,7 +1295,6 @@ Assimp::Importer importer;
 					{
 						auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, fullTexturePath);
 						material->SetBaseColorTexture(texture);
-						OutputDebugString(L"[MAT] texture load ok\n");
 					}
 					catch (...)
 					{
@@ -954,4 +1320,122 @@ Assimp::Importer importer;
 		}
 	}
 
+	std::vector<ModelSkinnedMaterialPart> BaseMesh::CreateSkinnedModelMeshWithMaterial(
+		ID3D12GraphicsCommandList* pCommandList,
+		const std::wstring& dataDir,
+		const std::wstring& dataFile)
+	{
+		try
+		{
+			std::vector<ModelSkinnedMaterialPart> result;
+
+			const std::wstring modelFile = dataDir + dataFile;
+			if (modelFile.empty())
+			{
+				return result;
+			}
+
+			std::string mbModelFile;
+			Util::WStoMB(modelFile, mbModelFile);
+
+			auto ptrBaseAssimp = std::shared_ptr<BaseAssimp>(new BaseAssimp(mbModelFile));
+
+			std::vector<SkinningMeshSet> meshVec;
+			ptrBaseAssimp->InitMultiScene(meshVec);
+
+			for (const auto& meshSet : meshVec)
+			{
+				if (meshSet.vertices.empty() || meshSet.indices.empty())
+				{
+					continue;
+				}
+
+				auto mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTextureSkinning>(
+					pCommandList,
+					meshSet.vertices,
+					meshSet.indices
+				);
+				mesh->m_BaseAssimp = ptrBaseAssimp;
+
+				auto material = std::make_shared<BaseMaterial>();
+
+				const auto relativeTexturePath =
+					ptrBaseAssimp->GetMeshTexturePath(meshSet.sourceMeshIndex);
+				const auto fullTexturePath =
+					Util::ResolveTexturePath(modelFile, relativeTexturePath);
+
+				if (!fullTexturePath.empty())
+				{
+					try
+					{
+						auto texture = BaseTexture::CreateTextureFlomFile(
+							pCommandList,
+							fullTexturePath
+						);
+						material->SetBaseColorTexture(texture);
+					}
+					catch (...)
+					{
+						OutputDebugString(L"[MAT-SKINNED] texture load failed\n");
+					}
+				}
+				else
+				{
+					OutputDebugString(L"[MAT-SKINNED] texture path empty\n");
+				}
+
+				ModelSkinnedMaterialPart part;
+				part.mesh = mesh;
+				part.material = material;
+				result.push_back(std::move(part));
+			}
+
+			return result;
+		}
+		catch (...)
+		{
+			throw;
+		}
+	}
+
+	std::shared_ptr<BaseMesh> BaseMesh::CreateMergedBoneModelMesh(
+		ID3D12GraphicsCommandList* pCommandList,
+		const std::wstring& dataDir,
+		const std::wstring& dataFile)
+	{
+		try
+		{
+			std::wstring modelFile = dataDir + dataFile;
+			if (modelFile.empty())
+			{
+				return nullptr;
+			}
+
+			std::string mbModelFile;
+			Util::WStoMB(modelFile, mbModelFile);
+
+			auto ptrBaseAssimp = std::shared_ptr<BaseAssimp>(new BaseAssimp(mbModelFile));
+
+			std::vector<VertexPositionNormalTextureSkinning> vertices;
+			std::vector<uint32_t> indices;
+			ptrBaseAssimp->InitMergedScene(vertices, indices);
+
+			if (vertices.empty() || indices.empty())
+			{
+				return nullptr;
+			}
+
+			auto mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTextureSkinning>(
+				pCommandList,
+				vertices,
+				indices
+			);
+			mesh->m_BaseAssimp = ptrBaseAssimp;
+			return mesh;
+		}
+		catch (...)
+		{
+			throw;
+		}
+	}
 }

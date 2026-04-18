@@ -77,22 +77,6 @@ namespace shooting {
 		}
 	}
 
-	// ‹ó’†•‚—V“G‚Ìì¬
-	void GameStage::CreateFloatingEnemies()
-	{
-		std::vector<Vec3> positions = {
-			{ 5.0f, 3.0f, 5.0f },
-			{ -5.0f, 4.0f, 5.0f },
-			{ 5.0f, 3.5f, -5.0f },
-			{ -5.0f, 4.5f, -5.0f },
-			{ 0.0f, 5.0f, 8.0f },
-		};
-
-		for (const auto& pos : positions)
-		{
-			AddGameObject<FloatingEnemy>(pos);
-		}
-	}
 
 	int GameStage::GetAliveEnemyCount() const
 	{
@@ -141,7 +125,6 @@ namespace shooting {
 
 
 		CreateSeekObject();
-		CreateFloatingEnemies();  // ‹ó’†•‚—V“G‚ğ’Ç‰Á
 
 		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();

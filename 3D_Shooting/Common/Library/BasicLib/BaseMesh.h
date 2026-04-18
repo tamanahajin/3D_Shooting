@@ -132,6 +132,12 @@ namespace shooting {
 		std::shared_ptr<BaseMaterial> material;
 	};
 
+	struct ModelSkinnedMaterialPart
+	{
+		std::shared_ptr<BaseMesh> mesh;
+		std::shared_ptr<BaseMaterial> material;
+	};
+
 	//--------------------------------------------------------------------------------------
 	///	Assimpローダー
 	//--------------------------------------------------------------------------------------
@@ -178,6 +184,11 @@ namespace shooting {
 		//マルチメッシュ用
 		bool InitMultiScene(std::vector <SkinningMeshSet>& meshSetVec);
 
+		// 全 mesh を結合して skinned 頂点を作る
+		bool InitMergedScene(
+			std::vector<VertexPositionNormalTextureSkinning>& vertices,
+			std::vector<uint32_t>& indices);
+
 
 		void CountVerticesAndIndices(uint32_t& NumVertices, uint32_t& NumIndices);
 		void InitSingleMeshBase(UINT meshIndex);
@@ -189,12 +200,13 @@ namespace shooting {
 
 		void GetBoneTransforms(float AnimationTimeSec, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex = 0);
 		float CalcAnimationTimeTicks(float TimeInSeconds, unsigned int AnimationIndex);
+		float GetAnimationDurationSeconds(unsigned int AnimationIndex) const;
 		void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Mat4x4& ParentTransform, const aiAnimation& Animation);
 		const aiNodeAnim* FindNodeAnim(const aiAnimation& Animation, const std::string& NodeName);
-		void CalcLocalTransform(LocalTransform& Transform, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
-		void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-		void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-		void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+		void CalcLocalTransform(LocalTransform& Transform, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim, float AnimationDuration);
+		void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim, float AnimationDuration);
+		void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim, float AnimationDuration);
+		void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim, float AnimationDuration);
 		uint32_t FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
 		uint32_t FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
 		uint32_t FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -524,6 +536,32 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::vector<ModelMaterialPart> CreateModelMeshWithMaterial(
+			ID3D12GraphicsCommandList* pCommandList,
+			const std::wstring& dataDir,
+			const std::wstring& dataFile);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	複数のメッシュとマテリアルで構成されるスキニングモデルメッシュの作成
+		@param[in]	pCommandList	コマンドリスト
+		@param[in]	dataDir	データディレクトリ
+		@param[in]	dataFile　データファイル名
+		@return	ModelMaterialPartの配列
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::vector<ModelSkinnedMaterialPart> CreateSkinnedModelMeshWithMaterial(
+			ID3D12GraphicsCommandList* pCommandList,
+			const std::wstring& dataDir,
+			const std::wstring& dataFile);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	複数のメッシュとマテリアルで構成されるスキニングモデルメッシュの作成
+		@param[in]	pCommandList	コマンドリスト
+		@param[in]	dataDir	データディレクトリ
+		@param[in]	dataFile　データファイル名
+		@return	ModelMaterialPartの配列
+		*/
+		//--------------------------------------------------------------------------------------
+		static std::shared_ptr<BaseMesh> CreateMergedBoneModelMesh(
 			ID3D12GraphicsCommandList* pCommandList,
 			const std::wstring& dataDir,
 			const std::wstring& dataFile);

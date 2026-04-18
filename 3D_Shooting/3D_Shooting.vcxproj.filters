@@ -204,6 +204,9 @@
     <ClCompile Include="UIManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\BcBoneDraw.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -409,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BaseMaterial.h">
       <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\BcBoneDraw.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

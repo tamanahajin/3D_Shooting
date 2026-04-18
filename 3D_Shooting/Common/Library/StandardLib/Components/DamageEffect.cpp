@@ -60,7 +60,6 @@ namespace shooting {
 
 	void DamageEffect::StartEffect(float duration)
 	{
-		OutputDebugString(L"[DMG] StartEffect called\n");
 		// 0ˆÈ‰º‚Ìduration‚Í–ŒÌ‚è‚â‚·‚¢‚Ì‚ÅÅ’á’l‚ğ“ü‚ê‚é
 		if (duration <= 0.0f)
 		{
@@ -204,8 +203,6 @@ namespace shooting {
 			return;
 		}
 
-		OutputDebugString(L"[DMG] OnDraw called\n");
-
 		auto pBaseScene = BaseScene::Get();
 		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
 
@@ -241,7 +238,6 @@ namespace shooting {
 		auto drawComp = GetGameObject()->GetComponent<BcPNTStaticDraw>(false);
 		if (!drawComp)
 		{
-			OutputDebugString(L"[DMG] drawComp null\n");
 			return;
 		}
 
@@ -260,9 +256,6 @@ namespace shooting {
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		const size_t meshCount = drawComp->GetBaseModelMeshCount();
-		wchar_t buf[128];
-		swprintf_s(buf, L"[DMG] meshCount = %zu\n", meshCount);
-		OutputDebugString(buf);
 		for (size_t i = 0; i < meshCount; ++i)
 		{
 			auto mesh = drawComp->GetBaseModelMesh(i);

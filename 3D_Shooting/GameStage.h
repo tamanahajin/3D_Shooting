@@ -16,7 +16,6 @@ namespace shooting {
 		virtual ~GameStage() {}
 
 		void CreateSeekObject();
-		void CreateFloatingEnemies();
 
 		int GetTotalEnemyCount() const { return m_totalEnemyCount; }
 		int GetAliveEnemyCount() const;

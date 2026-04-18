@@ -403,7 +403,6 @@ namespace shooting {
 		// ダメージエフェクトがあれば描画
 		if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
 		{
-			OutputDebugString(L"[DMG] call DamageEffect::OnDraw from BcPNTStaticDraw\n");
 			dmg->OnDraw(pCommandList);
 		}
 	}

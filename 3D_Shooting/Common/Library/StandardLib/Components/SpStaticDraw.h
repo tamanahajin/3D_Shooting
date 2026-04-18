@@ -20,7 +20,7 @@ namespace shooting {
 		/// スペキュラー
 		Col4 m_specular;
 		//自分自身に影を描画するかどうか
-		bool m_ownShadowActive;
+		bool m_OwnShadowActive;
 	protected:
 		SimpleConstant m_simpleConstant;
 		size_t m_constantIndex;
@@ -31,7 +31,7 @@ namespace shooting {
 			m_emissive(0.0f),
 			m_diffuse(1.0f),
 			m_specular(0.0f),
-			m_ownShadowActive(false)
+			m_OwnShadowActive(false)
 		{
 		}
 		virtual ~SpStaticDraw() {}
@@ -62,11 +62,11 @@ namespace shooting {
 		}
 		bool IsOwnShadowActive()const
 		{
-			return m_ownShadowActive;
+			return m_OwnShadowActive;
 		}
 		void SetOwnShadowActive(bool b)
 		{
-			m_ownShadowActive = b;
+			m_OwnShadowActive = b;
 		}
 		virtual void OnCreate()override;
 	};

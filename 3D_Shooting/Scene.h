@@ -10,8 +10,8 @@ namespace shooting {
 
 	class Scene : public BaseScene
 	{
-		SimpleConstant m_constantBuffer;
-		size_t m_constantBufferIndex;
+		SimpleConstant m_ConstantBuffer;
+		size_t m_ConstantBufferIndex;
 		std::shared_ptr<BaseMesh> m_mesh;
 		double m_totalTime;
 		TransParam m_param;

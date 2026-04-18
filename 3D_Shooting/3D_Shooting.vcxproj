@@ -42,6 +42,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\BcBoneDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Collision.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="Common\Library\BasicLib\TransHelper.h" />
     <ClInclude Include="Common\Library\BasicLib\UILayer.h" />
     <ClInclude Include="Common\Library\BasicLib\VertexHelper.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\BcBoneDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BcStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Collision.h" />
