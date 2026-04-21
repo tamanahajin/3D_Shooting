@@ -6,6 +6,8 @@
 
 namespace shooting {
 
+	IMPLEMENT_DX12SHADER(PSCollisionDebug, App::GetShadersDir() + L"PSCollisionDebug.cso")
+
 	//--------------------------------------------------------------------------------------
 	//	class Collision : public Component ;
 	//	用途: 衝突判定コンポーネントの親クラス
@@ -241,6 +243,7 @@ namespace shooting {
 	void Collision::SetDebugDraw(bool b)
 	{
 		m_IsDebugDraw = b;
+		SetDrawActive(b);
 	}
 
 	//操作
@@ -251,6 +254,282 @@ namespace shooting {
 
 	void Collision::OnUpdate(double elapsedTime)
 	{
+	}
+
+	void Collision::InitDebugDrawResources()
+	{
+		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
+		auto& frameResources = scene->GetFrameResources();
+		auto pBaseDevice = BaseDevice::GetBaseDevice();
+
+		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
+		{
+			m_DebugConstantBufferIndex =
+				frameResources[i]->AddBaseConstantBufferSet<BasicConstant>(
+				pBaseDevice->GetD3D12Device()
+				);
+		}
+	}
+
+	void Collision::BuildDebugConstantBuffer(const Mat4x4& worldMat)
+	{
+		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
+		auto stage = std::dynamic_pointer_cast<Stage>(scene->GetActiveStage(true));
+		if (!stage)
+		{
+			return;
+		}
+
+		auto gameObject = m_gameObject.lock();
+		if (!gameObject)
+		{
+			return;
+		}
+
+		auto myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
+		auto myLightSet = gameObject->GetLightSet();
+		if (!myCamera || !myLightSet)
+		{
+			return;
+		}
+
+		auto world = (XMMATRIX)worldMat;
+		auto view = (XMMATRIX)((Mat4x4)myCamera->GetViewMatrix());
+		auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
+		auto worldView = world * view;
+
+		m_DebugConstantBuffer = {};
+		m_DebugConstantBuffer.activeFlg.x = 3;
+		m_DebugConstantBuffer.activeFlg.y = 0; // textureなし
+		m_DebugConstantBuffer.worldViewProj =
+			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
+
+		m_DebugConstantBuffer.world = worldMat;
+		m_DebugConstantBuffer.world.transpose();
+
+		XMMATRIX worldInverse = XMMatrixInverse(nullptr, world);
+		m_DebugConstantBuffer.worldInverseTranspose[0] = Vec4(worldInverse.r[0]);
+		m_DebugConstantBuffer.worldInverseTranspose[1] = Vec4(worldInverse.r[1]);
+		m_DebugConstantBuffer.worldInverseTranspose[2] = Vec4(worldInverse.r[2]);
+
+		XMMATRIX viewInverse = XMMatrixInverse(nullptr, view);
+		m_DebugConstantBuffer.eyePosition = Vec4(viewInverse.r[3]);
+
+		for (int i = 0; i < myLightSet->GetNumLights(); i++)
+		{
+			m_DebugConstantBuffer.lightDirection[i] = (Vec4)myLightSet->GetLight(i).m_directional;
+			m_DebugConstantBuffer.lightDiffuseColor[i] = (Vec4)myLightSet->GetLight(i).m_diffuseColor;
+			m_DebugConstantBuffer.lightSpecularColor[i] = (Vec4)myLightSet->GetLight(i).m_specularColor;
+		}
+
+		Col4 alphaVector = m_DebugDiffuseColor;
+		Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
+
+		m_DebugConstantBuffer.emissiveColor = ambientLightColor * alphaVector;
+		m_DebugConstantBuffer.specularColorAndPower = Col4(0, 0, 0, 1);
+		m_DebugConstantBuffer.diffuseColor = alphaVector;
+
+		auto mainLight = myLightSet->GetMainBaseLight();
+		Vec3 calcLightDir = Vec3(mainLight.m_directional) * Vec3(-1.0f);
+
+		Vec3 lightAt(myCamera->GetAt());
+		Vec3 lightEye(calcLightDir);
+		lightEye *= Vec3(ShadowMap::GetLightHeight());
+		lightEye += lightAt;
+
+		XMMATRIX LightView = XMMatrixLookAtLH(
+			Vec3(lightEye),
+			Vec3(lightAt),
+			Vec3(0, 1.0f, 0)
+		);
+		XMMATRIX LightProj = XMMatrixOrthographicLH(
+			ShadowMap::GetViewWidth(),
+			ShadowMap::GetViewHeight(),
+			ShadowMap::GetLightNear(),
+			ShadowMap::GetLightFar()
+		);
+
+		m_DebugConstantBuffer.lightPos = Vec4(lightEye, 1.0f);
+		m_DebugConstantBuffer.eyePos = Vec4((Vec3)myCamera->GetEye(), 1.0f);
+		m_DebugConstantBuffer.lightView = Mat4x4(XMMatrixTranspose(LightView));
+		m_DebugConstantBuffer.lightProjection = Mat4x4(XMMatrixTranspose(LightProj));
+
+		m_DebugConstantBuffer.fogVector = Vec4(g_XMZero);
+		m_DebugConstantBuffer.fogColor = Vec4(g_XMZero);
+	}
+
+	void Collision::OnUpdateConstantBuffers()
+	{
+		// base は何もしない
+	}
+
+	void Collision::OnCommitConstantBuffers()
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
+		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
+
+		memcpy(
+			pCurrentFrameResource
+			->m_baseConstantBufferSetVec[m_DebugConstantBufferIndex]
+			.m_pBaseConstantBufferWO,
+			&m_DebugConstantBuffer,
+			sizeof(m_DebugConstantBuffer)
+		);
+	}
+
+	void Collision::DrawDebugMesh(ID3D12GraphicsCommandList* pCommandList,
+								  const std::shared_ptr<BaseMesh>& mesh,
+								  bool alphaBlend)
+	{
+		if (!IsDebugDraw() || !mesh)
+		{
+			return;
+		}
+
+		auto pBaseScene = BaseScene::Get();
+		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
+		auto cbvSrvHeap = pBaseScene->GetCbvSrvUavDescriptorHeap();
+
+		// デバッグ用の専用PSOを使う
+		const std::wstring psoKey = alphaBlend ? L"CollisionDebugAlpha_v2" : L"CollisionDebugOpaque_v2";
+		ComPtr<ID3D12PipelineState> pipeline = PipelineStatePool::GetPipelineState(psoKey);
+
+		if (!pipeline)
+		{
+			CD3DX12_RASTERIZER_DESC rasterizerStateDesc(D3D12_DEFAULT);
+			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_NONE;
+			rasterizerStateDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+			ZeroMemory(&psoDesc, sizeof(psoDesc));
+
+			psoDesc.InputLayout = {
+				VertexPositionNormalTexture::GetVertexElement(),
+				VertexPositionNormalTexture::GetNumElements()
+			};
+			psoDesc.pRootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault").Get();
+
+			psoDesc.VS =
+			{
+				reinterpret_cast<UINT8*>(BcVSPNTStaticPL::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+				BcVSPNTStaticPL::GetPtr()->GetShaderComPtr()->GetBufferSize()
+			};
+			psoDesc.PS =
+			{
+				reinterpret_cast<UINT8*>(PSCollisionDebug::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+				PSCollisionDebug::GetPtr()->GetShaderComPtr()->GetBufferSize()
+			};
+
+			psoDesc.RasterizerState = rasterizerStateDesc;
+			if (alphaBlend)
+			{
+				D3D12_BLEND_DESC blendDesc = {};
+				blendDesc.AlphaToCoverageEnable = FALSE;
+				blendDesc.IndependentBlendEnable = FALSE;
+
+				auto& rt = blendDesc.RenderTarget[0];
+				rt.BlendEnable = TRUE;
+				rt.LogicOpEnable = FALSE;
+
+				rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+				rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+				rt.BlendOp = D3D12_BLEND_OP_ADD;
+
+				rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+				rt.DestBlendAlpha = D3D12_BLEND_ZERO;
+				rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+				rt.LogicOp = D3D12_LOGIC_OP_NOOP;
+				rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+				psoDesc.BlendState = blendDesc;
+			}
+			else
+			{
+				psoDesc.BlendState = BlendState::GetOpaqueBlend();
+			}
+
+			auto depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			if (alphaBlend)
+			{
+				// 半透明表示では深度は読むが書かない
+				depthDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+			}
+			psoDesc.DepthStencilState = depthDesc;
+
+			psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 1;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			psoDesc.SampleDesc.Count = 1;
+
+			ThrowIfFailed(
+				App::GetID3D12Device()->CreateGraphicsPipelineState(
+				&psoDesc,
+				IID_PPV_ARGS(&pipeline)
+			)
+			);
+			NAME_D3D12_OBJECT(pipeline);
+			PipelineStatePool::AddPipelineState(psoKey, pipeline);
+		}
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE nullSrv(
+			cbvSrvHeap->GetGPUDescriptorHandleForHeapStart()
+		);
+
+		pCommandList->SetPipelineState(pipeline.Get());
+
+		// 影テクスチャは使わない
+		pCommandList->SetGraphicsRootDescriptorTable(
+			pBaseScene->GetGpuSlotID(L"t0"),
+			nullSrv
+		);
+
+		UINT index = pBaseScene->GetSamplerIndex(L"LinearClamp");
+		CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(
+			pBaseScene->GetSamplerDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
+			index,
+			pBaseScene->GetSamplerDescriptorHandleIncrementSize()
+		);
+		pCommandList->SetGraphicsRootDescriptorTable(
+			pBaseScene->GetGpuSlotID(L"s0"),
+			samplerHandle
+		);
+
+		index = pBaseScene->GetSamplerIndex(L"ComparisonLinear");
+		CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle2(
+			pBaseScene->GetSamplerDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
+			index,
+			pBaseScene->GetSamplerDescriptorHandleIncrementSize()
+		);
+		pCommandList->SetGraphicsRootDescriptorTable(
+			pBaseScene->GetGpuSlotID(L"s1"),
+			samplerHandle2
+		);
+
+		// テクスチャなし
+		pCommandList->SetGraphicsRootDescriptorTable(
+			pBaseScene->GetGpuSlotID(L"t1"),
+			nullSrv
+		);
+
+		pCommandList->SetGraphicsRootConstantBufferView(
+			pBaseScene->GetGpuSlotID(L"b0"),
+			pCurrentFrameResource
+			->m_baseConstantBufferSetVec[m_DebugConstantBufferIndex]
+			.m_baseConstantBuffer->GetGPUVirtualAddress()
+		);
+
+		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
+		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -270,6 +549,7 @@ namespace shooting {
 	void CollisionSphere::OnCreate()
 	{
 		SetDrawActive(false);
+		InitDebugDrawResources();
 	}
 
 	//アクセサ
@@ -620,6 +900,32 @@ namespace shooting {
 		return GetSphere().GetWrappedAABB();
 	}
 
+	void CollisionSphere::OnUpdateConstantBuffers()
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto trans = GetGameObject()->GetComponent<Transform>();
+		Mat4x4 world;
+		world.scale(Vec3(m_MakedDiameter, m_MakedDiameter, m_MakedDiameter));
+		world *= trans->GetWorldMatrix();
+
+		BuildDebugConstantBuffer(world);
+	}
+
+	void CollisionSphere::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto mesh = BaseScene::Get()->GetMesh(L"DEFAULT_SPHERE");
+		DrawDebugMesh(pCommandList, mesh, true);
+	}
+
 	//--------------------------------------------------------------------------------------
 	//	class CollisionCapsule : public Collision ;
 	//	用途: カプセル衝突判定コンポーネント
@@ -629,7 +935,8 @@ namespace shooting {
 		Collision(GameObjectPtr),
 		m_MakedDiameter(1.0f),
 		m_MakedHeight(1.0f),
-		m_IsHitVolumeIndex(0)
+		m_IsHitVolumeIndex(0),
+		m_LocalOffset(0.0f, 0.0f, 0.0f)
 	{
 	}
 	CollisionCapsule::~CollisionCapsule() {}
@@ -638,6 +945,7 @@ namespace shooting {
 	void CollisionCapsule::OnCreate()
 	{
 		SetDrawActive(false);
+		InitDebugDrawResources();
 	}
 
 	//アクセサ
@@ -667,29 +975,39 @@ namespace shooting {
 		m_MakedHeight = f;
 	}
 
-	CAPSULE CollisionCapsule::GetCapsule()const
+	CAPSULE CollisionCapsule::GetCapsule() const
 	{
-		auto TransPtr = GetGameObject()->GetComponent<Transform>();
-		auto WorldMatrix = TransPtr->GetWorldMatrix();
-		auto WorldCapsule = CAPSULE(
+		auto trans = GetGameObject()->GetComponent<Transform>();
+
+		Mat4x4 mat;
+		mat.identity();
+		mat.rotation(trans->GetQuaternion());
+		mat.translation(trans->GetPosition());
+
+		return CAPSULE(
 			m_MakedDiameter * 0.5f,
-			Vec3(0, m_MakedHeight * -0.5f, 0),
-			Vec3(0, m_MakedHeight * 0.5f, 0),
-			WorldMatrix);
-		return WorldCapsule;
+			m_LocalOffset + Vec3(0, m_MakedHeight * -0.5f, 0),
+			m_LocalOffset + Vec3(0, m_MakedHeight * 0.5f, 0),
+			mat
+		);
 	}
 
 
-	CAPSULE CollisionCapsule::GetBeforeCapsule()const
+	CAPSULE CollisionCapsule::GetBeforeCapsule() const
 	{
-		auto TransPtr = GetGameObject()->GetComponent<Transform>();
-		auto BeforeWorldMatrix = TransPtr->GetBeforeWorldMatrix();
-		auto BeforeWorldCapsule = CAPSULE(
+		auto trans = GetGameObject()->GetComponent<Transform>();
+
+		Mat4x4 mat;
+		mat.identity();
+		mat.rotation(trans->GetBeforeQuaternion());
+		mat.translation(trans->GetBeforePosition());
+
+		return CAPSULE(
 			m_MakedDiameter * 0.5f,
-			Vec3(0, m_MakedHeight * -0.5f, 0),
-			Vec3(0, m_MakedHeight * 0.5f, 0),
-			BeforeWorldMatrix);
-		return BeforeWorldCapsule;
+			m_LocalOffset + Vec3(0, m_MakedHeight * -0.5f, 0),
+			m_LocalOffset + Vec3(0, m_MakedHeight * 0.5f, 0),
+			mat
+		);
 	}
 
 	bool CollisionCapsule::SimpleCollisionCall(const std::shared_ptr<Collision>& Src)
@@ -971,6 +1289,42 @@ namespace shooting {
 	AABB CollisionCapsule::GetWrappedAABB()const
 	{
 		return GetCapsule().GetWrappedAABB();
+	}
+
+	void CollisionCapsule::OnUpdateConstantBuffers()
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto trans = GetGameObject()->GetComponent<Transform>();
+
+		Mat4x4 worldScale;
+		worldScale.scale(Vec3(m_MakedDiameter, m_MakedHeight, m_MakedDiameter));
+
+		Mat4x4 localOffset;
+		localOffset.identity();
+		localOffset.translation(m_LocalOffset);
+
+		Mat4x4 worldRT;
+		worldRT.identity();
+		worldRT.rotation(trans->GetQuaternion());
+		worldRT.translation(trans->GetPosition());
+
+		Mat4x4 world = worldScale * localOffset * worldRT;
+
+		BuildDebugConstantBuffer(world);
+	}
+	void CollisionCapsule::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto mesh = BaseScene::Get()->GetMesh(L"DEFAULT_CAPSULE");
+		DrawDebugMesh(pCommandList, mesh, true);
 	}
 
 	//--------------------------------------------------------------------------------------

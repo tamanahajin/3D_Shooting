@@ -169,52 +169,45 @@ namespace shooting {
 			myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
 			myLightSet = gameObject->GetLightSet();
 
-			//Transformコンポーネントを取り出す
 			auto ptrTrans = gameObject->GetComponent<Transform>();
 			auto& param = ptrTrans->GetTransParam();
-			//シーンのコンスタントバッファ
-			{
 
-				//初期化
+			{
 				m_ConstantBuffer = {};
-				if (GetDrawTexture(0))
-				{
-					m_ConstantBuffer.activeFlg.y = 1;
-				}
-				else
-				{
-					m_ConstantBuffer.activeFlg.y = 0;
-				}
+				m_ConstantBuffer.activeFlg.y = GetDrawTexture(0) ? 1 : 0;
 				m_ConstantBuffer.activeFlg.x = 3;
 
-				//ワールド行列の設定
+				Vec3 drawPos = param.position + m_ModelOffset;
+
 				auto world = XMMatrixAffineTransformation(
 					param.scale,
 					param.rotateOrigin,
 					param.quaternion,
-					param.position
+					drawPos
 				);
+
 				auto view = (XMMATRIX)((Mat4x4)myCamera->GetViewMatrix());
 				auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
 				auto worldView = world * view;
-				m_ConstantBuffer.worldViewProj = Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
-				//フォグの設定
+				m_ConstantBuffer.worldViewProj =
+					Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
+
 				if (m_FogEnabled)
 				{
 					auto start = m_FogStart;
 					auto end = m_FogEnd;
 					if (start == end)
 					{
-						// Degenerate case: force everything to 100% fogged if start and end are the same.
 						static const XMVECTORF32 fullyFogged = { 0, 0, 0, 1 };
 						m_ConstantBuffer.fogVector = Vec4(fullyFogged);
 					}
 					else
 					{
 						XMMATRIX worldViewTrans = worldView;
-						// _13, _23, _33, _43
-						XMVECTOR worldViewZ = XMVectorMergeXY(XMVectorMergeZW(worldViewTrans.r[0], worldViewTrans.r[2]),
-															  XMVectorMergeZW(worldViewTrans.r[1], worldViewTrans.r[3]));
+						XMVECTOR worldViewZ = XMVectorMergeXY(
+							XMVectorMergeZW(worldViewTrans.r[0], worldViewTrans.r[2]),
+							XMVectorMergeZW(worldViewTrans.r[1], worldViewTrans.r[3])
+						);
 						XMVECTOR wOffset = XMVectorSwizzle<1, 2, 3, 0>(XMLoadFloat(&start));
 						m_ConstantBuffer.fogVector = Vec4((worldViewZ + wOffset) / (start - end));
 					}
@@ -225,14 +218,14 @@ namespace shooting {
 					m_ConstantBuffer.fogVector = Vec4(g_XMZero);
 					m_ConstantBuffer.fogColor = Vec4(g_XMZero);
 				}
-				//ライトの決定
+
 				for (int i = 0; i < myLightSet->GetNumLights(); i++)
 				{
 					m_ConstantBuffer.lightDirection[i] = (Vec4)myLightSet->GetLight(i).m_directional;
 					m_ConstantBuffer.lightDiffuseColor[i] = (Vec4)myLightSet->GetLight(i).m_diffuseColor;
 					m_ConstantBuffer.lightSpecularColor[i] = (Vec4)myLightSet->GetLight(i).m_specularColor;
 				}
-				//ワールド行列
+
 				m_ConstantBuffer.world = Mat4x4(world);
 				m_ConstantBuffer.world.transpose();
 
@@ -249,40 +242,36 @@ namespace shooting {
 				Col4 emissiveColor = Col4(0.0f);
 				Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
 
-				// emissive と ambientとライトをマージする
-				m_ConstantBuffer.emissiveColor = (emissiveColor + (ambientLightColor * diffuse)) * alphaVector;
+				m_ConstantBuffer.emissiveColor =
+					(emissiveColor + (ambientLightColor * diffuse)) * alphaVector;
 				m_ConstantBuffer.specularColorAndPower = Col4(0, 0, 0, 1);
-
-				// xyz = diffuse * alpha, w = alpha.
-				m_ConstantBuffer.diffuseColor = Col4(XMVectorSelect(alphaVector, diffuse * alphaVector, g_XMSelect1110));
+				m_ConstantBuffer.diffuseColor =
+					Col4(XMVectorSelect(alphaVector, diffuse * alphaVector, g_XMSelect1110));
 
 				auto mainLight = myLightSet->GetMainBaseLight();
 				Vec3 calcLightDir = Vec3(mainLight.m_directional) * Vec3(-1.0f);
 
 				Vec3 lightAt(myCamera->GetAt());
-
 				Vec3 lightEye(calcLightDir);
-
 				lightEye *= Vec3(ShadowMap::GetLightHeight());
 				lightEye += lightAt;
 
-				Vec4 LightEye4 = Vec4(lightEye, 1.0f);
-				m_ConstantBuffer.lightPos = LightEye4;
-				Vec4 eyePos4 = Vec4((Vec3)myCamera->GetEye(), 1.0f);
-				m_ConstantBuffer.eyePos = eyePos4;
-				XMMATRIX LightView, LightProj;
-				//ライトのビューと射影を計算
-				LightView = XMMatrixLookAtLH(
-					Vec3(lightEye),
-					Vec3(lightAt),
-					Vec3(0, 1.0f, 0)
+				m_ConstantBuffer.lightPos = Vec4(lightEye, 1.0f);
+				m_ConstantBuffer.eyePos = Vec4((Vec3)myCamera->GetEye(), 1.0f);
+
+				XMMATRIX LightView = XMMatrixLookAtLH(
+					Vec3(lightEye), Vec3(lightAt), Vec3(0, 1.0f, 0)
 				);
-				LightProj = XMMatrixOrthographicLH(ShadowMap::GetViewWidth(), ShadowMap::GetViewHeight(),
-												   ShadowMap::GetLightNear(), ShadowMap::GetLightFar());
+				XMMATRIX LightProj = XMMatrixOrthographicLH(
+					ShadowMap::GetViewWidth(),
+					ShadowMap::GetViewHeight(),
+					ShadowMap::GetLightNear(),
+					ShadowMap::GetLightFar()
+				);
+
 				m_ConstantBuffer.lightView = Mat4x4(XMMatrixTranspose(LightView));
 				m_ConstantBuffer.lightProjection = Mat4x4(XMMatrixTranspose(LightProj));
 
-				//ボーン
 				size_t BoneSz = m_BoneTransforms.size();
 				if (BoneSz > 0)
 				{
@@ -290,7 +279,6 @@ namespace shooting {
 					for (size_t b = 0; b < BoneSz; b++)
 					{
 						bsm::Mat4x4 mat = m_BoneTransforms[b];
-							//mat.transpose();
 						m_ConstantBuffer.Bones[cb_count] = ((XMMATRIX)mat).r[0];
 						m_ConstantBuffer.Bones[cb_count + 1] = ((XMMATRIX)mat).r[1];
 						m_ConstantBuffer.Bones[cb_count + 2] = ((XMMATRIX)mat).r[2];

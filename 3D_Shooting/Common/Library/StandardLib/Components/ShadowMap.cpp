@@ -98,42 +98,39 @@ namespace shooting {
 		auto gameObject = m_gameObject.lock();
 		if (gameObject)
 		{
-
 			myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
 			myLightSet = gameObject->GetLightSet();
 
-			//Transformコンポーネントを取り出す
 			auto ptrTrans = gameObject->GetComponent<Transform>();
-			auto& param = ptrTrans->GetTransParam();
 
-			//シャドウマップのコンスタントバッファ
 			{
 				m_shadowConstantBuffer = {};
 				Mat4x4 world;
 				auto lights = myLightSet;
 				auto light = lights->GetMainBaseLight();
-				//位置の取得
-				auto pos = ptrTrans->GetWorldMatrix().transInMatrix();
+
+				auto pos = ptrTrans->GetWorldMatrix().transInMatrix() + m_ModelOffset;
+
 				Vec3 posSpan = light.m_directional;
 				posSpan *= m_posAdjustment;
 				pos += posSpan;
-				//ワールド行列の決定
+
 				world.affineTransformation(
-					ptrTrans->GetScale(),			//スケーリング
-					ptrTrans->GetRotateOrigin(),		//回転の中心（重心）
-					ptrTrans->GetQuaternion(),				//回転角度
-					pos				//位置
+					ptrTrans->GetScale(),
+					ptrTrans->GetRotateOrigin(),
+					ptrTrans->GetQuaternion(),
+					pos
 				);
+
 				Vec3 lightDir = -light.m_directional;
 				auto camera = myCamera;
 				Vec3 lightAt = camera->GetAt();
 				Vec3 lightEye = lightAt + (lightDir * m_lightHeight);
 
-				auto width = viewport.Width;
-				auto height = viewport.Height;
-
 				Mat4x4 lightView = XMMatrixLookAtLH(lightEye, lightAt, Vec3(0, 1.0f, 0));
-				Mat4x4 lightProj = XMMatrixOrthographicLH(m_viewWidth, m_viewHeight, m_lightNear, m_lightFar);
+				Mat4x4 lightProj = XMMatrixOrthographicLH(
+					m_viewWidth, m_viewHeight, m_lightNear, m_lightFar
+				);
 
 				m_shadowConstantBuffer.world = world.transpose();
 				m_shadowConstantBuffer.view = lightView.transpose();

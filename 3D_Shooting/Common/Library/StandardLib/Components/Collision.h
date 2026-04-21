@@ -7,6 +7,8 @@
 
 namespace shooting {
 
+	DECLARE_DX12SHADER(PSCollisionDebug)
+
 	class Collision;
 	class CollisionSphere;
 	class CollisionCapsule;
@@ -67,6 +69,16 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual ~Collision();
+
+		BasicConstant m_DebugConstantBuffer{};
+		size_t m_DebugConstantBufferIndex = 0;
+		Col4 m_DebugDiffuseColor = Col4(1.0f, 0.0f, 0.0f, 0.05f);
+
+		void InitDebugDrawResources();
+		void BuildDebugConstantBuffer(const Mat4x4& world);
+		void DrawDebugMesh(ID3D12GraphicsCommandList* pCommandList,
+						   const std::shared_ptr<BaseMesh>& mesh,
+						   bool alphaBlend = true);
 	public:
 		//--------------------------------------------------------------------------------------
 		/*!
@@ -387,6 +399,8 @@ namespace shooting {
 		//--------------------------------------------------------------------------------------
 		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)override {}
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override {}
+		virtual void OnUpdateConstantBuffers() override;
+		virtual void OnCommitConstantBuffers() override;
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief 破棄処理。デフォルトは何も行わない
@@ -593,7 +607,8 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)override {}
-		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override {}
+		virtual void OnUpdateConstantBuffers() override;
+		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 
 	//--------------------------------------------------------------------------------------
@@ -605,6 +620,7 @@ namespace shooting {
 		float m_MakedHeight;			//作成時高さ
 		//配列ボリュームと衝突時に衝突した配列を特定するインデックス
 		size_t m_IsHitVolumeIndex;
+		Vec3 m_LocalOffset;             // ローカルオフセット
 	protected:
 	public:
 		//--------------------------------------------------------------------------------------
@@ -672,6 +688,14 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		void SetMakedHeight(float f);
+		const Vec3& GetLocalOffset() const
+		{
+			return m_LocalOffset;
+		}
+		void SetLocalOffset(const Vec3& offset)
+		{
+			m_LocalOffset = offset;
+		}
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	現在のCAPSULE境界ボリュームを得る
@@ -792,7 +816,8 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)override {}
-		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override {}
+		virtual void OnUpdateConstantBuffers() override;
+		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 
 	//--------------------------------------------------------------------------------------

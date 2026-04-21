@@ -531,6 +531,9 @@
     <FxCompile Include="Shader\VSDamageEffect.hlsl">
       <Filter>シェーダー</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\PSCollisionDebug.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="3DShooting.rc">

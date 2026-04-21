@@ -14,15 +14,6 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	///	Assimpƒ[ƒ_[
 	//--------------------------------------------------------------------------------------
-	static void DebugLogA(const std::string& s)
-	{
-		OutputDebugStringA(s.c_str());
-	}
-
-	static void DebugLogW(const std::wstring& s)
-	{
-		OutputDebugStringW(s.c_str());
-	}
 
 /*
 
@@ -548,128 +539,6 @@ Assimp::Importer importer;
 		float AnimationTimeTicks = CalcAnimationTimeTicks(TimeInSeconds, AnimationIndex);
 		const aiAnimation& Animation = *m_pScene->mAnimations[AnimationIndex];
 
-		static bool s_loggedSummary = false;
-		if (!s_loggedSummary && AnimationIndex == 3)
-		{
-			std::ostringstream oss;
-			oss << "\n[ANIM SUMMARY]\n";
-			oss << "index=" << AnimationIndex << "\n";
-			oss << "name=" << Animation.mName.C_Str() << "\n";
-			oss << "duration=" << Animation.mDuration << "\n";
-			oss << "ticksPerSecond=" << Animation.mTicksPerSecond << "\n";
-			oss << "channels=" << Animation.mNumChannels << "\n";
-			DebugLogA(oss.str());
-			s_loggedSummary = true;
-		}
-
-		if (AnimationIndex == 3)
-		{
-			static bool s_loggedChannels = false;
-			if (!s_loggedChannels)
-			{
-				std::ostringstream oss;
-				oss << "\n[ANIM CHANNELS]\n";
-
-				for (unsigned int i = 0; i < Animation.mNumChannels; ++i)
-				{
-					const aiNodeAnim* ch = Animation.mChannels[i];
-
-					double lastPos = (ch->mNumPositionKeys > 0)
-						? ch->mPositionKeys[ch->mNumPositionKeys - 1].mTime
-						: -1.0;
-
-					double lastRot = (ch->mNumRotationKeys > 0)
-						? ch->mRotationKeys[ch->mNumRotationKeys - 1].mTime
-						: -1.0;
-
-					double lastScl = (ch->mNumScalingKeys > 0)
-						? ch->mScalingKeys[ch->mNumScalingKeys - 1].mTime
-						: -1.0;
-
-					oss << "node=" << ch->mNodeName.C_Str()
-						<< " posKeys=" << ch->mNumPositionKeys
-						<< " lastPos=" << lastPos
-						<< " rotKeys=" << ch->mNumRotationKeys
-						<< " lastRot=" << lastRot
-						<< " sclKeys=" << ch->mNumScalingKeys
-						<< " lastScl=" << lastScl
-						<< "\n";
-				}
-
-				DebugLogA(oss.str());
-				s_loggedChannels = true;
-			}
-		}
-
-		if (AnimationIndex == 3)
-		{
-			static bool s_loggedFirstLast = false;
-			if (!s_loggedFirstLast)
-			{
-				std::ostringstream oss;
-				oss << "\n[ANIM FIRST/LAST VALUES]\n";
-
-				for (unsigned int i = 0; i < Animation.mNumChannels; ++i)
-				{
-					const aiNodeAnim* ch = Animation.mChannels[i];
-					oss << "node=" << ch->mNodeName.C_Str() << "\n";
-
-					if (ch->mNumPositionKeys > 0)
-					{
-						const auto& p0 = ch->mPositionKeys[0];
-						const auto& pN = ch->mPositionKeys[ch->mNumPositionKeys - 1];
-						oss << "  pos first t=" << p0.mTime
-							<< " v=(" << p0.mValue.x << "," << p0.mValue.y << "," << p0.mValue.z << ")\n";
-						oss << "  pos last  t=" << pN.mTime
-							<< " v=(" << pN.mValue.x << "," << pN.mValue.y << "," << pN.mValue.z << ")\n";
-					}
-
-					if (ch->mNumRotationKeys > 0)
-					{
-						const auto& r0 = ch->mRotationKeys[0];
-						const auto& rN = ch->mRotationKeys[ch->mNumRotationKeys - 1];
-
-						double dot =
-							r0.mValue.x * rN.mValue.x +
-							r0.mValue.y * rN.mValue.y +
-							r0.mValue.z * rN.mValue.z +
-							r0.mValue.w * rN.mValue.w;
-
-						oss << "  rot first t=" << r0.mTime
-							<< " q=(" << r0.mValue.x << "," << r0.mValue.y << "," << r0.mValue.z << "," << r0.mValue.w << ")\n";
-						oss << "  rot last  t=" << rN.mTime
-							<< " q=(" << rN.mValue.x << "," << rN.mValue.y << "," << rN.mValue.z << "," << rN.mValue.w << ")\n";
-						oss << "  rot dot(first,last)=" << dot << "\n";
-					}
-
-					if (ch->mNumScalingKeys > 0)
-					{
-						const auto& s0 = ch->mScalingKeys[0];
-						const auto& sN = ch->mScalingKeys[ch->mNumScalingKeys - 1];
-						oss << "  scl first t=" << s0.mTime
-							<< " v=(" << s0.mValue.x << "," << s0.mValue.y << "," << s0.mValue.z << ")\n";
-						oss << "  scl last  t=" << sN.mTime
-							<< " v=(" << sN.mValue.x << "," << sN.mValue.y << "," << sN.mValue.z << ")\n";
-					}
-				}
-
-				DebugLogA(oss.str());
-				s_loggedFirstLast = true;
-			}
-		}
-
-		if (AnimationIndex == 3 &&
-			(AnimationTimeTicks < 0.2f || ((float)Animation.mDuration - AnimationTimeTicks) < 0.2f))
-		{
-			char buf[256];
-			sprintf_s(buf,
-					  "[ANIM TICK] timeSec=%.6f tick=%.6f duration=%.6f\n",
-					  TimeInSeconds,
-					  AnimationTimeTicks,
-					  (float)Animation.mDuration);
-			OutputDebugStringA(buf);
-		}
-
 		ReadNodeHierarchy(AnimationTimeTicks, m_pScene->mRootNode, Identity, Animation);
 		Transforms.resize(m_BoneInfo.size());
 
@@ -949,24 +818,6 @@ Assimp::Importer importer;
 
 		float Factor = (AnimationTimeTicks - t1) / DeltaTime;
 		Factor = bsmUtil::Clamp(Factor, 0.0f, 1.0f);
-
-		if ((std::string(pNodeAnim->mNodeName.C_Str()) == "torso" ||
-			std::string(pNodeAnim->mNodeName.C_Str()) == "arm-left") &&
-			(AnimationTimeTicks < 0.5f || (AnimationDuration - AnimationTimeTicks) < 0.5f))
-		{
-			char buf[512];
-			sprintf_s(buf,
-					  "[ROT] node=%s tick=%.6f idx=%u next=%u t1=%.6f t2=%.6f factor=%.6f\n",
-					  pNodeAnim->mNodeName.C_Str(),
-					  AnimationTimeTicks,
-					  RotationIndex,
-					  NextRotationIndex,
-					  t1,
-					  t2,
-					  Factor
-			);
-			OutputDebugStringA(buf);
-		}
 
 		aiQuaternion StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
 		aiQuaternion EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;

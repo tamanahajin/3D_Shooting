@@ -122,6 +122,9 @@ namespace shooting {
 		ptrShadow->AddBaseMesh(L"DEFAULT_CAPSULE");
 		//CollisionCapsule衝突判定を付ける
 		auto ptrColl = AddComponent<CollisionCapsule>();
+		ptrColl->SetDebugDraw(false);
+		ptrColl->SetMakedRadius(0.2f);
+		ptrColl->SetMakedHeight(0.4f);
 		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 

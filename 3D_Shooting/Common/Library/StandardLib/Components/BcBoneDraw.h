@@ -37,6 +37,7 @@ namespace shooting {
 		std::vector<Mat4x4>  m_BoneTransforms;
 		std::vector<std::shared_ptr<BaseMaterial>> m_BaseMaterialVec;
 		unsigned int m_CurrentAnimationIndex = 0;
+		Vec3 m_ModelOffset = Vec3(0.0f, 0.0f, 0.0f);
 
 	public:
 		bool IsOwnShadowActive()const
@@ -93,6 +94,16 @@ namespace shooting {
 		}
 
 		float GetCurrentAnimationDurationSeconds();
+
+		void SetModelOffset(const Vec3& offset)
+		{
+			m_ModelOffset = offset;
+		}
+
+		const Vec3& GetModelOffset() const
+		{
+			return m_ModelOffset;
+		}
 
 		BcPNTBoneDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
 		virtual ~BcPNTBoneDraw() {}

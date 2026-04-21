@@ -102,7 +102,13 @@ namespace shooting {
 		auto group = GetStage()->GetSharedObjectGroup(L"SeekGroup");
 		group->IntoGroup(GetThis<SeekObject>());
 		
+		// コリジョン
 		auto ptrColl = AddComponent<CollisionCapsule>();
+		ptrColl->SetDebugDraw(false);
+		const float radius = 0.2f;
+		const float segmentHeight = 0.3f;
+		ptrColl->SetMakedRadius(radius);
+		ptrColl->SetMakedHeight(segmentHeight);
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
 		auto PtrSep = GetBehavior<SeparationSteering>();
@@ -113,9 +119,14 @@ namespace shooting {
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
 		ptrDraw->AddBaseTexture(L"ENEMY_TEXTURE_SKINNED");
+		const float modelDown = -(segmentHeight * 0.5f + radius);
+		ptrDraw->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
 		auto ptrShadow = AddComponent<ShadowMap>();
 		ptrShadow->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
+		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
+
+		// アニメーション
 		ptrDraw->SetAnimationIndex(22);
 		//透明処理をする
 		SetAlphaActive(false);
@@ -188,6 +199,36 @@ namespace shooting {
 			auto ptrUtil = GetBehavior<UtilBehavior>();
 			ptrUtil->RotToHead(m_Velocity, 0.35f);
 		}
+
+		m_IsGround = false;
+	}
+
+	void SeekObject::OnCollisionEnter(const CollisionPair& pair)
+	{
+		CheckGroundCollision(pair);
+	}
+
+	void SeekObject::OnCollisionExecute(const CollisionPair& pair)
+	{
+		CheckGroundCollision(pair);
+	}
+
+	void SeekObject::CheckGroundCollision(const CollisionPair& pair)
+	{
+		if (pair.m_SrcHitNormal.y > 0.7f)
+		{
+			m_IsGround = true;
+
+			auto grav = GetComponent<Gravity>(false);
+			if (grav)
+			{
+				auto gravVel = grav->GetGravityVelocity();
+				if (gravVel.y < 0.0f)
+				{
+					grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
+				}
+			}
+		}
 	}
 
 	Vec3 SeekObject::GetTargetPos()const
@@ -201,6 +242,7 @@ namespace shooting {
 	{
 		float elapsedTime = (float)Scene::GetElapsedTime();
 		m_Velocity += m_Force * elapsedTime;
+		m_Velocity.y = 0.0f;
 		auto ptrTrans = GetComponent<Transform>();
 		auto pos = ptrTrans->GetPosition();
 		pos += m_Velocity * elapsedTime;

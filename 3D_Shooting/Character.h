@@ -52,6 +52,9 @@ namespace shooting {
 		Vec3 m_Velocity;
 		double m_SteeringUpdateTimer = 0.0;
 		double m_SteeringUpdateInterval = 0.05;
+		bool m_IsGround = false;
+
+		void CheckGroundCollision(const CollisionPair& pair);
 	public:
 		//ç\ízÇ∆îjä¸
 		SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos);
@@ -91,6 +94,8 @@ namespace shooting {
 		Vec3 GetTargetPos()const;
 		//ëÄçÏ
 		virtual void OnUpdate(double elapsedTime) override;
+		virtual void OnCollisionEnter(const CollisionPair& pair) override;
+		virtual void OnCollisionExecute(const CollisionPair& pair) override;
 	};
 
 	//--------------------------------------------------------------------------------------

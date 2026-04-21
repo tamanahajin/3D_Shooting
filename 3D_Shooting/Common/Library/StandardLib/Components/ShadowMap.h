@@ -40,6 +40,8 @@ namespace shooting {
 	protected:
 		ShadowConstantBuffer m_shadowConstantBuffer;
 		size_t m_shadowConstantBufferIndex;
+
+		Vec3 m_ModelOffset = Vec3(0.0f, 0.0f, 0.0f);
 	public:
 		//--------------------------------------------------------------------------------------
 		/*!
@@ -177,6 +179,15 @@ namespace shooting {
 		static void SetPosAdjustment(float f)
 		{
 			m_posAdjustment = f;
+		}
+		void SetModelOffset(const Vec3& offset)
+		{
+			m_ModelOffset = offset;
+		}
+
+		const Vec3& GetModelOffset() const
+		{
+			return m_ModelOffset;
 		}
 		ShadowMap(const std::shared_ptr<GameObject>& gameObjectPtr);
 		virtual ~ShadowMap() {}
