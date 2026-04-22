@@ -26,6 +26,7 @@ namespace shooting {
 	///	ShadowMap描画
 	//--------------------------------------------------------------------------------------
 	DECLARE_DX12SHADER(PNTShadowMap)
+	DECLARE_DX12SHADER(PNTSkinningShadowMap)
 
 	//--------------------------------------------------------------------------------------
 	///	シャドウマップコンポーネント
@@ -42,6 +43,7 @@ namespace shooting {
 		size_t m_shadowConstantBufferIndex;
 
 		Vec3 m_ModelOffset = Vec3(0.0f, 0.0f, 0.0f);
+		bool m_UseSkinning = false;
 	public:
 		//--------------------------------------------------------------------------------------
 		/*!

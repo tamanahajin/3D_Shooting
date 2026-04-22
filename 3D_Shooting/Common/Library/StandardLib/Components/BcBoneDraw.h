@@ -105,6 +105,11 @@ namespace shooting {
 			return m_ModelOffset;
 		}
 
+		const std::vector<Mat4x4>& GetBoneTransforms() const
+		{
+			return m_BoneTransforms;
+		}
+
 		BcPNTBoneDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
 		virtual ~BcPNTBoneDraw() {}
 		virtual void OnUpdateConstantBuffers()override;

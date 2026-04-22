@@ -20,7 +20,7 @@ namespace shooting {
 		auto group = CreateSharedObjectGroup(L"SeekGroup");
 		
 		// 生成する敵の数
-		const size_t enemyCount = 20;
+		const size_t enemyCount = 1;
 		
 		// ランダム配置のパラメータ
 		const float minDistance = 5.0f;   // 最小距離

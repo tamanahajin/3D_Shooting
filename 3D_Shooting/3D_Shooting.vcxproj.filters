@@ -534,6 +534,9 @@
     <FxCompile Include="Shader\PSCollisionDebug.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\VSShadowmapSkinning.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="3DShooting.rc">

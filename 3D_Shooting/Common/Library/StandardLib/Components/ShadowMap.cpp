@@ -20,6 +20,7 @@ namespace shooting {
 	///	ShadowMap
 	//--------------------------------------------------------------------------------------
 	IMPLEMENT_DX12SHADER(PNTShadowMap, App::GetShadersDir() + L"VSShadowmap.cso")
+	IMPLEMENT_DX12SHADER(PNTSkinningShadowMap, App::GetShadersDir() + L"VSShadowmapSkinning.cso")
 
 		ShadowMap::ShadowMap(const std::shared_ptr<GameObject>& gameObjectPtr) :
 		Component(gameObjectPtr)
@@ -80,7 +81,53 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"PNTShadowMap", PNTShadowMapPipelineState);
 			}
 		}
+		// スキニングシャドウマップパイプラインステート
+		{
+			ComPtr<ID3D12PipelineState> skinningShadowPipelineState
+				= PipelineStatePool::GetPipelineState(L"PNTSkinningShadowMap");
 
+			auto rootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault", true);
+
+			CD3DX12_DEPTH_STENCIL_DESC depthStencilDesc(D3D12_DEFAULT);
+			depthStencilDesc.DepthEnable = TRUE;
+			depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+			depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+			depthStencilDesc.StencilEnable = FALSE;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+			ZeroMemory(&psoDesc, sizeof(psoDesc));
+
+			psoDesc.InputLayout = {
+				VertexPositionNormalTextureSkinning::GetVertexElement(),
+				VertexPositionNormalTextureSkinning::GetNumElements()
+			};
+			psoDesc.pRootSignature = rootSignature.Get();
+			psoDesc.VS =
+			{
+				reinterpret_cast<UINT8*>(PNTSkinningShadowMap::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+				PNTSkinningShadowMap::GetPtr()->GetShaderComPtr()->GetBufferSize()
+			};
+			psoDesc.PS = { CD3DX12_SHADER_BYTECODE(0, 0) };
+			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			psoDesc.DepthStencilState = depthStencilDesc;
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 0;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+			psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+			psoDesc.SampleDesc.Count = 1;
+
+			if (!skinningShadowPipelineState)
+			{
+				ThrowIfFailed(
+					pBaseDevice->GetD3D12Device()->CreateGraphicsPipelineState(
+					&psoDesc, IID_PPV_ARGS(&skinningShadowPipelineState))
+				);
+				NAME_D3D12_OBJECT(skinningShadowPipelineState);
+				PipelineStatePool::AddPipelineState(L"PNTSkinningShadowMap", skinningShadowPipelineState);
+			}
+		}
 	}
 
 	void ShadowMap::OnUpdateConstantBuffers()
@@ -135,6 +182,26 @@ namespace shooting {
 				m_shadowConstantBuffer.world = world.transpose();
 				m_shadowConstantBuffer.view = lightView.transpose();
 				m_shadowConstantBuffer.projection = lightProj.transpose();
+
+				auto boneDraw = gameObject->GetComponent<BcPNTBoneDraw>(false);
+				if (boneDraw)
+				{
+					const auto& bones = boneDraw->GetBoneTransforms();
+					if (!bones.empty())
+					{
+						m_UseSkinning = true;
+
+						UINT cb_count = 0;
+						for (size_t i = 0; i < bones.size() && (cb_count + 2) < (3 * MAX_BONES); ++i)
+						{
+							const Mat4x4& mat = bones[i];
+							m_shadowConstantBuffer.bones[cb_count] = ((XMMATRIX)mat).r[0];
+							m_shadowConstantBuffer.bones[cb_count + 1] = ((XMMATRIX)mat).r[1];
+							m_shadowConstantBuffer.bones[cb_count + 2] = ((XMMATRIX)mat).r[2];
+							cb_count += 3;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -150,21 +217,43 @@ namespace shooting {
 
 	void ShadowMap::OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)
 	{
-		//		ID3D12GraphicsCommandList* pCommandList = BaseScene::Get()->m_pTgtCommandList;
 		auto mesh = GetBaseMesh(0);
-		if (mesh)
+		if (!mesh)
 		{
-			auto pBaseScene = BaseScene::Get();
-			auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
-			//Cbv
-			// Set shadow constant buffer.
-			pCommandList->SetGraphicsRootConstantBufferView(pBaseScene->GetGpuSlotID(L"b0"),
-															pCurrentFrameResource->m_baseConstantBufferSetVec[m_shadowConstantBufferIndex].m_baseConstantBuffer->GetGPUVirtualAddress());
-			// Draw
-			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
-			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
-			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+			return;
 		}
+
+		auto pBaseScene = BaseScene::Get();
+		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
+
+		// スキニング有無でPSO切り替え
+		if (m_UseSkinning)
+		{
+			auto pso = PipelineStatePool::GetPipelineState(L"PNTSkinningShadowMap");
+			if (pso)
+			{
+				pCommandList->SetPipelineState(pso.Get());
+			}
+		}
+		else
+		{
+			auto pso = PipelineStatePool::GetPipelineState(L"PNTShadowMap");
+			if (pso)
+			{
+				pCommandList->SetPipelineState(pso.Get());
+			}
+		}
+
+		pCommandList->SetGraphicsRootConstantBufferView(
+			pBaseScene->GetGpuSlotID(L"b0"),
+			pCurrentFrameResource
+			->m_baseConstantBufferSetVec[m_shadowConstantBufferIndex]
+			.m_baseConstantBuffer->GetGPUVirtualAddress()
+		);
+
+		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
+		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 	}
 
 }
