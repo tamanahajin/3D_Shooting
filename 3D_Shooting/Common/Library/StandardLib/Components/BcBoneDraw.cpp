@@ -557,6 +557,12 @@ namespace shooting {
 			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
 			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+
+			// ダメージエフェクト
+			if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
+			{
+				dmg->OnDraw(pCommandList);
+			}
 		}
 
 	}

@@ -118,21 +118,37 @@ namespace shooting {
 	{
 		GetStage()->SetSharedGameObject(L"Player", GetThis<Player>());
 
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_CAPSULE");
-		//CollisionCapsule衝突判定を付ける
+		auto ptrTransform = GetComponent<Transform>();
+		//ptrTransform->SetPosition(m_StartPos);
+		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
+		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
+
+		// コリジョン
 		auto ptrColl = AddComponent<CollisionCapsule>();
-		ptrColl->SetDebugDraw(false);
-		ptrColl->SetMakedRadius(0.2f);
-		ptrColl->SetMakedHeight(0.4f);
+		ptrColl->SetDebugDraw(true);
+		const float radius = 0.2f;
+		const float segmentHeight = 0.3f;
+		ptrColl->SetMakedRadius(radius);
+		ptrColl->SetMakedHeight(segmentHeight);
 		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 
-		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
-		ptrDraw->AddBaseMesh(L"DEFAULT_CAPSULE");
-		ptrDraw->AddBaseTexture(L"TRACE3_TX");
+		// 描画
+		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
+		ptrDraw->SetFogEnabled(true);
+		ptrDraw->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
+		ptrDraw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
+		const float modelDown = -(segmentHeight * 0.5f + radius);
+		ptrDraw->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
+
+		auto ptrShadow = AddComponent<ShadowMap>();
+		ptrShadow->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
+		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
+
+		// アニメーション
+		ptrDraw->SetAnimationIndex(22);
 		//透明処理
-		SetAlphaActive(true);
+		SetAlphaActive(false);
 		//カメラを得る
 		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
 		m_CollisionManager = GetStage()->GetCollisionManager();
@@ -173,12 +189,8 @@ namespace shooting {
 			// 例: リトライ画面表示、ゲームオーバーUIなど
 		};
 
-		// ダメージエフェクトコンポーネントを追加
-		//auto damageEffect = AddComponent<DamageEffect>();
-		//damageEffect->SetOutlineWidth(0.035f);
-		//damageEffect->SetEffectDuration(0.3f);
+		// ダメージエフェクト
 		auto damageEffect = AddComponent<DamageEffect>();
-		damageEffect->SetOutlineWidth(0.03f);
 
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
@@ -187,6 +199,13 @@ namespace shooting {
 
 	void Player::OnUpdate(double elapsedTime)
 	{
+		auto ptrDraw = GetComponent<BcPNTBoneDraw>();
+
+		m_totalTime += elapsedTime;
+
+		ptrDraw->UpdateAnimation(m_totalTime);
+
+
 		m_InputHandler.PushHandle(GetThis<Player>());
 
 		// 移動

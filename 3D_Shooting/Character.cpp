@@ -109,6 +109,7 @@ namespace shooting {
 		const float segmentHeight = 0.3f;
 		ptrColl->SetMakedRadius(radius);
 		ptrColl->SetMakedHeight(segmentHeight);
+
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
 		auto PtrSep = GetBehavior<SeparationSteering>();
@@ -118,7 +119,7 @@ namespace shooting {
 		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
-		ptrDraw->AddBaseTexture(L"ENEMY_TEXTURE_SKINNED");
+		ptrDraw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
 		const float modelDown = -(segmentHeight * 0.5f + radius);
 		ptrDraw->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
@@ -134,7 +135,6 @@ namespace shooting {
 
 		// ダメージエフェクト
 		auto damageEffect = AddComponent<DamageEffect>();
-		damageEffect->SetOutlineWidth(0.03f);
 
 		// HP設定
 		auto hp = AddComponent<Health>();
@@ -169,11 +169,6 @@ namespace shooting {
 		auto ptrDraw = GetComponent<BcPNTBoneDraw>();
 
 		m_totalTime += elapsedTime;
-
-		if (m_totalTime > 3600.0)
-		{
-			m_totalTime = fmod(m_totalTime, 10.0);
-		}
 
 		ptrDraw->UpdateAnimation(m_totalTime);
 

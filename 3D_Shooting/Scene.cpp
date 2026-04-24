@@ -38,7 +38,7 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
-		// skinned mesh
+		// 敵
 		auto skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
 			pCommandList,
 			App::GetRelativeAssetsDir(),
@@ -46,10 +46,18 @@ namespace shooting {
 		);
 		RegisterMesh(L"ENEMY_MODEL_SKINNED", skinnedMesh);
 
+		// プレイヤー
+		skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
+			pCommandList,
+			App::GetRelativeAssetsDir(),
+			L"Model/character-human.fbx"
+		);
+		RegisterMesh(L"PLAYER_MODEL_SKINNED", skinnedMesh);
+
 		// 単体 skinned 用テクスチャ
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
-		RegisterTexture(L"ENEMY_TEXTURE_SKINNED", texture);
+		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
 
 		//ステージ作成
 		ResetActiveStage<GameStage>(pDevice);

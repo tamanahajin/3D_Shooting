@@ -7,6 +7,7 @@ namespace shooting {
 	class Player : public GameObject
 	{
 	private:
+		double m_totalTime;
 		//プレイヤーが使用するコントローラとキーボードの入力
 		Vec2 GetInputState() const;
 		Vec2 GetInputKey() const;

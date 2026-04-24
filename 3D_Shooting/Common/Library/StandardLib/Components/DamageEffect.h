@@ -12,30 +12,26 @@ namespace shooting {
 	//  - VSDamageEffect.hlsl : 通常の頂点変換
 	//  - PSDamageEffect.hlsl : 赤色で塗る（alpha = damage）
 	DECLARE_DX12SHADER(VSDamageEffect)
+	DECLARE_DX12SHADER(VSDamageEffectSkinning)
 	DECLARE_DX12SHADER(PSDamageEffect)
 
 	//--------------------------------------------------------------------------------------
-	/// ダメージエフェクト用コンスタントバッファ（HLSLの DamageEffect.hlsli と一致させる）
-	///
-	/// HLSL側：
-	/// cbuffer OutlineCB : register(b0)
-	/// {
-	///     float4x4 gWorld;
-	///     float4x4 gViewProj;
-	///     float gOutlineWidth;
-	///     float gDamage;
-	///     float2 _pad;
-	/// };
-	///
-	/// ※gOutlineWidthは使用しませんが、HLSL側との互換性のため残しています
+	/// ダメージエフェクト用コンスタントバッファ
+	/// static / skinning の両方で使う
 	//--------------------------------------------------------------------------------------
 	struct DamageEffectConstantBuffer
 	{
-		XMFLOAT4X4 World;       //!< ワールド行列（転置済みで渡す前提）
-		XMFLOAT4X4 ViewProj;    //!< ViewProj行列（転置済みで渡す前提）
-		float      OutlineWidth; //!< 未使用（互換性のため残す）
-		float      Damage;       //!< 0..1（1が最大、0で消える）
+		XMFLOAT4X4 World;        //!< ワールド行列（転置済み）
+		XMFLOAT4X4 ViewProj;     //!< ViewProj行列（転置済み）
+		float      OutlineWidth; //!< HLSL側とのレイアウト一致用
+		float      Damage;       //!< 0..1
 		XMFLOAT2   Pad;          //!< 16byteアライン用
+		Vec4       Bones[3 * MAX_BONES]; //!< skinning用
+
+		DamageEffectConstantBuffer()
+		{
+			memset(this, 0, sizeof(DamageEffectConstantBuffer));
+		}
 	};
 
 	//--------------------------------------------------------------------------------------
@@ -43,32 +39,23 @@ namespace shooting {
 	///
 	/// 目的：
 	///   被弾中にモデル全体を薄く赤くする。
-	///
-	/// 方式：
-	///   1) いつも通りモデルを描く（通常PSO）
-	///   2) その後に、このコンポーネントで同じメッシュを「もう一度」描く（ダメージエフェクトPSO）
-	///      - Cull = BACK（通常の裏面カリング）
-	///      - アルファブレンド有効
-	///      - DepthWrite = OFF（深度を書かない）→ Zを汚さない
-	///
-	/// 注意：
-	///   このコンポーネント単体では「描画順」を保証できないので、
-	///   推奨は「通常描画コンポーネント（例：BcPNTStaticDraw）の最後で DamageEffect::OnDraw を呼ぶ」こと。
 	//--------------------------------------------------------------------------------------
 	class DamageEffect : public Component
 	{
 	private:
 		double m_EffectTimer = 0.0;     //!< 残り時間（秒）
 		bool   m_IsEffectActive = false;//!< エフェクト有効フラグ
+		bool   m_UseSkinning = false;   //!< スキニングモデルかどうか
 		float  m_EffectDuration = 0.2f; //!< 持続時間（秒）
-		float  m_OutlineWidth = 0.02f;  //!< 未使用（互換性のため残す）
+		float  m_OutlineWidth = 0.03f;
 
 		// GPUへ渡す定数
 		DamageEffectConstantBuffer m_ConstantBuffer{};
 		size_t m_ConstantBufferIndex = 0; //!< FrameResource内のCBスロット番号
 
 		// ダメージエフェクト用PSOのキー（PipelineStatePoolに登録して使い回す）
-		static constexpr const wchar_t* kDamageEffectPSOKey = L"DamageEffectOverlay";
+		static constexpr const wchar_t* kDamageEffectStaticPSOKey = L"DamageEffectOverlayStatic";
+		static constexpr const wchar_t* kDamageEffectSkinningPSOKey = L"DamageEffectOverlaySkinning";
 
 	public:
 		//--------------------------------------------------------------------------------------
@@ -117,16 +104,8 @@ namespace shooting {
 		//--------------------------------------------------------------------------------------
 		void SetEffectDuration(float duration) { m_EffectDuration = duration; }
 
-		//--------------------------------------------------------------------------------------
-		/// 輪郭太さ設定（未使用だが互換性のため残す）
-		//--------------------------------------------------------------------------------------
 		void SetOutlineWidth(float width) { m_OutlineWidth = width; }
-
-		//--------------------------------------------------------------------------------------
-		/// 輪郭太さ取得（未使用だが互換性のため残す）
-		//--------------------------------------------------------------------------------------
 		float GetOutlineWidth() const { return m_OutlineWidth; }
-
 	private:
 		// 定数（行列・damage等）を更新
 		void UpdateConstantBuffer();
