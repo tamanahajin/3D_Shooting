@@ -624,4 +624,39 @@ namespace shooting {
 
 		return assimp->GetAnimationDurationSeconds(m_CurrentAnimationIndex);
 	}
+
+	int BcPNTBoneDraw::GetAnimationCount()
+	{
+		auto mesh = GetBaseMesh(0);
+		if (!mesh)
+		{
+			return 0;
+		}
+
+		auto assimp = mesh->GetBaseAssimp();
+		if (!assimp)
+		{
+			return 0;
+		}
+
+		return assimp->GetAnimationCount();
+	}
+
+	std::wstring BcPNTBoneDraw::GetAnimationName(int index)
+	{
+		auto mesh = GetBaseMesh(0);
+		if (!mesh)
+		{
+			return L"";
+		}
+
+		auto assimp = mesh->GetBaseAssimp();
+		if (!assimp)
+		{
+			return L"";
+		}
+
+		return assimp->GetAnimationName(index);
+	}
 }
+

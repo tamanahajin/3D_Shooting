@@ -342,6 +342,7 @@ namespace shooting {
 		virtual void OnCollisionExit(const CollisionPair& Pair) {}
 
 		void ComponentUpdate();
+		void BehaviorUpdate();
 		void TransformInit();
 		void ComponentShadowmapRender();
 		void ComponentRender();

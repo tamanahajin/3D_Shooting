@@ -201,6 +201,8 @@ namespace shooting {
 		void GetBoneTransforms(float AnimationTimeSec, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex = 0);
 		float CalcAnimationTimeTicks(float TimeInSeconds, unsigned int AnimationIndex);
 		float GetAnimationDurationSeconds(unsigned int AnimationIndex) const;
+		int GetAnimationCount() const;
+		std::wstring GetAnimationName(int index) const;
 		void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Mat4x4& ParentTransform, const aiAnimation& Animation);
 		const aiNodeAnim* FindNodeAnim(const aiAnimation& Animation, const std::string& NodeName);
 		void CalcLocalTransform(LocalTransform& Transform, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim, float AnimationDuration);

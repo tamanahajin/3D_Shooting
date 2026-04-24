@@ -125,7 +125,7 @@ namespace shooting {
 
 		// コリジョン
 		auto ptrColl = AddComponent<CollisionCapsule>();
-		ptrColl->SetDebugDraw(true);
+		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
 		const float segmentHeight = 0.3f;
 		ptrColl->SetMakedRadius(radius);
@@ -146,7 +146,8 @@ namespace shooting {
 		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
 		// アニメーション
-		ptrDraw->SetAnimationIndex(22);
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		anim->ChangeAnimation(AnimState::Idle);
 		//透明処理
 		SetAlphaActive(false);
 		//カメラを得る
@@ -199,12 +200,19 @@ namespace shooting {
 
 	void Player::OnUpdate(double elapsedTime)
 	{
-		auto ptrDraw = GetComponent<BcPNTBoneDraw>();
-
-		m_totalTime += elapsedTime;
-
-		ptrDraw->UpdateAnimation(m_totalTime);
-
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (!m_IsGround)
+		{
+			anim->ChangeAnimation(AnimState::Jump);
+		}
+		else if (GetMoveVector().length() > 0.0f)
+		{
+			anim->ChangeAnimation(AnimState::Sprint);
+		}
+		else
+		{
+			anim->ChangeAnimation(AnimState::Idle);
+		}
 
 		m_InputHandler.PushHandle(GetThis<Player>());
 

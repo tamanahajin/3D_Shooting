@@ -76,6 +76,17 @@ namespace shooting {
 		}
 	}
 
+	void GameObject::BehaviorUpdate()
+	{
+		for (auto& pair : m_behaviorMap)
+		{
+			if (pair.second)
+			{
+				pair.second->OnUpdate(Scene::GetElapsedTime());
+			}
+		}
+	}
+
 	void GameObject::TransformInit()
 	{
 		auto Transptr = GetComponent<Transform>();

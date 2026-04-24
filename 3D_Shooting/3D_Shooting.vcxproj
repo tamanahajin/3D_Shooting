@@ -121,6 +121,8 @@
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Transform.h" />
+    <ClInclude Include="Common\Library\StandardLib\Objects\AnimationStateBehavior.h" />
+    <ClInclude Include="Common\Library\StandardLib\Objects\AnimState.h" />
     <ClInclude Include="Common\Library\StandardLib\Objects\Behavior.h" />
     <ClInclude Include="Common\Library\StandardLib\Objects\BehaviorSteering.h" />
     <ClInclude Include="Common\Library\StandardLib\Objects\CollisionManager.h" />

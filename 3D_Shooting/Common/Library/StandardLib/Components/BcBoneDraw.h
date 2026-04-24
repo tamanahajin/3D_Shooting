@@ -95,6 +95,9 @@ namespace shooting {
 
 		float GetCurrentAnimationDurationSeconds();
 
+		int GetAnimationCount();
+		std::wstring GetAnimationName(int index);
+
 		void SetModelOffset(const Vec3& offset)
 		{
 			m_ModelOffset = offset;

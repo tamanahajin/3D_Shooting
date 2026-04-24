@@ -781,7 +781,21 @@ namespace shooting {
 			return NormalizePath(GetDirectoryPath(modelFile) + tex);
 		}
 
-
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	Enum‚Ì’l‚ð•¶Žš—ñ‚É•ÏŠ·‚·‚é
+		@param[in]	value	Enum‚Ì’l
+		@return	•¶Žš—ñ‚É•ÏŠ·‚³‚ê‚½Enum‚Ì’l
+		*/
+		//--------------------------------------------------------------------------------------
+		template <typename T>
+		static std::wstring GetEnumName(T value)
+		{
+			static_assert(std::is_enum<T>::value, "T must be an enum type");
+			std::wstringstream ss;
+			ss << static_cast<int>(value);
+			return ss.str();
+		}
 	};
 
 

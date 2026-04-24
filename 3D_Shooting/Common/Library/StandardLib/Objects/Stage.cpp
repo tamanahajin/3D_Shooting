@@ -53,6 +53,14 @@ namespace shooting {
 				ptr->ComponentUpdate();
 			}
 		}
+		// 配置オブジェクトのBehavior更新
+		for (auto& ptr : GetGameObjectVec())
+		{
+			if (ptr->IsUpdateActive())
+			{
+				ptr->BehaviorUpdate();
+			}
+		}
 		////衝突判定
 		UpdateCollision();
 		//配置オブジェクトの更新後処理

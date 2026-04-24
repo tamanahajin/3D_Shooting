@@ -33,4 +33,6 @@
 #include "Components/Health.h"
 #include "Components/DamageDealer.h"
 #include "Components/BombAimPreview.h"
+#include "Objects/AnimState.h"
+#include "Objects/AnimationStateBehavior.h"
 

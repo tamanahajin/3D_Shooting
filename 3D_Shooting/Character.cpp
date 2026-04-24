@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Character.cpp
-@brief ”z’uƒIƒuƒWƒFƒNƒg À‘Ì
+@brief é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -9,7 +9,7 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	// ƒ{ƒbƒNƒXƒIƒuƒWƒFƒNƒg
+	// ãƒœãƒƒã‚¯ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	FixedBox::FixedBox(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage)
@@ -21,10 +21,10 @@ namespace shooting {
 	void FixedBox::OnCreate()
 	{
 		ID3D12GraphicsCommandList* pCommandList = BaseScene::Get()->m_pTgtCommandList;
-		//OBBÕ“Ëj”»’è‚ğ•t‚¯‚é
+		//OBBè¡çªjåˆ¤å®šã‚’ä»˜ã‘ã‚‹
 		auto ptrColl = AddComponent<CollisionObb>();
 		ptrColl->SetFixed(true);
-		//ƒ^ƒO‚ğ‚Â‚¯‚é
+		//ã‚¿ã‚°ã‚’ã¤ã‘ã‚‹
 		AddTag(L"FixedBox");
 		auto ptrShadow = AddComponent<ShadowMap>();
 		ptrShadow->AddBaseMesh(L"DEFAULT_CUBE");
@@ -35,7 +35,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	// lŠp‚ÌƒIƒuƒWƒFƒNƒg
+	// å››è§’ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	WallBox::WallBox(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
@@ -47,9 +47,9 @@ namespace shooting {
 
 	void WallBox::OnCreate()
 	{
-		//OBBÕ“Ëj”»’è‚ğ•t‚¯‚é
+		//OBBè¡çªjåˆ¤å®šã‚’ä»˜ã‘ã‚‹
 		auto ptrColl = AddComponent<CollisionObb>();
-		//d—Í‚ğ‚Â‚¯‚é
+		//é‡åŠ›ã‚’ã¤ã‘ã‚‹
 		auto ptrGra = AddComponent<Gravity>();
 
 		auto ptrShadow = AddComponent<ShadowMap>();
@@ -62,7 +62,7 @@ namespace shooting {
 
 	void WallBox::OnUpdate(double elapsedTime)
 	{
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 		auto ptrTrans = GetComponent<Transform>();
 		auto& param = ptrTrans->GetTransParam();
 
@@ -76,9 +76,9 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	’Ç‚¢‚©‚¯‚é”z’uƒIƒuƒWƒFƒNƒg
+	//	è¿½ã„ã‹ã‘ã‚‹é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	SeekObject::SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos) :
 		GameObject(StagePtr),
 		m_StartPos(startPos),
@@ -90,7 +90,7 @@ namespace shooting {
 	}
 	SeekObject::~SeekObject() {}
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void SeekObject::OnCreate()
 	{
 		auto ptrTransform = GetComponent<Transform>();
@@ -98,11 +98,11 @@ namespace shooting {
 		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
-		//ƒIƒuƒWƒFƒNƒg‚ÌƒOƒ‹[ƒv‚ğ“¾‚é
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚°ãƒ«ãƒ¼ãƒ—ã‚’å¾—ã‚‹
 		auto group = GetStage()->GetSharedObjectGroup(L"SeekGroup");
 		group->IntoGroup(GetThis<SeekObject>());
 		
-		// ƒRƒŠƒWƒ‡ƒ“
+		// ã‚³ãƒªã‚¸ãƒ§ãƒ³
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
@@ -111,11 +111,11 @@ namespace shooting {
 		ptrColl->SetMakedHeight(segmentHeight);
 
 		auto ptrGra = AddComponent<Gravity>();
-		//•ª—£s“®‚ğ‚Â‚¯‚é
+		//åˆ†é›¢è¡Œå‹•ã‚’ã¤ã‘ã‚‹
 		auto PtrSep = GetBehavior<SeparationSteering>();
 		PtrSep->SetGameObjectGroup(group);
 		
-		// •`‰æ
+		// æç”»
 		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
@@ -127,16 +127,18 @@ namespace shooting {
 		ptrShadow->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
 		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
-		// ƒAƒjƒ[ƒVƒ‡ƒ“
-		ptrDraw->SetAnimationIndex(22);
-		//“§–¾ˆ—‚ğ‚·‚é
+		// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
+		//ptrDraw->SetAnimationIndex(22);
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		anim->ChangeAnimation(AnimState::Idle);
+		//é€æ˜å‡¦ç†ã‚’ã™ã‚‹
 		SetAlphaActive(false);
 		AddTag(L"Enemy");
 
-		// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
 		auto damageEffect = AddComponent<DamageEffect>();
 
-		// HPİ’è
+		// HPè¨­å®š
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
@@ -155,7 +157,7 @@ namespace shooting {
 			self->GetStage()->RemoveGameObject(self);
 		};
 
-		// ƒXƒe[ƒgƒ}ƒVƒ“
+		// ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
 		m_StateMachine->ChangeState(SeekFarState::Instance());
 
@@ -163,38 +165,44 @@ namespace shooting {
 	}
 
 
-	//‘€ì
+	//æ“ä½œ
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
-		auto ptrDraw = GetComponent<BcPNTBoneDraw>();
+		auto anim = GetBehavior<AnimationStateBehavior>();
 
-		m_totalTime += elapsedTime;
-
-		ptrDraw->UpdateAnimation(m_totalTime);
+		if (!m_IsGround)
+		{
+			anim->ChangeAnimation(AnimState::Fall);
+		}
+		else
+		{
+			anim->ChangeAnimation(AnimState::Sprint);
+		}
 
 		m_SteeringUpdateTimer -= elapsedTime;
 
-		// ‘€‘ÇŒvZ‚Í20Hz‚¾‚¯
+		// æ“èˆµè¨ˆç®—ã¯20Hzã ã‘
 		if (m_SteeringUpdateTimer <= 0.0)
 		{
 			m_SteeringUpdateTimer += m_SteeringUpdateInterval;
 
 			m_Force = Vec3(0);
-			m_StateMachine->Update(); // ‚±‚Ì’†‚Å SetForce / ApplyForce ‚³‚ê‚é
+			m_StateMachine->Update(); // ã“ã®ä¸­ã§ SetForce / ApplyForce ã•ã‚Œã‚‹
 		}
 		else
 		{
-			// ‘O‰ñ‚Ì force ‚ğg‚Á‚ÄˆÚ“®‚¾‚¯Œp‘±
+			// å‰å›ã® force ã‚’ä½¿ã£ã¦ç§»å‹•ã ã‘ç¶™ç¶š
 			ApplyForce();
 		}
 
-		// Œü‚«XV‚Í velocity ƒx[ƒX
+		// å‘ãæ›´æ–°ã¯ velocity ãƒ™ãƒ¼ã‚¹
 		if (bsmUtil::lengthSqr(m_Velocity) > 1e-6f)
 		{
 			auto ptrUtil = GetBehavior<UtilBehavior>();
 			ptrUtil->RotToHead(m_Velocity, 0.35f);
 		}
 
+		// åœ°é¢åˆ¤å®šã‚’ãƒªã‚»ãƒƒãƒˆ
 		m_IsGround = false;
 	}
 
@@ -210,18 +218,21 @@ namespace shooting {
 
 	void SeekObject::CheckGroundCollision(const CollisionPair& pair)
 	{
+		// è¡çªæ³•ç·šã®Yæˆåˆ†ã‚’ãƒã‚§ãƒƒã‚¯ï¼ˆä¸Šå‘ãã®æ³•ç·š = åœ°é¢ã¨ã®è¡çªï¼‰
+		// 0.7f ã¯ç´„45åº¦ï¼ˆcos(45Â°) â‰ˆ 0.707ï¼‰
+		// ã“ã‚Œã‚ˆã‚Šå¤§ãã„ = ã‚ˆã‚Šæ°´å¹³ã«è¿‘ã„é¢ = åœ°é¢ã¨ã¿ãªã™
 		if (pair.m_SrcHitNormal.y > 0.7f)
 		{
 			m_IsGround = true;
 
-			auto grav = GetComponent<Gravity>(false);
-			if (grav)
+			// é‡åŠ›é€Ÿåº¦ã‚’ãƒªã‚»ãƒƒãƒˆï¼ˆåœ°é¢ã«ç€åœ°ï¼‰
+			auto grav = GetComponent<Gravity>();
+			auto gravVel = grav->GetGravityVelocity();
+
+			// ä¸‹å‘ãã®é€Ÿåº¦ã®å ´åˆã®ã¿ãƒªã‚»ãƒƒãƒˆï¼ˆç€åœ°æ™‚ï¼‰
+			if (gravVel.y < 0.0f)
 			{
-				auto gravVel = grav->GetGravityVelocity();
-				if (gravVel.y < 0.0f)
-				{
-					grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
-				}
+				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
 			}
 		}
 	}
@@ -247,7 +258,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	ƒvƒŒƒCƒ„[‚©‚ç‰“‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰é ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	std::shared_ptr<SeekFarState> SeekFarState::Instance()
 	{
@@ -278,7 +289,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	//	ƒvƒŒƒCƒ„[‚©‚ç‹ß‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰è¿‘ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	std::shared_ptr<SeekNearState> SeekNearState::Instance()
 	{

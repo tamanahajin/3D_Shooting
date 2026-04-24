@@ -590,6 +590,45 @@ Assimp::Importer importer;
 		return static_cast<float>(anim->mDuration / ticksPerSecond);
 	}
 
+	int BaseAssimp::GetAnimationCount() const
+	{
+		if (!m_pScene)
+		{
+			return 0;
+		}
+
+		return static_cast<int>(m_pScene->mNumAnimations);
+	}
+
+	std::wstring BaseAssimp::GetAnimationName(int index) const
+	{
+		if (!m_pScene)
+		{
+			return L"";
+		}
+
+		if (index < 0 || index >= static_cast<int>(m_pScene->mNumAnimations))
+		{
+			return L"";
+		}
+
+		const aiAnimation* anim = m_pScene->mAnimations[index];
+		if (!anim)
+		{
+			return L"";
+		}
+
+		std::string name = anim->mName.C_Str();
+
+		// –¼‘O‚ª‚È‚¢FBX‚à‚ ‚é
+		if (name.empty())
+		{
+			return L"Anim_" + std::to_wstring(index);
+		}
+
+		return std::wstring(name.begin(), name.end());
+	}
+
 	void BaseAssimp::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNode, const Mat4x4& ParentTransform, const aiAnimation& Animation)
 	{
 		std::string NodeName(pNode->mName.data);

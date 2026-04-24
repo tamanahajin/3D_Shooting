@@ -416,6 +416,12 @@
     <ClInclude Include="Common\Library\StandardLib\Components\BcBoneDraw.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\AnimationStateBehavior.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Objects\AnimState.h">
+      <Filter>Libs\StandardLib\Objects\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">
