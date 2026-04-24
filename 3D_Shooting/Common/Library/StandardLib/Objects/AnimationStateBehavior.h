@@ -26,11 +26,12 @@ namespace shooting {
 
 			switch (state)
 			{
-			case AnimState::Idle: draw->SetAnimationIndex(16); break;
-			case AnimState::Walk: draw->SetAnimationIndex(24); break;
-			case AnimState::Sprint: draw->SetAnimationIndex(22); break;
-			case AnimState::Jump: draw->SetAnimationIndex(19); break;
-			case AnimState::Fall: draw->SetAnimationIndex(9); break;
+			case AnimState::Idle: draw->SetAnimationIndex((int)state); break;
+			case AnimState::Walk: draw->SetAnimationIndex((int)state); break;
+			case AnimState::Sprint: draw->SetAnimationIndex((int)state); break;
+			case AnimState::Jump: draw->SetAnimationIndex((int)state); break;
+			case AnimState::Fall: draw->SetAnimationIndex((int)state); break;
+			case AnimState::AttackMeleeLeft: draw->SetAnimationIndex((int)state); break;
 			}
 		}
 
@@ -40,6 +41,18 @@ namespace shooting {
 
 			auto draw = GetGameObject()->GetComponent<BcPNTBoneDraw>();
 			draw->UpdateAnimation(m_Time);
+		}
+
+		bool IsPlayingAttack() const
+		{
+			return m_Current == AnimState::AttackMeleeLeft
+				|| m_Current == AnimState::AttackMeleeRight;
+		}
+
+		bool IsFinished() const
+		{
+			auto draw = GetGameObject()->GetComponent<BcPNTBoneDraw>();
+			return m_Time >= draw->GetCurrentAnimationDurationSeconds();
 		}
 	};
 }

@@ -109,8 +109,13 @@ namespace shooting {
 		//回転の計算
 		if (angle.length() > 0.0f)
 		{
-			auto utilPtr = GetBehavior<UtilBehavior>();
-			utilPtr->RotToHead(angle, 1.0f);
+			auto anim = GetBehavior<AnimationStateBehavior>();
+
+			if (!anim->IsPlayingAttack())
+			{
+				auto utilPtr = GetBehavior<UtilBehavior>();
+				utilPtr->RotToHead(angle, 1.0f);
+			}
 		}
 	}
 
@@ -201,17 +206,20 @@ namespace shooting {
 	void Player::OnUpdate(double elapsedTime)
 	{
 		auto anim = GetBehavior<AnimationStateBehavior>();
-		if (!m_IsGround)
+		if (!anim->IsPlayingAttack() || anim->IsFinished())
 		{
-			anim->ChangeAnimation(AnimState::Jump);
-		}
-		else if (GetMoveVector().length() > 0.0f)
-		{
-			anim->ChangeAnimation(AnimState::Sprint);
-		}
-		else
-		{
-			anim->ChangeAnimation(AnimState::Idle);
+			if (!m_IsGround)
+			{
+				anim->ChangeAnimation(AnimState::Jump);
+			}
+			else if (GetMoveVector().length() > 0.0f)
+			{
+				anim->ChangeAnimation(AnimState::Sprint);
+			}
+			else
+			{
+				anim->ChangeAnimation(AnimState::Idle);
+			}
 		}
 
 		m_InputHandler.PushHandle(GetThis<Player>());
@@ -355,6 +363,21 @@ namespace shooting {
 								});
 
 				m_ShotCool = 1.0;
+
+
+				// 攻撃方向を向く
+				Vec3 attackDir = aimPointPreview - GetComponent<Transform>()->GetPosition();
+				attackDir.y = 0.0f;
+
+				if (attackDir.length() > 1e-6f)
+				{
+					attackDir.normalize();
+
+					auto util = GetBehavior<UtilBehavior>();
+					util->RotToHead(attackDir, 1.0f);
+				}
+				// 攻撃アニメーション
+				anim->ChangeAnimation(AnimState::AttackMeleeLeft);
 			}
 			// 通常弾
 			else
