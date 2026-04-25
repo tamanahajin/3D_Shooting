@@ -186,13 +186,11 @@ namespace shooting {
 
 		hp->m_OnDeath = [self = GetThis<Player>()](const DamageInfo& info)
 		{
-			// 死亡処理
-			// プレイヤーを無効化
-			self->SetUpdateActive(false);
-			self->SetDrawActive(false);
-			
-			// ゲームオーバー処理などをここに追加可能
-			// 例: リトライ画面表示、ゲームオーバーUIなど
+			self->m_IsDead = true;
+			self->m_DeathAnimFinished = false;
+
+			auto anim = self->GetBehavior<AnimationStateBehavior>();
+			anim->ChangeAnimation(AnimState::Dead);
 		};
 
 		// ダメージエフェクト
@@ -205,6 +203,22 @@ namespace shooting {
 
 	void Player::OnUpdate(double elapsedTime)
 	{
+		if (m_IsDead)
+		{
+			auto anim = GetBehavior<AnimationStateBehavior>();
+
+			if (!anim->IsFinished())
+			{
+				anim->ChangeAnimation(AnimState::Dead);
+			}
+			else
+			{
+				m_DeathAnimFinished = true;
+			}
+
+			return;
+		}
+
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		if (!anim->IsPlayingAttack() || anim->IsFinished())
 		{

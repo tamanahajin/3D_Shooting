@@ -55,6 +55,7 @@ namespace shooting {
 	{
 		m_textBlocks.clear();
 		m_progressBars.clear();
+		m_buttons.clear();
 	}
 
 	IDWriteTextFormat* UILayer::ResolveTextFormat(DWRITE_TEXT_ALIGNMENT align) const
@@ -95,6 +96,24 @@ namespace shooting {
 		block.maxValue = (maxValue > 0.0f) ? maxValue : 1.0f;
 		block.label = label;
 		m_progressBars.push_back(block);
+	}
+
+	void UILayer::AddButtonBlock(
+		const D2D1_RECT_F& rect,
+		const std::wstring& text,
+		const D2D1_COLOR_F& baseColor,
+		const D2D1_COLOR_F& hoverColor,
+		const D2D1_COLOR_F& textColor,
+		bool hovered)
+	{
+		ButtonBlock block;
+		block.layout = rect;
+		block.text = text;
+		block.baseColor = baseColor;
+		block.hoverColor = hoverColor;
+		block.textColor = textColor;
+		block.hovered = hovered;
+		m_buttons.push_back(block);
 	}
 
 	void UILayer::Render(UINT frameIndex)
@@ -155,9 +174,37 @@ namespace shooting {
 				m_textBrush.Get());
 		}
 
+		for (const auto& button : m_buttons)
+		{
+			const auto& r = button.layout;
+
+			// 背景
+			m_textBrush->SetColor(button.hovered ? button.hoverColor : button.baseColor);
+			m_d2dDeviceContext->FillRectangle(r, m_textBrush.Get());
+
+			// 枠
+			m_textBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+			m_d2dDeviceContext->DrawRectangle(r, m_textBrush.Get(), 2.0f);
+
+			// 文字
+			m_textBrush->SetColor(button.textColor);
+
+			m_textFormatCenter->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+			m_textFormatCenter->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+			m_d2dDeviceContext->DrawText(
+				button.text.c_str(),
+				static_cast<UINT>(button.text.length()),
+				m_textFormatCenter.Get(),
+				r,
+				m_textBrush.Get());
+		}
+
 		// クロスヘア
 		if (m_crosshair.enabled)
 		{
+			m_textBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+
 			const float cx = std::floor(m_width * 0.5f) + 0.5f;
 			const float cy = std::floor(m_height * 0.5f) + 0.5f;
 

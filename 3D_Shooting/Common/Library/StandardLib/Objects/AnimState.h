@@ -9,7 +9,7 @@ namespace shooting {
 		AttackMeleeLeft = 2,
 		AttackMeleeRight = 3,
 		Crouch = 4,
-		Die = 5,
+		Dead = 5,
 		Fall = 9,
 		Idle = 16,
 		Jump = 19,

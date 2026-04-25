@@ -7,6 +7,7 @@ namespace shooting {
 	{
 		m_texts.clear();
 		m_bars.clear();
+		m_buttons.clear();
 	}
 
 	void UIManager::AddText(
@@ -41,6 +42,55 @@ namespace shooting {
 		cmd.offset = offset;
 		cmd.size = size;
 		m_bars.push_back(cmd);
+	}
+
+	bool UIManager::IsPointInRect(float x, float y, const D2D1_RECT_F& rect)
+	{
+		return x >= rect.left &&
+			x <= rect.right &&
+			y >= rect.top &&
+			y <= rect.bottom;
+	}
+
+	UIButtonResult UIManager::AddButton(
+		const std::wstring& text,
+		UIAnchor anchor,
+		const UIPointF& offset,
+		const UISizeF& size,
+		const D2D1_COLOR_F& baseColor,
+		const D2D1_COLOR_F& hoverColor,
+		const D2D1_COLOR_F& textColor)
+	{
+		auto device = BaseDevice::GetBaseDevice();
+		const float screenW = static_cast<float>(device->GetWidth());
+		const float screenH = static_cast<float>(device->GetHeight());
+
+		D2D1_RECT_F rect = ResolveRect(screenW, screenH, anchor, offset, size);
+
+		const auto& mouse = App::GetInputDevice().GetMouseState();
+		const bool hovered = IsPointInRect(
+			static_cast<float>(mouse.now.x),
+			static_cast<float>(mouse.now.y),
+			rect);
+
+		const bool clicked = hovered && App::GetInputDevice().MousePressed(VK_LBUTTON);
+
+		ButtonCommand cmd;
+		cmd.text = text;
+		cmd.baseColor = baseColor;
+		cmd.hoverColor = hoverColor;
+		cmd.textColor = textColor;
+		cmd.anchor = anchor;
+		cmd.offset = offset;
+		cmd.size = size;
+		cmd.hovered = hovered;
+		m_buttons.push_back(cmd);
+
+		UIButtonResult result;
+		result.hovered = hovered;
+		result.clicked = clicked;
+		result.rect = rect;
+		return result;
 	}
 
 	D2D1_RECT_F UIManager::ResolveRect(
@@ -112,6 +162,30 @@ namespace shooting {
 				bar.value,
 				bar.maxValue,
 				bar.label);
+		}
+
+		for (const auto& button : m_buttons)
+		{
+			D2D1_RECT_F rect = ResolveRect(
+				screenW,
+				screenH,
+				button.anchor,
+				button.offset,
+				button.size);
+
+			std::wstring text = button.text;
+			if (button.hovered)
+			{
+				text = L"> " + text + L" <";
+			}
+
+			layer.AddButtonBlock(
+				rect,
+				button.text,
+				button.baseColor,
+				button.hoverColor,
+				button.textColor,
+				button.hovered);
 		}
 
 		for (const auto& text : m_texts)

@@ -32,6 +32,7 @@ namespace shooting {
 			case AnimState::Jump: draw->SetAnimationIndex((int)state); break;
 			case AnimState::Fall: draw->SetAnimationIndex((int)state); break;
 			case AnimState::AttackMeleeLeft: draw->SetAnimationIndex((int)state); break;
+			case AnimState::Dead: draw->SetAnimationIndex((int)state); break;
 			}
 		}
 

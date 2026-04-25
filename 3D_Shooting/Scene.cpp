@@ -17,6 +17,25 @@ namespace shooting {
 	{
 	}
 
+	void Scene::SetMouseCursorVisible(bool visible)
+	{
+		if (m_CursorVisible == visible)
+		{
+			return;
+		}
+
+		m_CursorVisible = visible;
+
+		if (visible)
+		{
+			while (::ShowCursor(TRUE) < 0) {}
+		}
+		else
+		{
+			while (::ShowCursor(FALSE) >= 0) {}
+		}
+	}
+
 	void Scene::CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 	{
 		// テクスチャ
@@ -60,7 +79,17 @@ namespace shooting {
 		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
 
 		//ステージ作成
-		ResetActiveStage<GameStage>(pDevice);
+		//ResetActiveStage<GameStage>(pDevice);
+	}
+
+	void Scene::StartGame()
+	{
+		m_LastScore = 0;
+		m_GameState = GameState::Playing;
+
+		SetMouseCursorVisible(false);
+
+		ResetActiveStage<GameStage>(App::GetD3D12Device());
 	}
 
 	void Scene::UpdateConstantBuffers()
@@ -87,6 +116,77 @@ namespace shooting {
 			return;
 		}
 
+		m_uiManager.BeginFrame();
+
+		if (m_GameState == GameState::Title)
+		{
+			m_uiManager.AddText(
+				L"3D SHOOTING",
+				UIAnchor::Center,
+				{ 0.0f, -160.0f },
+				{ 600.0f, 80.0f },
+				UITextAlign::Center);
+
+			auto startButton = m_uiManager.AddButton(
+				L"START",
+				UIAnchor::Center,
+				{ 0.0f, 0.0f },
+				{ 260.0f, 64.0f },
+				D2D1::ColorF(0.10f, 0.35f, 0.20f, 0.95f),
+				D2D1::ColorF(0.20f, 0.60f, 0.35f, 0.95f),
+				D2D1::ColorF(D2D1::ColorF::White));
+
+			if (startButton.clicked)
+			{
+				StartGame();
+			}
+
+			uiLayer->SetCrosshairEnabled(false);
+			m_uiManager.Render(*uiLayer);
+			return;
+		}
+
+		if (m_GameState == GameState::Result)
+		{
+			wchar_t buff[256];
+			swprintf_s(
+				buff,
+				L"GAME OVER\n\nScore: %d",
+				m_LastScore);
+
+			m_uiManager.AddText(
+				buff,
+				UIAnchor::Center,
+				{ 0.0f, -170.0f },
+				{ 600.0f, 160.0f },
+				UITextAlign::Center);
+
+			auto titleButton = m_uiManager.AddButton(
+				L"BACK TO TITLE",
+				UIAnchor::Center,
+				{ 0.0f, 80.0f },
+				{ 320.0f, 64.0f },
+				D2D1::ColorF(0.35f, 0.12f, 0.12f, 0.95f),
+				D2D1::ColorF(0.65f, 0.20f, 0.20f, 0.95f),
+				D2D1::ColorF(D2D1::ColorF::White));
+
+			if (titleButton.clicked)
+			{
+				if (m_activeStage)
+				{
+					m_activeStage->OnDestroy();
+					m_activeStage = nullptr;
+				}
+
+				m_GameState = GameState::Title;
+				SetMouseCursorVisible(true);
+			}
+
+			uiLayer->SetCrosshairEnabled(false);
+			m_uiManager.Render(*uiLayer);
+			return;
+		}
+
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
 		if (!gameStage)
 		{
@@ -97,8 +197,6 @@ namespace shooting {
 		auto device = BaseDevice::GetBaseDevice();
 		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
 		auto hp = player ? player->GetComponent<Health>() : nullptr;
-
-		m_uiManager.BeginFrame();
 
 		// 左上：デバッグ表示
 		{
@@ -118,21 +216,21 @@ namespace shooting {
 		}
 
 		// 右上：撃破数
-		{
-			wchar_t buff[128];
-			swprintf_s(
-				buff,
-				L"Kills  %d / %d",
-				gameStage->GetDefeatedEnemyCount(),
-				gameStage->GetTotalEnemyCount());
+		//{
+		//	wchar_t buff[128];
+		//	swprintf_s(
+		//		buff,
+		//		L"Kills  %d / %d",
+		//		gameStage->GetDefeatedEnemyCount(),
+		//		gameStage->GetTotalEnemyCount());
 
-			m_uiManager.AddText(
-				buff,
-				UIAnchor::TopRight,
-				{ -20.0f, 20.0f },
-				{ 260.0f, 40.0f },
-				UITextAlign::Right);
-		}
+		//	m_uiManager.AddText(
+		//		buff,
+		//		UIAnchor::TopRight,
+		//		{ -20.0f, 20.0f },
+		//		{ 260.0f, 40.0f },
+		//		UITextAlign::Right);
+		//}
 
 		// 下中央：HPゲージ
 		if (hp)
@@ -156,11 +254,38 @@ namespace shooting {
 	void Scene::Update(double elapsedTime)
 	{
 		s_elapsedTime = elapsedTime;
-		if (m_activeStage)
+
+		if (m_GameState == GameState::Playing)
 		{
-			m_activeStage->UpdateStage();
-			UpdateConstantBuffers();
-			CommitConstantBuffers();
+			if (m_activeStage)
+			{
+				m_activeStage->UpdateStage();
+
+				auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+				auto player = gameStage ? gameStage->GetSharedGameObjectEx<Player>(L"Player", false) : nullptr;
+
+				if (player && player->IsDeathAnimationFinished())
+				{
+					m_LastScore = gameStage->GetDefeatedEnemyCount();
+					m_GameState = GameState::Result;
+
+					SetMouseCursorVisible(true);
+				}
+
+				UpdateConstantBuffers();
+				CommitConstantBuffers();
+			}
+			return;
+		}
+
+		if (m_GameState == GameState::Result)
+		{
+			if (m_activeStage)
+			{
+				UpdateConstantBuffers();
+				CommitConstantBuffers();
+			}
+			return;
 		}
 	}
 

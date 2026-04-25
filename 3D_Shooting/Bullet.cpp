@@ -272,6 +272,7 @@ namespace shooting {
 		{
 			TryApplyExplosionDamage(firstHit);
 		}
+
 	}
 
 	void BombBullet::TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target)

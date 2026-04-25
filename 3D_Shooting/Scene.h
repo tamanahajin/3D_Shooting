@@ -8,6 +8,13 @@ namespace shooting {
 	DECLARE_DX12SHADER(SpVSPCStatic)
 	DECLARE_DX12SHADER(SpPSPCStatic)
 
+	enum class GameState
+	{
+		Title,
+		Playing,
+		Result
+	};
+
 	class Scene : public BaseScene
 	{
 		SimpleConstant m_ConstantBuffer;
@@ -18,12 +25,20 @@ namespace shooting {
 		std::shared_ptr<Camera> m_camera;
 		std::shared_ptr<LightSet> m_lightSet;
 		UIManager m_uiManager;
+		bool m_CursorVisible = true;
+
+		GameState m_GameState = GameState::Title;
+		int m_LastScore = 0;
 
 	public:
 		Scene(UINT frameCount, PrimDevice* pPrimDevice);
 		virtual ~Scene();
 
 	protected:
+		bool IsMouseInRect(const D2D1_RECT_F& rect) const;
+		void StartGame();
+		void SetMouseCursorVisible(bool visible);
+
 		virtual void CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) override;
 		virtual void Update(double elapsedTime) override;
 		virtual void UpdateConstantBuffers() override;

@@ -33,6 +33,9 @@ namespace shooting {
 		BulletType m_CurrentBullet = BulletType::Bomb;
 
 		std::shared_ptr<BombAimPreview> m_BombPreview;
+
+		bool m_IsDead = false;
+		bool m_DeathAnimFinished = false;
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}
@@ -48,6 +51,9 @@ namespace shooting {
 		void OnPushA();
 		//Bƒ{ƒ^ƒ“
 		void OnPushB() {}
+
+		bool IsDead() const { return m_IsDead; }
+		bool IsDeathAnimationFinished() const { return m_DeathAnimFinished; }
 	};
 
 }

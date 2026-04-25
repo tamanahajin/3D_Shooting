@@ -30,6 +30,14 @@ namespace shooting {
 			float maxValue,
 			const std::wstring& label = L"");
 
+		void AddButtonBlock(
+			const D2D1_RECT_F& rect,
+			const std::wstring& text,
+			const D2D1_COLOR_F& baseColor,
+			const D2D1_COLOR_F& hoverColor,
+			const D2D1_COLOR_F& textColor,
+			bool hovered);
+
 		void Render(UINT frameIndex);
 		void ReleaseResources();
 		void Resize(Microsoft::WRL::ComPtr<ID3D12Resource>* ppRenderTargets, UINT width, UINT height);
@@ -68,6 +76,16 @@ namespace shooting {
 			std::wstring label;
 		};
 
+		struct ButtonBlock
+		{
+			D2D1_RECT_F layout;
+			std::wstring text;
+			D2D1_COLOR_F baseColor;
+			D2D1_COLOR_F hoverColor;
+			D2D1_COLOR_F textColor;
+			bool hovered = false;
+		};
+
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_d3d11DeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11On12Device> m_d3d11On12Device;
 		Microsoft::WRL::ComPtr<IDWriteFactory> m_dwriteFactory;
@@ -84,6 +102,7 @@ namespace shooting {
 
 		std::vector<TextBlock> m_textBlocks;
 		std::vector<ProgressBarBlock> m_progressBars;
+		std::vector<ButtonBlock> m_buttons;
 
 		CrosshairDesc m_crosshair;
 	};

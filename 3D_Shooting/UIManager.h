@@ -5,6 +5,8 @@ namespace shooting {
 
 	class UILayer;
 
+	
+
 	enum class UIAnchor
 	{
 		TopLeft,
@@ -37,6 +39,13 @@ namespace shooting {
 		float h = 0.0f;
 	};
 
+	struct UIButtonResult
+	{
+		bool hovered = false;
+		bool clicked = false;
+		D2D1_RECT_F rect{};
+	};
+
 	class UIManager
 	{
 	public:
@@ -57,9 +66,19 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size);
 
+		UIButtonResult AddButton(
+			const std::wstring& text,
+			UIAnchor anchor,
+			const UIPointF& offset,
+			const UISizeF& size,
+			const D2D1_COLOR_F& baseColor = D2D1::ColorF(0.15f, 0.25f, 0.45f, 0.95f),
+			const D2D1_COLOR_F& hoverColor = D2D1::ColorF(0.25f, 0.40f, 0.75f, 0.95f),
+			const D2D1_COLOR_F& textColor = D2D1::ColorF(D2D1::ColorF::White));
+
 		void Render(UILayer& layer) const;
 
 	private:
+
 		struct TextCommand
 		{
 			std::wstring text;
@@ -86,8 +105,23 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size);
 
+		struct ButtonCommand
+		{
+			std::wstring text;
+			UIAnchor anchor;
+			UIPointF offset;
+			UISizeF size;
+			bool hovered = false;
+			D2D1_COLOR_F baseColor;
+			D2D1_COLOR_F hoverColor;
+			D2D1_COLOR_F textColor;
+		};
+
+		static bool IsPointInRect(float x, float y, const D2D1_RECT_F& rect);
+
 		std::vector<TextCommand> m_texts;
 		std::vector<ProgressBarCommand> m_bars;
+		std::vector<ButtonCommand> m_buttons;
 	};
 
 }
