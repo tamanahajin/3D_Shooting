@@ -396,7 +396,7 @@ namespace shooting {
 		auto cbvSrvHeap = pBaseScene->GetCbvSrvUavDescriptorHeap();
 
 		// デバッグ用の専用PSOを使う
-		const std::wstring psoKey = alphaBlend ? L"CollisionDebugAlpha_v2" : L"CollisionDebugOpaque_v2";
+		const std::wstring psoKey = alphaBlend ? L"CollisionDebugAlpha" : L"CollisionDebugOpaque";
 		ComPtr<ID3D12PipelineState> pipeline = PipelineStatePool::GetPipelineState(psoKey);
 
 		if (!pipeline)
@@ -1344,40 +1344,84 @@ namespace shooting {
 	void CollisionObb::OnCreate()
 	{
 		SetDrawActive(false);
+		InitDebugDrawResources();
 	}
 
+	void CollisionObb::OnUpdateConstantBuffers()
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto trans = GetGameObject()->GetComponent<Transform>();
+
+		Mat4x4 world;
+		world.scale(Vec3(m_Size_X, m_Size_Y, m_Size_Z));
+		world *= trans->GetWorldMatrix();
+
+		BuildDebugConstantBuffer(world);
+	}
+
+	void CollisionObb::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		if (!IsDebugDraw())
+		{
+			return;
+		}
+
+		auto mesh = BaseScene::Get()->GetMesh(L"DEFAULT_CUBE");
+		DrawDebugMesh(pCommandList, mesh, true);
+	}
 
 	//アクセサ
 	float CollisionObb::GetMakedSize() const
 	{
 		return m_Size;
 	}
-	void CollisionObb::SetMakedSize(float f)
+	void CollisionObb::SetMakedSize(float x, float y, float z)
 	{
-		m_Size = f;
+		m_Size_X = x;
+		m_Size_Y = y;
+		m_Size_Z = z;
+	}
+	void CollisionObb::SetMakedSize_X(float f)
+	{
+		m_Size_X = f;
+	}
+	void CollisionObb::SetMakedSize_Y(float f)
+	{
+		m_Size_Y = f;
+	}
+	void CollisionObb::SetMakedSize_Z(float f)
+	{
+		m_Size_Z = f;
 	}
 
 	OBB CollisionObb::GetObb() const
 	{
-		auto TransPtr = GetGameObject()->GetComponent<Transform>();
-		auto WorldMatrix = TransPtr->GetWorldMatrix();
-		Mat4x4 MatBase;
-		MatBase.scale(Vec3(m_Size, m_Size, m_Size));
-		MatBase *= WorldMatrix;
-		auto WorldObb = OBB(Vec3(m_Size, m_Size, m_Size), MatBase);
-		return WorldObb;
-	}
+		auto trans = GetGameObject()->GetComponent<Transform>();
 
+		Mat4x4 worldRT;
+		worldRT.identity();
+		worldRT.rotation(trans->GetQuaternion());
+		worldRT.translation(trans->GetPosition());
+
+		auto worldObb = OBB(Vec3(m_Size_X, m_Size_Y, m_Size_Z), worldRT);
+		return worldObb;
+	}
 
 	OBB CollisionObb::GetBeforeObb() const
 	{
-		auto TransPtr = GetGameObject()->GetComponent<Transform>();
-		auto BeforeWorldMatrix = TransPtr->GetBeforeWorldMatrix();
-		Mat4x4 MatBase;
-		MatBase.scale(Vec3(m_Size, m_Size, m_Size));
-		MatBase *= BeforeWorldMatrix;
-		auto BeforeWorldObb = OBB(Vec3(m_Size, m_Size, m_Size), MatBase);
-		return BeforeWorldObb;
+		auto trans = GetGameObject()->GetComponent<Transform>();
+
+		Mat4x4 worldRT;
+		worldRT.identity();
+		worldRT.rotation(trans->GetBeforeQuaternion());
+		worldRT.translation(trans->GetBeforePosition());
+
+		auto beforeWorldObb = OBB(Vec3(m_Size_X, m_Size_Y, m_Size_Z), worldRT);
+		return beforeWorldObb;
 	}
 
 	bool CollisionObb::SimpleCollisionCall(const std::shared_ptr<Collision>& Src)

@@ -826,6 +826,9 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	class CollisionObb : public Collision {
 		float m_Size;					//作成時のサイズ
+		float m_Size_X;					//作成時のサイズX
+		float m_Size_Y;					//作成時のサイズY
+		float m_Size_Z;					//作成時のサイズZ
 		float m_ChkOnUnderLaySize;
 	protected:
 	public:
@@ -863,7 +866,10 @@ namespace shooting {
 		@return	なし
 		*/
 		//--------------------------------------------------------------------------------------
-		void SetMakedSize(float f);
+		void SetMakedSize(float x, float y, float z);
+		void SetMakedSize_X(float f);
+		void SetMakedSize_Y(float f);
+		void SetMakedSize_Z(float f);
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	現在のOBB境界ボリュームを得る
@@ -984,7 +990,8 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)override {}
-		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override {}
+		virtual void OnUpdateConstantBuffers() override;
+		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 
 	//--------------------------------------------------------------------------------------

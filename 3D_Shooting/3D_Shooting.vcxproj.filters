@@ -207,6 +207,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\BcBoneDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
@@ -422,6 +425,9 @@
     <ClInclude Include="Common\Library\StandardLib\Objects\AnimState.h">
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\InstancedStaticDraw.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">
@@ -545,6 +551,12 @@
     </FxCompile>
     <FxCompile Include="Shader\VSDamageEffectSkinning.hlsl">
       <Filter>シェーダー</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTStaticPL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedPSPNTPL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

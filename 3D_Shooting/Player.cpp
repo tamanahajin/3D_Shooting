@@ -203,9 +203,9 @@ namespace shooting {
 
 	void Player::OnUpdate(double elapsedTime)
 	{
+		auto anim = GetBehavior<AnimationStateBehavior>();
 		if (m_IsDead)
 		{
-			auto anim = GetBehavior<AnimationStateBehavior>();
 
 			if (!anim->IsFinished())
 			{
@@ -219,7 +219,6 @@ namespace shooting {
 			return;
 		}
 
-		auto anim = GetBehavior<AnimationStateBehavior>();
 		if (!anim->IsPlayingAttack() || anim->IsFinished())
 		{
 			if (!m_IsGround)

@@ -10,6 +10,66 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
+	// フロアオブジェクト（見た目専用）
+	//--------------------------------------------------------------------------------------
+	class Floor : public GameObject {
+	private:
+		std::wstring m_MeshKey;
+		std::wstring m_MaterialPrefix;
+
+	public:
+		Floor(
+			const std::shared_ptr<Stage>& stage,
+			const TransParam& param,
+			const std::wstring& meshKey = L"FLOOR_MODEL",
+			const std::wstring& materialPrefix = L"FLOOR_MAT_");
+
+		virtual ~Floor();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+
+		const std::wstring& GetMeshKey() const { return m_MeshKey; }
+		const std::wstring& GetMaterialPrefix() const { return m_MaterialPrefix; }
+	};
+
+	class FloorInstancedRenderer : public GameObject
+	{
+	private:
+		std::wstring m_MeshKey;
+		std::wstring m_MaterialPrefix;
+		std::vector<Mat4x4> m_InstanceWorlds;
+
+	public:
+		FloorInstancedRenderer(
+			const std::shared_ptr<Stage>& stage,
+			const std::wstring& meshKey,
+			const std::wstring& materialPrefix,
+			const std::vector<Mat4x4>& instanceWorlds);
+
+		virtual ~FloorInstancedRenderer();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
+	//--------------------------------------------------------------------------------------
+	// フロアコリジョンオブジェクト（当たり判定専用）
+	//--------------------------------------------------------------------------------------
+	class FloorCollision : public GameObject {
+	private:
+		Vec3 m_CollisionSize;
+
+	public:
+		FloorCollision(
+			const std::shared_ptr<Stage>& stage,
+			const TransParam& param,
+			const Vec3& collisionSize);
+
+		virtual ~FloorCollision();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
+	//--------------------------------------------------------------------------------------
 	// ボックスオブジェクト
 	//--------------------------------------------------------------------------------------
 	class FixedBox : public GameObject {
@@ -53,6 +113,8 @@ namespace shooting {
 		double m_SteeringUpdateTimer = 0.0;
 		double m_SteeringUpdateInterval = 0.05;
 		bool m_IsGround = false;
+		bool m_IsDead = false;
+		bool m_DeathAnimFinished = false;
 
 		void CheckGroundCollision(const CollisionPair& pair);
 	public:

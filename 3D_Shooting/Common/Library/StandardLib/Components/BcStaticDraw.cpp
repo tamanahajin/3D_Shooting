@@ -134,7 +134,6 @@ namespace shooting {
 		auto& viewport = scene->GetViewport();
 		std::shared_ptr<PerspecCamera> myCamera;
 		std::shared_ptr<LightSet> myLightSet;
-		std::shared_ptr<BaseTexture> firstTexture = GetDrawTexture(0);
 		if (!stage)
 		{
 			return;
@@ -159,16 +158,8 @@ namespace shooting {
 				//	}
 				//}
 
-				//‰Šú‰»
 				m_ConstantBuffer = {};
-				if (firstTexture)
-				{
-					m_ConstantBuffer.activeFlg.y = 1;
-				}
-				else
-				{
-					m_ConstantBuffer.activeFlg.y = 0;
-				}
+				m_ConstantBuffer.activeFlg.y = GetDrawTexture(0) ? 1 : 0;
 				m_ConstantBuffer.activeFlg.x = 3;
 
 				//ƒ[ƒ‹ƒhs—ñ‚Ìİ’è

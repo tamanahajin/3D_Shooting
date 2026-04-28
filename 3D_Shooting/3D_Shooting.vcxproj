@@ -52,6 +52,7 @@
     <ClCompile Include="Common\Library\StandardLib\Components\ExplosionEffect.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp" />
@@ -117,6 +118,7 @@
     <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\InstancedStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h" />
@@ -192,6 +194,16 @@
     <FxCompile Include="Common\Library\StandardLib\Shaders\BcVSPNTStaticPLShadow.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedPSPNTPL.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTStaticPL.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>

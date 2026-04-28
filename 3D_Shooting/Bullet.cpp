@@ -301,6 +301,15 @@ namespace shooting {
 			hp->ApplyDamage(info);
 		}
 
+		// ターゲットが死んでいたら吹き飛ばしも不要
+		if (auto hp = target->GetComponent<Health>(false))
+		{
+			if (hp->IsDead())
+			{
+				return;
+			}
+		}
+
 		// --- 吹き飛ばし処理（Gravityコンポーネントを利用） ---
 		if (auto gravity = target->GetComponent<Gravity>(false))
 		{

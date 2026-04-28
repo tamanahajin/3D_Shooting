@@ -235,6 +235,24 @@ namespace shooting {
 		const std::vector<std::shared_ptr<BaseMesh>>& GetModelMesh(const std::wstring& key) const;
 		//--------------------------------------------------------------------------------------
 		/*!
+		@brief	モデルメッシュをリソース登録する
+		@param[in]	key	リソースのキー
+		@param[in]	meshes	モデルメッシュ
+		@param[in]	keyCheck	キーの重複チェックするかどうか
+		@return	なし
+		*/
+		//--------------------------------------------------------------------------------------
+		void RegisterModelMeshWithMaterial(const std::wstring& key, const std::vector<std::shared_ptr<ModelMaterialPart>>& meshes, bool keyCheck = true);
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief	登録されているモデルメッシュを取得する
+		@param[in]	key	リソースのキー
+		@return	モデルメッシュ
+		*/
+		//--------------------------------------------------------------------------------------
+		const std::vector<std::shared_ptr<ModelMaterialPart>>& GetModelMeshWithMaterial(const std::wstring& key) const;
+		//--------------------------------------------------------------------------------------
+		/*!
 		@brief	テクスチャをリソース登録する
 		@param[in]	key	リソースのキー
 		@param[in]	texture	テクスチャ

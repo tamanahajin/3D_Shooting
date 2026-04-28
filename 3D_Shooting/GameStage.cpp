@@ -13,6 +13,65 @@ namespace shooting {
 	// ゲームステージ
 	//--------------------------------------------------------------------------------------
 
+	void GameStage::CreateGround()
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		const int half = 11;
+		const float tileStep = 1.0f;
+
+		std::vector<Mat4x4> floorWorlds;
+		std::vector<Mat4x4> detailWorlds;
+
+		for (int z = -half; z <= half; ++z)
+		{
+			for (int x = -half; x <= half; ++x)
+			{
+				Mat4x4 scaleMat;
+				scaleMat.identity();
+				scaleMat.scale(Vec3(0.1f, 0.1f, 0.1f));
+
+				Mat4x4 transMat;
+				transMat.identity();
+				transMat.translation(Vec3(x * tileStep, 0.0f, z * tileStep));
+
+				Mat4x4 world = scaleMat;
+				world *= transMat;
+
+				const bool isDetail = (dist01(gen) >= 0.8f);
+				if (isDetail)
+				{
+					detailWorlds.push_back(world);
+				}
+				else
+				{
+					floorWorlds.push_back(world);
+				}
+			}
+		}
+
+		AddGameObject<FloorInstancedRenderer>(
+			L"FLOOR_MODEL",
+			L"FLOOR_MAT_",
+			floorWorlds);
+
+		AddGameObject<FloorInstancedRenderer>(
+			L"FLOOR_DETAIL_MODEL",
+			L"FLOOR_DETAIL_MAT_",
+			detailWorlds);
+
+		TransParam colParam;
+		colParam.scale = Vec3(1.0f, 1.0f, 1.0f);
+		colParam.quaternion = Quat();
+		colParam.position = Vec3(0.0f, -0.05f, 0.0f);
+		float collisionScale = (half * 2 + 1);
+		AddGameObject<FloorCollision>(
+			colParam,
+			Vec3(collisionScale, 0.05f, collisionScale));
+	}
+
 	//追いかけるオブジェクトの作成
 	void GameStage::CreateSeekObject()
 	{
@@ -100,31 +159,33 @@ namespace shooting {
 		m_camera->SetAt(Vec3(0, 0.125f, 0));
 		m_lightSet = ObjectFactory::Create<LightSet>();
 		TransParam param;
-		param.scale = Vec3(1.0f, 1.0f, 1.0f);
-		//	param.rotOrigin = Vec3(0.0f, 0.0f, 0.0f);
-		auto quat = XMQuaternionIdentity();
-		param.quaternion = Quat(quat);
-		param.position = Vec3(5.0f, 2.0f, 5.0f);
-		AddGameObject<WallBox>(param);
+		//param.scale = Vec3(1.0f, 1.0f, 1.0f);
+		//auto quat = XMQuaternionIdentity();
+		//param.quaternion = Quat(quat);
+		//param.position = Vec3(5.0f, 2.0f, 3.0f);
+		//AddGameObject<WallBox>(param);
 		// 地面
-		param.scale = Vec3(150.0f, 1.0f, 150.0f);
-		param.position = Vec3(0.0f, -0.5, 0.0f);
-		AddGameObject<FixedBox>(param);
+		//param.scale = Vec3(150.0f, 1.0f, 150.0f);
+		//param.scale = Vec3(0.1f, 0.1f, 0.1f);
+		////param.scale = Vec3(1.0f, 0.1f, 1.0f);
+		//param.position = Vec3(0.0f, 0.0f, 0.0f);
+		//AddGameObject<Floor>(param);
+		CreateGround();
 
-		param.scale = Vec3(5.0f, 1.0f, 5.0f);
-		param.position = Vec3(10.0f, 0.0, 10.0f);
-		AddGameObject<FixedBox>(param);
+		//param.scale = Vec3(5.0f, 1.0f, 5.0f);
+		//param.position = Vec3(10.0f, 0.0, 10.0f);
+		//AddGameObject<FixedBox>(param);
 
-		param.position = Vec3(10.0f, 0.0, 10.0f);
-		param.quaternion = Quat(Vec3(-1, 0, 1), XM_PIDIV4);
-		AddGameObject<FixedBox>(param);
+		//param.position = Vec3(10.0f, 0.0, 10.0f);
+		//param.quaternion = Quat(Vec3(-1, 0, 1), XM_PIDIV4);
+		//AddGameObject<FixedBox>(param);
 
-		param.position = Vec3(-10.0f, 0.0, 10.0f);
-		param.quaternion = Quat(Vec3(0, 1, 1), XM_PIDIV4);
-		AddGameObject<FixedBox>(param);
+		//param.position = Vec3(-10.0f, 0.0, 10.0f);
+		//param.quaternion = Quat(Vec3(0, 1, 1), XM_PIDIV4);
+		//AddGameObject<FixedBox>(param);
 
 
-		CreateSeekObject();
+		//CreateSeekObject();
 
 		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();

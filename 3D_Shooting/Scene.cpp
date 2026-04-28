@@ -57,6 +57,46 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
+		// 床
+		{
+			auto floorParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/floor.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> floorMeshes;
+			for (size_t i = 0; i < floorParts.size(); ++i)
+			{
+				floorMeshes.push_back(floorParts[i].mesh);
+				RegisterMaterial(
+					L"FLOOR_MAT_" + std::to_wstring(i),
+					floorParts[i].material
+				);
+			}
+			RegisterModelMesh(L"FLOOR_MODEL", floorMeshes);
+		}
+
+		// 岩付きの床
+		{
+			auto floorDetailParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/floor-detail.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> floorDetailMeshes;
+			for (size_t i = 0; i < floorDetailParts.size(); ++i)
+			{
+				floorDetailMeshes.push_back(floorDetailParts[i].mesh);
+				RegisterMaterial(
+					L"FLOOR_DETAIL_MAT_" + std::to_wstring(i),
+					floorDetailParts[i].material
+				);
+			}
+			RegisterModelMesh(L"FLOOR_DETAIL_MODEL", floorDetailMeshes);
+		}
+
 		// 敵
 		auto skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
 			pCommandList,
@@ -78,8 +118,6 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
 
-		//ステージ作成
-		//ResetActiveStage<GameStage>(pDevice);
 	}
 
 	void Scene::StartGame()

@@ -9,6 +9,93 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
+	// フロアオブジェクト
+	//--------------------------------------------------------------------------------------
+	Floor::Floor(
+		const std::shared_ptr<Stage>& stage,
+		const TransParam& param,
+		const std::wstring& meshKey,
+		const std::wstring& materialPrefix) :
+		GameObject(stage),
+		m_MeshKey(meshKey),
+		m_MaterialPrefix(materialPrefix)
+	{
+		m_transParam = param;
+	}
+	Floor::~Floor() {}
+
+	void Floor::OnCreate()
+	{
+		AddTag(L"Floor");
+
+		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
+
+		const auto& meshes = BaseScene::Get()->GetModelMesh(m_MeshKey);
+		ptrDraw->AddBaseModelMesh(meshes);
+
+		for (size_t i = 0; i < meshes.size(); ++i)
+		{
+			ptrDraw->AddBaseMaterial(
+				m_MaterialPrefix + std::to_wstring(i)
+			);
+		}
+
+		ptrDraw->SetOwnShadowActive(false);
+	}
+
+	FloorInstancedRenderer::FloorInstancedRenderer(
+		const std::shared_ptr<Stage>& stage,
+		const std::wstring& meshKey,
+		const std::wstring& materialPrefix,
+		const std::vector<Mat4x4>& instanceWorlds) :
+		GameObject(stage),
+		m_MeshKey(meshKey),
+		m_MaterialPrefix(materialPrefix),
+		m_InstanceWorlds(instanceWorlds)
+	{
+	}
+
+	FloorInstancedRenderer::~FloorInstancedRenderer() {}
+
+	void FloorInstancedRenderer::OnCreate()
+	{
+		auto ptrDraw = AddComponent<InstancedStaticDraw>();
+
+		ptrDraw->SetMeshKey(m_MeshKey);
+		ptrDraw->SetMaterialPrefix(m_MaterialPrefix);
+		ptrDraw->SetInstanceWorlds(m_InstanceWorlds);
+		ptrDraw->SetOwnShadowActive(false);
+		ptrDraw->BuildInstanceBuffer();
+
+		AddTag(L"Floor");
+	}
+
+	FloorCollision::FloorCollision(
+		const std::shared_ptr<Stage>& stage,
+		const TransParam& param,
+		const Vec3& collisionSize) :
+		GameObject(stage),
+		m_CollisionSize(collisionSize)
+	{
+		m_transParam = param;
+	}
+
+	FloorCollision::~FloorCollision() {}
+
+	void FloorCollision::OnCreate()
+	{
+		auto ptrColl = AddComponent<CollisionObb>();
+		ptrColl->SetDebugDraw(false);
+		ptrColl->SetMakedSize(
+			m_CollisionSize.x,
+			m_CollisionSize.y,
+			m_CollisionSize.z);
+		ptrColl->SetFixed(true);
+
+		AddTag(L"Floor");
+	}
+
+	//--------------------------------------------------------------------------------------
 	// ボックスオブジェクト
 	//--------------------------------------------------------------------------------------
 	FixedBox::FixedBox(const std::shared_ptr<Stage>& stage, const TransParam& param) :
@@ -154,7 +241,11 @@ namespace shooting {
 
 		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			self->GetStage()->RemoveGameObject(self);
+			self->m_IsDead = true;
+			self->m_DeathAnimFinished = false;
+
+			auto anim = self->GetBehavior<AnimationStateBehavior>();
+			anim->ChangeAnimation(AnimState::Dead);
 		};
 
 		// ステートマシン
@@ -169,6 +260,20 @@ namespace shooting {
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
 		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (m_IsDead)
+		{
+			if (anim->GetCurrentState() != AnimState::Dead)
+			{
+				anim->ChangeAnimation(AnimState::Dead);
+			}
+			else if (anim->IsFinished())
+			{
+				m_DeathAnimFinished = true;
+				GetStage()->RemoveGameObject(GetThis<SeekObject>());
+			}
+
+			return;
+		}
 
 		if (!m_IsGround)
 		{
