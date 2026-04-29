@@ -18,8 +18,9 @@ namespace shooting {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+		std::uniform_int_distribution<int> detailRotationDist(1, 3);
 
-		const int half = 11;
+		const int half = 22;
 		const float tileStep = 1.0f;
 
 		std::vector<Mat4x4> floorWorlds;
@@ -40,10 +41,19 @@ namespace shooting {
 				Mat4x4 world = scaleMat;
 				world *= transMat;
 
-				const bool isDetail = (dist01(gen) >= 0.8f);
+				const bool isDetail = (dist01(gen) >= 0.85f);
 				if (isDetail)
 				{
-					detailWorlds.push_back(world);
+					Mat4x4 rotMat;
+					rotMat.identity();
+					rotMat.rotation(Quat(
+						Vec3(0.0f, 1.0f, 0.0f),
+						XM_PIDIV2 * static_cast<float>(detailRotationDist(gen))));
+
+					Mat4x4 detailWorld = scaleMat;
+					detailWorld *= rotMat;
+					detailWorld *= transMat;
+					detailWorlds.push_back(detailWorld);
 				}
 				else
 				{
@@ -185,7 +195,8 @@ namespace shooting {
 		//AddGameObject<FixedBox>(param);
 
 
-		//CreateSeekObject();
+		CreateSeekObject();
+		AddGameObject<EnemyInstancedRenderer>();
 
 		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();

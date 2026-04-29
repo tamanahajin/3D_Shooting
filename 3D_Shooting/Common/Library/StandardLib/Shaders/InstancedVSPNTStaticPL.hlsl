@@ -19,6 +19,7 @@ struct VSOutput
     float2 TexCoord : TEXCOORD0;
     float3 Normal : TEXCOORD1;
     float4 WorldPos : TEXCOORD2;
+    float Damage : TEXCOORD3;
 };
 
 VSOutput main(VSInput input)
@@ -40,6 +41,7 @@ VSOutput main(VSInput input)
     output.TexCoord = input.TexCoord;
     output.Normal = normalize(mul(input.Normal, (float3x3) instanceWorld));
     output.WorldPos = worldPos;
+    output.Damage = 0.0f;
 
     return output;
 }

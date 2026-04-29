@@ -555,6 +555,9 @@
     <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTStaticPL.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTBonePL.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedPSPNTPL.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>

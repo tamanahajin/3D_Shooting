@@ -64,10 +64,87 @@ namespace shooting {
 		ptrDraw->SetMeshKey(m_MeshKey);
 		ptrDraw->SetMaterialPrefix(m_MaterialPrefix);
 		ptrDraw->SetInstanceWorlds(m_InstanceWorlds);
+		ptrDraw->SetBaseColorOverride(Col4(0.627f, 0.659f, 0.788f, 1.0f));
+		ptrDraw->SetUseMaterialTexture(false);
+		ptrDraw->SetLightingEnabled(true);
 		ptrDraw->SetOwnShadowActive(false);
 		ptrDraw->BuildInstanceBuffer();
 
 		AddTag(L"Floor");
+	}
+
+	EnemyInstancedRenderer::EnemyInstancedRenderer(const std::shared_ptr<Stage>& stage) :
+		GameObject(stage)
+	{
+	}
+
+	EnemyInstancedRenderer::~EnemyInstancedRenderer() {}
+
+	void EnemyInstancedRenderer::OnCreate()
+	{
+		m_Draw = AddComponent<InstancedSkinnedDraw>();
+		m_Draw->SetMeshKey(L"ENEMY_MODEL_SKINNED");
+		m_Draw->SetTextureKey(L"CHARACTER_TEXTURE_SKINNED");
+		m_Draw->SetOwnShadowActive(false);
+
+		AddTag(L"EnemyRenderer");
+	}
+
+	void EnemyInstancedRenderer::OnUpdate2(double elapsedTime)
+	{
+		if (!m_Draw)
+		{
+			return;
+		}
+
+		std::vector<std::shared_ptr<GameObject>> enemies;
+		GetStage()->GetUsedTagObjectVec(L"Enemy", enemies);
+
+		m_InstanceSources.clear();
+		m_InstanceSources.reserve(enemies.size());
+
+		for (const auto& enemy : enemies)
+		{
+			if (!enemy || !enemy->IsDrawActive())
+			{
+				continue;
+			}
+
+			auto transform = enemy->GetComponent<Transform>(false);
+			if (!transform)
+			{
+				continue;
+			}
+
+			auto& param = transform->GetTransParam();
+			Mat4x4 world;
+			world.affineTransformation(
+				param.scale,
+				param.rotateOrigin,
+				param.quaternion,
+				param.position + m_ModelOffset);
+
+			SkinnedInstanceSource source{};
+			source.world = world;
+
+			auto anim = enemy->GetBehavior<AnimationStateBehavior>();
+			if (anim)
+			{
+				source.animationIndex = static_cast<unsigned int>(anim->GetCurrentState());
+				source.animationTime = static_cast<float>(anim->GetPlaybackTimeSeconds());
+			}
+
+			auto seek = std::dynamic_pointer_cast<SeekObject>(enemy);
+			if (seek)
+			{
+				source.damage = seek->GetDamageFlashValue();
+			}
+
+			m_InstanceSources.push_back(source);
+		}
+
+		m_Draw->SetInstances(m_InstanceSources);
+		m_Draw->BuildInstanceBuffer();
 	}
 
 	FloorCollision::FloorCollision(
@@ -177,6 +254,36 @@ namespace shooting {
 	}
 	SeekObject::~SeekObject() {}
 
+	void SeekObject::StartDamageFlash(double duration)
+	{
+		if (duration <= 0.0)
+		{
+			duration = 0.001;
+		}
+
+		m_DamageFlashDuration = duration;
+		m_DamageFlashTimer = duration;
+	}
+
+	float SeekObject::GetDamageFlashValue() const
+	{
+		if (m_DamageFlashDuration <= 0.0 || m_DamageFlashTimer <= 0.0)
+		{
+			return 0.0f;
+		}
+
+		double value = m_DamageFlashTimer / m_DamageFlashDuration;
+		if (value < 0.0)
+		{
+			value = 0.0;
+		}
+		else if (value > 1.0)
+		{
+			value = 1.0;
+		}
+
+		return static_cast<float>(value);
+	}
 	//初期化
 	void SeekObject::OnCreate()
 	{
@@ -202,28 +309,15 @@ namespace shooting {
 		auto PtrSep = GetBehavior<SeparationSteering>();
 		PtrSep->SetGameObjectGroup(group);
 		
-		// 描画
-		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
-		ptrDraw->SetFogEnabled(true);
-		ptrDraw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
-		ptrDraw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
-		const float modelDown = -(segmentHeight * 0.5f + radius);
-		ptrDraw->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
-
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
-		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
+		// 描画は EnemyInstancedRenderer でまとめて行う
 
 		// アニメーション
-		//ptrDraw->SetAnimationIndex(22);
 		auto anim = GetBehavior<AnimationStateBehavior>();
+		anim->SetFallbackMeshKey(L"ENEMY_MODEL_SKINNED");
 		anim->ChangeAnimation(AnimState::Idle);
 		//透明処理をする
 		SetAlphaActive(false);
 		AddTag(L"Enemy");
-
-		// ダメージエフェクト
-		auto damageEffect = AddComponent<DamageEffect>();
 
 		// HP設定
 		auto hp = AddComponent<Health>();
@@ -232,15 +326,12 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
-			auto effect = self->GetComponent<DamageEffect>();
-			if (effect)
-			{
-				effect->StartEffect(0.5f);
-			}
+			self->StartDamageFlash(0.2);
 		};
 
 		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
+			self->StartDamageFlash(0.2);
 			self->m_IsDead = true;
 			self->m_DeathAnimFinished = false;
 
@@ -259,6 +350,15 @@ namespace shooting {
 	//操作
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
+		if (m_DamageFlashTimer > 0.0)
+		{
+			m_DamageFlashTimer -= elapsedTime;
+			if (m_DamageFlashTimer < 0.0)
+			{
+				m_DamageFlashTimer = 0.0;
+			}
+		}
+
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		if (m_IsDead)
 		{
@@ -269,6 +369,9 @@ namespace shooting {
 			else if (anim->IsFinished())
 			{
 				m_DeathAnimFinished = true;
+				SetDrawActive(false);
+				SetUpdateActive(false);
+				RemoveTag(L"Enemy");
 				GetStage()->RemoveGameObject(GetThis<SeekObject>());
 			}
 

@@ -51,6 +51,21 @@ namespace shooting {
 		virtual void OnUpdate(double elapsedTime) override {}
 	};
 
+	class EnemyInstancedRenderer : public GameObject
+	{
+	private:
+		std::shared_ptr<InstancedSkinnedDraw> m_Draw;
+		std::vector<SkinnedInstanceSource> m_InstanceSources;
+		Vec3 m_ModelOffset = Vec3(0.0f, -0.35f, 0.0f);
+
+	public:
+		explicit EnemyInstancedRenderer(const std::shared_ptr<Stage>& stage);
+		virtual ~EnemyInstancedRenderer();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+		virtual void OnUpdate2(double elapsedTime) override;
+	};
+
 	//--------------------------------------------------------------------------------------
 	// フロアコリジョンオブジェクト（当たり判定専用）
 	//--------------------------------------------------------------------------------------
@@ -115,6 +130,8 @@ namespace shooting {
 		bool m_IsGround = false;
 		bool m_IsDead = false;
 		bool m_DeathAnimFinished = false;
+		double m_DamageFlashTimer = 0.0;
+		double m_DamageFlashDuration = 0.2;
 
 		void CheckGroundCollision(const CollisionPair& pair);
 	public:
@@ -154,6 +171,8 @@ namespace shooting {
 		}
 		void ApplyForce();
 		Vec3 GetTargetPos()const;
+		void StartDamageFlash(double duration = 0.2);
+		float GetDamageFlashValue() const;
 		//操作
 		virtual void OnUpdate(double elapsedTime) override;
 		virtual void OnCollisionEnter(const CollisionPair& pair) override;

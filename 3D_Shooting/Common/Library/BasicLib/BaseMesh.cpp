@@ -1179,6 +1179,16 @@ Assimp::Importer importer;
 				const auto fullTexturePath =
 					Util::ResolveTexturePath(modelFile, relativeTexturePath);
 
+				// í«â¡: texture path ÇÉçÉOèoóÕ
+				{
+					std::wstring log =
+						L"[MAT] model=" + modelFile +
+						L" meshIndex=" + std::to_wstring(meshSet.sourceMeshIndex) +
+						L" relTex=" + relativeTexturePath +
+						L" fullTex=" + fullTexturePath + L"\n";
+					OutputDebugString(log.c_str());
+				}
+
 				if (!fullTexturePath.empty())
 				{
 					try

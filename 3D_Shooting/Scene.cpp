@@ -42,9 +42,11 @@ namespace shooting {
 		auto texFile = App::GetRelativeAssetsDir() + L"wall.jpg";
 		auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"WALL_TX", texture);
+
 		texFile = App::GetRelativeAssetsDir() + L"sky.jpg";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"SKY_TX", texture);
+
 		texFile = App::GetRelativeAssetsDir() + L"trace.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"TRACE_TX", texture);
@@ -56,6 +58,11 @@ namespace shooting {
 		texFile = App::GetRelativeAssetsDir() + L"Textures/particle_fire.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
+
+		// ここで先にキャラ用テクスチャを登録して保持させる
+		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
+		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
+		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
 
 		// 床
 		{
@@ -97,27 +104,21 @@ namespace shooting {
 			RegisterModelMesh(L"FLOOR_DETAIL_MODEL", floorDetailMeshes);
 		}
 
-		// 敵
-		auto skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
+		// Enemy skinned instancing mesh.
+		auto enemySkinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
 			pCommandList,
 			App::GetRelativeAssetsDir(),
 			L"Model/character-orc.fbx"
 		);
-		RegisterMesh(L"ENEMY_MODEL_SKINNED", skinnedMesh);
+		RegisterMesh(L"ENEMY_MODEL_SKINNED", enemySkinnedMesh);
 
 		// プレイヤー
-		skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
+		auto skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
 			pCommandList,
 			App::GetRelativeAssetsDir(),
 			L"Model/character-human.fbx"
 		);
 		RegisterMesh(L"PLAYER_MODEL_SKINNED", skinnedMesh);
-
-		// 単体 skinned 用テクスチャ
-		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
-		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
-		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
-
 	}
 
 	void Scene::StartGame()
