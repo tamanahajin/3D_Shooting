@@ -75,4 +75,21 @@ namespace shooting {
 		virtual void OnCreate()override;
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override;
 	};
+
+	class SkyDomeDraw : public Component
+	{
+	private:
+		BasicConstant m_ConstantBuffer;
+		size_t m_ConstantBufferIndex;
+		float m_Radius;
+
+	public:
+		explicit SkyDomeDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
+		virtual ~SkyDomeDraw() {}
+		void SetRadius(float radius) { m_Radius = radius; }
+		virtual void OnUpdateConstantBuffers()override;
+		virtual void OnCommitConstantBuffers()override;
+		virtual void OnCreate()override;
+		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)override;
+	};
 }

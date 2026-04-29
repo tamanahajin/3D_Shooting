@@ -8,6 +8,26 @@
 
 namespace shooting {
 
+	SkyDome::SkyDome(const std::shared_ptr<Stage>& stage) :
+		GameObject(stage)
+	{
+	}
+
+	SkyDome::~SkyDome() {}
+
+	void SkyDome::OnCreate()
+	{
+		SetShadowActive(false);
+		SetAlphaActive(false);
+
+		auto ptrDraw = AddComponent<SkyDomeDraw>();
+		ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
+		ptrDraw->AddBaseTexture(L"SKY_TX");
+		ptrDraw->SetRadius(450.0f);
+
+		AddTag(L"Sky");
+	}
+
 	//--------------------------------------------------------------------------------------
 	// フロアオブジェクト
 	//--------------------------------------------------------------------------------------

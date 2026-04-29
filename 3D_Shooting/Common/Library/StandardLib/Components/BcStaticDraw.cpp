@@ -432,4 +432,190 @@ namespace shooting {
 
 		return nullptr;
 	}
+
+	SkyDomeDraw::SkyDomeDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
+		Component(gameObjectPtr),
+		m_ConstantBuffer(),
+		m_ConstantBufferIndex(0),
+		m_Radius(450.0f)
+	{
+	}
+
+	void SkyDomeDraw::OnCreate()
+	{
+		auto pBaseScene = BaseScene::Get();
+		auto& frameResources = pBaseScene->GetFrameResources();
+		auto pBaseDevice = BaseDevice::GetBaseDevice();
+
+		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
+		{
+			m_ConstantBufferIndex =
+				frameResources[i]->AddBaseConstantBufferSet<BasicConstant>(pBaseDevice->GetD3D12Device());
+		}
+
+		ComPtr<ID3D12PipelineState> skyPipelineState
+			= PipelineStatePool::GetPipelineState(L"SkyDome");
+
+		if (!skyPipelineState)
+		{
+			CD3DX12_RASTERIZER_DESC rasterizerStateDesc(D3D12_DEFAULT);
+			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+			ZeroMemory(&psoDesc, sizeof(psoDesc));
+			psoDesc.InputLayout = { VertexPositionNormalTexture::GetVertexElement(), VertexPositionNormalTexture::GetNumElements() };
+			psoDesc.pRootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault").Get();
+			psoDesc.VS =
+			{
+				reinterpret_cast<UINT8*>(BcVSPNTStaticPL::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+				BcVSPNTStaticPL::GetPtr()->GetShaderComPtr()->GetBufferSize()
+			};
+			psoDesc.PS =
+			{
+				reinterpret_cast<UINT8*>(BcPSPNTPL::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+				BcPSPNTPL::GetPtr()->GetShaderComPtr()->GetBufferSize()
+			};
+			psoDesc.RasterizerState = rasterizerStateDesc;
+			psoDesc.BlendState = BlendState::GetOpaqueBlend();
+			psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+			psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+			psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 1;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			psoDesc.SampleDesc.Count = 1;
+
+			ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&skyPipelineState)));
+			NAME_D3D12_OBJECT(skyPipelineState);
+			PipelineStatePool::AddPipelineState(L"SkyDome", skyPipelineState);
+		}
+	}
+
+	void SkyDomeDraw::OnUpdateConstantBuffers()
+	{
+		auto gameObject = GetGameObject();
+		if (!gameObject)
+		{
+			return;
+		}
+
+		auto myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
+		if (!myCamera)
+		{
+			return;
+		}
+
+		m_ConstantBuffer = {};
+		m_ConstantBuffer.activeFlg.x = 0;
+		m_ConstantBuffer.activeFlg.y = GetBaseTexture(0) ? 1 : 0;
+
+		Vec3 eye(myCamera->GetEye());
+		auto world = XMMatrixAffineTransformation(
+			Vec3(m_Radius, m_Radius, m_Radius),
+			Vec3(0.0f, 0.0f, 0.0f),
+			Quat(),
+			eye
+		);
+		auto view = (XMMATRIX)((Mat4x4)myCamera->GetViewMatrix());
+		auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
+		auto worldView = world * view;
+
+		m_ConstantBuffer.worldViewProj = Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
+		m_ConstantBuffer.fogVector = Vec4(g_XMZero);
+		m_ConstantBuffer.fogColor = Col4(0.0f);
+
+		m_ConstantBuffer.world = Mat4x4(world);
+		m_ConstantBuffer.world.transpose();
+
+		XMMATRIX worldInverse = XMMatrixInverse(nullptr, world);
+		m_ConstantBuffer.worldInverseTranspose[0] = Vec4(worldInverse.r[0]);
+		m_ConstantBuffer.worldInverseTranspose[1] = Vec4(worldInverse.r[1]);
+		m_ConstantBuffer.worldInverseTranspose[2] = Vec4(worldInverse.r[2]);
+
+		XMMATRIX viewInverse = XMMatrixInverse(nullptr, view);
+		m_ConstantBuffer.eyePosition = Vec4(viewInverse.r[3]);
+		m_ConstantBuffer.eyePos = Vec4(eye, 1.0f);
+		m_ConstantBuffer.diffuseColor = Col4(1.0f);
+		m_ConstantBuffer.emissiveColor = Col4(0.0f);
+		m_ConstantBuffer.specularColorAndPower = Col4(0.0f);
+	}
+
+	void SkyDomeDraw::OnCommitConstantBuffers()
+	{
+		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
+		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
+		memcpy(pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex].m_pBaseConstantBufferWO,
+			&m_ConstantBuffer, sizeof(m_ConstantBuffer));
+	}
+
+	void SkyDomeDraw::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		if (GetBaseModelMeshCount() == 0)
+		{
+			return;
+		}
+
+		auto mesh = GetBaseMesh(0);
+		if (!mesh)
+		{
+			return;
+		}
+
+		auto pBaseScene = BaseScene::Get();
+		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
+		auto CbvSrvUavDescriptorHeap = pBaseScene->GetCbvSrvUavDescriptorHeap();
+
+		ComPtr<ID3D12PipelineState> skyPipelineState
+			= PipelineStatePool::GetPipelineState(L"SkyDome", true);
+		pCommandList->SetPipelineState(skyPipelineState.Get());
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvGpuNullHandle(
+			CbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart()
+		);
+		pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"t0"), cbvSrvGpuNullHandle);
+
+		UINT index = pBaseScene->GetSamplerIndex(L"LinearWrap");
+		CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(
+			pBaseScene->GetSamplerDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
+			index,
+			pBaseScene->GetSamplerDescriptorHandleIncrementSize()
+		);
+		pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"s0"), samplerHandle);
+
+		index = pBaseScene->GetSamplerIndex(L"ComparisonLinear");
+		CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle2(
+			pBaseScene->GetSamplerDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
+			index,
+			pBaseScene->GetSamplerDescriptorHandleIncrementSize()
+		);
+		pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"s1"), samplerHandle2);
+
+		pCommandList->SetGraphicsRootConstantBufferView(
+			pBaseScene->GetGpuSlotID(L"b0"),
+			pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex]
+			.m_baseConstantBuffer->GetGPUVirtualAddress()
+		);
+
+		auto texture = GetBaseTexture(0);
+		if (texture)
+		{
+			CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
+				CbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart(),
+				texture->GetSrvIndex(),
+				pBaseScene->GetCbvSrvUavDescriptorHandleIncrementSize()
+			);
+			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"t1"), srvHandle);
+		}
+		else
+		{
+			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"t1"), cbvSrvGpuNullHandle);
+		}
+
+		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
+		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
+	}
 }

@@ -43,7 +43,7 @@ namespace shooting {
 		auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"WALL_TX", texture);
 
-		texFile = App::GetRelativeAssetsDir() + L"sky.jpg";
+		texFile = App::GetRelativeAssetsDir() + L"sky.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"SKY_TX", texture);
 

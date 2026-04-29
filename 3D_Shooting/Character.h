@@ -32,6 +32,15 @@ namespace shooting {
 		const std::wstring& GetMaterialPrefix() const { return m_MaterialPrefix; }
 	};
 
+	class SkyDome : public GameObject
+	{
+	public:
+		explicit SkyDome(const std::shared_ptr<Stage>& stage);
+		virtual ~SkyDome();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
 	class FloorInstancedRenderer : public GameObject
 	{
 	private:

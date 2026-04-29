@@ -89,7 +89,7 @@ namespace shooting {
 		auto group = CreateSharedObjectGroup(L"SeekGroup");
 		
 		// 生成する敵の数
-		const size_t enemyCount = 10;
+		const size_t enemyCount = 20;
 		
 		// ランダム配置のパラメータ
 		const float minDistance = 5.0f;   // 最小距離
@@ -180,6 +180,8 @@ namespace shooting {
 		////param.scale = Vec3(1.0f, 0.1f, 1.0f);
 		//param.position = Vec3(0.0f, 0.0f, 0.0f);
 		//AddGameObject<Floor>(param);
+		AddGameObject<SkyDome>();
+
 		CreateGround();
 
 		//param.scale = Vec3(5.0f, 1.0f, 5.0f);
