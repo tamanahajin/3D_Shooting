@@ -9,6 +9,51 @@
 
 namespace shooting {
 
+	void GameStage::SpawnDamageNumber(const Vec3& position, int damage)
+	{
+		if (damage <= 0)
+		{
+			return;
+		}
+
+		DamageNumberEntry entry;
+		entry.text = std::to_wstring(damage);
+		entry.position = position;
+		entry.life = 0.9;
+
+		const int offsetIndex = static_cast<int>(m_damageNumbers.size() % 3) - 1;
+		entry.velocity = Vec3(static_cast<float>(offsetIndex) * 0.08f, 0.75f, 0.0f);
+		m_damageNumbers.push_back(entry);
+
+		const size_t maxDamageNumbers = 64;
+		if (m_damageNumbers.size() > maxDamageNumbers)
+		{
+			m_damageNumbers.erase(m_damageNumbers.begin());
+		}
+	}
+
+	void GameStage::OnUpdate2(double elapsedTime)
+	{
+		const float dt = static_cast<float>(elapsedTime);
+		for (auto& damageNumber : m_damageNumbers)
+		{
+			damageNumber.age += elapsedTime;
+			damageNumber.position.x += damageNumber.velocity.x * dt;
+			damageNumber.position.y += damageNumber.velocity.y * dt;
+			damageNumber.position.z += damageNumber.velocity.z * dt;
+			damageNumber.velocity.y *= 0.96f;
+		}
+
+		m_damageNumbers.erase(
+			std::remove_if(
+				m_damageNumbers.begin(),
+				m_damageNumbers.end(),
+				[](const DamageNumberEntry& damageNumber)
+				{
+					return damageNumber.age >= damageNumber.life;
+				}),
+			m_damageNumbers.end());
+	}
 	//--------------------------------------------------------------------------------------
 	// ゲームステージ
 	//--------------------------------------------------------------------------------------
@@ -20,7 +65,7 @@ namespace shooting {
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 		std::uniform_int_distribution<int> detailRotationDist(1, 3);
 
-		const int half = 22;
+		const int half = 32;
 		const float tileStep = 1.0f;
 
 		std::vector<Mat4x4> floorWorlds;
@@ -89,7 +134,7 @@ namespace shooting {
 		auto group = CreateSharedObjectGroup(L"SeekGroup");
 		
 		// 生成する敵の数
-		const size_t enemyCount = 20;
+		const size_t enemyCount = 40;
 		
 		// ランダム配置のパラメータ
 		const float minDistance = 5.0f;   // 最小距離

@@ -9,6 +9,8 @@
 
 namespace shooting {
 
+	struct DamageInfo;
+
 	//--------------------------------------------------------------------------------------
 	// フロアオブジェクト（見た目専用）
 	//--------------------------------------------------------------------------------------
@@ -143,6 +145,8 @@ namespace shooting {
 		double m_DamageFlashDuration = 0.2;
 
 		void CheckGroundCollision(const CollisionPair& pair);
+		void ShowDamageNumber(const DamageInfo& info);
+		Vec3 GetDamageNumberPosition();
 	public:
 		//構築と破棄
 		SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos);

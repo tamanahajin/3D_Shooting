@@ -304,6 +304,29 @@ namespace shooting {
 
 		return static_cast<float>(value);
 	}
+
+	Vec3 SeekObject::GetDamageNumberPosition()
+	{
+		auto transform = GetComponent<Transform>(false);
+		Vec3 position = transform ? transform->GetPosition() : m_transParam.position;
+		position.y += 0.35f;
+		return position;
+	}
+
+	void SeekObject::ShowDamageNumber(const DamageInfo& info)
+	{
+		if (info.m_Damage <= 0)
+		{
+			return;
+		}
+
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		if (gameStage)
+		{
+			gameStage->SpawnDamageNumber(GetDamageNumberPosition(), info.m_Damage);
+		}
+	}
+
 	//初期化
 	void SeekObject::OnCreate()
 	{
@@ -346,11 +369,13 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
+			self->ShowDamageNumber(info);
 			self->StartDamageFlash(0.2);
 		};
 
 		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
 		{
+			self->ShowDamageNumber(info);
 			self->StartDamageFlash(0.2);
 			self->m_IsDead = true;
 			self->m_DeathAnimFinished = false;

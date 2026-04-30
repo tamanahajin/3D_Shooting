@@ -75,11 +75,13 @@ namespace shooting {
 	void UILayer::AddTextBlock(
 		const std::wstring& text,
 		const D2D1_RECT_F& rect,
-		DWRITE_TEXT_ALIGNMENT align)
+		DWRITE_TEXT_ALIGNMENT align,
+		D2D1_COLOR_F color)
 	{
 		TextBlock block;
 		block.text = text;
 		block.layout = rect;
+		block.color = color;
 		block.pFormat = ResolveTextFormat(align);
 		m_textBlocks.push_back(block);
 	}
@@ -166,6 +168,7 @@ namespace shooting {
 		m_textBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
 		for (const auto& textBlock : m_textBlocks)
 		{
+			m_textBrush->SetColor(textBlock.color);
 			m_d2dDeviceContext->DrawText(
 				textBlock.text.c_str(),
 				static_cast<UINT>(textBlock.text.length()),

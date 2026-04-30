@@ -286,6 +286,65 @@ namespace shooting {
 				{ 320.0f, 28.0f });
 		}
 
+
+		// ƒ_ƒ[ƒW”
+		if (auto camera = gameStage->GetCamera())
+		{
+			const float screenW = uiLayer->GetWidth();
+			const float screenH = uiLayer->GetHeight();
+			auto view = (XMMATRIX)((Mat4x4)camera->GetViewMatrix());
+			auto proj = (XMMATRIX)((Mat4x4)camera->GetProjMatrix());
+			auto world = XMMatrixIdentity();
+
+			for (const auto& damageNumber : gameStage->GetDamageNumbers())
+			{
+				auto projected = XMVector3Project(
+					(XMVECTOR)damageNumber.position,
+					0.0f,
+					0.0f,
+					screenW,
+					screenH,
+					0.0f,
+					1.0f,
+					proj,
+					view,
+					world);
+
+				XMFLOAT3 screenPos;
+				XMStoreFloat3(&screenPos, projected);
+				if (screenPos.z < 0.0f || screenPos.z > 1.0f)
+				{
+					continue;
+				}
+				if (screenPos.x < -100.0f || screenPos.x > screenW + 100.0f ||
+					screenPos.y < -60.0f || screenPos.y > screenH + 60.0f)
+				{
+					continue;
+				}
+
+				const float alpha = damageNumber.GetAlpha();
+				const float width = 96.0f;
+				const float height = 34.0f;
+				const float left = screenPos.x - width * 0.5f;
+				const float top = screenPos.y - height * 0.5f;
+
+				m_uiManager.AddText(
+					damageNumber.text,
+					UIAnchor::TopLeft,
+					{ left + 2.0f, top + 2.0f },
+					{ width, height },
+					UITextAlign::Center,
+					D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.55f * alpha));
+
+				m_uiManager.AddText(
+					damageNumber.text,
+					UIAnchor::TopLeft,
+					{ left, top },
+					{ width, height },
+					UITextAlign::Center,
+					D2D1::ColorF(1.0f, 0.82f, 0.16f, alpha));
+			}
+		}
 		uiLayer->SetCrosshairEnabled(true);
 		m_uiManager.Render(*uiLayer);
 	}

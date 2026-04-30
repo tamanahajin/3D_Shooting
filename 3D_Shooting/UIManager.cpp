@@ -15,7 +15,8 @@ namespace shooting {
 		UIAnchor anchor,
 		const UIPointF& offset,
 		const UISizeF& size,
-		UITextAlign align)
+		UITextAlign align,
+		D2D1_COLOR_F color)
 	{
 		TextCommand cmd;
 		cmd.text = text;
@@ -23,6 +24,7 @@ namespace shooting {
 		cmd.offset = offset;
 		cmd.size = size;
 		cmd.align = align;
+		cmd.color = color;
 		m_texts.push_back(cmd);
 	}
 
@@ -207,7 +209,8 @@ namespace shooting {
 			layer.AddTextBlock(
 				text.text,
 				ResolveRect(screenW, screenH, text.anchor, text.offset, text.size),
-				alignment);
+				alignment,
+				text.color);
 		}
 	}
 

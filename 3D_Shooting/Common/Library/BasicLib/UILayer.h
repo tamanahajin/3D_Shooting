@@ -22,7 +22,8 @@ namespace shooting {
 		void AddTextBlock(
 			const std::wstring& text,
 			const D2D1_RECT_F& rect,
-			DWRITE_TEXT_ALIGNMENT align = DWRITE_TEXT_ALIGNMENT_LEADING);
+			DWRITE_TEXT_ALIGNMENT align = DWRITE_TEXT_ALIGNMENT_LEADING,
+			D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::White));
 
 		void AddProgressBar(
 			const D2D1_RECT_F& rect,
@@ -65,6 +66,7 @@ namespace shooting {
 		{
 			std::wstring text;
 			D2D1_RECT_F layout;
+			D2D1_COLOR_F color;
 			IDWriteTextFormat* pFormat = nullptr;
 		};
 

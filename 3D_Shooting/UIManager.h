@@ -56,7 +56,8 @@ namespace shooting {
 			UIAnchor anchor,
 			const UIPointF& offset,
 			const UISizeF& size,
-			UITextAlign align = UITextAlign::Left);
+			UITextAlign align = UITextAlign::Left,
+			D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::White));
 
 		void AddProgressBar(
 			const std::wstring& label,
@@ -86,6 +87,7 @@ namespace shooting {
 			UIPointF offset;
 			UISizeF size;
 			UITextAlign align;
+			D2D1_COLOR_F color;
 		};
 
 		struct ProgressBarCommand
