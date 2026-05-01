@@ -1179,33 +1179,6 @@ Assimp::Importer importer;
 				const auto fullTexturePath =
 					Util::ResolveTexturePath(modelFile, relativeTexturePath);
 
-				// ’Ç‰Á: texture path ‚ðƒƒOo—Í
-				{
-					std::wstring log =
-						L"[MAT] model=" + modelFile +
-						L" meshIndex=" + std::to_wstring(meshSet.sourceMeshIndex) +
-						L" relTex=" + relativeTexturePath +
-						L" fullTex=" + fullTexturePath + L"\n";
-					OutputDebugString(log.c_str());
-				}
-
-				if (!fullTexturePath.empty())
-				{
-					try
-					{
-						auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, fullTexturePath);
-						material->SetBaseColorTexture(texture);
-					}
-					catch (...)
-					{
-						OutputDebugString(L"[MAT] texture load failed\n");
-					}
-				}
-				else
-				{
-					OutputDebugString(L"[MAT] texture path empty\n");
-				}
-
 				ModelMaterialPart part;
 				part.mesh = mesh;
 				part.material = material;

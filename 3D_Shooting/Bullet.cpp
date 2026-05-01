@@ -93,12 +93,16 @@ namespace shooting {
 		// プレイヤーは除外
 		if (otherObj->FindTag(L"Player")) return;
 
-		// 相手がHP持っていればダメージ
-		if (auto hp = otherObj->GetComponent<Health>(false))
+		DamageInfo info;
+		info.m_Damage = GetComponent<DamageDealer>()->GetDamage();
+		info.m_Instigator = GetThis<GameObject>();
+
+		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(otherObj))
 		{
-			DamageInfo info;
-			info.m_Damage = GetComponent<DamageDealer>()->GetDamage();
-			info.m_Instigator = GetThis<GameObject>();
+			enemyProxy->ApplyDamage(info);
+		}
+		else if (auto hp = otherObj->GetComponent<Health>(false))
+		{
 			hp->ApplyDamage(info);
 		}
 
@@ -286,18 +290,49 @@ namespace shooting {
 		}
 		m_HitOnce.insert(target.get());
 
+		DamageInfo info;
+		int dmg = m_ExplosionDamage;
+		if (auto dd = GetComponent<DamageDealer>(false))
+		{
+			dmg = dd->GetDamage();
+		}
+		info.m_Damage = dmg;
+		info.m_Instigator = GetThis<GameObject>();
+
+		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(target))
+		{
+			enemyProxy->ApplyDamage(info);
+			if (!enemyProxy->IsAlive())
+			{
+				return;
+			}
+
+			auto bombTrans = GetComponent<Transform>();
+			auto targetTrans = target->GetComponent<Transform>();
+			if (bombTrans && targetTrans)
+			{
+				Vec3 explosionCenter = bombTrans->GetPosition();
+				Vec3 targetPos = targetTrans->GetPosition();
+				Vec3 knockbackDir = targetPos - explosionCenter;
+				knockbackDir.y = 0.0f;
+				float distance = knockbackDir.length();
+				if (distance > 0.01f)
+				{
+					knockbackDir.normalize();
+					float maxKnockbackDist = m_ExplosionScale * 0.5f;
+					float strength = 1.15f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
+					strength = bsmUtil::Max(strength, 0.45f);
+					Vec3 knockbackVelocity = knockbackDir * (10.0f * strength);
+					knockbackVelocity.y = 18.0f * strength;
+					enemyProxy->AddKnockback(knockbackVelocity);
+				}
+			}
+			return;
+		}
+
 		// ダメージ適用
 		if (auto hp = target->GetComponent<Health>(false))
 		{
-			DamageInfo info;
-			int dmg = m_ExplosionDamage;
-			if (auto dd = GetComponent<DamageDealer>(false))
-			{
-				dmg = dd->GetDamage();
-			}
-
-			info.m_Damage = dmg;
-			info.m_Instigator = GetThis<GameObject>();
 			hp->ApplyDamage(info);
 		}
 

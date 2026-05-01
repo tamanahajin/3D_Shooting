@@ -86,21 +86,40 @@ namespace shooting {
 		std::vector<SkinnedInstanceData> m_InstanceData;
 		std::vector<XMFLOAT4> m_BoneRows;
 		std::vector<Mat4x4> m_WorkBones;
+		std::map<unsigned long long, UINT> m_BonePoseStartByKey;
+		std::map<unsigned long long, std::vector<XMFLOAT4>> m_BonePoseRowsCache;
 
 		ComPtr<ID3D12Resource> m_InstanceBuffer;
 		ComPtr<ID3D12Resource> m_BoneBuffer;
 		UINT m_InstanceBufferCapacityBytes = 0;
 		UINT m_BoneBufferCapacityBytes = 0;
 		UINT m_BoneSrvIndex = UINT_MAX;
+		void* m_MappedInstanceBuffer = nullptr;
+		void* m_MappedBoneBuffer = nullptr;
 		D3D12_VERTEX_BUFFER_VIEW m_InstanceBufferView{};
+		float m_AnimationSampleFps = 20.0f;
+
+		UINT EnsureBonePose(
+			const std::shared_ptr<BaseAssimp>& assimp,
+			unsigned int animationIndex,
+			float animationTime);
+		void EnsureInstanceBuffer(UINT bufferSize);
+		void EnsureBoneBuffer(UINT bufferSize);
+		void ReleaseMappedBuffers();
+		float GetQuantizedAnimationTime(
+			const std::shared_ptr<BaseAssimp>& assimp,
+			unsigned int animationIndex,
+			float animationTime,
+			unsigned int& frameIndex) const;
 
 	public:
 		explicit InstancedSkinnedDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
-		virtual ~InstancedSkinnedDraw() {}
+		virtual ~InstancedSkinnedDraw();
 
-		void SetMeshKey(const std::wstring& key) { m_MeshKey = key; }
+		void SetMeshKey(const std::wstring& key) { if (m_MeshKey != key) { m_BonePoseRowsCache.clear(); } m_MeshKey = key; }
 		void SetTextureKey(const std::wstring& key) { m_TextureKey = key; }
 		void SetInstances(const std::vector<SkinnedInstanceSource>& instances) { m_InstanceSources = instances; }
+		void SetAnimationSampleFps(float fps) { m_AnimationSampleFps = (fps > 1.0f) ? fps : 1.0f; m_BonePoseRowsCache.clear(); }
 
 		void BuildInstanceBuffer();
 

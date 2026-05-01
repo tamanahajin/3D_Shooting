@@ -10,6 +10,9 @@
 namespace shooting {
 
 	struct DamageInfo;
+	class EnemyBatchController;
+	class EnemyCollisionProxy;
+	class SeekObject;
 
 	//--------------------------------------------------------------------------------------
 	// フロアオブジェクト（見た目専用）
@@ -77,6 +80,100 @@ namespace shooting {
 		virtual void OnUpdate2(double elapsedTime) override;
 	};
 
+	class EnemyCollisionProxy : public GameObject
+	{
+	private:
+		std::weak_ptr<EnemyBatchController> m_Controller;
+		size_t m_EnemyIndex = 0;
+		Vec3 m_StartPosition;
+
+		void HandleCollision(const CollisionPair& pair);
+
+	public:
+		EnemyCollisionProxy(
+			const std::shared_ptr<Stage>& stage,
+			const std::shared_ptr<EnemyBatchController>& controller,
+			size_t enemyIndex,
+			const Vec3& startPosition);
+		virtual ~EnemyCollisionProxy();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+		virtual void OnCollisionEnter(const CollisionPair& pair) override;
+		virtual void OnCollisionExecute(const CollisionPair& pair) override;
+
+		size_t GetEnemyIndex() const { return m_EnemyIndex; }
+		bool ApplyDamage(const DamageInfo& info);
+		void AddKnockback(const Vec3& velocity);
+		bool IsAlive() const;
+	};
+
+	class EnemyBatchController : public GameObject
+	{
+	private:
+		struct EnemyState
+		{
+			Vec3 position = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 velocity = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 force = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 gravityVelocity = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
+			double knockbackControlTimer = 0.0;
+			Quat rotation = Quat();
+			double steeringTimer = 0.0;
+			double steeringInterval = 0.05;
+			double damageFlashTimer = 0.0;
+			double damageFlashDuration = 0.2;
+			double animationTime = 0.0;
+			AnimState animationState = AnimState::Idle;
+			bool animationFinished = false;
+			bool active = true;
+			bool isGround = false;
+			bool isDead = false;
+			bool deathAnimFinished = false;
+			int hp = 20;
+			int maxHp = 20;
+			std::weak_ptr<EnemyCollisionProxy> proxy;
+		};
+
+		std::vector<EnemyState> m_Enemies;
+		std::vector<Vec3> m_SeparationForces;
+		std::map<long long, std::vector<size_t>> m_CellMap;
+		float m_CellSize = 2.0f;
+		float m_SeparationRange = 2.0f;
+		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
+
+		long long MakeCellKey(int x, int z) const;
+		void BuildSpatialGrid();
+		Vec3 CalculateSeparation(size_t index) const;
+		void SyncProxyTransform(size_t index);
+		void RemoveEnemyProxy(size_t index);
+		void ChangeAnimation(EnemyState& enemy, AnimState state, bool forceRestart = false);
+		void UpdateAnimation(EnemyState& enemy, double elapsedTime);
+		double GetAnimationDurationSeconds(AnimState state) const;
+		double GetHoldTimeSeconds(double duration) const;
+		bool IsOneShotState(AnimState state) const;
+		bool IsHoldLastFrameState(AnimState state) const;
+		float GetDamageFlashValue(const EnemyState& enemy) const;
+		void ShowDamageNumber(size_t index, const DamageInfo& info);
+		void StartDamageFlash(EnemyState& enemy, double duration = 0.2);
+		void RotateToVelocity(EnemyState& enemy, float lerpFact);
+
+	public:
+		explicit EnemyBatchController(const std::shared_ptr<Stage>& stage);
+		virtual ~EnemyBatchController();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override;
+		virtual void OnUpdate2(double elapsedTime) override;
+
+		size_t AddEnemy(const Vec3& startPosition);
+		bool ApplyDamage(size_t index, const DamageInfo& info);
+		void AddKnockback(size_t index, const Vec3& velocity);
+		void NotifyGroundCollision(size_t index, const CollisionPair& pair);
+		bool IsEnemyAlive(size_t index) const;
+		int GetAliveEnemyCount() const;
+		int GetTotalEnemyCount() const;
+		void FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const;
+	};
 	//--------------------------------------------------------------------------------------
 	// フロアコリジョンオブジェクト（当たり判定専用）
 	//--------------------------------------------------------------------------------------
@@ -183,6 +280,10 @@ namespace shooting {
 			m_Velocity = v;
 		}
 		void ApplyForce();
+		void ApplyForce(double elapsedTime);
+		void ApplyGravity(double elapsedTime);
+		void RotateToVelocity(float lerpFact);
+		void UpdateBatched(double elapsedTime, const Vec3& targetPosition, const Vec3& separationForce);
 		Vec3 GetTargetPos()const;
 		void StartDamageFlash(double duration = 0.2);
 		float GetDamageFlashValue() const;

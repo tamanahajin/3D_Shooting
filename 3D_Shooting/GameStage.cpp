@@ -130,11 +130,16 @@ namespace shooting {
 	//追いかけるオブジェクトの作成
 	void GameStage::CreateSeekObject()
 	{
-		//オブジェクトのグループを作成する
-		auto group = CreateSharedObjectGroup(L"SeekGroup");
-		
+		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
+		auto controller = std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		if (!controller)
+		{
+			return;
+		}
+
 		// 生成する敵の数
 		const size_t enemyCount = 40;
+		m_totalEnemyCount = static_cast<int>(enemyCount);
 		
 		// ランダム配置のパラメータ
 		const float minDistance = 5.0f;   // 最小距離
@@ -187,16 +192,20 @@ namespace shooting {
 		// 配置オブジェクトの作成
 		for (const auto& pos : positions)
 		{
-			AddGameObject<SeekObject>(pos);
+			controller->AddEnemy(pos);
 		}
 	}
 
 
 	int GameStage::GetAliveEnemyCount() const
 	{
-		std::vector<std::shared_ptr<GameObject>> enemies;
-		GetUsedTagObjectVec(L"Enemy", enemies);
-		return static_cast<int>(enemies.size());
+		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
+		auto controller = std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		if (controller)
+		{
+			return controller->GetAliveEnemyCount();
+		}
+		return 0;
 	}
 
 	int GameStage::GetDefeatedEnemyCount() const
@@ -242,13 +251,14 @@ namespace shooting {
 		//AddGameObject<FixedBox>(param);
 
 
-		CreateSeekObject();
-		AddGameObject<EnemyInstancedRenderer>();
-
 		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();
 		param.position = Vec3(0.0f, 0.525f, 0.0f);
 		AddGameObject<Player>(param);
+
+		AddGameObject<EnemyBatchController>();
+		CreateSeekObject();
+		AddGameObject<EnemyInstancedRenderer>();
 
 		// 弾管理
 		AddGameObject<BulletManager>();

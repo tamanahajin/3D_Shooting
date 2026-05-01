@@ -18,6 +18,8 @@ namespace shooting {
 		
 		// updateの有効無効
 		bool m_updateActive;
+		// 外部バッチ更新の対象かどうか
+		bool m_batchUpdateManaged;
 		// drawの有効無効
 		bool m_drawActive;
 		// 影の有効無効
@@ -86,6 +88,7 @@ namespace shooting {
 			m_stage(stage),
 			m_transParam(),
 			m_updateActive(true),
+			m_batchUpdateManaged(false),
 			m_drawActive(true),
 			m_shadowActive(true),
 			m_alphaActive(false)
@@ -102,6 +105,14 @@ namespace shooting {
 		void SetUpdateActive(bool active)
 		{
 			m_updateActive = active;
+		}
+		bool IsBatchUpdateManaged() const
+		{
+			return m_batchUpdateManaged;
+		}
+		void SetBatchUpdateManaged(bool active)
+		{
+			m_batchUpdateManaged = active;
 		}
 		bool IsDrawActive() const
 		{

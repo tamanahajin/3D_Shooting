@@ -353,11 +353,247 @@ namespace shooting {
 				0, 0, 0);
 		}
 	}
+
 	InstancedSkinnedDraw::InstancedSkinnedDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
 		Component(gameObjectPtr)
 	{
 	}
 
+	InstancedSkinnedDraw::~InstancedSkinnedDraw()
+	{
+		ReleaseMappedBuffers();
+	}
+
+	namespace {
+		UINT GetUploadBufferCapacity(UINT requiredSize)
+		{
+			UINT capacity = 256;
+			while (capacity < requiredSize)
+			{
+				capacity *= 2;
+			}
+			return capacity;
+		}
+
+		unsigned long long MakeBonePoseKey(unsigned int animationIndex, unsigned int frameIndex)
+		{
+			return (static_cast<unsigned long long>(animationIndex) << 32) |
+				static_cast<unsigned long long>(frameIndex);
+		}
+	}
+
+	void InstancedSkinnedDraw::ReleaseMappedBuffers()
+	{
+		if (m_InstanceBuffer && m_MappedInstanceBuffer)
+		{
+			m_InstanceBuffer->Unmap(0, nullptr);
+			m_MappedInstanceBuffer = nullptr;
+		}
+
+		if (m_BoneBuffer && m_MappedBoneBuffer)
+		{
+			m_BoneBuffer->Unmap(0, nullptr);
+			m_MappedBoneBuffer = nullptr;
+		}
+	}
+
+	float InstancedSkinnedDraw::GetQuantizedAnimationTime(
+		const std::shared_ptr<BaseAssimp>& assimp,
+		unsigned int animationIndex,
+		float animationTime,
+		unsigned int& frameIndex) const
+	{
+		frameIndex = 0;
+
+		if (!assimp)
+		{
+			return 0.0f;
+		}
+
+		if (animationTime < 0.0f || !std::isfinite(animationTime))
+		{
+			animationTime = 0.0f;
+		}
+
+		const float duration = assimp->GetAnimationDurationSeconds(animationIndex);
+		if (duration <= 0.0f)
+		{
+			return 0.0f;
+		}
+
+		const float loopEpsilon = (0.001f > duration * 0.0001f) ? 0.001f : duration * 0.0001f;
+		const float effectiveDuration = ((duration - loopEpsilon) > loopEpsilon) ? (duration - loopEpsilon) : loopEpsilon;
+		float localTime = fmodf(animationTime, effectiveDuration);
+		if (localTime < 0.0f)
+		{
+			localTime += effectiveDuration;
+		}
+
+		const float sampleFps = (m_AnimationSampleFps > 1.0f) ? m_AnimationSampleFps : 1.0f;
+		frameIndex = static_cast<unsigned int>(floorf(localTime * sampleFps));
+		return static_cast<float>(frameIndex) / sampleFps;
+	}
+
+	UINT InstancedSkinnedDraw::EnsureBonePose(
+		const std::shared_ptr<BaseAssimp>& assimp,
+		unsigned int animationIndex,
+		float animationTime)
+	{
+		unsigned int frameIndex = 0;
+		const float sampleTime = GetQuantizedAnimationTime(
+			assimp,
+			animationIndex,
+			animationTime,
+			frameIndex);
+
+		const unsigned long long poseKey = MakeBonePoseKey(animationIndex, frameIndex);
+		auto currentFramePose = m_BonePoseStartByKey.find(poseKey);
+		if (currentFramePose != m_BonePoseStartByKey.end())
+		{
+			return currentFramePose->second;
+		}
+
+		auto cachedRows = m_BonePoseRowsCache.find(poseKey);
+		if (cachedRows == m_BonePoseRowsCache.end())
+		{
+			m_WorkBones.clear();
+			assimp->GetBoneTransforms(
+				sampleTime,
+				m_WorkBones,
+				animationIndex);
+
+			if (m_WorkBones.empty())
+			{
+				return UINT_MAX;
+			}
+
+			std::vector<XMFLOAT4> rows;
+			rows.reserve(m_WorkBones.size() * 3);
+			for (const auto& bone : m_WorkBones)
+			{
+				XMMATRIX matrix = (XMMATRIX)bone;
+				XMFLOAT4 row{};
+
+				XMStoreFloat4(&row, matrix.r[0]);
+				rows.push_back(row);
+				XMStoreFloat4(&row, matrix.r[1]);
+				rows.push_back(row);
+				XMStoreFloat4(&row, matrix.r[2]);
+				rows.push_back(row);
+			}
+
+			m_BonePoseRowsCache[poseKey] = rows;
+			cachedRows = m_BonePoseRowsCache.find(poseKey);
+		}
+
+		if (cachedRows == m_BonePoseRowsCache.end() || cachedRows->second.empty())
+		{
+			return UINT_MAX;
+		}
+
+		const UINT boneStart = static_cast<UINT>(m_BoneRows.size() / 3);
+		m_BonePoseStartByKey[poseKey] = boneStart;
+		m_BoneRows.insert(
+			m_BoneRows.end(),
+			cachedRows->second.begin(),
+			cachedRows->second.end());
+
+		return boneStart;
+	}
+	void InstancedSkinnedDraw::EnsureInstanceBuffer(UINT bufferSize)
+	{
+		if (bufferSize == 0)
+		{
+			return;
+		}
+
+		if (m_InstanceBuffer && m_InstanceBufferCapacityBytes >= bufferSize)
+		{
+			return;
+		}
+
+		if (m_InstanceBuffer && m_MappedInstanceBuffer)
+		{
+			m_InstanceBuffer->Unmap(0, nullptr);
+			m_MappedInstanceBuffer = nullptr;
+		}
+
+		m_InstanceBuffer.Reset();
+		m_InstanceBufferCapacityBytes = 0;
+
+		const UINT capacity = GetUploadBufferCapacity(bufferSize);
+		auto device = App::GetD3D12Device();
+
+		ThrowIfFailed(device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(capacity),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&m_InstanceBuffer)));
+
+		m_InstanceBufferCapacityBytes = capacity;
+
+		CD3DX12_RANGE readRange(0, 0);
+		ThrowIfFailed(m_InstanceBuffer->Map(0, &readRange, &m_MappedInstanceBuffer));
+	}
+
+	void InstancedSkinnedDraw::EnsureBoneBuffer(UINT bufferSize)
+	{
+		if (bufferSize == 0)
+		{
+			return;
+		}
+
+		if (m_BoneBuffer && m_BoneBufferCapacityBytes >= bufferSize)
+		{
+			return;
+		}
+
+		if (m_BoneBuffer && m_MappedBoneBuffer)
+		{
+			m_BoneBuffer->Unmap(0, nullptr);
+			m_MappedBoneBuffer = nullptr;
+		}
+
+		m_BoneBuffer.Reset();
+		m_BoneBufferCapacityBytes = 0;
+
+		const UINT capacity = GetUploadBufferCapacity(bufferSize);
+		auto device = App::GetD3D12Device();
+
+		ThrowIfFailed(device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(capacity),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&m_BoneBuffer)));
+
+		m_BoneBufferCapacityBytes = capacity;
+
+		if (m_BoneSrvIndex == UINT_MAX)
+		{
+			m_BoneSrvIndex = BaseScene::Get()->GetSrvNextIndex();
+		}
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Buffer.NumElements = m_BoneBufferCapacityBytes / sizeof(XMFLOAT4);
+		srvDesc.Buffer.StructureByteStride = sizeof(XMFLOAT4);
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE srvCpuHandle(
+			BaseScene::Get()->GetCbvSrvUavDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
+			m_BoneSrvIndex,
+			BaseScene::Get()->GetCbvSrvUavDescriptorHandleIncrementSize());
+		device->CreateShaderResourceView(m_BoneBuffer.Get(), &srvDesc, srvCpuHandle);
+
+		CD3DX12_RANGE readRange(0, 0);
+		ThrowIfFailed(m_BoneBuffer->Map(0, &readRange, &m_MappedBoneBuffer));
+	}
 	void InstancedSkinnedDraw::OnCreate()
 	{
 		auto pBaseScene = BaseScene::Get();
@@ -453,6 +689,7 @@ namespace shooting {
 	{
 		m_InstanceData.clear();
 		m_BoneRows.clear();
+		m_BonePoseStartByKey.clear();
 		m_InstanceBufferView.SizeInBytes = 0;
 
 		if (m_InstanceSources.empty())
@@ -488,18 +725,14 @@ namespace shooting {
 				animationIndex = 0;
 			}
 
-			m_WorkBones.clear();
-			assimp->GetBoneTransforms(
-				source.animationTime,
-				m_WorkBones,
-				animationIndex);
-
-			if (m_WorkBones.empty())
+			const UINT boneStart = EnsureBonePose(
+				assimp,
+				animationIndex,
+				source.animationTime);
+			if (boneStart == UINT_MAX)
 			{
 				continue;
 			}
-
-			const UINT boneStart = static_cast<UINT>(m_BoneRows.size() / 3);
 
 			SkinnedInstanceData instance{};
 			XMStoreFloat4x4(&instance.matrix, (XMMATRIX)source.world);
@@ -515,19 +748,6 @@ namespace shooting {
 			}
 			instance.params = XMFLOAT4(static_cast<float>(boneStart), damage, 0.0f, 0.0f);
 			m_InstanceData.push_back(instance);
-
-			for (const auto& bone : m_WorkBones)
-			{
-				XMMATRIX matrix = (XMMATRIX)bone;
-				XMFLOAT4 row{};
-
-				XMStoreFloat4(&row, matrix.r[0]);
-				m_BoneRows.push_back(row);
-				XMStoreFloat4(&row, matrix.r[1]);
-				m_BoneRows.push_back(row);
-				XMStoreFloat4(&row, matrix.r[2]);
-				m_BoneRows.push_back(row);
-			}
 		}
 
 		if (m_InstanceData.empty() || m_BoneRows.empty())
@@ -535,32 +755,10 @@ namespace shooting {
 			return;
 		}
 
-		auto device = App::GetD3D12Device();
-
 		const UINT instanceBufferSize =
 			static_cast<UINT>(sizeof(SkinnedInstanceData) * m_InstanceData.size());
-
-		if (!m_InstanceBuffer || m_InstanceBufferCapacityBytes < instanceBufferSize)
-		{
-			m_InstanceBuffer.Reset();
-			m_InstanceBufferCapacityBytes = 0;
-
-			ThrowIfFailed(device->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(instanceBufferSize),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_InstanceBuffer)));
-
-			m_InstanceBufferCapacityBytes = instanceBufferSize;
-		}
-
-		void* mappedPtr = nullptr;
-		CD3DX12_RANGE readRange(0, 0);
-		ThrowIfFailed(m_InstanceBuffer->Map(0, &readRange, &mappedPtr));
-		memcpy(mappedPtr, m_InstanceData.data(), instanceBufferSize);
-		m_InstanceBuffer->Unmap(0, nullptr);
+		EnsureInstanceBuffer(instanceBufferSize);
+		memcpy(m_MappedInstanceBuffer, m_InstanceData.data(), instanceBufferSize);
 
 		m_InstanceBufferView.BufferLocation = m_InstanceBuffer->GetGPUVirtualAddress();
 		m_InstanceBufferView.StrideInBytes = sizeof(SkinnedInstanceData);
@@ -568,48 +766,9 @@ namespace shooting {
 
 		const UINT boneBufferSize =
 			static_cast<UINT>(sizeof(XMFLOAT4) * m_BoneRows.size());
-
-		if (!m_BoneBuffer || m_BoneBufferCapacityBytes < boneBufferSize)
-		{
-			m_BoneBuffer.Reset();
-			m_BoneBufferCapacityBytes = 0;
-
-			ThrowIfFailed(device->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(boneBufferSize),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_BoneBuffer)));
-
-			m_BoneBufferCapacityBytes = boneBufferSize;
-
-			if (m_BoneSrvIndex == UINT_MAX)
-			{
-				m_BoneSrvIndex = BaseScene::Get()->GetSrvNextIndex();
-			}
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.Buffer.NumElements = m_BoneBufferCapacityBytes / sizeof(XMFLOAT4);
-			srvDesc.Buffer.StructureByteStride = sizeof(XMFLOAT4);
-			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-			CD3DX12_CPU_DESCRIPTOR_HANDLE srvCpuHandle(
-				BaseScene::Get()->GetCbvSrvUavDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
-				m_BoneSrvIndex,
-				BaseScene::Get()->GetCbvSrvUavDescriptorHandleIncrementSize());
-			device->CreateShaderResourceView(m_BoneBuffer.Get(), &srvDesc, srvCpuHandle);
-		}
-
-		mappedPtr = nullptr;
-		ThrowIfFailed(m_BoneBuffer->Map(0, &readRange, &mappedPtr));
-		memcpy(mappedPtr, m_BoneRows.data(), boneBufferSize);
-		m_BoneBuffer->Unmap(0, nullptr);
+		EnsureBoneBuffer(boneBufferSize);
+		memcpy(m_MappedBoneBuffer, m_BoneRows.data(), boneBufferSize);
 	}
-
 	void InstancedSkinnedDraw::OnUpdateConstantBuffers()
 	{
 		auto myCamera = GetGameObject()->GetCamera();

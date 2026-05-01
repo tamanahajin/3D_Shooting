@@ -35,7 +35,7 @@ namespace shooting {
 		//配置オブジェクトの更新処理
 		for (auto& ptr : GetGameObjectVec())
 		{
-			if (ptr->IsUpdateActive())
+			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
 			{
 				ptr->OnUpdate(Scene::GetElapsedTime());
 			}
@@ -48,7 +48,7 @@ namespace shooting {
 		//配置オブジェクトのコンポーネント更新
 		for (auto& ptr : GetGameObjectVec())
 		{
-			if (ptr->IsUpdateActive())
+			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
 			{
 				ptr->ComponentUpdate();
 			}
@@ -56,7 +56,7 @@ namespace shooting {
 		// 配置オブジェクトのBehavior更新
 		for (auto& ptr : GetGameObjectVec())
 		{
-			if (ptr->IsUpdateActive())
+			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
 			{
 				ptr->BehaviorUpdate();
 			}
@@ -66,7 +66,7 @@ namespace shooting {
 		//配置オブジェクトの更新後処理
 		for (auto& ptr : GetGameObjectVec())
 		{
-			if (ptr->IsUpdateActive())
+			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
 			{
 				ptr->OnUpdate2(Scene::GetElapsedTime());
 			}
