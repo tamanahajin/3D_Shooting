@@ -18,7 +18,7 @@
 float4 main(PSInputPixelLightingTx pin) : SV_Target0
 {
 
-	float4 color = float4(1,1,1,1);
+	float4 color = pin.Diffuse;
 	if (Activeflags.y > 0) {
 		color = Texture.Sample(Sampler, pin.TexCoord)*pin.Diffuse;
 	}

@@ -6,20 +6,37 @@
 
 namespace shooting {
 
-	class PreviewDot : public GameObject
+	class BombPreviewMarker : public GameObject
 	{
+	private:
+		std::wstring m_MeshKey;
+		Col4 m_Color;
+
 	public:
-		explicit PreviewDot(const std::shared_ptr<Stage>& stagePtr, const TransParam& param)
+		BombPreviewMarker(
+			const std::shared_ptr<Stage>& stagePtr,
+			const TransParam& param,
+			const std::wstring& meshKey,
+			const Col4& color)
 			: GameObject(stagePtr)
+			, m_MeshKey(meshKey)
+			, m_Color(color)
 		{
 			m_transParam = param;
 		}
 
 		void OnCreate() override
 		{
+			SetAlphaActive(true);
+			SetShadowActive(false);
+
 			auto draw = AddComponent<BcPNTStaticDraw>();
-			draw->AddBaseMesh(L"DEFAULT_SPHERE");
+			draw->AddBaseMesh(m_MeshKey);
 			draw->SetOwnShadowActive(false);
+			draw->SetFogEnabled(false);
+			draw->SetLightingEnabled(false);
+			draw->SetDiffuseColor(m_Color);
+
 			SetUpdateActive(false);
 		}
 
@@ -29,13 +46,13 @@ namespace shooting {
 	class BombAimPreview : public Component
 	{
 	private:
-		std::vector<std::shared_ptr<PreviewDot>> m_PathDots;
-		std::vector<std::shared_ptr<PreviewDot>> m_RingDots;
+		std::vector<std::shared_ptr<BombPreviewMarker>> m_PathMarkers;
+		std::shared_ptr<BombPreviewMarker> m_AreaMarker;
 
-		int   m_PathCount = 8;
-		int   m_RingCount = 12;
-		float m_PathDotScale = 0.06f;
-		float m_RingDotScale = 0.08f;
+		int   m_LineSegmentCount = 28;
+		float m_LineWidth = 0.05f;
+		float m_SurfaceLift = 0.05f;
+		float m_AreaRadiusScale = 0.90f;
 
 		bool  m_Visible = false;
 		Vec3  m_Start = Vec3(0, 0, 0);
@@ -46,7 +63,7 @@ namespace shooting {
 		BombTuning m_Tuning{};
 		float m_MaxRange = 500.0f;
 
-		bool  m_DotsShown = false;
+		bool  m_MarkersShown = false;
 		bool  m_HasCachedLayout = false;
 		float m_RebuildTimer = 0.0f;
 		float m_RebuildInterval = 0.05f;
@@ -82,7 +99,6 @@ namespace shooting {
 
 	private:
 		static Vec3 SafeNormalize(const Vec3& v);
-		static void MakeTangentBasis(const Vec3& n, Vec3& outT, Vec3& outB);
 
 		bool SolveBallistic_ApexHeight(
 			const Vec3& p0,
@@ -94,7 +110,7 @@ namespace shooting {
 		) const;
 
 		static Vec3 SamplePos(const Vec3& p0, const Vec3& v0, const Vec3& g, float t);
-		void SetDotsVisible(bool v);
+		void SetMarkersVisible(bool v);
 	};
 
 }

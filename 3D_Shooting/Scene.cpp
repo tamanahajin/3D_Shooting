@@ -3,6 +3,76 @@
 
 namespace shooting {
 
+	namespace
+	{
+		std::shared_ptr<BaseMesh> CreateBombPreviewDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
+		{
+			if (segments < 64) segments = 64;
+
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve(segments + 1);
+			indices.reserve(segments * 3);
+
+			const XMFLOAT3 normal(0.0f, 1.0f, 0.0f);
+			vertices.push_back(VertexPositionNormalTexture(
+				XMFLOAT3(0.0f, 0.0f, 0.0f),
+				normal,
+				XMFLOAT2(0.5f, 0.5f)));
+
+			for (size_t i = 0; i < segments; ++i)
+			{
+				const float angle = XM_2PI * static_cast<float>(i) / static_cast<float>(segments);
+				const float c = std::cos(angle);
+				const float s = std::sin(angle);
+				vertices.push_back(VertexPositionNormalTexture(
+					XMFLOAT3(c, 0.0f, s),
+					normal,
+					XMFLOAT2(0.5f + c * 0.5f, 0.5f - s * 0.5f)));
+			}
+
+			for (size_t i = 0; i < segments; ++i)
+			{
+				const uint32_t current = static_cast<uint32_t>(i + 1);
+				const uint32_t next = static_cast<uint32_t>(((i + 1) % segments) + 1);
+
+				indices.push_back(0);
+				indices.push_back(next);
+				indices.push_back(current);
+			}
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
+
+		std::shared_ptr<BaseMesh> CreateBombPreviewLineMesh(ID3D12GraphicsCommandList* pCommandList)
+		{
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve(4);
+			indices.reserve(12);
+
+			const XMFLOAT3 normal(0.0f, 1.0f, 0.0f);
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f, 0.0f, -0.5f), normal, XMFLOAT2(0.0f, 1.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f, 0.0f, -0.5f), normal, XMFLOAT2(1.0f, 1.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f, 0.0f,  0.5f), normal, XMFLOAT2(1.0f, 0.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f, 0.0f,  0.5f), normal, XMFLOAT2(0.0f, 0.0f)));
+
+			indices.push_back(0);
+			indices.push_back(2);
+			indices.push_back(1);
+			indices.push_back(0);
+			indices.push_back(3);
+			indices.push_back(2);
+			indices.push_back(0);
+			indices.push_back(1);
+			indices.push_back(2);
+			indices.push_back(0);
+			indices.push_back(2);
+			indices.push_back(3);
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
+	}
 	IMPLEMENT_DX12SHADER(SpVSPCStatic, App::GetShadersDir() + L"SpVSPCStatic.cso")
 	IMPLEMENT_DX12SHADER(SpPSPCStatic, App::GetShadersDir() + L"SpPSPCStatic.cso")
 
@@ -59,6 +129,8 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
+		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
+		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
 		// ここで先にキャラ用テクスチャを登録して保持させる
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);

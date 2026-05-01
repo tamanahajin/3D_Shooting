@@ -6,9 +6,39 @@ namespace shooting {
 
 	namespace
 	{
+		const std::wstring kPreviewAreaMeshKey = L"BOMB_PREVIEW_DISC";
+		const std::wstring kPreviewLineMeshKey = L"BOMB_PREVIEW_LINE";
+		const Col4 kPreviewAreaColor(1.0f, 1.0f, 1.0f, 0.16f);
+		const Col4 kPreviewLineColor(1.0f, 0.88f, 0.08f, 0.42f);
+
 		float LengthSq(const Vec3& v)
 		{
 			return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
+		}
+
+		void SetMarkerTransform(
+			const std::shared_ptr<BombPreviewMarker>& marker,
+			const Vec3& position,
+			const Quat& rotation,
+			const Vec3& scale)
+		{
+			if (!marker) return;
+
+			if (auto tr = marker->GetComponent<Transform>())
+			{
+				tr->SetPosition(position);
+				tr->SetQuaternion(rotation);
+				tr->SetScale(scale);
+			}
+		}
+
+		void SetMarkerTransform(
+			const std::shared_ptr<BombPreviewMarker>& marker,
+			const Vec3& position,
+			const Quat& rotation,
+			float scale)
+		{
+			SetMarkerTransform(marker, position, rotation, Vec3(scale, scale, scale));
 		}
 	}
 
@@ -19,26 +49,20 @@ namespace shooting {
 
 		TransParam tp;
 		tp.position = Vec3(0, -100.0f, 0);
-		tp.scale = Vec3(m_PathDotScale, m_PathDotScale, m_PathDotScale);
+		tp.scale = Vec3(m_LineWidth, 1.0f, 1.0f);
 		tp.quaternion = Quat();
 
-		m_PathDots.reserve(m_PathCount);
-		for (int i = 0; i < m_PathCount; ++i)
+		m_PathMarkers.reserve(m_LineSegmentCount);
+		for (int i = 0; i < m_LineSegmentCount; ++i)
 		{
-			auto dot = stage->AddGameObject<PreviewDot>(tp);
-			dot->SetDrawActive(false);
-			m_PathDots.push_back(dot);
+			auto marker = stage->AddGameObject<BombPreviewMarker>(tp, kPreviewLineMeshKey, kPreviewLineColor);
+			marker->SetDrawActive(false);
+			m_PathMarkers.push_back(marker);
 		}
 
-		tp.scale = Vec3(m_RingDotScale, m_RingDotScale, m_RingDotScale);
-
-		m_RingDots.reserve(m_RingCount);
-		for (int i = 0; i < m_RingCount; ++i)
-		{
-			auto dot = stage->AddGameObject<PreviewDot>(tp);
-			dot->SetDrawActive(false);
-			m_RingDots.push_back(dot);
-		}
+		tp.scale = Vec3(1.0f, 1.0f, 1.0f);
+		m_AreaMarker = stage->AddGameObject<BombPreviewMarker>(tp, kPreviewAreaMeshKey, kPreviewAreaColor);
+		m_AreaMarker->SetDrawActive(false);
 	}
 
 	void BombAimPreview::SetPreviewInput(
@@ -78,7 +102,7 @@ namespace shooting {
 	{
 		if (!m_Visible)
 		{
-			SetDotsVisible(false);
+			SetMarkersVisible(false);
 			m_HasCachedLayout = false;
 			m_RebuildTimer = 0.0f;
 			return;
@@ -97,7 +121,7 @@ namespace shooting {
 
 		if (!needRebuild)
 		{
-			SetDotsVisible(true);
+			SetMarkersVisible(true);
 			return;
 		}
 
@@ -145,53 +169,46 @@ namespace shooting {
 		float T = 0.0f;
 		if (!SolveBallistic_ApexHeight(m_Start, ringCenter, m_Tuning.gravity, arcHeight, v0, T))
 		{
-			SetDotsVisible(false);
+			SetMarkersVisible(false);
 			return;
 		}
 
-		SetDotsVisible(true);
+		SetMarkersVisible(true);
 
-		for (int i = 0; i < m_PathCount; ++i)
+		for (int i = 0; i < m_LineSegmentCount; ++i)
 		{
-			const float t = (m_PathCount <= 1) ? 0.0f : (T * static_cast<float>(i) / static_cast<float>(m_PathCount - 1));
-			const Vec3 p = SamplePos(m_Start, v0, m_Tuning.gravity, t);
+			const float ratio0 = static_cast<float>(i) / static_cast<float>(m_LineSegmentCount);
+			const float ratio1 = static_cast<float>(i + 1) / static_cast<float>(m_LineSegmentCount);
+			const Vec3 p0 = SamplePos(m_Start, v0, m_Tuning.gravity, T * ratio0);
+			const Vec3 p1 = SamplePos(m_Start, v0, m_Tuning.gravity, T * ratio1);
+			const Vec3 segment = p1 - p0;
+			const float length = segment.length();
 
-			if (auto tr = m_PathDots[i]->GetComponent<Transform>())
+			if (length <= 1e-5f)
 			{
-				tr->SetPosition(p);
+				m_PathMarkers[i]->SetDrawActive(false);
+				continue;
 			}
+
+			m_PathMarkers[i]->SetDrawActive(true);
+			const Vec3 center = (p0 + p1) * 0.5f;
+			Quat rotation;
+			rotation.facing(segment);
+			SetMarkerTransform(m_PathMarkers[i], center, rotation, Vec3(m_LineWidth, 1.0f, length));
 		}
 
-		Vec3 tangent;
-		Vec3 bitangent;
-		MakeTangentBasis(ringNormal, tangent, bitangent);
-
-		const Vec3 lift = ringNormal * 0.03f;
-
-		for (int i = 0; i < m_RingCount; ++i)
-		{
-			const float ang = (2.0f * 3.1415926535f) * static_cast<float>(i) / static_cast<float>(m_RingCount);
-			const float c = std::cos(ang);
-			const float s = std::sin(ang);
-
-			const Vec3 rp = ringCenter + lift
-				+ (tangent * (c * m_Tuning.explosionRadius))
-				+ (bitangent * (s * m_Tuning.explosionRadius));
-
-			if (auto tr = m_RingDots[i]->GetComponent<Transform>())
-			{
-				tr->SetPosition(rp);
-			}
-		}
+		const Vec3 lift = ringNormal * m_SurfaceLift;
+		const Quat areaRotation = bsmUtil::MakeFromToQuat(Vec3(0, 1, 0), ringNormal);
+		SetMarkerTransform(m_AreaMarker, ringCenter + lift, areaRotation, m_Tuning.explosionRadius * m_AreaRadiusScale);
 	}
 
-	void BombAimPreview::SetDotsVisible(bool v)
+	void BombAimPreview::SetMarkersVisible(bool v)
 	{
-		if (m_DotsShown == v) return;
-		m_DotsShown = v;
+		if (m_MarkersShown == v) return;
+		m_MarkersShown = v;
 
-		for (auto& d : m_PathDots) d->SetDrawActive(v);
-		for (auto& d : m_RingDots) d->SetDrawActive(v);
+		for (auto& d : m_PathMarkers) d->SetDrawActive(v);
+		if (m_AreaMarker) m_AreaMarker->SetDrawActive(v);
 	}
 
 	Vec3 BombAimPreview::SafeNormalize(const Vec3& v)
@@ -199,13 +216,6 @@ namespace shooting {
 		const float len2 = (v.x * v.x + v.y * v.y + v.z * v.z);
 		if (len2 < 1e-8f) return Vec3(0, 1, 0);
 		return v / std::sqrt(len2);
-	}
-
-	void BombAimPreview::MakeTangentBasis(const Vec3& n, Vec3& outT, Vec3& outB)
-	{
-		const Vec3 ref = (std::fabs(n.y) < 0.9f) ? Vec3(0, 1, 0) : Vec3(1, 0, 0);
-		outT = SafeNormalize(bsmUtil::cross(ref, n));
-		outB = SafeNormalize(bsmUtil::cross(n, outT));
 	}
 
 	bool BombAimPreview::SolveBallistic_ApexHeight(

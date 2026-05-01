@@ -160,7 +160,7 @@ namespace shooting {
 
 				m_ConstantBuffer = {};
 				m_ConstantBuffer.activeFlg.y = GetDrawTexture(0) ? 1 : 0;
-				m_ConstantBuffer.activeFlg.x = 3;
+				m_ConstantBuffer.activeFlg.x = m_LightingEnabled ? 3 : 0;
 
 				//ƒ[ƒ‹ƒhs—ñ‚ÌÝ’è
 				auto world = XMMatrixAffineTransformation(
@@ -219,8 +219,8 @@ namespace shooting {
 				XMMATRIX viewInverse = XMMatrixInverse(nullptr, view);
 				m_ConstantBuffer.eyePosition = Vec4(viewInverse.r[3]);
 
-				Col4 diffuse = Col4(1.0f);
-				Col4 alphaVector = (Col4)XMVectorReplicate(1.0f);
+				Col4 diffuse = m_DiffuseColor;
+				Col4 alphaVector = (Col4)XMVectorReplicate(diffuse.w);
 				Col4 emissiveColor = Col4(0.0f);
 				Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
 
@@ -229,7 +229,7 @@ namespace shooting {
 				m_ConstantBuffer.specularColorAndPower = Col4(0, 0, 0, 1);
 
 				// xyz = diffuse * alpha, w = alpha.
-				m_ConstantBuffer.diffuseColor = Col4(XMVectorSelect(alphaVector, diffuse * alphaVector, g_XMSelect1110));
+				m_ConstantBuffer.diffuseColor = diffuse;
 
 				auto mainLight = myLightSet->GetMainBaseLight();
 				Vec3 calcLightDir = Vec3(mainLight.m_directional) * Vec3(-1.0f);

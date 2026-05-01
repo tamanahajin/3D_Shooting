@@ -24,6 +24,8 @@ namespace shooting {
 		float m_FogEnd = -40.0f;
 		XMFLOAT4 m_FogColor;
 		XMFLOAT3 m_FogVector;
+		Col4 m_DiffuseColor = Col4(1.0f);
+		bool m_LightingEnabled = true;
 		std::vector<std::shared_ptr<BaseMaterial>> m_BaseMaterialVec;
 
 	public:
@@ -42,6 +44,22 @@ namespace shooting {
 		void SetFogEnabled(bool b)
 		{
 			m_FogEnabled = b;
+		}
+		void SetDiffuseColor(const Col4& color)
+		{
+			m_DiffuseColor = color;
+		}
+		const Col4& GetDiffuseColor() const
+		{
+			return m_DiffuseColor;
+		}
+		void SetLightingEnabled(bool enabled)
+		{
+			m_LightingEnabled = enabled;
+		}
+		bool IsLightingEnabled() const
+		{
+			return m_LightingEnabled;
 		}
 		std::shared_ptr<BaseTexture> GetDrawTexture(size_t index);
 		void AddBaseMaterial(const std::wstring& key)
