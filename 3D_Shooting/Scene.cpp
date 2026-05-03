@@ -234,6 +234,26 @@ namespace shooting {
 			}
 			RegisterModelMesh(L"PLAYER_BLASTER_MODEL", blasterMeshes);
 		}
+
+		// Bomb grenade
+		{
+			auto grenadeParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/grenade-b.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> grenadeMeshes;
+			for (size_t i = 0; i < grenadeParts.size(); ++i)
+			{
+				grenadeMeshes.push_back(grenadeParts[i].mesh);
+				RegisterMaterial(
+					L"BOMB_MAT_" + std::to_wstring(i),
+					grenadeParts[i].material
+				);
+			}
+			RegisterModelMesh(L"BOMB_MODEL", grenadeMeshes);
+		}
 	}
 
 	void Scene::StartGame()
@@ -546,3 +566,4 @@ namespace shooting {
 		}
 	}
 }
+

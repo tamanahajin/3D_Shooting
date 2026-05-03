@@ -23,6 +23,7 @@ namespace shooting {
 		const float kMuzzleFlashEndScale = 0.14f;
 		const float kMuzzleFlashForwardOffset = -0.5f;
 		const Vec3 kBlasterMuzzleLocalPosition(0.0f, 5.204915f, 46.0f);
+		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
 
 		struct RightHandSocketTransform
 		{
@@ -635,8 +636,9 @@ namespace shooting {
 		// --- 入力 ---
 		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
 
-		// プレビュー表示は「右クリック押しっぱ」で出す（好みで変えてOK）
-		const bool previewInput = input.KeyDown(VK_RBUTTON);
+		// 右クリック中はボムを構え、左クリックで投げる。
+		const bool bombMode = input.KeyDown(VK_RBUTTON);
+		m_CurrentBullet = bombMode ? BulletType::Bomb : BulletType::Default;
 
 		// --- 狙い点計算（Raycast） ---
 		Vec3 muzzle(0, 0, 0);
@@ -718,7 +720,7 @@ namespace shooting {
 			const float kExplosionRadius = 2.0f;
 
 			m_BombPreview->SetPreviewInput(
-				true,
+				bombMode,
 				muzzle,
 				aimPointPreview,
 				hitNormalPreview,
@@ -737,7 +739,7 @@ namespace shooting {
 			if (m_CurrentBullet == BulletType::Bomb)
 			{
 				auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-				const Vec3 scale(0.1f, 0.1f, 0.1f);
+				const Vec3 scale = kBombProjectileScale;
 
 				if (bulletMgr)
 				{

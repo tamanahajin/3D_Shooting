@@ -4,6 +4,12 @@
 
 namespace shooting {
 
+	namespace
+	{
+		const wchar_t* kBombModelKey = L"BOMB_MODEL";
+		const wchar_t* kBombMaterialPrefix = L"BOMB_MAT_";
+	}
+
 	//============================================================
 	// DefaultBullet
 	//============================================================
@@ -129,17 +135,51 @@ namespace shooting {
 
 	void BombBullet::OnCreate()
 	{
-		// まず通常弾の分（衝突・描画・DamageDealer 等）
-		DefaultBullet::OnCreate();
+		auto ptrColl = AddComponent<CollisionSphere>();
+		ptrColl->SetFixed(false);
 
-		// タグ
+		AddTag(L"Bullet");
 		AddTag(L"Bomb");
 
-		// ボムは「複数に範囲ヒット」がメインなので DestroyOnHit を false にする
-		if (auto dd = GetComponent<DamageDealer>(false))
+		const auto& meshes = BaseScene::Get()->GetModelMesh(kBombModelKey);
+
+		auto ptrShadow = AddComponent<ShadowMap>();
+		if (!meshes.empty())
 		{
-			dd->SetDamage(m_ExplosionDamage);
-			dd->SetDestroyOnHit(false);
+			ptrShadow->AddBaseMesh(meshes[0]);
+		}
+		else
+		{
+			ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
+		}
+
+		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
+		ptrDraw->SetFogEnabled(true);
+		ptrDraw->SetOwnShadowActive(true);
+		ptrDraw->SetLightingEnabled(true);
+
+		if (!meshes.empty())
+		{
+			ptrDraw->AddBaseModelMesh(meshes);
+			for (size_t i = 0; i < meshes.size(); ++i)
+			{
+				ptrDraw->AddBaseMaterial(std::wstring(kBombMaterialPrefix) + std::to_wstring(i));
+			}
+		}
+		else
+		{
+			ptrDraw->AddBaseMesh(L"DEFAULT_SPHERE");
+			ptrDraw->AddBaseTexture(L"WALL_TX");
+		}
+
+		auto dmg = AddComponent<DamageDealer>();
+		dmg->SetDamage(m_ExplosionDamage);
+		dmg->SetDestroyOnHit(false);
+
+		if (auto col = GetComponent<Collision>(false))
+		{
+			col->AddExcludeCollisionTag(L"Player");
+			col->AddExcludeCollisionTag(L"Bullet");
 		}
 	}
 
@@ -470,3 +510,4 @@ namespace shooting {
 		m_HasTarget = false;
 	}
 }
+
