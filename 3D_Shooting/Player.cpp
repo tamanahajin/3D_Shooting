@@ -1,4 +1,4 @@
-ï»¿#include "stdafx.h"
+#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -14,7 +14,7 @@ namespace shooting {
 	Vec2 Player::GetInputState() const
 	{
 		Vec2 ret;
-		//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã®å–å¾—
+		//ƒRƒ“ƒgƒ[ƒ‰‚Ìæ“¾
 		//auto cntlVec = App::GetInputDevice().GetControlerVec();
 		//ret.x = 0.0f;
 		//ret.y = 0.0f;
@@ -26,9 +26,9 @@ namespace shooting {
 		//}
 		//return ret;
 
-		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
+		// ƒL[ƒ{[ƒh“ü—Íæ“¾
 		auto keyVec = GetInputKey();
-		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›ãŒã‚ã‚Œã°å„ªå…ˆã™ã‚‹
+		// ƒL[ƒ{[ƒh“ü—Í‚ª‚ ‚ê‚Î—Dæ‚·‚é
 		if (keyVec.x != 0.0f || keyVec.y != 0.0f)
 		{
 			ret = keyVec;
@@ -40,18 +40,18 @@ namespace shooting {
 	{
 		Vec2 ret(0.0f, 0.0f);
 
-		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
+		// ƒL[ƒ{[ƒh“ü—Íæ“¾
 		const auto& input = App::GetInputDevice();
 
-		// å·¦å³ï¼ˆXï¼‰
+		// ¶‰EiXj
 		if (input.KeyDown('A') || input.KeyDown(VK_LEFT))  ret.x -= 1.0f;
 		if (input.KeyDown('D') || input.KeyDown(VK_RIGHT)) ret.x += 1.0f;
 
-		// å‰å¾Œï¼ˆYï¼‰â€»ã“ã®ã‚¯ãƒ©ã‚¹ã§ã¯ ret.y ã‚’ã€Œå‰(+) / å¾Œ(-)ã€ã¨ã—ã¦ä½¿ã†
+		// ‘OŒãiYj¦‚±‚ÌƒNƒ‰ƒX‚Å‚Í ret.y ‚ğu‘O(+) / Œã(-)v‚Æ‚µ‚Äg‚¤
 		if (input.KeyDown('W') || input.KeyDown(VK_UP))    ret.y += 1.0f;
 		if (input.KeyDown('S') || input.KeyDown(VK_DOWN))  ret.y -= 1.0f;
 
-		// æ–œã‚ç§»å‹•ãŒé€Ÿããªã‚‰ãªã„ã‚ˆã†ã«æ­£è¦åŒ–
+		// Î‚ßˆÚ“®‚ª‘¬‚­‚È‚ç‚È‚¢‚æ‚¤‚É³‹K‰»
 		if (ret.length() > 1.0f)
 		{
 			ret.normalize();
@@ -62,35 +62,35 @@ namespace shooting {
 	Vec3 Player::GetMoveVector() const
 	{
 		Vec3 angle(0, 0, 0);
-		//å…¥åŠ›ã®å–å¾—
+		//“ü—Í‚Ìæ“¾
 		auto inPut = GetInputState();
 		float moveX = inPut.x;
 		float moveZ = inPut.y;
 		if (moveX != 0 || moveZ != 0)
 		{
-			float moveLength = 0;	//å‹•ã„ãŸæ™‚ã®ã‚¹ãƒ”ãƒ¼ãƒ‰
+			float moveLength = 0;	//“®‚¢‚½‚ÌƒXƒs[ƒh
 			auto ptrTransform = GetComponent<Transform>();
 			auto ptrCamera = GetStage()->GetCamera();
-			//é€²è¡Œæ–¹å‘ã®å‘ãã‚’è¨ˆç®—
+			//is•ûŒü‚ÌŒü‚«‚ğŒvZ
 			auto front = ptrTransform->GetPosition() - ptrCamera->GetEye();
 			front.y = 0;
 			front.normalize();
-			//é€²è¡Œæ–¹å‘å‘ãã‹ã‚‰ã®è§’åº¦ã‚’ç®—å‡º
+			//is•ûŒüŒü‚«‚©‚ç‚ÌŠp“x‚ğZo
 			float frontAngle = atan2(front.z, front.x);
-			//å‘ãè¨ˆç®—
+			//Œü‚«ŒvZ
 			Vec2 moveVec(moveX, moveZ);
 			float moveSize = moveVec.length();
-			//å‘ãã‹ã‚‰è§’åº¦ã‚’è¨ˆç®—
+			//Œü‚«‚©‚çŠp“x‚ğŒvZ
 			float cntlAngle = atan2(-moveX, moveZ);
-			//ãƒˆãƒ¼ã‚¿ãƒ«ã®è§’åº¦ã‚’ç®—å‡º
+			//ƒg[ƒ^ƒ‹‚ÌŠp“x‚ğZo
 			float totalAngle = frontAngle + cntlAngle;
-			//è§’åº¦ã‹ã‚‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆ
+			//Šp“x‚©‚çƒxƒNƒgƒ‹‚ğì¬
 			angle = Vec3(cos(totalAngle), 0, sin(totalAngle));
-			//æ­£è¦åŒ–ã™ã‚‹
+			//³‹K‰»‚·‚é
 			angle.normalize();
-			//ç§»å‹•ã‚µã‚¤ã‚ºã‚’è¨­å®šã€‚
+			//ˆÚ“®ƒTƒCƒY‚ğİ’èB
 			angle *= moveSize;
-			//Yè»¸ã¯å¤‰åŒ–ã•ã›ãªã„
+			//Y²‚Í•Ï‰»‚³‚¹‚È‚¢
 			angle.y = 0;
 		}
 		return angle;
@@ -106,7 +106,7 @@ namespace shooting {
 			pos += angle * elapsedTime * m_Speed;
 			GetComponent<Transform>()->SetPosition(pos);
 		}
-		//å›è»¢ã®è¨ˆç®—
+		//‰ñ“]‚ÌŒvZ
 		if (angle.length() > 0.0f)
 		{
 			auto anim = GetBehavior<AnimationStateBehavior>();
@@ -128,17 +128,17 @@ namespace shooting {
 		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
-		// ã‚³ãƒªã‚¸ãƒ§ãƒ³
+		// ƒRƒŠƒWƒ‡ƒ“
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
 		const float segmentHeight = 0.3f;
 		ptrColl->SetMakedRadius(radius);
 		ptrColl->SetMakedHeight(segmentHeight);
-		//é‡åŠ›ã‚’ã¤ã‘ã‚‹
+		//d—Í‚ğ‚Â‚¯‚é
 		auto ptrGra = AddComponent<Gravity>();
 
-		// æç”»
+		// •`‰æ
 		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
@@ -150,20 +150,20 @@ namespace shooting {
 		ptrShadow->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
 		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
-		// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
+		// ƒAƒjƒ[ƒVƒ‡ƒ“
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		anim->ChangeAnimation(AnimState::Idle);
-		//é€æ˜å‡¦ç†
+		//“§–¾ˆ—
 		SetAlphaActive(false);
-		//ã‚«ãƒ¡ãƒ©ã‚’å¾—ã‚‹
+		//ƒJƒƒ‰‚ğ“¾‚é
 		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
 		m_CollisionManager = GetStage()->GetCollisionManager();
 		m_BulletManager = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
 
 		if (m_MainCamera)
 		{
-			//MainCameraã§ã‚ã‚‹
-			//MainCameraã«æ³¨ç›®ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ï¼‰ã®è¨­å®š
+			//MainCamera‚Å‚ ‚é
+			//MainCamera‚É’–Ú‚·‚éƒIƒuƒWƒFƒNƒgiƒvƒŒƒCƒ„[j‚Ìİ’è
 			m_MainCamera->SetTargetObject(GetThis<GameObject>());
 			m_MainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
 		}
@@ -176,7 +176,7 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<Player>()](const DamageInfo& info)
 		{
-			// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’é–‹å§‹
+			// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg‚ğŠJn
 			auto effect = self->GetComponent<DamageEffect>();
 			if (effect)
 			{
@@ -193,212 +193,12 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Dead);
 		};
 
-		// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
+		// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg
 		auto damageEffect = AddComponent<DamageEffect>();
 
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
-		m_BombPreview->SetMaxRange(20.0f); // æœ€å¤§åˆ°é”è·é›¢ã‚’è¨­å®š
-	}
-
-	void Player::OnUpdate(double elapsedTime)
-	{
-		auto anim = GetBehavior<AnimationStateBehavior>();
-		if (m_IsDead)
-		{
-
-			if (!anim->IsFinished())
-			{
-				anim->ChangeAnimation(AnimState::Dead);
-			}
-			else
-			{
-				m_DeathAnimFinished = true;
-			}
-
-			return;
-		}
-
-		if (!anim->IsPlayingAttack() || anim->IsFinished())
-		{
-			if (!m_IsGround)
-			{
-				anim->ChangeAnimation(AnimState::Jump);
-			}
-			else if (GetMoveVector().length() > 0.0f)
-			{
-				anim->ChangeAnimation(AnimState::Sprint);
-			}
-			else
-			{
-				anim->ChangeAnimation(AnimState::Idle);
-			}
-		}
-
-		m_InputHandler.PushHandle(GetThis<Player>());
-
-		// ç§»å‹•
-		MovePlayer();
-
-		// ã‚¸ãƒ£ãƒ³ãƒ—ï¼ˆåœ°é¢ã«ã„ã‚‹ã¨ãã®ã¿ï¼‰
-		if (App::GetInputDevice().KeyDown(VK_SPACE))
-		{
-			OnPushA();
-		}
-
-		// ãƒ•ãƒ¬ãƒ¼ãƒ ã®æœ€å¾Œã«åœ°é¢åˆ¤å®šã‚’ãƒªã‚»ãƒƒãƒˆ
-		m_IsGround = false;
-
-		// ç™ºå°„ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³æ›´æ–°
-		m_ShotCool -= elapsedTime;
-
-		const auto& input = App::GetInputDevice();
-
-		// --- å…¥åŠ› ---
-		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
-
-		// ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼è¡¨ç¤ºã¯ã€Œå³ã‚¯ãƒªãƒƒã‚¯æŠ¼ã—ã£ã±ã€ã§å‡ºã™ï¼ˆå¥½ã¿ã§å¤‰ãˆã¦OKï¼‰
-		const bool previewInput = input.KeyDown(VK_RBUTTON);
-
-		// --- ç‹™ã„ç‚¹è¨ˆç®—ï¼ˆRaycastï¼‰ ---
-		Vec3 muzzle(0, 0, 0);
-
-		Vec3 aimPointShot(0, 0, 0);
-		Vec3 hitNormalShot(0, 1, 0);
-		bool hasHitShot = false;
-
-		Vec3 aimPointPreview(0, 0, 0);
-		Vec3 hitNormalPreview(0, 1, 0);
-		bool hasHitPreview = false;
-		Quat shotRot;
-		Quat shotRotPreview;
-
-		const float aimMaxDist = m_BombPreview ? m_BombPreview->GetMaxRange() : 20.0f;
-
-		if (m_MainCamera && m_CollisionManager)
-		{
-			auto trans = GetComponent<Transform>();
-
-			// éŠƒå£
-			muzzle = trans->GetPosition()
-				+ trans->GetForward() * 0.2f
-				+ Vec3(0.0f, 0.055f, 0.0f);
-
-			// ã‚«ãƒ¡ãƒ©ãƒ¬ã‚¤ï¼ˆã‚¯ãƒ­ã‚¹ãƒ˜ã‚¢=ç”»é¢ä¸­å¤®ï¼‰
-			Vec3 rayOrigin = m_MainCamera->GetEye();
-			Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
-			rayDir.normalize();
-
-			// ----------------------------
-			// â‘  å¼¾ç”¨ï¼ˆEnemyã¯æ‹¾ã† / Bulletã¯ç„¡è¦–ï¼‰
-			// ----------------------------
-			{
-				RaycastHit hit;
-				aimPointShot = rayOrigin + rayDir * aimMaxDist;
-
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>(), { L"Bullet" }))
-				{
-					hasHitShot = true;
-					aimPointShot = hit.m_Point;
-					hitNormalShot = hit.m_Normal;
-				}
-
-				// rotï¼ˆéŠƒå£â†’aimPointShotï¼‰
-				Vec3 shotDir = aimPointShot - muzzle;
-				if (shotDir.length() > 1e-6f)
-				{
-					shotDir.normalize();
-					const Vec3 localForward = Vec3(0, 0, 1);
-					shotRot = bsmUtil::MakeFromToQuat(localForward, shotDir);
-				}
-			}
-
-			// ----------------------------
-			// â‘¡ ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼ç”¨ï¼ˆEnemy/Bulletã‚’ç„¡è¦–ï¼‰
-			// ----------------------------
-			{
-				RaycastHit hit;
-				aimPointPreview = rayOrigin + rayDir * aimMaxDist;
-
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, aimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy" }))
-				{
-					hasHitPreview = true;
-					aimPointPreview = hit.m_Point;
-					hitNormalPreview = hit.m_Normal;
-				}
-
-				// rotï¼ˆéŠƒå£â†’aimPointPreviewï¼‰
-				Vec3 shotDir = aimPointPreview - muzzle;
-				if (shotDir.length() > 1e-6f)
-				{
-					shotDir.normalize();
-					const Vec3 localForward = Vec3(0, 0, 1);
-					shotRotPreview = bsmUtil::MakeFromToQuat(localForward, shotDir);
-				}
-			}
-		}
-
-		// --- BombAimPreview æ›´æ–° ---
-		if (m_BombPreview)
-		{
-			const float kArcHeight = 1.5f;
-			const Vec3  kGravity(0, -20.0f, 0);
-			const float kExplosionRadius = 2.0f;
-
-			m_BombPreview->SetPreviewInput(
-				true,
-				muzzle,
-				aimPointPreview,
-				hitNormalPreview,
-				hasHitPreview
-			);
-		}
-
-		// --- ç™ºå°„ ---
-		if (fireInput && m_ShotCool <= 0.0)
-		{
-			auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-
-			const float kArcHeight = 1.5f;
-			const Vec3  kGravity(0, -20.0f, 0);
-			const float kExplosionRadius = 2.0f;
-
-			// ãƒœãƒ 
-			if (m_CurrentBullet == BulletType::Bomb)
-			{
-				const Vec3 scale(0.1f, 0.1f, 0.1f);
-
-				bulletMgr->FireEx<BombBullet>(muzzle, shotRotPreview, scale,
-								[&](BombBullet& b)
-								{
-									// ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼ã«æ¸¡ã—ãŸå€¤ã‚’ãã®ã¾ã¾å®Ÿå¼¾ã¸ï¼ˆEnemyç„¡è¦–ã®ç‹™ã„ç‚¹ï¼‰
-									b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning());
-								});
-
-				m_ShotCool = 1.0;
-
-
-				// æ”»æ’ƒæ–¹å‘ã‚’å‘ã
-				Vec3 attackDir = aimPointPreview - GetComponent<Transform>()->GetPosition();
-				attackDir.y = 0.0f;
-
-				if (attackDir.length() > 1e-6f)
-				{
-					attackDir.normalize();
-
-					auto util = GetBehavior<UtilBehavior>();
-					util->RotToHead(attackDir, 1.0f);
-				}
-				// æ”»æ’ƒã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
-				anim->ChangeAnimation(AnimState::AttackMeleeLeft);
-			}
-			// é€šå¸¸å¼¾
-			else
-			{
-				bulletMgr->Fire<DefaultBullet>(muzzle, shotRot);
-				m_ShotCool = 0.12;
-			}
-		}
+		m_BombPreview->SetMaxRange(20.0f); // Å‘å“’B‹——£‚ğİ’è
 	}
 
 	void Player::OnPushA()
@@ -414,26 +214,26 @@ namespace shooting {
 	{
 		CheckGroundCollision(pair);
 
-		// æ•µã¨ã®è¡çªã‚’ãƒã‚§ãƒƒã‚¯
+		// “G‚Æ‚ÌÕ“Ë‚ğƒ`ƒFƒbƒN
 		auto other = pair.m_Dest.lock();
 		if (!other) return;
 
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
-		// æ•µã‚¿ã‚°ã‚’æŒã¤ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã®è¡çªã‹ç¢ºèª
+		// “Gƒ^ƒO‚ğ‚ÂƒIƒuƒWƒFƒNƒg‚Æ‚ÌÕ“Ë‚©Šm”F
 		if (otherObj->FindTag(L"Enemy"))
 		{
-			// Healthã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–å¾—ã—ã¦ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’é©ç”¨
+			// HealthƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ“¾‚µ‚Äƒ_ƒ[ƒW‚ğ“K—p
 			auto hp = GetComponent<Health>();
 			if (hp && !hp->IsDead())
 			{
-				// ãƒ€ãƒ¡ãƒ¼ã‚¸æƒ…å ±ã‚’ä½œæˆï¼ˆæ•µã¨ã®æ¥è§¦ã¯1ãƒ€ãƒ¡ãƒ¼ã‚¸ï¼‰
+				// ƒ_ƒ[ƒWî•ñ‚ğì¬i“G‚Æ‚ÌÚG‚Í1ƒ_ƒ[ƒWj
 				DamageInfo damageInfo;
 				damageInfo.m_Damage = 1;
 				//damageInfo.m_Attacker = otherObj;
 					
-				// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’é©ç”¨
+				// ƒ_ƒ[ƒW‚ğ“K—p
 				hp->ApplyDamage(damageInfo);
 			}
 		}
@@ -441,24 +241,24 @@ namespace shooting {
 
 	void Player::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// ç¶™ç¶šçš„ãªè¡çªã§ã‚‚åœ°é¢åˆ¤å®šã‚’æ›´æ–°
+		// Œp‘±“I‚ÈÕ“Ë‚Å‚à’n–Ê”»’è‚ğXV
 		CheckGroundCollision(pair);
 	}
 
 	void Player::CheckGroundCollision(const CollisionPair& pair)
 	{
-		// è¡çªæ³•ç·šã®Yæˆåˆ†ã‚’ãƒã‚§ãƒƒã‚¯ï¼ˆä¸Šå‘ãã®æ³•ç·š = åœ°é¢ã¨ã®è¡çªï¼‰
-		// 0.7f ã¯ç´„45åº¦ï¼ˆcos(45Â°) â‰ˆ 0.707ï¼‰
-		// ã“ã‚Œã‚ˆã‚Šå¤§ãã„ = ã‚ˆã‚Šæ°´å¹³ã«è¿‘ã„é¢ = åœ°é¢ã¨ã¿ãªã™
+		// Õ“Ë–@ü‚ÌY¬•ª‚ğƒ`ƒFƒbƒNiãŒü‚«‚Ì–@ü = ’n–Ê‚Æ‚ÌÕ“Ëj
+		// 0.7f ‚Í–ñ45“xicos(45‹) ? 0.707j
+		// ‚±‚ê‚æ‚è‘å‚«‚¢ = ‚æ‚è…•½‚É‹ß‚¢–Ê = ’n–Ê‚Æ‚İ‚È‚·
 		if (pair.m_SrcHitNormal.y > 0.7f)
 		{
 			m_IsGround = true;
 
-			// é‡åŠ›é€Ÿåº¦ã‚’ãƒªã‚»ãƒƒãƒˆï¼ˆåœ°é¢ã«ç€åœ°ï¼‰
+			// d—Í‘¬“x‚ğƒŠƒZƒbƒgi’n–Ê‚É’…’nj
 			auto grav = GetComponent<Gravity>();
 			auto gravVel = grav->GetGravityVelocity();
 
-			// ä¸‹å‘ãã®é€Ÿåº¦ã®å ´åˆã®ã¿ãƒªã‚»ãƒƒãƒˆï¼ˆç€åœ°æ™‚ï¼‰
+			// ‰ºŒü‚«‚Ì‘¬“x‚Ìê‡‚Ì‚İƒŠƒZƒbƒgi’…’nj
 			if (gravVel.y < 0.0f)
 			{
 				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));

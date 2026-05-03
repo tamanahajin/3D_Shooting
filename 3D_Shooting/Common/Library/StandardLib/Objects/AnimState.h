@@ -1,4 +1,6 @@
 
+#pragma once
+
 
 namespace shooting {
 
@@ -11,6 +13,8 @@ namespace shooting {
 		Crouch = 4,
 		Dead = 5,
 		Fall = 9,
+		HoldingRight = 14,
+		HoldingRightShoot = 15,
 		Idle = 16,
 		Jump = 19,
 		Sprint = 22,

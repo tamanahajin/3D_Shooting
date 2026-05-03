@@ -141,11 +141,13 @@ namespace shooting {
 		}
 
 		m_BoneTransforms.clear();
+		m_NodeGlobalTransforms.clear();
 		ptrBaseAssimp->GetBoneTransforms(
 			(float)animeTime,
 			m_BoneTransforms,
 			m_CurrentAnimationIndex
 		);
+		m_NodeGlobalTransforms = ptrBaseAssimp->GetNodeGlobalTransforms();
 		return true;
 	}
 

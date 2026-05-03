@@ -18,6 +18,7 @@ namespace shooting {
 			case AnimState::Dead:
 			case AnimState::AttackMeleeLeft:
 			case AnimState::AttackMeleeRight:
+			case AnimState::HoldingRightShoot:
 			//case AnimState::Damage:
 				return true;
 			default:
@@ -93,16 +94,7 @@ namespace shooting {
 				return;
 			}
 
-			switch (state)
-			{
-			case AnimState::Idle: draw->SetAnimationIndex((int)state); break;
-			case AnimState::Walk: draw->SetAnimationIndex((int)state); break;
-			case AnimState::Sprint: draw->SetAnimationIndex((int)state); break;
-			case AnimState::Jump: draw->SetAnimationIndex((int)state); break;
-			case AnimState::Fall: draw->SetAnimationIndex((int)state); break;
-			case AnimState::AttackMeleeLeft: draw->SetAnimationIndex((int)state); break;
-			case AnimState::Dead: draw->SetAnimationIndex((int)state); break;
-			}
+			draw->SetAnimationIndex(static_cast<unsigned int>(state));
 
 			// Ø‘Ö’¼Œã‚ÌŽp¨‚ð1‰ñ”½‰f
 			draw->UpdateAnimation(0.0);
@@ -201,7 +193,8 @@ namespace shooting {
 		bool IsPlayingAttack() const
 		{
 			return m_Current == AnimState::AttackMeleeLeft
-				|| m_Current == AnimState::AttackMeleeRight;
+				|| m_Current == AnimState::AttackMeleeRight
+				|| m_Current == AnimState::HoldingRightShoot;
 		}
 
 		bool IsFinished() const

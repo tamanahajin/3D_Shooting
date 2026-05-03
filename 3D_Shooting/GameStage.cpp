@@ -254,7 +254,8 @@ namespace shooting {
 		param.scale = Vec3(0.4f, 0.4f, 0.4f);
 		param.quaternion = Quat();
 		param.position = Vec3(0.0f, 0.525f, 0.0f);
-		AddGameObject<Player>(param);
+		auto player = AddGameObject<Player>(param);
+		AddGameObject<PlayerWeapon>(player);
 
 		AddGameObject<EnemyBatchController>();
 		CreateSeekObject();

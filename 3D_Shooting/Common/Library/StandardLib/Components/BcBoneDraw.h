@@ -35,6 +35,7 @@ namespace shooting {
 		XMFLOAT3 m_FogVector;
 
 		std::vector<Mat4x4>  m_BoneTransforms;
+		std::map<std::string, Mat4x4> m_NodeGlobalTransforms;
 		std::vector<std::shared_ptr<BaseMaterial>> m_BaseMaterialVec;
 		unsigned int m_CurrentAnimationIndex = 0;
 		Vec3 m_ModelOffset = Vec3(0.0f, 0.0f, 0.0f);
@@ -111,6 +112,18 @@ namespace shooting {
 		const std::vector<Mat4x4>& GetBoneTransforms() const
 		{
 			return m_BoneTransforms;
+		}
+
+		bool TryGetNodeGlobalTransform(const std::string& nodeName, Mat4x4& outTransform) const
+		{
+			auto it = m_NodeGlobalTransforms.find(nodeName);
+			if (it == m_NodeGlobalTransforms.end())
+			{
+				return false;
+			}
+
+			outTransform = it->second;
+			return true;
 		}
 
 		BcPNTBoneDraw(const std::shared_ptr<GameObject>& gameObjectPtr);

@@ -72,6 +72,28 @@ namespace shooting {
 
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
+		std::shared_ptr<BaseMesh> CreateMuzzleFlashMesh(ID3D12GraphicsCommandList* pCommandList)
+		{
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve(4);
+			indices.reserve(6);
+
+			const XMFLOAT3 normal(0.0f, 0.0f, -1.0f);
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f, -0.5f, 0.0f), normal, XMFLOAT2(0.0f, 1.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f, -0.5f, 0.0f), normal, XMFLOAT2(1.0f, 1.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f,  0.5f, 0.0f), normal, XMFLOAT2(1.0f, 0.0f)));
+			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f,  0.5f, 0.0f), normal, XMFLOAT2(0.0f, 0.0f)));
+
+			indices.push_back(0);
+			indices.push_back(1);
+			indices.push_back(2);
+			indices.push_back(0);
+			indices.push_back(2);
+			indices.push_back(3);
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
 	}
 	IMPLEMENT_DX12SHADER(SpVSPCStatic, App::GetShadersDir() + L"SpVSPCStatic.cso")
 	IMPLEMENT_DX12SHADER(SpPSPCStatic, App::GetShadersDir() + L"SpPSPCStatic.cso")
@@ -131,6 +153,7 @@ namespace shooting {
 
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
+		RegisterMesh(L"MUZZLE_FLASH_MESH", CreateMuzzleFlashMesh(pCommandList));
 		// ここで先にキャラ用テクスチャを登録して保持させる
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
@@ -191,6 +214,26 @@ namespace shooting {
 			L"Model/character-human.fbx"
 		);
 		RegisterMesh(L"PLAYER_MODEL_SKINNED", skinnedMesh);
+
+		// Player blaster
+		{
+			auto blasterParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/blaster-a.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> blasterMeshes;
+			for (size_t i = 0; i < blasterParts.size(); ++i)
+			{
+				blasterMeshes.push_back(blasterParts[i].mesh);
+				RegisterMaterial(
+					L"PLAYER_BLASTER_MAT_" + std::to_wstring(i),
+					blasterParts[i].material
+				);
+			}
+			RegisterModelMesh(L"PLAYER_BLASTER_MODEL", blasterMeshes);
+		}
 	}
 
 	void Scene::StartGame()

@@ -23,6 +23,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="EnemyBatchController.cpp" />
     <ClCompile Include="Common\Library\BasicLib\App.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BaseDevice.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BaseHelper.cpp" />
@@ -66,12 +67,15 @@
     <ClCompile Include="GameStage.cpp" />
     <ClCompile Include="MainCamera.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerCombat.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SeekObject.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="WinMain.cpp" />
+    <ClCompile Include="WorldObjects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BombTuning.h" />

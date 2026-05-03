@@ -525,6 +525,30 @@ Assimp::Importer importer;
 		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, 0);
 	}
 
+	bool BaseAssimp::TryGetNodeGlobalTransform(const std::string& nodeName, Mat4x4& outTransform) const
+	{
+		auto it = m_requiredNodeMap.find(nodeName);
+		if (it == m_requiredNodeMap.end() || !it->second.pNode)
+		{
+			return false;
+		}
+
+		std::vector<const aiNode*> chain;
+		for (const aiNode* node = it->second.pNode; node; node = node->mParent)
+		{
+			chain.push_back(node);
+		}
+
+		outTransform.identity();
+		for (auto rit = chain.rbegin(); rit != chain.rend(); ++rit)
+		{
+			Mat4x4 local((*rit)->mTransformation);
+			outTransform *= local;
+		}
+
+		return true;
+	}
+
 	void BaseAssimp::GetBoneTransforms(float TimeInSeconds, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex)
 	{
 		if (AnimationIndex >= m_pScene->mNumAnimations)
@@ -539,6 +563,7 @@ Assimp::Importer importer;
 		float AnimationTimeTicks = CalcAnimationTimeTicks(TimeInSeconds, AnimationIndex);
 		const aiAnimation& Animation = *m_pScene->mAnimations[AnimationIndex];
 
+		m_NodeGlobalTransforms.clear();
 		ReadNodeHierarchy(AnimationTimeTicks, m_pScene->mRootNode, Identity, Animation);
 		Transforms.resize(m_BoneInfo.size());
 
@@ -680,6 +705,7 @@ Assimp::Importer importer;
 
 //		Mat4x4 GlobalTransformation = NodeTransformation * ParentTransform;
 		Mat4x4 GlobalTransformation = ParentTransform * NodeTransformation;
+		m_NodeGlobalTransforms[NodeName] = GlobalTransformation;
 
 		if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end()) {
 			uint32_t BoneIndex = m_BoneNameToIndexMap[NodeName];
@@ -687,18 +713,7 @@ Assimp::Importer importer;
 		}
 
 		for (uint32_t i = 0; i < pNode->mNumChildren; i++) {
-			std::string ChildName(pNode->mChildren[i]->mName.data);
-
-			std::map<std::string, NodeInfo>::iterator it = m_requiredNodeMap.find(ChildName);
-
-			if (it == m_requiredNodeMap.end()) {
-				printf("Child %s cannot be found in the required node map\n", ChildName.c_str());
-				assert(0);
-			}
-
-			if (it->second.isRequired) {
-				ReadNodeHierarchy(AnimationTimeTicks, pNode->mChildren[i], GlobalTransformation, Animation);
-			}
+			ReadNodeHierarchy(AnimationTimeTicks, pNode->mChildren[i], GlobalTransformation, Animation);
 		}
 	}
 

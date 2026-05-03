@@ -4,6 +4,23 @@
 
 namespace shooting {
 
+	class Player;
+
+	class PlayerWeapon : public GameObject
+	{
+	private:
+		std::weak_ptr<Player> m_Player;
+
+		bool TryUpdateFromPlayerHand();
+
+	public:
+		PlayerWeapon(const std::shared_ptr<Stage>& stagePtr, const std::shared_ptr<Player>& player);
+		virtual ~PlayerWeapon() {}
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+		virtual void OnUpdate2(double elapsedTime) override;
+	};
+
 	class Player : public GameObject
 	{
 	private:
@@ -30,7 +47,7 @@ namespace shooting {
 		// 地面衝突判定の共通処理
 		void CheckGroundCollision(const CollisionPair& pair);
 		// 現在の弾タイプ
-		BulletType m_CurrentBullet = BulletType::Bomb;
+		BulletType m_CurrentBullet = BulletType::Default;
 
 		std::shared_ptr<BombAimPreview> m_BombPreview;
 

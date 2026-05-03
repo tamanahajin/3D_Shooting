@@ -164,6 +164,7 @@ namespace shooting {
 		std::vector<std::vector<uint32_t>> m_AllIndices;
 
 		std::map<std::string, uint32_t> m_BoneNameToIndexMap;
+		std::map<std::string, Mat4x4> m_NodeGlobalTransforms;
 
 		void MarkRequiredNodesForBone(const aiBone* pBone);
 		int GetBoneId(const aiBone* pBone);
@@ -199,6 +200,11 @@ namespace shooting {
 		void ReserveSpace(uint32_t NumVertices, uint32_t NumIndices);
 
 		void GetBoneTransforms(float AnimationTimeSec, std::vector<Mat4x4>& Transforms, unsigned int AnimationIndex = 0);
+		const std::map<std::string, Mat4x4>& GetNodeGlobalTransforms() const
+		{
+			return m_NodeGlobalTransforms;
+		}
+		bool TryGetNodeGlobalTransform(const std::string& nodeName, Mat4x4& outTransform) const;
 		float CalcAnimationTimeTicks(float TimeInSeconds, unsigned int AnimationIndex);
 		float GetAnimationDurationSeconds(unsigned int AnimationIndex) const;
 		int GetAnimationCount() const;
