@@ -22,6 +22,7 @@ namespace shooting {
 
 		// ダメージ適用（戻り値：死亡したか）
 		bool ApplyDamage(const DamageInfo& info);
+		bool Heal(int amount);
 
 		void SetInvincible(bool b) { m_Invincible = b; }
 

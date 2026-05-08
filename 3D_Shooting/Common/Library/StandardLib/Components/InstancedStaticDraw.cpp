@@ -132,6 +132,39 @@ namespace shooting {
 		m_InstanceBufferView.SizeInBytes = bufferSize;
 	}
 
+	void InstancedStaticDraw::EnsureMaterialConstantBuffers(size_t materialCount)
+	{
+		if (m_MaterialConstantBufferIndices.size() == materialCount)
+		{
+			return;
+		}
+
+		m_MaterialConstantBufferIndices.clear();
+		m_MaterialConstantBuffers.clear();
+
+		if (materialCount == 0)
+		{
+			return;
+		}
+
+		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
+		auto& frameResources = scene->GetFrameResources();
+		auto pBaseDevice = BaseDevice::GetBaseDevice();
+
+		m_MaterialConstantBuffers.resize(materialCount);
+		for (size_t materialIndex = 0; materialIndex < materialCount; ++materialIndex)
+		{
+			size_t constantBufferIndex = 0;
+			for (size_t frameIndex = 0; frameIndex < BaseDevice::FrameCount; ++frameIndex)
+			{
+				constantBufferIndex =
+					frameResources[frameIndex]->AddBaseConstantBufferSet<BasicConstant>(
+						pBaseDevice->GetD3D12Device());
+			}
+			m_MaterialConstantBufferIndices.push_back(constantBufferIndex);
+		}
+	}
+
 	void InstancedStaticDraw::OnUpdateConstantBuffers()
 	{
 		auto myCamera = GetGameObject()->GetCamera();
@@ -141,25 +174,11 @@ namespace shooting {
 			return;
 		}
 
-		m_ConstantBuffer = {};
+		const auto& meshes = BaseScene::Get()->GetModelMesh(m_MeshKey);
+		EnsureMaterialConstantBuffers(meshes.size());
 
-		bool hasTexture = false;
-		if (m_UseMaterialTexture)
-		{
-			const auto& meshes = BaseScene::Get()->GetModelMesh(m_MeshKey);
-			for (size_t i = 0; i < meshes.size(); ++i)
-			{
-				auto material = BaseScene::Get()->GetMaterial(m_MaterialPrefix + std::to_wstring(i));
-				if (material && material->GetBaseColorTexture())
-				{
-					hasTexture = true;
-					break;
-				}
-			}
-		}
-
-		m_ConstantBuffer.activeFlg.x = m_LightingEnabled ? 3 : 0;
-		m_ConstantBuffer.activeFlg.y = hasTexture ? 1 : 0;
+		BasicConstant baseConstant{};
+		baseConstant.activeFlg.x = m_LightingEnabled ? 3 : 0;
 
 		// インスタンス側で world を持つので、ここは identity
 		auto world = XMMatrixIdentity();
@@ -167,53 +186,29 @@ namespace shooting {
 		auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
 		auto worldView = world * view;
 
-		m_ConstantBuffer.worldViewProj =
+		baseConstant.worldViewProj =
 			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
-		// Fog
-		if (false)
-		{
-			// 必要ならあとで Fog 対応
-		}
-		else
-		{
-			m_ConstantBuffer.fogVector = Vec4(g_XMZero);
-			m_ConstantBuffer.fogColor = Vec4(g_XMZero);
-		}
+		baseConstant.fogVector = Vec4(g_XMZero);
+		baseConstant.fogColor = Vec4(g_XMZero);
 
-		// Light
 		for (int i = 0; i < myLightSet->GetNumLights(); i++)
 		{
-			m_ConstantBuffer.lightDirection[i] = (Vec4)myLightSet->GetLight(i).m_directional;
-			m_ConstantBuffer.lightDiffuseColor[i] = (Vec4)myLightSet->GetLight(i).m_diffuseColor;
-			m_ConstantBuffer.lightSpecularColor[i] = (Vec4)myLightSet->GetLight(i).m_specularColor;
+			baseConstant.lightDirection[i] = (Vec4)myLightSet->GetLight(i).m_directional;
+			baseConstant.lightDiffuseColor[i] = (Vec4)myLightSet->GetLight(i).m_diffuseColor;
+			baseConstant.lightSpecularColor[i] = (Vec4)myLightSet->GetLight(i).m_specularColor;
 		}
 
-		// world
-		m_ConstantBuffer.world = Mat4x4(world);
-		m_ConstantBuffer.world.transpose();
+		baseConstant.world = Mat4x4(world);
+		baseConstant.world.transpose();
 
-		// world inverse transpose = identity
 		XMMATRIX worldInverse = XMMatrixInverse(nullptr, world);
-		m_ConstantBuffer.worldInverseTranspose[0] = Vec4(worldInverse.r[0]);
-		m_ConstantBuffer.worldInverseTranspose[1] = Vec4(worldInverse.r[1]);
-		m_ConstantBuffer.worldInverseTranspose[2] = Vec4(worldInverse.r[2]);
+		baseConstant.worldInverseTranspose[0] = Vec4(worldInverse.r[0]);
+		baseConstant.worldInverseTranspose[1] = Vec4(worldInverse.r[1]);
+		baseConstant.worldInverseTranspose[2] = Vec4(worldInverse.r[2]);
 
-		// eye
 		XMMATRIX viewInverse = XMMatrixInverse(nullptr, view);
-		m_ConstantBuffer.eyePosition = Vec4(viewInverse.r[3]);
-
-		// material 相当
-		Col4 diffuse = m_UseBaseColorOverride ? m_BaseColorOverride : Col4(1.0f);
-		Col4 alphaVector = (Col4)XMVectorReplicate(1.0f);
-		Col4 emissiveColor = Col4(0.0f);
-		Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
-
-		m_ConstantBuffer.emissiveColor =
-			(emissiveColor + (ambientLightColor * diffuse)) * alphaVector;
-		m_ConstantBuffer.specularColorAndPower = Col4(0, 0, 0, 1);
-		m_ConstantBuffer.diffuseColor =
-			Col4(XMVectorSelect(alphaVector, diffuse * alphaVector, g_XMSelect1110));
+		baseConstant.eyePosition = Vec4(viewInverse.r[3]);
 
 		auto mainLight = myLightSet->GetMainBaseLight();
 		Vec3 calcLightDir = Vec3(mainLight.m_directional) * Vec3(-1.0f);
@@ -224,29 +219,66 @@ namespace shooting {
 		lightEye *= Vec3(ShadowMap::GetLightHeight());
 		lightEye += lightAt;
 
-		Vec4 LightEye4 = Vec4(lightEye, 1.0f);
-		m_ConstantBuffer.lightPos = LightEye4;
+		baseConstant.lightPos = Vec4(lightEye, 1.0f);
+		baseConstant.eyePos = Vec4((Vec3)myCamera->GetEye(), 1.0f);
 
-		Vec4 eyePos4 = Vec4((Vec3)myCamera->GetEye(), 1.0f);
-		m_ConstantBuffer.eyePos = eyePos4;
-
-		XMMATRIX LightView, LightProj;
-		LightView = XMMatrixLookAtLH(
+		XMMATRIX LightView = XMMatrixLookAtLH(
 			Vec3(lightEye),
 			Vec3(lightAt),
 			Vec3(0, 1.0f, 0)
 		);
-		LightProj = XMMatrixOrthographicLH(
+		XMMATRIX LightProj = XMMatrixOrthographicLH(
 			ShadowMap::GetViewWidth(),
 			ShadowMap::GetViewHeight(),
 			ShadowMap::GetLightNear(),
 			ShadowMap::GetLightFar()
 		);
 
-		m_ConstantBuffer.lightView = Mat4x4(XMMatrixTranspose(LightView));
-		m_ConstantBuffer.lightProjection = Mat4x4(XMMatrixTranspose(LightProj));
-	}
+		baseConstant.lightView = Mat4x4(XMMatrixTranspose(LightView));
+		baseConstant.lightProjection = Mat4x4(XMMatrixTranspose(LightProj));
 
+		for (size_t materialIndex = 0; materialIndex < meshes.size(); ++materialIndex)
+		{
+			auto constant = baseConstant;
+
+			std::shared_ptr<BaseMaterial> material;
+			try
+			{
+				material = BaseScene::Get()->GetMaterial(m_MaterialPrefix + std::to_wstring(materialIndex));
+			}
+			catch (...)
+			{
+				material = nullptr;
+			}
+
+			const bool hasTexture =
+				m_UseMaterialTexture && material && material->GetBaseColorTexture();
+			constant.activeFlg.y = hasTexture ? 1 : 0;
+
+			Col4 diffuse = m_UseBaseColorOverride
+				? m_BaseColorOverride
+				: (material ? material->GetBaseColor() : Col4(1.0f));
+
+			Col4 alphaVector = (Col4)XMVectorReplicate(diffuse.w);
+			Col4 emissiveColor = Col4(0.0f);
+			Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
+
+			constant.emissiveColor =
+				(emissiveColor + (ambientLightColor * diffuse)) * alphaVector;
+			constant.specularColorAndPower = Col4(0, 0, 0, 1);
+			constant.diffuseColor =
+				Col4(XMVectorSelect(alphaVector, diffuse * alphaVector, g_XMSelect1110));
+
+			if (materialIndex < m_MaterialConstantBuffers.size())
+			{
+				m_MaterialConstantBuffers[materialIndex] = constant;
+			}
+		}
+
+		m_ConstantBuffer = m_MaterialConstantBuffers.empty()
+			? baseConstant
+			: m_MaterialConstantBuffers.front();
+	}
 	void InstancedStaticDraw::OnCommitConstantBuffers()
 	{
 		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
@@ -256,6 +288,18 @@ namespace shooting {
 			pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex].m_pBaseConstantBufferWO,
 			&m_ConstantBuffer,
 			sizeof(m_ConstantBuffer));
+
+		const size_t materialCount = std::min(
+			m_MaterialConstantBuffers.size(),
+			m_MaterialConstantBufferIndices.size());
+		for (size_t i = 0; i < materialCount; ++i)
+		{
+			const size_t constantBufferIndex = m_MaterialConstantBufferIndices[i];
+			memcpy(
+				pCurrentFrameResource->m_baseConstantBufferSetVec[constantBufferIndex].m_pBaseConstantBufferWO,
+				&m_MaterialConstantBuffers[i],
+				sizeof(BasicConstant));
+		}
 	}
 
 	void InstancedStaticDraw::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
@@ -313,15 +357,26 @@ namespace shooting {
 				continue;
 			}
 
-			//auto material = BaseScene::Get()->GetMaterial(m_MaterialPrefix + std::to_wstring(i));
-			//auto texture = material ? material->GetBaseColorTexture() : nullptr;
-			//auto texture = BaseScene::Get()->GetTexture(L"CHARACTER_TEXTURE_SKINNED");
+			const size_t materialConstantIndex =
+				(i < m_MaterialConstantBufferIndices.size())
+				? m_MaterialConstantBufferIndices[i]
+				: m_ConstantBufferIndex;
+			pCommandList->SetGraphicsRootConstantBufferView(
+				pBaseScene->GetGpuSlotID(L"b0"),
+				pCurrentFrameResource->m_baseConstantBufferSetVec[materialConstantIndex]
+				.m_baseConstantBuffer->GetGPUVirtualAddress());
 
 			auto materialKey = m_MaterialPrefix + std::to_wstring(i);
-			auto material = BaseScene::Get()->GetMaterial(materialKey);
+			std::shared_ptr<BaseMaterial> material;
+			try
+			{
+				material = BaseScene::Get()->GetMaterial(materialKey);
+			}
+			catch (...)
+			{
+				material = nullptr;
+			}
 			auto texture = (m_UseMaterialTexture && material) ? material->GetBaseColorTexture() : nullptr;
-			//auto texture = GetBaseTexture(0);
-
 			if (texture)
 			{
 				CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
@@ -962,3 +1017,4 @@ namespace shooting {
 			0, 0, 0);
 	}
 }
+

@@ -46,6 +46,8 @@ namespace shooting {
 
 		// 地面衝突判定の共通処理
 		void CheckGroundCollision(const CollisionPair& pair);
+		void CheckItemPickup(const CollisionPair& pair);
+		void ResolveSlopeCollision();
 		// 現在の弾タイプ
 		BulletType m_CurrentBullet = BulletType::Default;
 
@@ -60,6 +62,7 @@ namespace shooting {
 		virtual void OnCreate()override;
 		//更新時処理
 		virtual void OnUpdate(double elapsedTime);
+		virtual void OnUpdate2(double elapsedTime) override;
 		//衝突開始時処理
 		virtual void OnCollisionEnter(const CollisionPair& pair)override;
 		//衝突継続時処理
@@ -74,3 +77,4 @@ namespace shooting {
 	};
 
 }
+

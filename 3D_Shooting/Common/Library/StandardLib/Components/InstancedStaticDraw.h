@@ -17,6 +17,8 @@ namespace shooting {
 	private:
 		BasicConstant m_ConstantBuffer{};
 		size_t m_ConstantBufferIndex = 0;
+		std::vector<BasicConstant> m_MaterialConstantBuffers;
+		std::vector<size_t> m_MaterialConstantBufferIndices;
 
 		bool m_OwnShadowActive = false;
 		bool m_UseBaseColorOverride = false;
@@ -33,6 +35,8 @@ namespace shooting {
 		ComPtr<ID3D12Resource> m_InstanceBuffer;
 		UINT m_InstanceBufferCapacityBytes = 0;
 		D3D12_VERTEX_BUFFER_VIEW m_InstanceBufferView{};
+
+		void EnsureMaterialConstantBuffers(size_t materialCount);
 
 	public:
 		explicit InstancedStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr);
@@ -97,6 +101,7 @@ namespace shooting {
 		void* m_MappedInstanceBuffer = nullptr;
 		void* m_MappedBoneBuffer = nullptr;
 		D3D12_VERTEX_BUFFER_VIEW m_InstanceBufferView{};
+
 		float m_AnimationSampleFps = 20.0f;
 
 		UINT EnsureBonePose(
@@ -132,3 +137,4 @@ namespace shooting {
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 }
+

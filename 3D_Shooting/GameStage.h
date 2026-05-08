@@ -23,24 +23,35 @@ namespace shooting {
 			}
 		};
 
+		struct SlopeCollisionEntry
+		{
+			Vec3 startCenter;
+			Vec3 direction;
+			float width = 1.0f;
+			float length = 1.0f;
+			float height = 1.0f;
+		};
+
+		struct PlatformSurfaceEntry
+		{
+			Vec3 center;
+			Vec3 direction;
+			float width = 1.0f;
+			float length = 1.0f;
+			float height = 0.0f;
+		};
+
 	private:
 		int m_totalEnemyCount = 0;
 		std::vector<DamageNumberEntry> m_damageNumbers;
+		std::vector<SlopeCollisionEntry> m_slopeCollisions;
+		std::vector<PlatformSurfaceEntry> m_platformSurfaces;
 
 		void CreateGround();
-		void CreateHills();
-		void CreateOuterMountains();
+		void CreateWalls();
+		void CreateItems();
+		void CreateHeightVariationObjects();
 		void CreateCoverObjects();
-
-		void AddBox(
-			const Vec3& position,
-			const Vec3& scale,
-			const Quat& rotation = Quat());
-
-		void AddHill(
-			const Vec3& center,
-			float baseSize,
-			float heightStep);
 
 	public:
 		GameStage(ID3D12Device* pDevice) :
@@ -57,6 +68,20 @@ namespace shooting {
 
 		void SpawnDamageNumber(const Vec3& position, int damage);
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }
+
+		void AddSlopeCollision(
+			const Vec3& startCenter,
+			const Vec3& direction,
+			float width,
+			float length,
+			float height);
+		void AddPlatformGroundSurface(
+			const Vec3& center,
+			float yRotation,
+			float width,
+			float length,
+			float height);
+		bool TryGetSlopeGroundHeight(const Vec3& position, float& outHeight) const;
 
 		virtual void OnCreate() override;
 		virtual void OnUpdate2(double elapsedTime) override;

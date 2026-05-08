@@ -279,6 +279,7 @@ Assimp::Importer importer;
 
 	}
 
+
 	void BaseAssimp::InitSingleMeshBase(UINT meshIndex) {
 		if (m_Meshes.size() == 0) {
 			throw BaseException(
@@ -441,6 +442,31 @@ Assimp::Importer importer;
 		}
 
 		return L"";
+	}
+
+	Col4 BaseAssimp::GetMeshBaseColor(uint32_t meshIndex) const
+	{
+		if (!m_pScene || meshIndex >= m_pScene->mNumMeshes)
+		{
+			return Col4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		const aiMesh* mesh = m_pScene->mMeshes[meshIndex];
+		const unsigned int materialIndex = mesh->mMaterialIndex;
+		if (materialIndex >= m_pScene->mNumMaterials)
+		{
+			return Col4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		const aiMaterial* material = m_pScene->mMaterials[materialIndex];
+		aiColor4D color;
+		if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS ||
+			material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS)
+		{
+			return Col4(color.r, color.g, color.b, color.a > 0.0f ? color.a : 1.0f);
+		}
+
+		return Col4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	void BaseAssimp::InitSingleMesh(uint32_t MeshIndex, const aiMesh* paiMesh)
@@ -1188,12 +1214,28 @@ Assimp::Importer importer;
 				mesh->m_BaseAssimp = ptrBaseAssimp;
 
 				auto material = std::make_shared<BaseMaterial>();
+				material->SetBaseColor(ptrBaseAssimp->GetMeshBaseColor(meshSet.sourceMeshIndex));
 
 				const auto relativeTexturePath =
 					ptrBaseAssimp->GetMeshTexturePath(meshSet.sourceMeshIndex);
 				const auto fullTexturePath =
 					Util::ResolveTexturePath(modelFile, relativeTexturePath);
 
+				if (!fullTexturePath.empty())
+				{
+					try
+					{
+						auto texture = BaseTexture::CreateTextureFlomFile(
+							pCommandList,
+							fullTexturePath
+						);
+						material->SetBaseColorTexture(texture);
+					}
+					catch (...)
+					{
+						OutputDebugString(L"[MAT-STATIC] texture load failed\n");
+					}
+				} 
 				ModelMaterialPart part;
 				part.mesh = mesh;
 				part.material = material;
@@ -1246,6 +1288,7 @@ Assimp::Importer importer;
 				mesh->m_BaseAssimp = ptrBaseAssimp;
 
 				auto material = std::make_shared<BaseMaterial>();
+				material->SetBaseColor(ptrBaseAssimp->GetMeshBaseColor(meshSet.sourceMeshIndex));
 
 				const auto relativeTexturePath =
 					ptrBaseAssimp->GetMeshTexturePath(meshSet.sourceMeshIndex);
@@ -1327,3 +1370,4 @@ Assimp::Importer importer;
 		}
 	}
 }
+

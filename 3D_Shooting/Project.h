@@ -19,7 +19,10 @@
 #include "IBulletPool.h"
 #include "BulletPool.h"
 #include "BulletManager.h"
+#include "StageObjectCatalog.h"
 #include "Character.h"
+#include "Item.h"
 #include "Player.h"
 #include "GameStage.h"
 #include "DamageInfo.h"
+

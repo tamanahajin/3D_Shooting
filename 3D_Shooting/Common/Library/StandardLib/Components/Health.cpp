@@ -10,6 +10,18 @@ namespace shooting {
 
 	Health::~Health() {}
 
+	bool Health::Heal(int amount)
+	{
+		if (amount <= 0 || IsDead() || m_Hp >= m_MaxHP)
+		{
+			return false;
+		}
+
+		const int before = m_Hp;
+		SetHP(m_Hp + amount);
+		return m_Hp > before;
+	}
+
 	// ダメージ適用（戻り値：死亡したか）
 	bool Health::ApplyDamage(const DamageInfo& info)
 	{

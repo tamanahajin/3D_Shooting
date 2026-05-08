@@ -64,6 +64,54 @@ namespace shooting {
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
 	};
+	class StageObjectInstancedRenderer : public GameObject
+	{
+	private:
+		std::wstring m_MeshKey;
+		std::wstring m_MaterialPrefix;
+		std::vector<Mat4x4> m_InstanceWorlds;
+
+	public:
+		StageObjectInstancedRenderer(
+			const std::shared_ptr<Stage>& stage,
+			const std::wstring& meshKey,
+			const std::wstring& materialPrefix,
+			const std::vector<Mat4x4>& instanceWorlds);
+
+		virtual ~StageObjectInstancedRenderer();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
+
+	class StageCollisionBox : public GameObject
+	{
+	private:
+		Vec3 m_CollisionSize;
+
+	public:
+		StageCollisionBox(
+			const std::shared_ptr<Stage>& stage,
+			const TransParam& param,
+			const Vec3& collisionSize);
+
+		virtual ~StageCollisionBox();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
+	class SlopeCollisionDebugBox : public GameObject
+	{
+	public:
+		SlopeCollisionDebugBox(
+			const std::shared_ptr<Stage>& stage,
+			const TransParam& param);
+
+		virtual ~SlopeCollisionDebugBox();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
 
 	class EnemyInstancedRenderer : public GameObject
 	{
@@ -323,3 +371,4 @@ namespace shooting {
 
 	
 }
+

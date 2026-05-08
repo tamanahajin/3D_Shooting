@@ -18,7 +18,18 @@ namespace shooting {
 			return m_BaseColorTexture;
 		}
 
+		void SetBaseColor(const Col4& color)
+		{
+			m_BaseColor = color;
+		}
+
+		const Col4& GetBaseColor() const
+		{
+			return m_BaseColor;
+		}
+
 	private:
 		std::shared_ptr<BaseTexture> m_BaseColorTexture;
+		Col4 m_BaseColor = Col4(1.0f, 1.0f, 1.0f, 1.0f);
 	};
 }

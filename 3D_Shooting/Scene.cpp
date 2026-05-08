@@ -131,19 +131,19 @@ namespace shooting {
 	void Scene::CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 	{
 		// テクスチャ
-		auto texFile = App::GetRelativeAssetsDir() + L"wall.jpg";
+		auto texFile = App::GetRelativeAssetsDir() + L"Textures/wall.png";
 		auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"WALL_TX", texture);
 
-		texFile = App::GetRelativeAssetsDir() + L"sky.png";
+		texFile = App::GetRelativeAssetsDir() + L"Textures/sky.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"SKY_TX", texture);
 
-		texFile = App::GetRelativeAssetsDir() + L"trace.png";
+		texFile = App::GetRelativeAssetsDir() + L"Textures/trace.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"TRACE_TX", texture);
 
-		texFile = App::GetRelativeAssetsDir() + L"trace3.png";
+		texFile = App::GetRelativeAssetsDir() + L"Textures/trace3.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"TRACE3_TX", texture);
 
@@ -151,10 +151,14 @@ namespace shooting {
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"EXPLOSION_FIRE_TX", texture);
 
+		texFile = App::GetRelativeAssetsDir() + L"Textures/wall_brick_sand_both.png";
+		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
+		RegisterTexture(L"WALL_SAND_TX", texture);
+
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
 		RegisterMesh(L"MUZZLE_FLASH_MESH", CreateMuzzleFlashMesh(pCommandList));
-		// ここで先にキャラ用テクスチャを登録して保持させる
+		// 汎用テクスチャ
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
@@ -254,6 +258,8 @@ namespace shooting {
 			}
 			RegisterModelMesh(L"BOMB_MODEL", grenadeMeshes);
 		}
+		// StageObjects
+		StageObjectCatalog::RegisterAssets(*this, pCommandList);
 	}
 
 	void Scene::StartGame()
@@ -566,4 +572,5 @@ namespace shooting {
 		}
 	}
 }
+
 

@@ -210,9 +210,68 @@ namespace shooting {
 		}
 	}
 
+	void Player::ResolveSlopeCollision()
+	{
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		if (!gameStage)
+		{
+			return;
+		}
+
+		auto transform = GetComponent<Transform>(false);
+		if (!transform)
+		{
+			return;
+		}
+
+		float slopeGroundY = 0.0f;
+		const auto position = transform->GetPosition();
+		if (!gameStage->TryGetSlopeGroundHeight(position, slopeGroundY))
+		{
+			return;
+		}
+
+		auto capsule = GetComponent<CollisionCapsule>(false);
+		const float footOffset = capsule
+			? capsule->GetMakedRadius() + (capsule->GetMakedHeight() * 0.5f)
+			: 0.35f;
+		const float feetY = position.y - footOffset;
+
+		auto gravity = GetComponent<Gravity>(false);
+		const Vec3 gravityVelocity = gravity ? gravity->GetGravityVelocity() : Vec3(0.0f, 0.0f, 0.0f);
+		if (gravityVelocity.y > 0.0f && feetY > slopeGroundY + 0.02f)
+		{
+			return;
+		}
+
+		const float snapUp = 0.7f;
+		const float snapDown = 0.8f;
+		if (feetY > slopeGroundY + snapUp || feetY < slopeGroundY - snapDown)
+		{
+			return;
+		}
+
+		auto resolvedPosition = position;
+		resolvedPosition.y = slopeGroundY + footOffset;
+		transform->SetPosition(resolvedPosition);
+		m_IsGround = true;
+
+		if (gravity && gravityVelocity.y < 0.0f)
+		{
+			gravity->SetGravityVelocity(Vec3(gravityVelocity.x, 0.0f, gravityVelocity.z));
+		}
+	}
+
+	void Player::OnUpdate2(double elapsedTime)
+	{
+		UNREFERENCED_PARAMETER(elapsedTime);
+		ResolveSlopeCollision();
+	}
+
 	void Player::OnCollisionEnter(const CollisionPair& pair)
 	{
 		CheckGroundCollision(pair);
+		CheckItemPickup(pair);
 
 		// 敵との衝突をチェック
 		auto other = pair.m_Dest.lock();
@@ -243,6 +302,25 @@ namespace shooting {
 	{
 		// 継続的な衝突でも地面判定を更新
 		CheckGroundCollision(pair);
+		CheckItemPickup(pair);
+	}
+
+	void Player::CheckItemPickup(const CollisionPair& pair)
+	{
+		auto otherCollision = pair.m_Dest.lock();
+		if (!otherCollision)
+		{
+			return;
+		}
+
+		auto otherObject = otherCollision->GetGameObject();
+		auto item = std::dynamic_pointer_cast<BaseItem>(otherObject);
+		if (!item)
+		{
+			return;
+		}
+
+		item->TryPickupBy(GetThis<GameObject>());
 	}
 
 	void Player::CheckGroundCollision(const CollisionPair& pair)
@@ -266,3 +344,5 @@ namespace shooting {
 		}
 	}
 }
+
+

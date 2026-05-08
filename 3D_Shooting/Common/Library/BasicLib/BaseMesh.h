@@ -178,6 +178,7 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		std::wstring GetMeshTexturePath(uint32_t meshIndex) const;
+		Col4 GetMeshBaseColor(uint32_t meshIndex) const;
 		//シングルメッシュ用
 		bool InitSingleScene(UINT meshIndex, std::vector<VertexPositionNormalTextureSkinning>& vertices,
 							 std::vector<uint32_t>& indices);
@@ -736,3 +737,4 @@ namespace shooting {
 		static std::shared_ptr<BaseMesh> CreateIcosahedron(ID3D12GraphicsCommandList* pCommandList, float size);
 	};
 }
+

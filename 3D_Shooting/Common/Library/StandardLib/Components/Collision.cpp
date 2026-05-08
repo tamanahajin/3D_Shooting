@@ -8,6 +8,19 @@ namespace shooting {
 
 	IMPLEMENT_DX12SHADER(PSCollisionDebug, App::GetShadersDir() + L"PSCollisionDebug.cso")
 
+	namespace
+	{
+		Mat4x4 MakeRotationTranslationMatrix(const Quat& quaternion, const Vec3& position)
+		{
+			Mat4x4 matrix;
+			matrix.affineTransformation(
+				Vec3(1.0f, 1.0f, 1.0f),
+				Vec3(0.0f, 0.0f, 0.0f),
+				quaternion,
+				position);
+			return matrix;
+		}
+	}
 	//--------------------------------------------------------------------------------------
 	//	class Collision : public Component ;
 	//	用途: 衝突判定コンポーネントの親クラス
@@ -979,10 +992,9 @@ namespace shooting {
 	{
 		auto trans = GetGameObject()->GetComponent<Transform>();
 
-		Mat4x4 mat;
-		mat.identity();
-		mat.rotation(trans->GetQuaternion());
-		mat.translation(trans->GetPosition());
+		Mat4x4 mat = MakeRotationTranslationMatrix(
+			trans->GetQuaternion(),
+			trans->GetPosition());
 
 		return CAPSULE(
 			m_MakedDiameter * 0.5f,
@@ -997,10 +1009,9 @@ namespace shooting {
 	{
 		auto trans = GetGameObject()->GetComponent<Transform>();
 
-		Mat4x4 mat;
-		mat.identity();
-		mat.rotation(trans->GetBeforeQuaternion());
-		mat.translation(trans->GetBeforePosition());
+		Mat4x4 mat = MakeRotationTranslationMatrix(
+			trans->GetBeforeQuaternion(),
+			trans->GetBeforePosition());
 
 		return CAPSULE(
 			m_MakedDiameter * 0.5f,
@@ -1307,10 +1318,9 @@ namespace shooting {
 		localOffset.identity();
 		localOffset.translation(m_LocalOffset);
 
-		Mat4x4 worldRT;
-		worldRT.identity();
-		worldRT.rotation(trans->GetQuaternion());
-		worldRT.translation(trans->GetPosition());
+		Mat4x4 worldRT = MakeRotationTranslationMatrix(
+			trans->GetQuaternion(),
+			trans->GetPosition());
 
 		Mat4x4 world = worldScale * localOffset * worldRT;
 
@@ -1354,13 +1364,7 @@ namespace shooting {
 			return;
 		}
 
-		auto trans = GetGameObject()->GetComponent<Transform>();
-
-		Mat4x4 world;
-		world.scale(Vec3(m_Size_X, m_Size_Y, m_Size_Z));
-		world *= trans->GetWorldMatrix();
-
-		BuildDebugConstantBuffer(world);
+		BuildDebugConstantBuffer(GetObb().GetWorldMatrix());
 	}
 
 	void CollisionObb::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
@@ -1402,10 +1406,9 @@ namespace shooting {
 	{
 		auto trans = GetGameObject()->GetComponent<Transform>();
 
-		Mat4x4 worldRT;
-		worldRT.identity();
-		worldRT.rotation(trans->GetQuaternion());
-		worldRT.translation(trans->GetPosition());
+		Mat4x4 worldRT = MakeRotationTranslationMatrix(
+			trans->GetQuaternion(),
+			trans->GetPosition());
 
 		auto worldObb = OBB(Vec3(m_Size_X, m_Size_Y, m_Size_Z), worldRT);
 		return worldObb;
@@ -1415,10 +1418,9 @@ namespace shooting {
 	{
 		auto trans = GetGameObject()->GetComponent<Transform>();
 
-		Mat4x4 worldRT;
-		worldRT.identity();
-		worldRT.rotation(trans->GetBeforeQuaternion());
-		worldRT.translation(trans->GetBeforePosition());
+		Mat4x4 worldRT = MakeRotationTranslationMatrix(
+			trans->GetBeforeQuaternion(),
+			trans->GetBeforePosition());
 
 		auto beforeWorldObb = OBB(Vec3(m_Size_X, m_Size_Y, m_Size_Z), worldRT);
 		return beforeWorldObb;

@@ -618,6 +618,7 @@ namespace shooting {
 
 		// 移動
 		MovePlayer();
+		ResolveSlopeCollision();
 
 		// ジャンプ（地面にいるときのみ）
 		if (App::GetInputDevice().KeyDown(VK_SPACE))
