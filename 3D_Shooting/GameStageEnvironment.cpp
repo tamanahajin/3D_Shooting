@@ -1244,6 +1244,110 @@ namespace shooting {
 		return found;
 	}
 
+
+	bool GameStage::TryRaycastGeneratedGround(
+		const Vec3& origin,
+		const Vec3& direction,
+		float maxDistance,
+		Vec3& outPoint,
+		Vec3& outNormal,
+		float& outDistance) const
+	{
+		if (maxDistance <= 0.0f)
+		{
+			return false;
+		}
+
+		Vec3 rayDir(direction.x, direction.y, direction.z);
+		if (rayDir.length() <= 1e-6f)
+		{
+			return false;
+		}
+		rayDir.normalize();
+
+		bool found = false;
+		float bestDistance = maxDistance;
+		Vec3 bestPoint(0.0f, 0.0f, 0.0f);
+		Vec3 bestNormal(0.0f, 1.0f, 0.0f);
+
+		auto tryPlaneHit = [&](const Vec3& planePoint, Vec3 normal, auto&& isInside)
+		{
+			if (normal.length() <= 1e-6f)
+			{
+				return;
+			}
+			normal.normalize();
+			if (normal.y < 0.0f)
+			{
+				normal = normal * -1.0f;
+			}
+
+			const float denom = bsmUtil::dot(normal, rayDir);
+			if (std::fabs(denom) <= 1e-6f)
+			{
+				return;
+			}
+
+			const float distance = bsmUtil::dot(normal, planePoint - origin) / denom;
+			if (distance < 0.0f || distance > bestDistance)
+			{
+				return;
+			}
+
+			const Vec3 hitPoint = origin + (rayDir * distance);
+			if (!isInside(hitPoint))
+			{
+				return;
+			}
+
+			found = true;
+			bestDistance = distance;
+			bestPoint = hitPoint;
+			bestNormal = normal;
+		};
+
+		for (const auto& slope : m_slopeCollisions)
+		{
+			const Vec3 right(slope.direction.z, 0.0f, -slope.direction.x);
+			const Vec3 ramp = (slope.direction * slope.length) + Vec3(0.0f, slope.height, 0.0f);
+			const Vec3 normal = bsmUtil::cross(ramp, right);
+			tryPlaneHit(slope.startCenter, normal, [&](const Vec3& point)
+			{
+				const Vec3 toPoint(point.x - slope.startCenter.x, 0.0f, point.z - slope.startCenter.z);
+				const float along = bsmUtil::dot(toPoint, slope.direction);
+				const float side = bsmUtil::dot(toPoint, right);
+				const float edgePadding = 0.05f;
+				return along >= -edgePadding &&
+					along <= slope.length + edgePadding &&
+					std::fabs(side) <= (slope.width * 0.5f) + edgePadding;
+			});
+		}
+
+		for (const auto& surface : m_platformSurfaces)
+		{
+			const Vec3 right(surface.direction.z, 0.0f, -surface.direction.x);
+			const Vec3 planePoint(surface.center.x, surface.height, surface.center.z);
+			tryPlaneHit(planePoint, Vec3(0.0f, 1.0f, 0.0f), [&](const Vec3& point)
+			{
+				const Vec3 toPoint(point.x - surface.center.x, 0.0f, point.z - surface.center.z);
+				const float along = bsmUtil::dot(toPoint, surface.direction);
+				const float side = bsmUtil::dot(toPoint, right);
+				const float edgePadding = 0.05f;
+				return std::fabs(along) <= (surface.length * 0.5f) + edgePadding &&
+					std::fabs(side) <= (surface.width * 0.5f) + edgePadding;
+			});
+		}
+
+		if (!found)
+		{
+			return false;
+		}
+
+		outPoint = bestPoint;
+		outNormal = bestNormal;
+		outDistance = bestDistance;
+		return true;
+	}
 	//--------------------------------------------------------------------------------------
 	// ゲームステージ
 	//--------------------------------------------------------------------------------------
@@ -1482,8 +1586,3 @@ namespace shooting {
 	}
 
 }
-
-
-
-
-

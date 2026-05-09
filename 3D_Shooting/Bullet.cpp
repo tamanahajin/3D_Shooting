@@ -201,6 +201,7 @@ namespace shooting {
 			if (!trans) return;
 
 			auto& tp = trans->GetTransParam();
+			const Vec3 previousPosition = tp.position;
 
 			if (m_UseBallistic)
 			{
@@ -213,6 +214,14 @@ namespace shooting {
 
 				// 現在速度：v(t)=v0+g*t（必要なら）
 				m_Velocity = m_V0 + (m_Gravity * t);
+
+				Vec3 impactPosition;
+				if (m_UseGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, impactPosition))
+				{
+					tp.position = impactPosition;
+					StartExplosion(nullptr);
+					return;
+				}
 
 				// --- 重要： 「プレビュー終点」 と一致させるコツ ---
 				// プレビューは 0..T で描画して終了なので、弾側も T で終了または着弾させる
@@ -229,6 +238,14 @@ namespace shooting {
 				const float dt = static_cast<float>(elapsedTime);
 				m_Velocity += m_Gravity * dt;
 				tp.position += m_Velocity * dt;
+
+				Vec3 directImpactPosition;
+				if (m_UseGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, directImpactPosition))
+				{
+					tp.position = directImpactPosition;
+					StartExplosion(nullptr);
+					return;
+				}
 			}
 		}
 		else
@@ -421,6 +438,66 @@ namespace shooting {
 		}
 	}
 
+	bool BombBullet::TryGetStageGroundHeight(const Vec3& position, float& outHeight) const noexcept
+	{
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		if (!gameStage)
+		{
+			return false;
+		}
+
+		return gameStage->TryGetSlopeGroundHeight(position, outHeight);
+	}
+
+	Vec3 BombBullet::SnapTargetToStageGround(const Vec3& target) const noexcept
+	{
+		Vec3 snapped = target;
+		float groundY = 0.0f;
+		if (TryGetStageGroundHeight(target, groundY))
+		{
+			snapped.y = groundY;
+		}
+		return snapped;
+	}
+
+	bool BombBullet::TryResolveTerrainImpact(
+		const Vec3& previousPosition,
+		const Vec3& currentPosition,
+		Vec3& outImpactPosition) const noexcept
+	{
+		float currentGroundY = 0.0f;
+		if (!TryGetStageGroundHeight(currentPosition, currentGroundY))
+		{
+			return false;
+		}
+
+		float previousGroundY = currentGroundY;
+		TryGetStageGroundHeight(previousPosition, previousGroundY);
+
+		const float previousClearance = previousPosition.y - previousGroundY;
+		const float currentClearance = currentPosition.y - currentGroundY;
+		const float impactTolerance = 0.08f;
+		if (currentClearance > impactTolerance)
+		{
+			return false;
+		}
+		if (previousClearance <= currentClearance && currentClearance > -impactTolerance)
+		{
+			return false;
+		}
+
+		const float denom = previousClearance - currentClearance;
+		float t = denom > 1e-5f ? previousClearance / denom : 1.0f;
+		if (t < 0.0f) t = 0.0f;
+		if (t > 1.0f) t = 1.0f;
+
+		outImpactPosition = previousPosition + ((currentPosition - previousPosition) * t);
+		float impactGroundY = currentGroundY;
+		TryGetStageGroundHeight(outImpactPosition, impactGroundY);
+		outImpactPosition.y = impactGroundY;
+		return true;
+	}
+
 	bool BombBullet::SolveBallistic_ApexHeight(
 		const Vec3& p0, const Vec3& p1,
 		const Vec3& gravity, float arcHeight,
@@ -459,11 +536,13 @@ namespace shooting {
 		m_FlyTime = 0.0f;
 		m_TotalT = 0.0f;
 		m_UseBallistic = false;
+		m_UseGeneratedGroundImpact = true;
 
 		auto trans = GetComponent<Transform>();
 		if (!trans)
 		{
 			m_HasTarget = false;
+			m_HasTargetSurface = false;
 			return;
 		}
 
@@ -476,6 +555,12 @@ namespace shooting {
 			m_V0 = trans->GetForward() * m_Speed;
 			m_Velocity = m_V0;
 			return;
+		}
+
+		m_UseGeneratedGroundImpact = !m_HasTargetSurface || m_TargetNormal.y > 0.45f;
+		if (m_UseGeneratedGroundImpact)
+		{
+			m_TargetPos = SnapTargetToStageGround(m_TargetPos);
 		}
 
 		const Vec3 deltaXZ(m_TargetPos.x - m_StartPos.x, 0.0f, m_TargetPos.z - m_StartPos.z);
@@ -508,6 +593,6 @@ namespace shooting {
 
 		// 繰り返し時の防止
 		m_HasTarget = false;
+		m_HasTargetSurface = false;
 	}
 }
-

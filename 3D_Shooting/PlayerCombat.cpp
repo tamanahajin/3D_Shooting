@@ -776,6 +776,25 @@ namespace shooting {
 					hitNormalPreview = hit.m_Normal;
 				}
 
+				if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+				{
+					Vec3 generatedPoint(0.0f, 0.0f, 0.0f);
+					Vec3 generatedNormal(0.0f, 1.0f, 0.0f);
+					float generatedDistance = 0.0f;
+					if (gameStage->TryRaycastGeneratedGround(rayOrigin, rayDir, bombAimMaxDist, generatedPoint, generatedNormal, generatedDistance))
+					{
+						const bool physicalHitIsWall = hasHitPreview && hitNormalPreview.y < 0.45f;
+						const bool wallIsInFront = physicalHitIsWall && hit.m_Distance <= generatedDistance + 0.1f;
+						const bool generatedCanReplacePhysical = !hasHitPreview || generatedDistance <= hit.m_Distance + 0.25f || hitNormalPreview.y > 0.45f;
+						if (!wallIsInFront && generatedCanReplacePhysical)
+						{
+							aimPointPreview = generatedPoint;
+							hitNormalPreview = generatedNormal;
+							hasHitPreview = true;
+						}
+					}
+				}
+
 				// rot（銃口→aimPointPreview）
 				Vec3 shotDir = aimPointPreview - muzzle;
 				if (shotDir.length() > 1e-6f)
@@ -822,7 +841,7 @@ namespace shooting {
 									[&](BombBullet& b)
 									{
 										// プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
-										b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning());
+										b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning(), hitNormalPreview, hasHitPreview);
 									});
 				}
 

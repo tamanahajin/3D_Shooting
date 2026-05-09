@@ -135,8 +135,27 @@ namespace shooting {
 
 		Vec3 ringCenter = m_Target;
 		Vec3 ringNormal = Vec3(0, 1, 0);
+		bool resolvedSurface = false;
 
-		if (colMgr)
+		if (m_HasHit)
+		{
+			ringCenter = m_Target;
+			ringNormal = SafeNormalize(m_HitNormal);
+			resolvedSurface = true;
+		}
+		else if (auto gameStage = std::dynamic_pointer_cast<GameStage>(stage))
+		{
+			float groundY = 0.0f;
+			if (gameStage->TryGetSlopeGroundHeight(m_Target, groundY))
+			{
+				ringCenter = m_Target;
+				ringCenter.y = groundY;
+				ringNormal = Vec3(0, 1, 0);
+				resolvedSurface = true;
+			}
+		}
+
+		if (!resolvedSurface && colMgr)
 		{
 			const float probeHeight = 5.0f;
 			const float probeDistance = bsmUtil::Max(20.0f, std::fabs(m_Start.y - m_Target.y) + 20.0f);
@@ -149,16 +168,6 @@ namespace shooting {
 				ringCenter = hit.m_Point;
 				ringNormal = SafeNormalize(hit.m_Normal);
 			}
-			else if (m_HasHit)
-			{
-				ringCenter = m_Target;
-				ringNormal = SafeNormalize(m_HitNormal);
-			}
-		}
-		else if (m_HasHit)
-		{
-			ringCenter = m_Target;
-			ringNormal = SafeNormalize(m_HitNormal);
 		}
 
 		const Vec3 deltaXZ(ringCenter.x - m_Start.x, 0.0f, ringCenter.z - m_Start.z);

@@ -97,6 +97,13 @@ namespace shooting {
 			float length,
 			float height);
 		bool TryGetSlopeGroundHeight(const Vec3& position, float& outHeight) const;
+		bool TryRaycastGeneratedGround(
+			const Vec3& origin,
+			const Vec3& direction,
+			float maxDistance,
+			Vec3& outPoint,
+			Vec3& outNormal,
+			float& outDistance) const;
 
 		virtual void OnCreate() override;
 		virtual void OnUpdate2(double elapsedTime) override;

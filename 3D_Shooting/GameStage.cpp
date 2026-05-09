@@ -167,17 +167,17 @@ namespace shooting {
 		CreateItems();
 		// ãÛ
 		AddGameObject<SkyDome>();
-
+		// ÉvÉåÉCÉÑÅ[
 		TransParam param;
 		param.scale = Vec3(0.3f, 0.3f, 0.3f);
 		param.quaternion = Quat();
 		param.position = Vec3(0.0f, 0.525f, 0.0f);
 		auto player = AddGameObject<Player>(param);
 		AddGameObject<PlayerWeapon>(player);
-
-		AddGameObject<EnemyBatchController>();
-		CreateSeekObject();
-		AddGameObject<EnemyInstancedRenderer>();
+		// ìG
+		//AddGameObject<EnemyBatchController>();
+		//CreateSeekObject();
+		//AddGameObject<EnemyInstancedRenderer>();
 
 		// íeä«óù
 		AddGameObject<BulletManager>();
