@@ -16,6 +16,7 @@
  MIT License URL: https://opensource.org/license/mit
 */
 #include "stdafx.h"
+#include <mmsystem.h>
 
 namespace shooting {
 
@@ -31,6 +32,10 @@ namespace shooting {
 		m_useWarpDevice(false),
 		m_enableUI(true)
 	{
+		m_timerPeriodRaised = (timeBeginPeriod(1) == TIMERR_NOERROR);
+		QueryPerformanceFrequency(&m_frameLimiterFrequency);
+		QueryPerformanceCounter(&m_nextFrameTime);
+
 		WCHAR assetsPath[512];
 		GetAssetsPath(assetsPath, _countof(assetsPath));
 		m_assetsPath = assetsPath;
@@ -41,6 +46,10 @@ namespace shooting {
 
 	PrimDevice::~PrimDevice()
 	{
+		if (m_timerPeriodRaised)
+		{
+			timeEndPeriod(1);
+		}
 	}
 
 	void PrimDevice::UpdateForSizeChange(UINT clientWidth, UINT clientHeight)
@@ -202,6 +211,56 @@ namespace shooting {
 
 
 
+	void PrimDevice::LimitFrameRate()
+	{
+		constexpr double targetFrameSeconds = 1.0 / 60.0;
+		if (m_frameLimiterFrequency.QuadPart <= 0)
+		{
+			return;
+		}
+
+		const LONGLONG targetTicks = static_cast<LONGLONG>(static_cast<double>(m_frameLimiterFrequency.QuadPart) * targetFrameSeconds);
+		if (targetTicks <= 0)
+		{
+			return;
+		}
+
+		if (!m_frameLimiterInitialized)
+		{
+			QueryPerformanceCounter(&m_nextFrameTime);
+			m_nextFrameTime.QuadPart += targetTicks;
+			m_frameLimiterInitialized = true;
+			return;
+		}
+
+		LARGE_INTEGER now{};
+		for (;;)
+		{
+			QueryPerformanceCounter(&now);
+			const LONGLONG remainingTicks = m_nextFrameTime.QuadPart - now.QuadPart;
+			if (remainingTicks <= 0)
+			{
+				break;
+			}
+
+			const double remainingMs = static_cast<double>(remainingTicks) * 1000.0 / static_cast<double>(m_frameLimiterFrequency.QuadPart);
+			if (remainingMs > 2.0)
+			{
+				Sleep(static_cast<DWORD>(remainingMs - 1.0));
+			}
+			else
+			{
+				SwitchToThread();
+			}
+		}
+
+		QueryPerformanceCounter(&now);
+		if (now.QuadPart - m_nextFrameTime.QuadPart > targetTicks * 4)
+		{
+			m_nextFrameTime = now;
+		}
+		m_nextFrameTime.QuadPart += targetTicks;
+	}
 	//ランタイムルーチン
 	//エラー表示用に、スレッドを新しく切ってメッセージボックスを表示
 	void PrimDevice::OnUpdateDraw()
@@ -210,6 +269,7 @@ namespace shooting {
 		int retCode = 0;
 		try
 		{
+			LimitFrameRate();
 #if defined(_DEBUG)
 			static bool loopStart = false;
 			if (!loopStart)

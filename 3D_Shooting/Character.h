@@ -11,6 +11,7 @@ namespace shooting {
 
 	struct DamageInfo;
 	class EnemyBatchController;
+	class GameStage;
 	class EnemyCollisionProxy;
 	class SeekObject;
 
@@ -161,6 +162,7 @@ namespace shooting {
 		struct EnemyState
 		{
 			Vec3 position = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 previousPosition = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 velocity = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 force = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 gravityVelocity = Vec3(0.0f, 0.0f, 0.0f);
@@ -204,7 +206,9 @@ namespace shooting {
 		float GetDamageFlashValue(const EnemyState& enemy) const;
 		void ShowDamageNumber(size_t index, const DamageInfo& info);
 		void StartDamageFlash(EnemyState& enemy, double duration = 0.2);
+		void KillByFall(EnemyState& enemy);
 		void RotateToVelocity(EnemyState& enemy, float lerpFact);
+		bool ResolveGeneratedGround(const GameStage& gameStage, EnemyState& enemy, double elapsedTime);
 
 	public:
 		explicit EnemyBatchController(const std::shared_ptr<Stage>& stage);

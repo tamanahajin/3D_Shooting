@@ -57,6 +57,20 @@ namespace shooting {
 		{
 			return bsmUtil::Max(0.0, duration - (1.0 / 30.0));
 		}
+		double GetLoopEndTrimSeconds(AnimState state) const
+		{
+			switch (state)
+			{
+			case AnimState::Idle:
+				return 2.0 / 30.0;
+			default:
+				return 0.0;
+			}
+		}
+		double GetLoopSampleDurationSeconds(double duration) const
+		{
+			return bsmUtil::Max(0.0, duration - GetLoopEndTrimSeconds(m_Current));
+		}
 		bool IsHoldLastFrameState(AnimState state) const
 		{
 			switch (state)
@@ -179,8 +193,17 @@ namespace shooting {
 				return;
 			}
 
-			// ループする通常アニメ
+			// Looping animations can contain a bad duplicate/end frame exported from DCC tools.
 			m_Time += elapsedTime;
+			const double sampleDuration = GetLoopSampleDurationSeconds(duration);
+			if (sampleDuration > 0.0)
+			{
+				m_Time = fmod(m_Time, sampleDuration);
+				if (m_Time < 0.0)
+				{
+					m_Time += sampleDuration;
+				}
+			}
 			draw->UpdateAnimation(m_Time);
 		}
 

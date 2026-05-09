@@ -207,6 +207,7 @@ namespace shooting {
 		{
 			auto grav = GetComponent<Gravity>();
 			grav->StartJump(Vec3(0, 4.0f, 0));
+			m_IsGround = false;
 		}
 	}
 
@@ -224,41 +225,39 @@ namespace shooting {
 			return;
 		}
 
-		float slopeGroundY = 0.0f;
-		const auto position = transform->GetPosition();
-		if (!gameStage->TryGetSlopeGroundHeight(position, slopeGroundY))
-		{
-			return;
-		}
-
 		auto capsule = GetComponent<CollisionCapsule>(false);
-		const float footOffset = capsule
+		StageGroundResolveState groundState;
+		groundState.position = transform->GetPosition();
+		groundState.previousPosition = transform->GetBeforePosition();
+		groundState.footOffset = capsule
 			? capsule->GetMakedRadius() + (capsule->GetMakedHeight() * 0.5f)
 			: 0.35f;
-		const float feetY = position.y - footOffset;
+		groundState.wasGrounded = m_IsGround;
+		groundState.elapsedTime = static_cast<float>(Scene::GetElapsedTime());
 
 		auto gravity = GetComponent<Gravity>(false);
-		const Vec3 gravityVelocity = gravity ? gravity->GetGravityVelocity() : Vec3(0.0f, 0.0f, 0.0f);
-		if (gravityVelocity.y > 0.0f && feetY > slopeGroundY + 0.02f)
+		if (gravity)
 		{
-			return;
+			groundState.gravityVelocity = gravity->GetGravityVelocity();
 		}
 
-		const float snapUp = 0.7f;
-		const float snapDown = 0.8f;
-		if (feetY > slopeGroundY + snapUp || feetY < slopeGroundY - snapDown)
+		if (!TryResolveStageGround(*gameStage, groundState))
 		{
-			return;
+			const float baseFloorHalf = 32.5f;
+			const bool insideBaseFloor = fabsf(groundState.position.x) <= baseFloorHalf &&
+				fabsf(groundState.position.z) <= baseFloorHalf;
+			if (!insideBaseFloor || !TryResolveGroundHeight(0.0f, groundState))
+			{
+				return;
+			}
 		}
 
-		auto resolvedPosition = position;
-		resolvedPosition.y = slopeGroundY + footOffset;
-		transform->SetPosition(resolvedPosition);
-		m_IsGround = true;
+		transform->SetPosition(groundState.position);
+		m_IsGround = groundState.isGrounded;
 
-		if (gravity && gravityVelocity.y < 0.0f)
+		if (gravity)
 		{
-			gravity->SetGravityVelocity(Vec3(gravityVelocity.x, 0.0f, gravityVelocity.z));
+			gravity->SetGravityVelocity(groundState.gravityVelocity);
 		}
 	}
 
@@ -325,24 +324,22 @@ namespace shooting {
 
 	void Player::CheckGroundCollision(const CollisionPair& pair)
 	{
-		// 衝突法線のY成分をチェック（上向きの法線 = 地面との衝突）
-		// 0.7f は約45度（cos(45°) ? 0.707）
-		// これより大きい = より水平に近い面 = 地面とみなす
-		if (pair.m_SrcHitNormal.y > 0.7f)
+		auto gravity = GetComponent<Gravity>(false);
+		Vec3 gravityVelocity = gravity ? gravity->GetGravityVelocity() : Vec3(0.0f, 0.0f, 0.0f);
+		bool isGrounded = m_IsGround;
+		if (!TryApplyGroundCollision(pair, gravityVelocity, isGrounded))
 		{
-			m_IsGround = true;
+			return;
+		}
 
-			// 重力速度をリセット（地面に着地）
-			auto grav = GetComponent<Gravity>();
-			auto gravVel = grav->GetGravityVelocity();
-
-			// 下向きの速度の場合のみリセット（着地時）
-			if (gravVel.y < 0.0f)
-			{
-				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
-			}
+		m_IsGround = isGrounded;
+		if (gravity)
+		{
+			gravity->SetGravityVelocity(gravityVelocity);
 		}
 	}
 }
+
+
 
 

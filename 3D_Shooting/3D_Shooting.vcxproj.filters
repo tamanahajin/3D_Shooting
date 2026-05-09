@@ -181,12 +181,14 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="EnemyBatchController.cpp" />
     <ClCompile Include="GameStage.cpp" />
+    <ClCompile Include="GameStageEnvironment.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="MainCamera.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerCombat.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="StageObjectCatalog.cpp" />
+    <ClCompile Include="StageGroundResolver.cpp" />
     <ClCompile Include="SeekObject.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="UIManager.cpp" />
@@ -204,6 +206,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageObjectCatalog.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StageGroundResolver.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Project.h">

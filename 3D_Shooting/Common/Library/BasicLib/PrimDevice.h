@@ -134,5 +134,12 @@ namespace shooting {
 
 		// ---- フレーム確定値 ----
 		MouseFrameState m_mouseFrame;
+
+		// ---- 60FPS上限用 ----
+		void LimitFrameRate();
+		bool m_frameLimiterInitialized = false;
+		bool m_timerPeriodRaised = false;
+		LARGE_INTEGER m_frameLimiterFrequency{};
+		LARGE_INTEGER m_nextFrameTime{};
 	};
 }

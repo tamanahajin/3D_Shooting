@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <unordered_map>
 
 namespace shooting {
 
@@ -42,16 +43,30 @@ namespace shooting {
 		};
 
 	private:
+		struct GroundLookupCell
+		{
+			std::vector<size_t> slopeIndices;
+			std::vector<size_t> platformIndices;
+		};
+
 		int m_totalEnemyCount = 0;
 		std::vector<DamageNumberEntry> m_damageNumbers;
 		std::vector<SlopeCollisionEntry> m_slopeCollisions;
 		std::vector<PlatformSurfaceEntry> m_platformSurfaces;
+		std::unordered_map<long long, GroundLookupCell> m_groundLookupCells;
+		float m_groundLookupCellSize = 5.0f;
 
 		void CreateGround();
 		void CreateWalls();
 		void CreateItems();
 		void CreateHeightVariationObjects();
 		void CreateCoverObjects();
+		void ClearGroundLookup();
+		int GetGroundLookupCoord(float value) const;
+		long long MakeGroundLookupKey(int x, int z) const;
+		void AddGroundLookupRange(float minX, float maxX, float minZ, float maxZ, size_t index, bool isSlope);
+		void AddSlopeToGroundLookup(size_t index);
+		void AddPlatformToGroundLookup(size_t index);
 
 	public:
 		GameStage(ID3D12Device* pDevice) :

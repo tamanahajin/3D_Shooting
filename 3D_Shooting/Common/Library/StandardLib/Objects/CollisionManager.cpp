@@ -44,15 +44,16 @@ namespace shooting {
 	};
 
 #define MAX_PIECE_COUNT 8192
-	CollisionPiece g_PiecePool[MAX_PIECE_COUNT];
-	UINT g_NextPoolIndex = 0;
 
 	struct CollisionBlocks {
 		UINT m_CollisionCountOfTern;
 		CollisionPiece m_RootPiece;
 		AABB m_RootAABB;
+		CollisionPiece m_PiecePool[MAX_PIECE_COUNT];
+		UINT m_NextPoolIndex;
 		CollisionBlocks() :
-			m_CollisionCountOfTern(0)
+			m_CollisionCountOfTern(0),
+			m_NextPoolIndex(0)
 		{
 			AABB aabb(Vec3(-100.0f, -1000, -100.0f), Vec3(100.0f, 1000, 100.0f));
 			m_RootAABB = aabb;
@@ -66,7 +67,7 @@ namespace shooting {
 		{
 			m_RootPiece.Clear();
 			m_RootPiece.SetAABB(m_RootAABB);
-			g_NextPoolIndex = 0;
+			m_NextPoolIndex = 0;
 		}
 
 		void SetCollisionBlockSub(CollisionPiece& tgt, const std::shared_ptr<GameObject>& Obj)
@@ -104,14 +105,14 @@ namespace shooting {
 							//余裕がない子供ブロックの作成
 							for (int i = 0; i < 4; i++)
 							{
-								tgt.m_Children[i] = &g_PiecePool[g_NextPoolIndex];
+								tgt.m_Children[i] = &m_PiecePool[m_NextPoolIndex];
 								tgt.m_Children[i]->Clear();
-								g_NextPoolIndex++;
-								if (g_NextPoolIndex >= MAX_PIECE_COUNT)
+								m_NextPoolIndex++;
+								if (m_NextPoolIndex >= MAX_PIECE_COUNT)
 								{
 									throw BaseException(
 										L"これ以上衝突判定は行えません。",
-										L"if (g_NextPoolIndex >= MAX_PIECE_COUNT)",
+										L"if (m_NextPoolIndex >= MAX_PIECE_COUNT)",
 										L"CollisionBlocks::SetCollisionBlock2Sub()"
 									);
 								}
@@ -222,6 +223,56 @@ namespace shooting {
 		}
 
 
+		void SetNewCollisionAgainstSubSub(const std::shared_ptr<GameObject>& Src, CollisionPiece& piece, const std::shared_ptr<CollisionManager>& manager)
+		{
+			for (auto& v : piece.m_ObjVec)
+			{
+				if (manager->EnableedCollisionPair(Src, v))
+				{
+					auto SrcColl = Src->GetComponent<Collision>();
+					auto DestColl = v->GetComponent<Collision>();
+					if (!manager->IsInPair(SrcColl, DestColl, true) && !manager->IsInPair(SrcColl, DestColl, false))
+					{
+						m_CollisionCountOfTern++;
+						DestColl->CollisionCall(SrcColl);
+					}
+				}
+			}
+		}
+
+		void SetNewCollisionAgainstSub(const std::shared_ptr<GameObject>& Src, const AABB& srcAABB, CollisionPiece& tgt, const std::shared_ptr<CollisionManager>& manager)
+		{
+			if (!HitTest::AABB_AABB(tgt.m_AABB, srcAABB))
+			{
+				return;
+			}
+
+			if (tgt.m_Children[0])
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					SetNewCollisionAgainstSub(Src, srcAABB, *tgt.m_Children[i], manager);
+				}
+				return;
+			}
+
+			SetNewCollisionAgainstSubSub(Src, tgt, manager);
+		}
+
+		void SetNewCollisionAgainst(const std::vector<std::shared_ptr<GameObject>>& srcObjects, const std::shared_ptr<CollisionManager>& manager)
+		{
+			m_CollisionCountOfTern = 0;
+			for (auto& src : srcObjects)
+			{
+				auto srcColl = src->GetComponent<Collision>(false);
+				if (!srcColl)
+				{
+					continue;
+				}
+				SetNewCollisionAgainstSub(src, srcColl->GetWrappedAABB(), m_RootPiece, manager);
+			}
+		}
+
 		void SetNewCollision(const std::shared_ptr<CollisionManager>& manager)
 		{
 			m_CollisionCountOfTern = 0;
@@ -237,9 +288,14 @@ namespace shooting {
 	struct CollisionManager::Impl {
 		//衝突判定マネージャの内部処理用パフォーマンス
 		PerformanceCounter m_MiscPerformance;
-		//衝突判定分割用のブロック
+		//毎フレーム更新する動的コリジョン用ブロック
 		CollisionBlocks m_CollisionBlocks;
-		Impl()
+		//ステージ固定物だけを登録して再利用する静的コリジョン用ブロック
+		CollisionBlocks m_StaticCollisionBlocks;
+		std::vector<const GameObject*> m_StaticCollisionObjectKeys;
+		bool m_StaticCollisionBlocksDirty;
+		Impl() :
+			m_StaticCollisionBlocksDirty(true)
 		{
 		}
 		~Impl() {}
@@ -271,6 +327,8 @@ namespace shooting {
 	void CollisionManager::SetRootAABB(const AABB& aabb)
 	{
 		pImpl->m_CollisionBlocks.SetRootAABB(aabb);
+		pImpl->m_StaticCollisionBlocks.SetRootAABB(aabb);
+		pImpl->m_StaticCollisionBlocksDirty = true;
 	}
 
 	void CollisionManager::SetRootXZ(float f)
@@ -278,6 +336,8 @@ namespace shooting {
 		float h = f / 2.0f;
 		AABB aabb(Vec3(-h, -1000, -h), Vec3(h, 1000, h));
 		pImpl->m_CollisionBlocks.SetRootAABB(aabb);
+		pImpl->m_StaticCollisionBlocks.SetRootAABB(aabb);
+		pImpl->m_StaticCollisionBlocksDirty = true;
 
 	}
 
@@ -366,25 +426,79 @@ namespace shooting {
 	{
 		pImpl->m_MiscPerformance.Start();
 		auto& ObjVec = GetStage()->GetGameObjectVec();
-		
+
+		std::vector<const GameObject*> staticKeys;
+		staticKeys.reserve(pImpl->m_StaticCollisionObjectKeys.size());
+		for (auto& v : ObjVec)
+		{
+			if (!v->IsUpdateActive()) continue;
+
+			auto col = v->GetComponent<Collision>(false);
+			if (!col) continue;
+			if (!col->IsUpdateActive()) continue;
+			if (!col->IsFixed()) continue;
+			if (!v->FindTag(L"StageObjectCollision") && !v->FindTag(L"Floor") && !v->FindTag(L"FixedBox")) continue;
+
+			staticKeys.push_back(v.get());
+		}
+
+		if (pImpl->m_StaticCollisionBlocksDirty || staticKeys != pImpl->m_StaticCollisionObjectKeys)
+		{
+			pImpl->m_StaticCollisionBlocks.AllClear();
+			pImpl->m_StaticCollisionObjectKeys = staticKeys;
+
+			for (auto& v : ObjVec)
+			{
+				if (!v->IsUpdateActive()) continue;
+
+				auto col = v->GetComponent<Collision>(false);
+				if (!col) continue;
+				if (!col->IsUpdateActive()) continue;
+				if (!col->IsFixed()) continue;
+				if (!v->FindTag(L"StageObjectCollision") && !v->FindTag(L"Floor") && !v->FindTag(L"FixedBox")) continue;
+
+				pImpl->m_StaticCollisionBlocks.SetCollisionBlock(v);
+			}
+
+			pImpl->m_StaticCollisionBlocksDirty = false;
+		}
+
 		// コリジョンブロックのクリア
 		pImpl->m_CollisionBlocks.AllClear();
-		
+
+		std::vector<std::shared_ptr<GameObject>> dynamicSources;
+		dynamicSources.reserve(ObjVec.size());
+
 		// 不要なオブジェクトを早期スキップ
 		for (auto& v : ObjVec)
 		{
 			if (!v->IsUpdateActive()) continue;
-			
+
 			auto col = v->GetComponent<Collision>(false);
-			if (!col) continue;  
+			if (!col) continue;
 			if (!col->IsUpdateActive()) continue;
 			if (col->IsSleep()) continue;  // スリープ中はスキップ
-			
+
+			const bool isStaticStageCollision =
+				col->IsFixed() &&
+				(v->FindTag(L"StageObjectCollision") || v->FindTag(L"Floor") || v->FindTag(L"FixedBox"));
+			if (isStaticStageCollision)
+			{
+				continue;
+			}
+
 			pImpl->m_CollisionBlocks.SetCollisionBlock(v);
+			if (!col->IsFixed() && !v->FindTag(L"NoStaticStageCollision"))
+			{
+				dynamicSources.push_back(v);
+			}
 		}
-		
-		// 各ブロックごとに判定を行う
+
+		// 動的同士・動的対アイテムなど、毎フレーム変わるものは従来通り判定する。
 		pImpl->m_CollisionBlocks.SetNewCollision(GetThis<CollisionManager>());
+		// ステージ固定物は再利用済みの静的ブロックに対して、動く側だけを問い合わせる。
+		pImpl->m_StaticCollisionBlocks.SetNewCollisionAgainst(dynamicSources, GetThis<CollisionManager>());
+		pImpl->m_CollisionBlocks.m_CollisionCountOfTern += pImpl->m_StaticCollisionBlocks.m_CollisionCountOfTern;
 		pImpl->m_MiscPerformance.End();
 	}
 
@@ -976,3 +1090,4 @@ namespace shooting {
 	}
 
 }
+

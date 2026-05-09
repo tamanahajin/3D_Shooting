@@ -15,6 +15,7 @@ namespace shooting {
 		const float kBlasterAttachYawDegrees = 120.0f;
 		const Vec3 kBlasterAttachEuler(0.0f, XMConvertToRadians(kBlasterAttachYawDegrees), 0.0f);
 		const Vec3 kBlasterSocketOffset(-0.1f, 0.05f, 0.1f);
+		const float kWeaponAttachMaxIdleSnapDistance = 0.25f;
 		const char* kPlayerBlasterMuzzleSocketName = "MuzzleSocket";
 		const wchar_t* kMuzzleFlashMeshKey = L"MUZZLE_FLASH_MESH";
 		const wchar_t* kMuzzleFlashTextureKey = L"EXPLOSION_FIRE_TX";
@@ -577,7 +578,62 @@ namespace shooting {
 			return false;
 		}
 
-		return ApplyPlayerSpaceWeaponTransform(player, weaponTransform);
+		Mat4x4 weaponWorld;
+		if (!TryGetPlayerBlasterWorldMatrix(player, weaponWorld))
+		{
+			return false;
+		}
+
+		Vec3 candidateScale, candidatePosition;
+		Quat candidateRotation;
+		weaponWorld.decompose(candidateScale, candidateRotation, candidatePosition);
+
+		const bool invalidCandidate = candidatePosition.isNaN() || candidatePosition.isInfinite()
+			|| candidateScale.isNaN() || candidateScale.isInfinite();
+
+		auto playerTransform = player->GetComponent<Transform>(false);
+		Vec3 playerDelta(0.0f, 0.0f, 0.0f);
+		Vec3 expectedStablePosition = m_StablePosition;
+		if (m_HasStableTransform && playerTransform)
+		{
+			playerDelta = playerTransform->GetPosition() - playerTransform->GetBeforePosition();
+			expectedStablePosition += playerDelta;
+		}
+
+		auto anim = player->GetBehavior<AnimationStateBehavior>();
+		const bool isIdle = anim && anim->GetCurrentState() == AnimState::Idle;
+		const bool playerTeleported = playerDelta.length() > 1.0f;
+		const bool jumpedInIdle = m_HasStableTransform
+			&& m_StableTransformIsIdle
+			&& isIdle
+			&& !playerTeleported
+			&& (invalidCandidate || (candidatePosition - expectedStablePosition).length() > kWeaponAttachMaxIdleSnapDistance);
+
+		if (jumpedInIdle)
+		{
+			weaponTransform->SetScale(m_StableScale);
+			weaponTransform->SetQuaternion(m_StableRotation);
+			weaponTransform->SetPosition(expectedStablePosition);
+			m_StablePosition = expectedStablePosition;
+			return true;
+		}
+
+		if (invalidCandidate)
+		{
+			return false;
+		}
+
+		weaponTransform->SetScale(candidateScale);
+		weaponTransform->SetQuaternion(candidateRotation);
+		weaponTransform->SetPosition(candidatePosition);
+
+		m_HasStableTransform = true;
+		m_StableTransformIsIdle = isIdle;
+		m_StableScale = candidateScale;
+		m_StableRotation = candidateRotation;
+		m_StablePosition = candidatePosition;
+
+		return true;
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -595,6 +651,19 @@ namespace shooting {
 				m_DeathAnimFinished = true;
 			}
 
+			return;
+		}
+
+		auto transform = GetComponent<Transform>(false);
+		if (transform && transform->GetPosition().y < kFallDeathY)
+		{
+			if (auto hp = GetComponent<Health>(false))
+			{
+				hp->SetHP(0);
+			}
+			m_IsDead = true;
+			m_DeathAnimFinished = false;
+			anim->ChangeAnimation(AnimState::Dead, true);
 			return;
 		}
 
@@ -640,6 +709,9 @@ namespace shooting {
 		// 右クリック中はボムを構え、左クリックで投げる。
 		const bool bombMode = input.KeyDown(VK_RBUTTON);
 		m_CurrentBullet = bombMode ? BulletType::Bomb : BulletType::Default;
+		const bool canFire = fireInput && m_ShotCool <= 0.0;
+		const bool traceNormalShot = canFire && !bombMode;
+		const bool traceBombPreview = bombMode;
 
 		// --- 狙い点計算（Raycast） ---
 		Vec3 muzzle(0, 0, 0);
@@ -678,6 +750,7 @@ namespace shooting {
 			// ----------------------------
 			// ① 弾用（Enemyは拾う / Bulletは無視）
 			// ----------------------------
+			if (traceNormalShot)
 			{
 				aimPointShot = rayOrigin + rayDir * kNormalShotRange;
 
@@ -691,6 +764,7 @@ namespace shooting {
 			// ----------------------------
 			// ② プレビュー用（Enemy/Bulletを無視）
 			// ----------------------------
+			if (traceBombPreview)
 			{
 				RaycastHit hit;
 				aimPointPreview = rayOrigin + rayDir * bombAimMaxDist;
@@ -730,7 +804,7 @@ namespace shooting {
 		}
 
 		// --- 発射 ---
-		if (fireInput && m_ShotCool <= 0.0)
+		if (canFire)
 		{
 			const float kArcHeight = 1.5f;
 			const Vec3  kGravity(0, -20.0f, 0);

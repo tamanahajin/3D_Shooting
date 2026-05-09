@@ -79,9 +79,14 @@ namespace shooting {
 		collision->SetMakedRadius(0.2f);
 		collision->SetMakedHeight(0.3f);
 		collision->AddExcludeCollisionTag(L"Enemy");
+		collision->AddExcludeCollisionTag(L"Floor");
+		collision->AddExcludeCollisionTag(L"StageObjectCollision");
+		collision->AddExcludeCollisionTag(L"FixedBox");
+		collision->AddExcludeCollisionTag(L"Wall");
 
 		AddTag(L"Enemy");
 		AddTag(L"EnemyProxy");
+		AddTag(L"NoStaticStageCollision");
 	}
 
 	void EnemyCollisionProxy::HandleCollision(const CollisionPair& pair)
@@ -195,6 +200,7 @@ namespace shooting {
 	{
 		EnemyState enemy;
 		enemy.position = startPosition;
+		enemy.previousPosition = startPosition;
 		enemy.rotation = Quat();
 		enemy.steeringTimer = static_cast<double>(m_Enemies.size() & 3) * 0.0125;
 		enemy.animationState = AnimState::Idle;
@@ -414,6 +420,23 @@ namespace shooting {
 		enemy.damageFlashTimer = duration;
 	}
 
+	void EnemyBatchController::KillByFall(EnemyState& enemy)
+	{
+		if (enemy.isDead || enemy.position.y >= kFallDeathY)
+		{
+			return;
+		}
+
+		enemy.hp = 0;
+		enemy.isDead = true;
+		enemy.deathAnimFinished = false;
+		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
+		enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
+		enemy.knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
+		enemy.knockbackControlTimer = 0.0;
+		ChangeAnimation(enemy, AnimState::Dead, true);
+	}
+
 	void EnemyBatchController::ShowDamageNumber(size_t index, const DamageInfo& info)
 	{
 		if (info.m_Damage <= 0 || index >= m_Enemies.size())
@@ -459,6 +482,85 @@ namespace shooting {
 			enemy.rotation = XMQuaternionSlerp(enemy.rotation, target, lerpFact);
 			enemy.rotation.normalize();
 		}
+	}
+
+	bool EnemyBatchController::ResolveGeneratedGround(const GameStage& gameStage, EnemyState& enemy, double elapsedTime)
+	{
+		StageGroundResolveState groundState;
+		groundState.position = enemy.position;
+		groundState.previousPosition = enemy.previousPosition;
+		groundState.gravityVelocity = enemy.gravityVelocity;
+		groundState.footOffset = 0.35f;
+		groundState.wasGrounded = enemy.isGround;
+		groundState.elapsedTime = static_cast<float>(elapsedTime);
+
+		const float maxEnemyStepUp = 0.75f;
+		auto isBlockedByTerrainHeight = [&](const Vec3& candidatePosition)
+		{
+			float targetGroundY = 0.0f;
+			if (!gameStage.TryGetSlopeGroundHeight(candidatePosition, targetGroundY))
+			{
+				return false;
+			}
+
+			float previousGroundY = 0.0f;
+			gameStage.TryGetSlopeGroundHeight(groundState.previousPosition, previousGroundY);
+
+			const float previousFeetY = groundState.previousPosition.y - groundState.footOffset;
+			const float candidateFeetY = candidatePosition.y - groundState.footOffset;
+			const bool comingFromLowerGround = targetGroundY > previousGroundY + maxEnemyStepUp;
+			const bool feetAreBelowTarget = previousFeetY < targetGroundY - maxEnemyStepUp &&
+				candidateFeetY < targetGroundY - maxEnemyStepUp;
+			return comingFromLowerGround && feetAreBelowTarget;
+		};
+
+		if (isBlockedByTerrainHeight(groundState.position))
+		{
+			Vec3 slideX = groundState.position;
+			slideX.z = groundState.previousPosition.z;
+			Vec3 slideZ = groundState.position;
+			slideZ.x = groundState.previousPosition.x;
+
+			if (!isBlockedByTerrainHeight(slideX))
+			{
+				groundState.position = slideX;
+				enemy.velocity.z = 0.0f;
+				enemy.knockbackVelocity.z = 0.0f;
+			}
+			else if (!isBlockedByTerrainHeight(slideZ))
+			{
+				groundState.position = slideZ;
+				enemy.velocity.x = 0.0f;
+				enemy.knockbackVelocity.x = 0.0f;
+			}
+			else
+			{
+				groundState.position.x = groundState.previousPosition.x;
+				groundState.position.z = groundState.previousPosition.z;
+				enemy.velocity.x = 0.0f;
+				enemy.velocity.z = 0.0f;
+				enemy.force.x = 0.0f;
+				enemy.force.z = 0.0f;
+				enemy.knockbackVelocity.x = 0.0f;
+				enemy.knockbackVelocity.z = 0.0f;
+			}
+		}
+
+		if (!TryResolveStageGround(gameStage, groundState))
+		{
+			const float baseFloorHalf = 32.5f;
+			const bool insideBaseFloor = fabsf(groundState.position.x) <= baseFloorHalf &&
+				fabsf(groundState.position.z) <= baseFloorHalf;
+			if (!insideBaseFloor || !TryResolveGroundHeight(0.0f, groundState))
+			{
+				return false;
+			}
+		}
+
+		enemy.position = groundState.position;
+		enemy.gravityVelocity = groundState.gravityVelocity;
+		enemy.isGround = groundState.isGrounded;
+		return groundState.isGrounded;
 	}
 
 	void EnemyBatchController::SyncProxyTransform(size_t index)
@@ -513,6 +615,7 @@ namespace shooting {
 			return;
 		}
 
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 		Vec3 targetPosition(0.0f, 0.0f, 0.0f);
 		auto player = GetStage()->GetSharedGameObject(L"Player", false);
 		if (player)
@@ -544,6 +647,8 @@ namespace shooting {
 				continue;
 			}
 
+			enemy.previousPosition = enemy.position;
+
 			if (enemy.damageFlashTimer > 0.0)
 			{
 				enemy.damageFlashTimer -= elapsedTime;
@@ -564,6 +669,8 @@ namespace shooting {
 
 			const bool knockbackActive = enemy.knockbackControlTimer > 0.0
 				|| (bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
+
+			KillByFall(enemy);
 
 			if (enemy.isDead)
 			{
@@ -647,10 +754,14 @@ namespace shooting {
 			enemy.gravityVelocity.x = 0.0f;
 			enemy.gravityVelocity.z = 0.0f;
 
+			const bool resolvedGeneratedGround = gameStage
+				? ResolveGeneratedGround(*gameStage, enemy, elapsedTime)
+				: false;
+
 			UpdateAnimation(enemy, elapsedTime);
 			RotateToVelocity(enemy, 0.35f);
 			SyncProxyTransform(i);
-			enemy.isGround = false;
+			enemy.isGround = resolvedGeneratedGround;
 		}
 	}
 
@@ -746,24 +857,25 @@ namespace shooting {
 			return;
 		}
 
-		if (pair.m_SrcHitNormal.y > 0.7f)
+		bool isGrounded = enemy.isGround;
+		Vec3 gravityVelocity = enemy.gravityVelocity;
+		if (!TryApplyGroundCollision(pair, gravityVelocity, isGrounded))
 		{
-			enemy.isGround = true;
-			if (enemy.gravityVelocity.y < 0.0f)
-			{
-				enemy.gravityVelocity.y = 0.0f;
-			}
-			enemy.gravityVelocity.x = 0.0f;
-			enemy.gravityVelocity.z = 0.0f;
+			return;
+		}
 
-			auto proxy = enemy.proxy.lock();
-			if (proxy)
+		enemy.isGround = isGrounded;
+		enemy.gravityVelocity = gravityVelocity;
+		enemy.gravityVelocity.x = 0.0f;
+		enemy.gravityVelocity.z = 0.0f;
+
+		auto proxy = enemy.proxy.lock();
+		if (proxy)
+		{
+			auto transform = proxy->GetComponent<Transform>(false);
+			if (transform)
 			{
-				auto transform = proxy->GetComponent<Transform>(false);
-				if (transform)
-				{
-					enemy.position = transform->GetPosition();
-				}
+				enemy.position = transform->GetPosition();
 			}
 		}
 	}
@@ -825,3 +937,5 @@ namespace shooting {
 		}
 	}
 }
+
+

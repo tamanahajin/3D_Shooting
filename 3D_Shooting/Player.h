@@ -10,6 +10,11 @@ namespace shooting {
 	{
 	private:
 		std::weak_ptr<Player> m_Player;
+		bool m_HasStableTransform = false;
+		bool m_StableTransformIsIdle = false;
+		Vec3 m_StablePosition = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_StableScale = Vec3(1.0f, 1.0f, 1.0f);
+		Quat m_StableRotation = Quat();
 
 		bool TryUpdateFromPlayerHand();
 
