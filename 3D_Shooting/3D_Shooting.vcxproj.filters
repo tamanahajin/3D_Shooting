@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ï¿½\ï¿½[ï¿½X ï¿½tï¿½@ï¿½Cï¿½ï¿½\imgui">
+    <Filter Include="E½\E½[E½X E½tE½@E½CE½E½\imgui">
       <UniqueIdentifier>{f4e0d318-18d5-43ec-a2fd-2729337ee475}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libs">
@@ -40,7 +40,7 @@
     <Filter Include="Libs\StandardLib\Shaders">
       <UniqueIdentifier>{88bcc0ef-e470-456a-b536-fc989b8b6f02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ï¿½\ï¿½[ï¿½X ï¿½tï¿½@ï¿½Cï¿½ï¿½\Bullet">
+    <Filter Include="E½\E½[E½X E½tE½@E½CE½E½\Bullet">
       <UniqueIdentifier>{e4cd0e38-f530-41e6-9762-5245a69ee509}</UniqueIdentifier>
     </Filter>
     <Filter Include="Headers">
@@ -146,10 +146,10 @@
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Bullet.cpp">
-      <Filter>ï¿½\ï¿½[ï¿½X ï¿½tï¿½@ï¿½Cï¿½ï¿½\Bullet</Filter>
+      <Filter>E½\E½[E½X E½tE½@E½CE½E½\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="BulletManager.cpp">
-      <Filter>ï¿½\ï¿½[ï¿½X ï¿½tï¿½@ï¿½Cï¿½ï¿½\Bullet</Filter>
+      <Filter>E½\E½[E½X E½tE½@E½CE½E½\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
@@ -164,7 +164,7 @@
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
     <ClCompile Include="BombTuning.cpp">
-      <Filter>ï¿½\ï¿½[ï¿½X ï¿½tï¿½@ï¿½Cï¿½ï¿½\Bullet</Filter>
+      <Filter>E½\E½[E½X E½tE½@E½CE½E½\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
@@ -180,9 +180,11 @@
     </ClCompile>
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="EnemyBatchController.cpp" />
+    <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="GameStage.cpp" />
     <ClCompile Include="GameStageEnvironment.cpp" />
     <ClCompile Include="Item.cpp" />
+    <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="MainCamera.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerCombat.cpp" />
@@ -334,6 +336,9 @@
     <ClInclude Include="Character.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyFactory.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h">
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
@@ -419,6 +424,9 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemFactory.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

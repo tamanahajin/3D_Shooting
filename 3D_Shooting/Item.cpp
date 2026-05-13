@@ -3,6 +3,16 @@
 
 namespace shooting {
 
+	namespace
+	{
+		const wchar_t* kHpRecoveryModelKey = L"HP_RECOVERY_ITEM_MODEL";
+		const wchar_t* kHpRecoveryMaterialPrefix = L"HP_RECOVERY_ITEM_MAT_";
+		const Col4 kHpRecoveryItemColor(1.0f, 0.05f, 0.05f, 1.0f);
+		const wchar_t* kBombItemModelKey = L"BOMB_MODEL";
+		const wchar_t* kBombItemMaterialPrefix = L"BOMB_MAT_";
+		const Col4 kBombItemFallbackColor(0.9f, 0.9f, 0.9f, 1.0f);
+	}
+
 	BaseItem::BaseItem(
 		const std::shared_ptr<Stage>& stagePtr,
 		const TransParam& param) :
@@ -118,12 +128,40 @@ namespace shooting {
 	{
 		AddTag(L"HpRecoveryItem");
 
+		const auto& meshes = BaseScene::Get()->GetModelMesh(kHpRecoveryModelKey);
+
+		auto shadow = AddComponent<ShadowMap>();
+		if (!meshes.empty())
+		{
+			shadow->AddBaseMesh(meshes[0]);
+		}
+		else
+		{
+			shadow->AddBaseMesh(L"DEFAULT_SPHERE");
+		}
+
 		auto draw = AddComponent<BcPNTStaticDraw>();
-		draw->AddBaseMesh(L"DEFAULT_SPHERE");
-		draw->SetDiffuseColor(Col4(0.15f, 0.95f, 0.35f, 1.0f));
-		draw->SetLightingEnabled(false);
-		draw->SetFogEnabled(false);
-		draw->SetOwnShadowActive(false);
+		draw->SetDiffuseColor(kHpRecoveryItemColor);
+		draw->SetLightingEnabled(true);
+		draw->SetFogEnabled(true);
+		draw->SetOwnShadowActive(true);
+
+		if (!meshes.empty())
+		{
+			draw->AddBaseModelMesh(meshes);
+			for (size_t i = 0; i < meshes.size(); ++i)
+			{
+				draw->AddBaseMaterial(std::wstring(kHpRecoveryMaterialPrefix) + std::to_wstring(i));
+			}
+		}
+		else
+		{
+			draw->AddBaseMesh(L"DEFAULT_SPHERE");
+			draw->SetDiffuseColor(kHpRecoveryItemColor);
+			draw->SetLightingEnabled(false);
+			draw->SetFogEnabled(false);
+			draw->SetOwnShadowActive(false);
+		}
 	}
 
 	bool HpRecoveryItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)
@@ -141,6 +179,66 @@ namespace shooting {
 		}
 
 		return health->Heal(healAmount);
+	}
+
+	BombItem::BombItem(
+		const std::shared_ptr<Stage>& stagePtr,
+		const TransParam& param,
+		int bombGrantCount) :
+		BaseItem(stagePtr, param),
+		m_BombGrantCount(bombGrantCount)
+	{
+	}
+
+	void BombItem::OnCreateItem()
+	{
+		AddTag(L"BombItem");
+
+		const auto& meshes = BaseScene::Get()->GetModelMesh(kBombItemModelKey);
+
+		auto shadow = AddComponent<ShadowMap>();
+		if (!meshes.empty())
+		{
+			shadow->AddBaseMesh(meshes[0]);
+		}
+		else
+		{
+			shadow->AddBaseMesh(L"DEFAULT_SPHERE");
+		}
+
+		auto draw = AddComponent<BcPNTStaticDraw>();
+		draw->SetLightingEnabled(true);
+		draw->SetFogEnabled(true);
+		draw->SetOwnShadowActive(true);
+
+		if (!meshes.empty())
+		{
+			draw->AddBaseModelMesh(meshes);
+			for (size_t i = 0; i < meshes.size(); ++i)
+			{
+				draw->AddBaseMaterial(std::wstring(kBombItemMaterialPrefix) + std::to_wstring(i));
+			}
+		}
+		else
+		{
+			draw->AddBaseMesh(L"DEFAULT_SPHERE");
+			draw->SetDiffuseColor(kBombItemFallbackColor);
+			draw->SetLightingEnabled(false);
+			draw->SetFogEnabled(false);
+			draw->SetOwnShadowActive(false);
+		}
+	}
+
+	bool BombItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)
+	{
+		auto player = std::dynamic_pointer_cast<Player>(collector);
+		if (!player || m_BombGrantCount <= 0)
+		{
+			return false;
+		}
+
+		player->AddBombAmmo(m_BombGrantCount);
+		return true;
 	}
 
 }

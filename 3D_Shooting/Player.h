@@ -55,6 +55,7 @@ namespace shooting {
 		void ResolveSlopeCollision();
 		// 現在の弾タイプ
 		BulletType m_CurrentBullet = BulletType::Default;
+		int m_BombAmmo = 0;
 
 		std::shared_ptr<BombAimPreview> m_BombPreview;
 
@@ -76,6 +77,10 @@ namespace shooting {
 		void OnPushA();
 		//Bボタン
 		void OnPushB() {}
+
+		void AddBombAmmo(int amount);
+		int GetBombAmmo() const { return m_BombAmmo; }
+		bool IsBombMode() const { return m_CurrentBullet == BulletType::Bomb && m_BombAmmo > 0; }
 
 		bool IsDead() const { return m_IsDead; }
 		bool IsDeathAnimationFinished() const { return m_DeathAnimFinished; }

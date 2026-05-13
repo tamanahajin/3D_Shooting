@@ -101,6 +101,25 @@ namespace shooting {
 		virtual void OnUpdate(double elapsedTime) override {}
 	};
 
+	class StageCollisionCapsule : public GameObject
+	{
+	private:
+		float m_Radius;
+		float m_Height;
+
+	public:
+		StageCollisionCapsule(
+			const std::shared_ptr<Stage>& stage,
+			const TransParam& param,
+			float radius,
+			float height);
+
+		virtual ~StageCollisionCapsule();
+		virtual void OnCreate() override;
+		virtual void OnUpdate(double elapsedTime) override {}
+	};
+
+
 	class SlopeCollisionDebugBox : public GameObject
 	{
 	public:
@@ -191,6 +210,8 @@ namespace shooting {
 		float m_CellSize = 2.0f;
 		float m_SeparationRange = 2.0f;
 		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
+		float m_BaseMoveSpeed = 5.0f;
+		float m_MoveSpeedMultiplier = 1.0f;
 
 		long long MakeCellKey(int x, int z) const;
 		void BuildSpatialGrid();
@@ -218,6 +239,8 @@ namespace shooting {
 		virtual void OnUpdate2(double elapsedTime) override;
 
 		size_t AddEnemy(const Vec3& startPosition);
+		void SetMoveSpeedMultiplier(float multiplier);
+		float GetMoveSpeedMultiplier() const { return m_MoveSpeedMultiplier; }
 		bool ApplyDamage(size_t index, const DamageInfo& info);
 		void AddKnockback(size_t index, const Vec3& velocity);
 		void NotifyGroundCollision(size_t index, const CollisionPair& pair);
@@ -375,4 +398,3 @@ namespace shooting {
 
 	
 }
-

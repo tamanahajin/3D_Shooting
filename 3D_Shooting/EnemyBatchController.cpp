@@ -80,13 +80,11 @@ namespace shooting {
 		collision->SetMakedHeight(0.3f);
 		collision->AddExcludeCollisionTag(L"Enemy");
 		collision->AddExcludeCollisionTag(L"Floor");
-		collision->AddExcludeCollisionTag(L"StageObjectCollision");
-		collision->AddExcludeCollisionTag(L"FixedBox");
-		collision->AddExcludeCollisionTag(L"Wall");
 
 		AddTag(L"Enemy");
 		AddTag(L"EnemyProxy");
 		AddTag(L"NoStaticStageCollision");
+		AddTag(L"UseStageObjectCollision");
 	}
 
 	void EnemyCollisionProxy::HandleCollision(const CollisionPair& pair)
@@ -216,6 +214,11 @@ namespace shooting {
 		m_Enemies[index].proxy = proxy;
 		SyncProxyTransform(index);
 		return index;
+	}
+
+	void EnemyBatchController::SetMoveSpeedMultiplier(float multiplier)
+	{
+		m_MoveSpeedMultiplier = bsmUtil::Max(0.1f, multiplier);
 	}
 
 	long long EnemyBatchController::MakeCellKey(int x, int z) const
@@ -717,7 +720,7 @@ namespace shooting {
 					if (bsmUtil::lengthSqr(toTarget) > 1e-6f)
 					{
 						toTarget.normalize();
-						seekForce = toTarget * 5.0f - enemy.velocity;
+						seekForce = toTarget * (m_BaseMoveSpeed * m_MoveSpeedMultiplier) - enemy.velocity;
 					}
 
 					Vec3 separation = m_SeparationForces[i];
@@ -937,5 +940,3 @@ namespace shooting {
 		}
 	}
 }
-
-

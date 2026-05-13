@@ -636,6 +636,17 @@ namespace shooting {
 		return true;
 	}
 
+	void Player::AddBombAmmo(int amount)
+	{
+		if (amount <= 0)
+		{
+			return;
+		}
+
+		m_BombAmmo += amount;
+		m_CurrentBullet = BulletType::Bomb;
+	}
+
 	void Player::OnUpdate(double elapsedTime)
 	{
 		auto anim = GetBehavior<AnimationStateBehavior>();
@@ -706,9 +717,12 @@ namespace shooting {
 		// --- 入力 ---
 		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
 
-		// 右クリック中はボムを構え、左クリックで投げる。
-		const bool bombMode = input.KeyDown(VK_RBUTTON);
-		m_CurrentBullet = bombMode ? BulletType::Bomb : BulletType::Default;
+		if (m_CurrentBullet == BulletType::Bomb && m_BombAmmo <= 0)
+		{
+			m_CurrentBullet = BulletType::Default;
+		}
+
+		const bool bombMode = IsBombMode();
 		const bool canFire = fireInput && m_ShotCool <= 0.0;
 		const bool traceNormalShot = canFire && !bombMode;
 		const bool traceBombPreview = bombMode;
@@ -830,7 +844,7 @@ namespace shooting {
 			const float kExplosionRadius = 2.0f;
 
 			// ボム
-			if (m_CurrentBullet == BulletType::Bomb)
+			if (bombMode)
 			{
 				auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
 				const Vec3 scale = kBombProjectileScale;
@@ -846,6 +860,15 @@ namespace shooting {
 				}
 
 				m_ShotCool = 1.0;
+				if (m_BombAmmo > 0)
+				{
+					--m_BombAmmo;
+				}
+				if (m_BombAmmo <= 0)
+				{
+					m_BombAmmo = 0;
+					m_CurrentBullet = BulletType::Default;
+				}
 
 
 				// 攻撃方向を向く

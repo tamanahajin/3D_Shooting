@@ -21,9 +21,10 @@
 #include "BulletManager.h"
 #include "StageObjectCatalog.h"
 #include "Character.h"
+#include "EnemyFactory.h"
 #include "Item.h"
+#include "ItemFactory.h"
 #include "Player.h"
 #include "GameStage.h"
 #include "StageGroundResolver.h"
 #include "DamageInfo.h"
-

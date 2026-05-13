@@ -37,6 +37,13 @@ namespace shooting {
                 return false;
             }
 
+            // 草やきのこは移動を邪魔しない飾りとして扱う。
+            if (def->category == StageObjectCategory::Plant ||
+                def->category == StageObjectCategory::Mushroom)
+            {
+                return false;
+            }
+
             // 外周崖はGameStage側の4枚の大きい壁コリジョンで扱う。見た目用の外周モデル全てに付けると数が増えすぎる。
             if (def->category == StageObjectCategory::OutSideWall)
             {
@@ -55,7 +62,7 @@ namespace shooting {
                 return false;
             }
 
-            return false;
+            return true;
         }
 
         void IncludeBoundsPoint(const aiVector3D& point, Vec3& minPoint, Vec3& maxPoint)
@@ -148,6 +155,16 @@ namespace shooting {
             collisionParam.quaternion = instanceWorld.quatInMatrix();
             collisionParam.position = TransformStageObjectPoint(bounds.center, instanceWorld);
 
+
+            if (def && def->category == StageObjectCategory::Tree)
+            {
+                const float radiusBase = (collisionSize.x > collisionSize.z ? collisionSize.x : collisionSize.z) * 0.30f;
+                const float capsuleRadius = radiusBase > minSize ? radiusBase : minSize;
+                const float heightBase = collisionSize.y - (capsuleRadius * 2.0f);
+                const float capsuleHeight = heightBase > minSize ? heightBase : minSize;
+                stage->AddGameObject<StageCollisionCapsule>(collisionParam, capsuleRadius, capsuleHeight);
+                return;
+            }
 
             if (def && def->category == StageObjectCategory::Cliff)
             {
@@ -316,6 +333,35 @@ namespace shooting {
 		AddTag(L"StageObjectCollision");
 		AddTag(L"Wall");
 	}
+	StageCollisionCapsule::StageCollisionCapsule(
+		const std::shared_ptr<Stage>& stage,
+		const TransParam& param,
+		float radius,
+		float height) :
+		GameObject(stage),
+		m_Radius(radius),
+		m_Height(height)
+	{
+		m_transParam = param;
+	}
+
+	StageCollisionCapsule::~StageCollisionCapsule() {}
+
+	void StageCollisionCapsule::OnCreate()
+	{
+		auto ptrColl = AddComponent<CollisionCapsule>();
+		ptrColl->SetDebugDraw(false);
+		ptrColl->SetMakedRadius(m_Radius);
+		ptrColl->SetMakedHeight(m_Height);
+		ptrColl->SetFixed(true);
+
+		SetAlphaActive(false);
+		SetShadowActive(false);
+
+		AddTag(L"StageObjectCollision");
+		AddTag(L"Wall");
+	}
+
 	SlopeCollisionDebugBox::SlopeCollisionDebugBox(
 		const std::shared_ptr<Stage>& stage,
 		const TransParam& param) :
@@ -442,4 +488,3 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	//構築と破棄
 }
-

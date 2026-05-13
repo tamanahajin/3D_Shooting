@@ -5,7 +5,6 @@
 
 #include "stdafx.h"
 #include "Project.h"
-#include <random>
 #include <map>
 
 namespace shooting {
@@ -36,8 +35,95 @@ namespace shooting {
 		}
 	}
 
+	int GameStage::GetEnemyCountForWave(int wave) const
+	{
+		if (wave <= 0)
+		{
+			return 0;
+		}
+
+		const int enemyCount = m_waveSettings.firstWaveEnemyCount +
+			((wave - 1) * m_waveSettings.addEnemyCountPerWave);
+		return enemyCount > 0 ? enemyCount : 0;
+	}
+
+	float GameStage::GetEnemySpeedMultiplierForWave(int wave) const
+	{
+		if (wave <= 0 || m_waveSettings.speedUpEveryWaves <= 0)
+		{
+			return 1.0f;
+		}
+
+		const int speedStep = wave / m_waveSettings.speedUpEveryWaves;
+		return 1.0f + (static_cast<float>(speedStep) * m_waveSettings.speedMultiplierAddPerStep);
+	}
+
+	std::shared_ptr<EnemyBatchController> GameStage::GetEnemyController() const
+	{
+		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
+		return std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+	}
+
+	Vec3 GameStage::GetEnemySpawnCenter() const
+	{
+		Vec3 spawnCenter(0.0f, m_waveSettings.spawnY, 0.0f);
+		auto player = GetSharedGameObject(L"Player", false);
+		if (player)
+		{
+			auto playerTransform = player->GetComponent<Transform>(false);
+			if (playerTransform)
+			{
+				spawnCenter = playerTransform->GetWorldPosition();
+			}
+		}
+		return spawnCenter;
+	}
+
+	void GameStage::StartNextWave()
+	{
+		auto controller = GetEnemyController();
+		if (!controller || !m_enemyFactory)
+		{
+			return;
+		}
+
+		m_enemyFactory->SetController(controller);
+
+		++m_currentWave;
+		m_waveTimer = m_waveSettings.intervalSeconds;
+
+		const Vec3 spawnCenter = GetEnemySpawnCenter();
+		EnemyFactory::SpawnBatchDesc spawnDesc;
+		spawnDesc.count = GetEnemyCountForWave(m_currentWave);
+		spawnDesc.center = spawnCenter;
+		spawnDesc.settings.minDistance = m_waveSettings.spawnMinDistance;
+		spawnDesc.settings.maxDistance = m_waveSettings.spawnMaxDistance;
+		spawnDesc.settings.spawnY = spawnCenter.y;
+		spawnDesc.settings.minSpacing = m_waveSettings.minSpawnSpacing;
+		spawnDesc.settings.maxAttempts = m_waveSettings.maxSpawnAttempts;
+
+		controller->SetMoveSpeedMultiplier(GetEnemySpeedMultiplierForWave(m_currentWave));
+		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
+	}
+
+	void GameStage::UpdateWaves(double elapsedTime)
+	{
+		if (m_currentWave <= 0 || m_waveSettings.intervalSeconds <= 0.0)
+		{
+			return;
+		}
+
+		m_waveTimer -= elapsedTime;
+		if (m_waveTimer <= 0.0)
+		{
+			StartNextWave();
+		}
+	}
+
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
+		UpdateWaves(elapsedTime);
+
 		const float dt = static_cast<float>(elapsedTime);
 		for (auto& damageNumber : m_damageNumbers)
 		{
@@ -57,82 +143,44 @@ namespace shooting {
 					return damageNumber.age >= damageNumber.life;
 				}),
 			m_damageNumbers.end());
+
+		MaintainRecoveryItems();
+		MaintainBombItems();
 	}
 
 	//追いかけるオブジェクトの作成
 	void GameStage::CreateSeekObject()
 	{
-		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
-		auto controller = std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		auto controller = GetEnemyController();
 		if (!controller)
 		{
 			return;
 		}
 
-		// 生成する敵の数
-		const size_t enemyCount = 40;
-		m_totalEnemyCount = static_cast<int>(enemyCount);
-		
-		// ランダム配置のパラメータ
-		const float minDistance = 5.0f;   // 最小距離
-		const float maxDistance = 20.0f;  // 最大距離
-		const float yPosition = 0.525f;   // Y座標（地面の高さ）
-		
-		std::vector<Vec3> positions;
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> distRadius(minDistance, maxDistance);
-		std::uniform_real_distribution<float> distAngle(0.0f, XM_2PI);
-		
-		for (size_t count = 0; count < enemyCount; count++)
+		if (!m_enemyFactory)
 		{
-			Vec3 position;
-			bool validPosition = false;
-			int attempts = 0;
-			const int maxAttempts = 50;
-			
-			while (!validPosition && attempts < maxAttempts)
-			{
-				// 極座標でランダムな位置を生成
-				float radius = distRadius(gen);
-				float angle = distAngle(gen);
-				
-				position = Vec3(
-					radius * cosf(angle),
-					yPosition,
-					radius * sinf(angle)
-				);
-				
-				// 他のオブジェクトとの最小距離をチェック
-				validPosition = true;
-				for (const auto& existingPos : positions)
-				{
-					float dist = (position - existingPos).length();
-					if (dist < minDistance * 0.5f)
-					{
-						validPosition = false;
-						break;
-					}
-				}
-				
-				attempts++;
-			}
-			
-			positions.push_back(position);
+			m_enemyFactory = std::make_shared<EnemyFactory>(controller);
 		}
-		
-		// 配置オブジェクトの作成
-		for (const auto& pos : positions)
+		else
 		{
-			controller->AddEnemy(pos);
+			m_enemyFactory->SetController(controller);
 		}
-	}
 
+		EnemyFactory::SpawnBatchDesc spawnDesc;
+		spawnDesc.count = 40;
+		spawnDesc.center = Vec3(0.0f, 0.0f, 0.0f);
+		spawnDesc.settings.minDistance = 5.0f;
+		spawnDesc.settings.maxDistance = 20.0f;
+		spawnDesc.settings.spawnY = 0.525f;
+		spawnDesc.settings.minSpacing = 2.5f;
+		spawnDesc.settings.maxAttempts = 50;
+
+		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
+	}
 
 	int GameStage::GetAliveEnemyCount() const
 	{
-		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
-		auto controller = std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		auto controller = GetEnemyController();
 		if (controller)
 		{
 			return controller->GetAliveEnemyCount();
@@ -175,9 +223,10 @@ namespace shooting {
 		auto player = AddGameObject<Player>(param);
 		AddGameObject<PlayerWeapon>(player);
 		// 敵
-		//AddGameObject<EnemyBatchController>();
-		//CreateSeekObject();
-		//AddGameObject<EnemyInstancedRenderer>();
+		auto enemyController = AddGameObject<EnemyBatchController>();
+		m_enemyFactory = std::make_shared<EnemyFactory>(enemyController);
+		AddGameObject<EnemyInstancedRenderer>();
+		StartNextWave();
 
 		// 弾管理
 		AddGameObject<BulletManager>();

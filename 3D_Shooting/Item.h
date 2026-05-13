@@ -53,4 +53,21 @@ namespace shooting {
 		virtual ~HpRecoveryItem() {}
 	};
 
+	class BombItem : public BaseItem
+	{
+	private:
+		int m_BombGrantCount;
+
+	protected:
+		virtual bool ApplyItemEffect(const std::shared_ptr<GameObject>& collector) override;
+		virtual void OnCreateItem() override;
+
+	public:
+		BombItem(
+			const std::shared_ptr<Stage>& stagePtr,
+			const TransParam& param,
+			int bombGrantCount = 5);
+		virtual ~BombItem() {}
+	};
+
 }

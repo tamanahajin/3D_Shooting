@@ -99,7 +99,20 @@ namespace shooting {
 		};
 
 		const bool kDrawSlopeCollisionDebug = false;
+
+		// 自然物の岩/石だけを一時停止するためのフラグ。戻す場合はtrueにする。
+		const bool kEnableScatteredRockObjects = false;
 		const float kSlopeCollisionStartCenterZOffset = -2.5f;
+		const int kRecoveryItemTargetCount = 3;
+		const int kItemMaxSpawnAttempts = 240;
+		const float kItemSpawnHalf = 24.0f;
+		const float kItemSpawnRadius = 1.25f;
+		const float kItemGroundOffset = 0.35f;
+		const float kHpRecoveryItemScale = 0.08f;
+		const float kHpRecoveryItemDepthScale = 0.04f;
+		const int kBombItemTargetCount = 2;
+		const int kBombItemGrantCount = 5;
+		const float kBombItemScale = 0.018f;
 
 		// FBXごとの基準スケールに配置倍率を掛け、スケール→回転→移動の順でワールド行列を作る。
 		Mat4x4 MakeStageObjectWorld(
@@ -734,6 +747,20 @@ namespace shooting {
 			}
 		}
 
+		void AddHeightVariationItemSpawnBlockers(GameStage& stage)
+		{
+			const auto placements = BuildHeightVariationPlacements();
+			for (const auto& placement : placements)
+			{
+				// アイテムは高台の上には置けるようにし、斜面上だけを避ける。
+				if (!IsSlopePlacement(placement))
+				{
+					continue;
+				}
+				stage.AddItemSpawnBlocker(placement.position, placement.occupancyRadius);
+			}
+		}
+
 		std::vector<const StageObjectDef*> GetTreePlacementDefs()
 		{
 			const std::wstring preferredNames[] =
@@ -844,6 +871,7 @@ namespace shooting {
 
 				AddStageObjectInstance(batches, *def, position, rotDist(gen), scaleMultiplier);
 				occupied.push_back({ position, radius });
+				stage.AddItemSpawnBlocker(position, radius);
 				++placed;
 			}
 		}
@@ -1491,6 +1519,10 @@ namespace shooting {
 		std::map<std::wstring, StageObjectBatch> batches;
 		std::vector<PlacementCircle> occupied;
 
+		ClearItemSpawnBlockers();
+		AddItemSpawnBlocker(Vec3(0.0f, 0.0f, 0.0f), 5.0f);
+		AddHeightVariationItemSpawnBlockers(*this);
+
 		// プレイヤー初期位置、アイテム、坂周辺を先に予約し、自然物が重ならないようにする。
 		occupied.push_back({ Vec3(0.0f, 0.0f, 0.0f), 5.0f });
 		occupied.push_back({ Vec3(2.5f, 0.0f, 2.0f), 1.7f });
@@ -1514,17 +1546,20 @@ namespace shooting {
 			0.35f,
 			gen);
 
-		PlaceScatteredObjects(
-			*this,
-			batches,
-			occupied,
-			MergeDefs({ StageObjectCategory::Rock, StageObjectCategory::Stone }),
-			22,
-			28.0f,
-			0.85f,
-			1.20f,
-			0.25f,
-			gen);
+		if (kEnableScatteredRockObjects)
+		{
+			PlaceScatteredObjects(
+				*this,
+				batches,
+				occupied,
+				MergeDefs({ StageObjectCategory::Rock, StageObjectCategory::Stone }),
+				22,
+				28.0f,
+				0.85f,
+				1.20f,
+				0.25f,
+				gen);
+		}
 
 		PlaceScatteredObjects(
 			*this,
@@ -1564,25 +1599,166 @@ namespace shooting {
 
 		FlushStageObjectBatches(*this, batches);
 	}
-	void GameStage::CreateItems()
+	void GameStage::ClearItemSpawnBlockers()
 	{
-		const Vec3 positions[] =
+		m_itemSpawnBlockers.clear();
+	}
+
+	void GameStage::AddItemSpawnBlocker(const Vec3& position, float radius)
+	{
+		if (radius <= 0.0f)
 		{
-			Vec3(2.5f, 0.35f, 2.0f),
-			Vec3(-4.0f, 0.35f, 3.5f),
-			Vec3(6.0f, 0.35f, -2.5f),
-			Vec3(-7.5f, 0.35f, -5.0f),
-			Vec3(10.0f, 0.35f, 4.0f),
+			return;
+		}
+
+		ItemSpawnBlocker blocker;
+		blocker.position = position;
+		blocker.radius = radius;
+		m_itemSpawnBlockers.push_back(blocker);
+	}
+
+	bool GameStage::IsItemSpawnPositionFree(const Vec3& position, float radius) const
+	{
+		auto overlaps = [&](const Vec3& otherPosition, float otherRadius)
+		{
+			const float dx = position.x - otherPosition.x;
+			const float dz = position.z - otherPosition.z;
+			const float minDistance = radius + otherRadius;
+			return (dx * dx + dz * dz) < (minDistance * minDistance);
 		};
 
-		for (const auto& position : positions)
+		for (const auto& blocker : m_itemSpawnBlockers)
 		{
-			TransParam itemParam;
-			itemParam.scale = Vec3(0.22f, 0.22f, 0.22f);
-			itemParam.quaternion = Quat();
-			itemParam.position = position;
-			AddGameObject<HpRecoveryItem>(itemParam);
+			if (overlaps(blocker.position, blocker.radius))
+			{
+				return false;
+			}
 		}
+
+		for (const auto& obj : GetGameObjectVec())
+		{
+			auto item = std::dynamic_pointer_cast<BaseItem>(obj);
+			if (!item || item->IsConsumed())
+			{
+				continue;
+			}
+
+			auto transform = item->GetComponent<Transform>(false);
+			if (transform && overlaps(transform->GetWorldPosition(), kItemSpawnRadius))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool GameStage::TryFindItemSpawnPosition(Vec3& outPosition)
+	{
+		std::uniform_real_distribution<float> positionDist(-kItemSpawnHalf, kItemSpawnHalf);
+
+		for (int attempt = 0; attempt < kItemMaxSpawnAttempts; ++attempt)
+		{
+			Vec3 candidate(positionDist(m_itemSpawnRandom), 0.0f, positionDist(m_itemSpawnRandom));
+
+			float groundHeight = 0.0f;
+			if (TryGetSlopeGroundHeight(candidate, groundHeight))
+			{
+				candidate.y = groundHeight;
+			}
+			candidate.y += kItemGroundOffset;
+
+			if (!IsItemSpawnPositionFree(candidate, kItemSpawnRadius))
+			{
+				continue;
+			}
+
+			outPosition = candidate;
+			return true;
+		}
+
+		return false;
+	}
+
+	void GameStage::EnsureItemFactory()
+	{
+		auto stage = GetThis<Stage>();
+		if (!m_itemFactory)
+		{
+			m_itemFactory = std::make_shared<ItemFactory>(stage);
+		}
+		else
+		{
+			m_itemFactory->SetStage(stage);
+		}
+	}
+
+	void GameStage::MaintainRecoveryItems()
+	{
+		EnsureItemFactory();
+		if (!m_itemFactory || !m_itemFactory->IsValid())
+		{
+			return;
+		}
+
+		int activeCount = m_itemFactory->CountActiveItems(ItemKind::HpRecovery);
+		while (activeCount < kRecoveryItemTargetCount)
+		{
+			Vec3 spawnPosition;
+			if (!TryFindItemSpawnPosition(spawnPosition))
+			{
+				break;
+			}
+
+			ItemFactory::SpawnDesc spawnDesc;
+			spawnDesc.kind = ItemKind::HpRecovery;
+			spawnDesc.position = spawnPosition;
+			spawnDesc.scale = Vec3(kHpRecoveryItemScale, kHpRecoveryItemScale, kHpRecoveryItemDepthScale);
+
+			if (!m_itemFactory->CreateItem(spawnDesc))
+			{
+				break;
+			}
+			++activeCount;
+		}
+	}
+
+
+	void GameStage::MaintainBombItems()
+	{
+		EnsureItemFactory();
+		if (!m_itemFactory || !m_itemFactory->IsValid())
+		{
+			return;
+		}
+
+		int activeCount = m_itemFactory->CountActiveItems(ItemKind::Bomb);
+		while (activeCount < kBombItemTargetCount)
+		{
+			Vec3 spawnPosition;
+			if (!TryFindItemSpawnPosition(spawnPosition))
+			{
+				break;
+			}
+
+			ItemFactory::SpawnDesc spawnDesc;
+			spawnDesc.kind = ItemKind::Bomb;
+			spawnDesc.position = spawnPosition;
+			spawnDesc.scale = Vec3(kBombItemScale, kBombItemScale, kBombItemScale);
+			spawnDesc.bombGrantCount = kBombItemGrantCount;
+
+			if (!m_itemFactory->CreateItem(spawnDesc))
+			{
+				break;
+			}
+			++activeCount;
+		}
+	}
+	void GameStage::CreateItems()
+	{
+		m_itemSpawnRandom.seed(20260513);
+		MaintainRecoveryItems();
+		MaintainBombItems();
 	}
 
 }

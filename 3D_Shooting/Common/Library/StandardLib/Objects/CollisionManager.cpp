@@ -488,7 +488,8 @@ namespace shooting {
 			}
 
 			pImpl->m_CollisionBlocks.SetCollisionBlock(v);
-			if (!col->IsFixed() && !v->FindTag(L"NoStaticStageCollision"))
+			const bool needsStageObjectCollision = v->FindTag(L"UseStageObjectCollision");
+			if (!col->IsFixed() && (!v->FindTag(L"NoStaticStageCollision") || needsStageObjectCollision))
 			{
 				dynamicSources.push_back(v);
 			}
@@ -1090,4 +1091,3 @@ namespace shooting {
 	}
 
 }
-

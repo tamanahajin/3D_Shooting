@@ -258,6 +258,25 @@ namespace shooting {
 			}
 			RegisterModelMesh(L"BOMB_MODEL", grenadeMeshes);
 		}
+		// HP recovery item
+		{
+			auto heartParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/heart.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> heartMeshes;
+			for (size_t i = 0; i < heartParts.size(); ++i)
+			{
+				heartMeshes.push_back(heartParts[i].mesh);
+				RegisterMaterial(
+					L"HP_RECOVERY_ITEM_MAT_" + std::to_wstring(i),
+					heartParts[i].material
+				);
+			}
+			RegisterModelMesh(L"HP_RECOVERY_ITEM_MODEL", heartMeshes);
+		}
 		// StageObjects
 		StageObjectCatalog::RegisterAssets(*this, pCommandList);
 	}
