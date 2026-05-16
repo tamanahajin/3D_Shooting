@@ -17,6 +17,9 @@ namespace shooting {
             bool valid = false;
         };
 
+        const float kSingleLogCollisionHorizontalScale = 0.75f;
+        const float kSingleLogCollisionHeightScale = 0.80f;
+
         const StageObjectDef* FindStageObjectDefByKey(const std::wstring& key)
         {
             const auto& defs = StageObjectCatalog::GetAll();
@@ -158,12 +161,19 @@ namespace shooting {
 
             if (def && def->category == StageObjectCategory::Tree)
             {
-                const float radiusBase = (collisionSize.x > collisionSize.z ? collisionSize.x : collisionSize.z) * 0.30f;
+                const float radiusBase = (collisionSize.x > collisionSize.z ? collisionSize.x : collisionSize.z) * 0.08f;
                 const float capsuleRadius = radiusBase > minSize ? radiusBase : minSize;
                 const float heightBase = collisionSize.y - (capsuleRadius * 2.0f);
                 const float capsuleHeight = heightBase > minSize ? heightBase : minSize;
                 stage->AddGameObject<StageCollisionCapsule>(collisionParam, capsuleRadius, capsuleHeight);
                 return;
+            }
+
+            if (def && def->category == StageObjectCategory::Log && def->name == L"log")
+            {
+                collisionSize.x *= kSingleLogCollisionHorizontalScale;
+                collisionSize.y *= kSingleLogCollisionHeightScale;
+                collisionSize.z *= kSingleLogCollisionHorizontalScale;
             }
 
             if (def && def->category == StageObjectCategory::Cliff)
