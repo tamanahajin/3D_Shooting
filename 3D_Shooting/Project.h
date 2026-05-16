@@ -22,6 +22,7 @@
 #include "StageObjectCatalog.h"
 #include "Character.h"
 #include "EnemyFactory.h"
+#include "WaveController.h"
 #include "Item.h"
 #include "ItemFactory.h"
 #include "Player.h"

@@ -25,6 +25,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="EnemyBatchController.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
+    <ClCompile Include="WaveController.cpp" />
     <ClCompile Include="Common\Library\BasicLib\App.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BaseDevice.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BaseHelper.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="BulletType.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="EnemyFactory.h" />
+    <ClInclude Include="WaveController.h" />
     <ClInclude Include="Common\Library\BasicLib\App.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseCommon.h" />
     <ClInclude Include="Common\Library\BasicLib\BaseDevice.h" />

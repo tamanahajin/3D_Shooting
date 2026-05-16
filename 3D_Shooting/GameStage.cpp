@@ -35,29 +35,6 @@ namespace shooting {
 		}
 	}
 
-	int GameStage::GetEnemyCountForWave(int wave) const
-	{
-		if (wave <= 0)
-		{
-			return 0;
-		}
-
-		const int enemyCount = m_waveSettings.firstWaveEnemyCount +
-			((wave - 1) * m_waveSettings.addEnemyCountPerWave);
-		return enemyCount > 0 ? enemyCount : 0;
-	}
-
-	float GameStage::GetEnemySpeedMultiplierForWave(int wave) const
-	{
-		if (wave <= 0 || m_waveSettings.speedUpEveryWaves <= 0)
-		{
-			return 1.0f;
-		}
-
-		const int speedStep = wave / m_waveSettings.speedUpEveryWaves;
-		return 1.0f + (static_cast<float>(speedStep) * m_waveSettings.speedMultiplierAddPerStep);
-	}
-
 	std::shared_ptr<EnemyBatchController> GameStage::GetEnemyController() const
 	{
 		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
@@ -66,7 +43,7 @@ namespace shooting {
 
 	Vec3 GameStage::GetEnemySpawnCenter() const
 	{
-		Vec3 spawnCenter(0.0f, m_waveSettings.spawnY, 0.0f);
+		Vec3 spawnCenter(0.0f, m_waveController.GetSettings().spawnY, 0.0f);
 		auto player = GetSharedGameObject(L"Player", false);
 		if (player)
 		{
@@ -78,51 +55,9 @@ namespace shooting {
 		}
 		return spawnCenter;
 	}
-
-	void GameStage::StartNextWave()
-	{
-		auto controller = GetEnemyController();
-		if (!controller || !m_enemyFactory)
-		{
-			return;
-		}
-
-		m_enemyFactory->SetController(controller);
-
-		++m_currentWave;
-		m_waveTimer = m_waveSettings.intervalSeconds;
-
-		const Vec3 spawnCenter = GetEnemySpawnCenter();
-		EnemyFactory::SpawnBatchDesc spawnDesc;
-		spawnDesc.count = GetEnemyCountForWave(m_currentWave);
-		spawnDesc.center = spawnCenter;
-		spawnDesc.settings.minDistance = m_waveSettings.spawnMinDistance;
-		spawnDesc.settings.maxDistance = m_waveSettings.spawnMaxDistance;
-		spawnDesc.settings.spawnY = spawnCenter.y;
-		spawnDesc.settings.minSpacing = m_waveSettings.minSpawnSpacing;
-		spawnDesc.settings.maxAttempts = m_waveSettings.maxSpawnAttempts;
-
-		controller->SetMoveSpeedMultiplier(GetEnemySpeedMultiplierForWave(m_currentWave));
-		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
-	}
-
-	void GameStage::UpdateWaves(double elapsedTime)
-	{
-		if (m_currentWave <= 0 || m_waveSettings.intervalSeconds <= 0.0)
-		{
-			return;
-		}
-
-		m_waveTimer -= elapsedTime;
-		if (m_waveTimer <= 0.0)
-		{
-			StartNextWave();
-		}
-	}
-
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
-		UpdateWaves(elapsedTime);
+		m_waveController.Update(elapsedTime, GetEnemySpawnCenter());
 
 		const float dt = static_cast<float>(elapsedTime);
 		for (auto& damageNumber : m_damageNumbers)
@@ -157,25 +92,16 @@ namespace shooting {
 			return;
 		}
 
-		if (!m_enemyFactory)
-		{
-			m_enemyFactory = std::make_shared<EnemyFactory>(controller);
-		}
-		else
-		{
-			m_enemyFactory->SetController(controller);
-		}
+		m_waveController.SetController(controller);
 
-		EnemyFactory::SpawnBatchDesc spawnDesc;
-		spawnDesc.count = 40;
-		spawnDesc.center = Vec3(0.0f, 0.0f, 0.0f);
-		spawnDesc.settings.minDistance = 5.0f;
-		spawnDesc.settings.maxDistance = 20.0f;
-		spawnDesc.settings.spawnY = 0.525f;
-		spawnDesc.settings.minSpacing = 2.5f;
-		spawnDesc.settings.maxAttempts = 50;
+		EnemyFactory::SpawnSettings settings;
+		settings.minDistance = 5.0f;
+		settings.maxDistance = 20.0f;
+		settings.spawnY = 0.525f;
+		settings.minSpacing = 2.5f;
+		settings.maxAttempts = 50;
 
-		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
+		m_waveController.CreateEnemyBatch(Vec3(0.0f, 0.0f, 0.0f), 40, settings);
 	}
 
 	int GameStage::GetAliveEnemyCount() const
@@ -190,7 +116,7 @@ namespace shooting {
 
 	int GameStage::GetDefeatedEnemyCount() const
 	{
-		const int defeated = m_totalEnemyCount - GetAliveEnemyCount();
+		const int defeated = GetTotalEnemyCount() - GetAliveEnemyCount();
 		return (defeated > 0) ? defeated : 0;
 	}
 
@@ -224,9 +150,9 @@ namespace shooting {
 		AddGameObject<PlayerWeapon>(player);
 		// ìG
 		auto enemyController = AddGameObject<EnemyBatchController>();
-		m_enemyFactory = std::make_shared<EnemyFactory>(enemyController);
+		m_waveController.SetController(enemyController);
 		AddGameObject<EnemyInstancedRenderer>();
-		StartNextWave();
+		m_waveController.StartNextWave(GetEnemySpawnCenter());
 
 		// íeä«óù
 		AddGameObject<BulletManager>();
