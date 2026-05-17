@@ -19,6 +19,10 @@ namespace shooting {
 
         const float kSingleLogCollisionHorizontalScale = 0.75f;
         const float kSingleLogCollisionHeightScale = 0.80f;
+        const float kTreeCollisionHeightScale = 6.0f;
+        const float kTreeTrunkCollisionRadiusScale = 0.08f;
+        const float kTreeJumpCollisionRadiusScale = 0.18f;
+        const float kTreeJumpCollisionBottomOffset = 0.70f;
 
         const StageObjectDef* FindStageObjectDefByKey(const std::wstring& key)
         {
@@ -161,14 +165,36 @@ namespace shooting {
 
             if (def && def->category == StageObjectCategory::Tree)
             {
-                const float radiusBase = (collisionSize.x > collisionSize.z ? collisionSize.x : collisionSize.z) * 0.08f;
+                const float maxHorizontalSize = collisionSize.x > collisionSize.z ? collisionSize.x : collisionSize.z;
+                const float radiusBase = maxHorizontalSize * kTreeTrunkCollisionRadiusScale;
                 const float capsuleRadius = radiusBase > minSize ? radiusBase : minSize;
-                const float heightBase = collisionSize.y - (capsuleRadius * 2.0f);
+                const float capsuleTotalHeight = collisionSize.y * kTreeCollisionHeightScale;
+                const float originalBottomY = collisionParam.position.y - (collisionSize.y * 0.5f);
+
+                // 幹用。地上で木の横を通るときの引っかかりを増やしすぎないよう細めにする。
+                TransParam trunkParam = collisionParam;
+                trunkParam.position.y = originalBottomY + (capsuleTotalHeight * 0.5f);
+                const float heightBase = capsuleTotalHeight - (capsuleRadius * 2.0f);
                 const float capsuleHeight = heightBase > minSize ? heightBase : minSize;
-                stage->AddGameObject<StageCollisionCapsule>(collisionParam, capsuleRadius, capsuleHeight);
+                stage->AddGameObject<StageCollisionCapsule>(trunkParam, capsuleRadius, capsuleHeight);
+
+                // ジャンプ中に見た目の木の上部をすり抜けないよう、上側だけ少し太い補助カプセルを置く。
+                const float jumpRadiusBase = maxHorizontalSize * kTreeJumpCollisionRadiusScale;
+                const float jumpCapsuleRadius = jumpRadiusBase > capsuleRadius ? jumpRadiusBase : capsuleRadius;
+                const float jumpBottomOffset = kTreeJumpCollisionBottomOffset < capsuleTotalHeight ? kTreeJumpCollisionBottomOffset : capsuleTotalHeight * 0.25f;
+                const float jumpCapsuleBottomY = originalBottomY + jumpBottomOffset;
+                const float jumpCapsuleTotalHeight = capsuleTotalHeight - jumpBottomOffset;
+                if (jumpCapsuleTotalHeight > jumpCapsuleRadius * 2.0f)
+                {
+                    TransParam jumpParam = collisionParam;
+                    jumpParam.position.y = jumpCapsuleBottomY + (jumpCapsuleTotalHeight * 0.5f);
+                    stage->AddGameObject<StageCollisionCapsule>(
+                        jumpParam,
+                        jumpCapsuleRadius,
+                        jumpCapsuleTotalHeight - (jumpCapsuleRadius * 2.0f));
+                }
                 return;
             }
-
             if (def && def->category == StageObjectCategory::Log && def->name == L"log")
             {
                 collisionSize.x *= kSingleLogCollisionHorizontalScale;

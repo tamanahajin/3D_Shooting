@@ -30,8 +30,8 @@ namespace shooting {
 		SetShadowActive(false);
 
 		auto collision = AddComponent<CollisionSphere>();
-		collision->SetFixed(true);
-		collision->SetDebugDraw(false);
+		collision->SetFixed(false);
+		collision->SetDebugDraw(true);
 		collision->SetMakedRadius(1.0f);
 		collision->SetAfterCollision(AfterCollision::None);
 
@@ -162,6 +162,9 @@ namespace shooting {
 			draw->SetFogEnabled(false);
 			draw->SetOwnShadowActive(false);
 		}
+
+		auto collision = GetComponent<CollisionSphere>();
+		collision->SetMakedRadius(3.0f);
 	}
 
 	bool HpRecoveryItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)
@@ -227,6 +230,9 @@ namespace shooting {
 			draw->SetFogEnabled(false);
 			draw->SetOwnShadowActive(false);
 		}
+
+		auto collision = GetComponent<CollisionSphere>();
+		collision->SetMakedRadius(15.0f);
 	}
 
 	bool BombItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)

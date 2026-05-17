@@ -269,7 +269,8 @@ namespace shooting {
 				{
 					continue;
 				}
-				SetNewCollisionAgainstSub(src, srcColl->GetWrappedAABB(), m_RootPiece, manager);
+				// 高速移動やジャンプで固定物をまたぐケースを拾うため、移動前後を含むAABBで問い合わせる。
+				SetNewCollisionAgainstSub(src, srcColl->GetEnclosingAABB(), m_RootPiece, manager);
 			}
 		}
 
@@ -415,7 +416,9 @@ namespace shooting {
 		{
 			return false;
 		}
-		if (!HitTest::AABB_AABB(SrcColl->GetWrappedAABB(), DestColl->GetWrappedAABB()))
+		const AABB srcAABB = SrcColl->IsFixed() ? SrcColl->GetWrappedAABB() : SrcColl->GetEnclosingAABB();
+		const AABB destAABB = DestColl->IsFixed() ? DestColl->GetWrappedAABB() : DestColl->GetEnclosingAABB();
+		if (!HitTest::AABB_AABB(srcAABB, destAABB))
 		{
 			return false;
 		}

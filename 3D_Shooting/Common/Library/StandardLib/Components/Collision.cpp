@@ -1158,41 +1158,61 @@ namespace shooting {
 		//相手のCollisionCapsule
 		CAPSULE DestCapsule = DestColl->GetCapsule();
 		CAPSULE DestBeforeCapsule = DestColl->GetBeforeCapsule();
-		//簡易的な判定
 		Vec3 ret1, ret2;
-		if (!HitTest::CAPSULE_CAPSULE(SrcCapsule, DestCapsule, ret1, ret2))
+		const bool IsHitNow = HitTest::CAPSULE_CAPSULE(SrcCapsule, DestCapsule, ret1, ret2);
+		Vec3 SpanVelocity = SrcVelocity - DestVelocity;
+		float HitTime = 0;
+		const bool IsHitDuringMove = HitTest::CollisionTestCapsuleCapsule(SrcBeforCapsule, SpanVelocity, DestBeforeCapsule, 0, ElapsedTime, HitTime);
+		if (!IsHitNow && !IsHitDuringMove)
 		{
 			return;
 		}
-		Vec3 SpanVelocity = SrcVelocity - DestVelocity;
-		float HitTime = 0;
-		if (HitTest::CollisionTestCapsuleCapsule(SrcBeforCapsule, SpanVelocity, DestBeforeCapsule, 0, ElapsedTime, HitTime))
+
+		CollisionPair pair;
+		pair.m_Src = GetThis<Collision>();
+		pair.m_Dest = DestColl;
+
+		CAPSULE SrcChkCapsule = IsHitDuringMove ? SrcBeforCapsule : SrcCapsule;
+		CAPSULE DestChkCapsule = IsHitDuringMove ? DestBeforeCapsule : DestCapsule;
+		if (IsHitDuringMove)
 		{
-			CollisionPair pair;
-			pair.m_Src = GetThis<Collision>();
-			pair.m_Dest = DestColl;
-			CAPSULE SrcChkCapsule = SrcBeforCapsule;
 			pair.m_SrcCalcHitCenter = SrcChkCapsule.GetCenter() + SrcVelocity * HitTime;
 			SrcChkCapsule.SetCenter(pair.m_SrcCalcHitCenter);
-			CAPSULE DestChkCapsule = DestBeforeCapsule;
 			pair.m_DestCalcHitCenter = DestChkCapsule.GetCenter() + DestVelocity * HitTime;
 			DestChkCapsule.SetCenter(pair.m_DestCalcHitCenter);
-			Vec3 ret1, ret2;
-			HitTest::CAPSULE_CAPSULE(SrcChkCapsule, DestChkCapsule, ret1, ret2);
-			//接点へのベクトル
-			//DestCapの線分とRetVec1の線分上の最近接点とRetVec1の法線
-			Vec3 Start = DestChkCapsule.m_PointBottom;
-			Vec3 End = DestChkCapsule.m_PointTop;
-			float t;
-			Vec3 RetVec;
-			HitTest::ClosetPtPointSegment(ret1, Start, End, t, RetVec);
-			pair.m_SrcHitNormal = ret1 - RetVec;
-			pair.m_SrcHitNormal.normalize();
-			pair.m_CalcHitPoint = ret1;
-			GetCollisionManager()->InsertNewPair(pair);
 		}
-	}
+		else
+		{
+			pair.m_SrcCalcHitCenter = SrcChkCapsule.GetCenter();
+			pair.m_DestCalcHitCenter = DestChkCapsule.GetCenter();
+		}
 
+		HitTest::CAPSULE_CAPSULE(SrcChkCapsule, DestChkCapsule, ret1, ret2);
+		// ジャンプ中に現在位置では抜けていても、移動中に触れた位置で法線を作る。
+		Vec3 Start = DestChkCapsule.m_PointBottom;
+		Vec3 End = DestChkCapsule.m_PointTop;
+		float t;
+		Vec3 RetVec;
+		HitTest::ClosetPtPointSegment(ret1, Start, End, t, RetVec);
+		pair.m_SrcHitNormal = ret1 - RetVec;
+		if (pair.m_SrcHitNormal.length() <= 0.0001f)
+		{
+			pair.m_SrcHitNormal = SrcChkCapsule.GetCenter() - DestChkCapsule.GetCenter();
+			pair.m_SrcHitNormal.y = 0.0f;
+		}
+		if (pair.m_SrcHitNormal.length() <= 0.0001f)
+		{
+			pair.m_SrcHitNormal = SpanVelocity;
+			pair.m_SrcHitNormal.y = 0.0f;
+		}
+		if (pair.m_SrcHitNormal.length() <= 0.0001f)
+		{
+			pair.m_SrcHitNormal = Vec3(1.0f, 0.0f, 0.0f);
+		}
+		pair.m_SrcHitNormal.normalize();
+		pair.m_CalcHitPoint = ret1;
+		GetCollisionManager()->InsertNewPair(pair);
+	}
 	void CollisionCapsule::CollisionTest(const std::shared_ptr<CollisionObb>& DestColl)
 	{
 
