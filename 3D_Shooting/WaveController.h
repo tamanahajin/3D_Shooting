@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "EnemyFactory.h"
 #include <memory>
+#include <map>
 
 namespace shooting {
 
@@ -31,6 +32,8 @@ namespace shooting {
 
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
 		bool IsValid() const;
+		void SetEnemyStatus(EnemyKind kind, const EnemyStatus& status);
+		EnemyStatus GetEnemyStatus(EnemyKind kind) const;
 
 		void Update(double elapsedTime, const Vec3& spawnCenter);
 		void StartNextWave(const Vec3& spawnCenter);
@@ -56,6 +59,7 @@ namespace shooting {
 		double m_waveTimer = 0.0;
 		std::weak_ptr<EnemyBatchController> m_controller;
 		std::shared_ptr<EnemyFactory> m_enemyFactory;
+		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
 		std::shared_ptr<EnemyBatchController> GetController() const;
 		void EnsureEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);

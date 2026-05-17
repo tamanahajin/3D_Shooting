@@ -105,6 +105,8 @@ namespace shooting {
 		double GetWaveTimeRemaining() const { return m_waveController.GetWaveTimeRemaining(); }
 		WaveSettings& GetWaveSettings() { return m_waveController.GetSettings(); }
 		const WaveSettings& GetWaveSettings() const { return m_waveController.GetSettings(); }
+		void SetEnemyStatus(EnemyKind kind, const EnemyStatus& status) { m_waveController.SetEnemyStatus(kind, status); }
+		EnemyStatus GetEnemyStatus(EnemyKind kind) const { return m_waveController.GetEnemyStatus(kind); }
 		int GetAliveEnemyCount() const;
 		int GetDefeatedEnemyCount() const;
 

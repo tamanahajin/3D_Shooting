@@ -15,6 +15,17 @@ namespace shooting {
 	class EnemyCollisionProxy;
 	class SeekObject;
 
+	struct EnemyStatus
+	{
+		int maxHp = 3;
+		float moveSpeed = 5.0f;
+		Vec3 modelScale = Vec3(0.01f, 0.01f, 0.01f);
+		float collisionRadius = 0.2f;
+		float collisionHeight = 0.3f;
+		double steeringInterval = 0.05;
+		double damageFlashDuration = 0.2;
+		float damageNumberOffsetY = 0.35f;
+	};
 	//--------------------------------------------------------------------------------------
 	// フロアオブジェクト（見た目専用）
 	//--------------------------------------------------------------------------------------
@@ -154,6 +165,9 @@ namespace shooting {
 		std::weak_ptr<EnemyBatchController> m_Controller;
 		size_t m_EnemyIndex = 0;
 		Vec3 m_StartPosition;
+		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
+		float m_CollisionRadius = 0.2f;
+		float m_CollisionHeight = 0.3f;
 
 		void HandleCollision(const CollisionPair& pair);
 
@@ -162,7 +176,8 @@ namespace shooting {
 			const std::shared_ptr<Stage>& stage,
 			const std::shared_ptr<EnemyBatchController>& controller,
 			size_t enemyIndex,
-			const Vec3& startPosition);
+			const Vec3& startPosition,
+			const EnemyStatus& status);
 		virtual ~EnemyCollisionProxy();
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
@@ -199,6 +214,7 @@ namespace shooting {
 			bool isGround = false;
 			bool isDead = false;
 			bool deathAnimFinished = false;
+			EnemyStatus status;
 			int hp = 20;
 			int maxHp = 20;
 			std::weak_ptr<EnemyCollisionProxy> proxy;
@@ -209,8 +225,6 @@ namespace shooting {
 		std::map<long long, std::vector<size_t>> m_CellMap;
 		float m_CellSize = 2.0f;
 		float m_SeparationRange = 2.0f;
-		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
-		float m_BaseMoveSpeed = 5.0f;
 		float m_MoveSpeedMultiplier = 1.0f;
 
 		long long MakeCellKey(int x, int z) const;
@@ -239,6 +253,7 @@ namespace shooting {
 		virtual void OnUpdate2(double elapsedTime) override;
 
 		size_t AddEnemy(const Vec3& startPosition);
+		size_t AddEnemy(const Vec3& startPosition, const EnemyStatus& status);
 		void SetMoveSpeedMultiplier(float multiplier);
 		float GetMoveSpeedMultiplier() const { return m_MoveSpeedMultiplier; }
 		bool ApplyDamage(size_t index, const DamageInfo& info);

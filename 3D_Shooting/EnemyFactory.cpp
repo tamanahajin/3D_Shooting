@@ -8,6 +8,7 @@ namespace shooting {
 		m_controller(controller),
 		m_randomEngine(std::random_device{}())
 	{
+		m_StatusByKind[EnemyKind::Default] = EnemyStatus();
 	}
 
 	void EnemyFactory::SetController(const std::shared_ptr<EnemyBatchController>& controller)
@@ -20,7 +21,33 @@ namespace shooting {
 		return !m_controller.expired();
 	}
 
+	void EnemyFactory::SetStatus(EnemyKind kind, const EnemyStatus& status)
+	{
+		m_StatusByKind[kind] = status;
+	}
+
+	EnemyStatus EnemyFactory::GetStatus(EnemyKind kind) const
+	{
+		auto it = m_StatusByKind.find(kind);
+		if (it != m_StatusByKind.end())
+		{
+			return it->second;
+		}
+
+		auto defaultIt = m_StatusByKind.find(EnemyKind::Default);
+		if (defaultIt != m_StatusByKind.end())
+		{
+			return defaultIt->second;
+		}
+
+		return EnemyStatus();
+	}
 	size_t EnemyFactory::CreateEnemy(EnemyKind kind, const Vec3& position) const
+	{
+		return CreateEnemy(kind, position, GetStatus(kind));
+	}
+
+	size_t EnemyFactory::CreateEnemy(EnemyKind kind, const Vec3& position, const EnemyStatus& status) const
 	{
 		auto controller = m_controller.lock();
 		if (!controller)
@@ -29,12 +56,12 @@ namespace shooting {
 		}
 
 		// 敵の実体はEnemyBatchControllerの配列に追加する。
-		// 今後、敵種別ごとの初期HPやモデル差分が必要になったら、このswitchに分岐を追加する。
+		// 今後、敵種別ごとのモデル差分が必要になったら、このswitchに分岐を追加する。
 		switch (kind)
 		{
 		case EnemyKind::Default:
 		default:
-			return controller->AddEnemy(position);
+			return controller->AddEnemy(position, status);
 		}
 	}
 
@@ -67,9 +94,10 @@ namespace shooting {
 		}
 
 		int createdCount = 0;
+		const EnemyStatus status = desc.overrideStatus ? desc.status : GetStatus(desc.kind);
 		for (const auto& position : positions)
 		{
-			if (CreateEnemy(desc.kind, position) != static_cast<size_t>(-1))
+			if (CreateEnemy(desc.kind, position, status) != static_cast<size_t>(-1))
 			{
 				++createdCount;
 			}

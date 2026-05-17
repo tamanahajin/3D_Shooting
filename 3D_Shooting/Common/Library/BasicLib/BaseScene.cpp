@@ -813,6 +813,11 @@ namespace shooting {
 	// Render the scene.
 	void BaseScene::Render(ID3D12CommandQueue* pCommandQueue, bool setBackbufferReadyForPresent)
 	{
+		if (!pCommandQueue)
+		{
+			throw HrException(DXGI_ERROR_DEVICE_REMOVED);
+		}
+
 		BeginFrame();
 		// Shadow generation and scene render passes
 		WorkerThread();

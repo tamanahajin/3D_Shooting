@@ -6,9 +6,11 @@ namespace shooting {
 
 	WaveController::WaveController()
 	{
+		m_statusByKind[EnemyKind::Default] = EnemyStatus();
 	}
 
-	WaveController::WaveController(const std::shared_ptr<EnemyBatchController>& controller)
+	WaveController::WaveController(const std::shared_ptr<EnemyBatchController>& controller) :
+		WaveController()
 	{
 		SetController(controller);
 	}
@@ -22,6 +24,32 @@ namespace shooting {
 	bool WaveController::IsValid() const
 	{
 		return !m_controller.expired() && m_enemyFactory && m_enemyFactory->IsValid();
+	}
+
+	void WaveController::SetEnemyStatus(EnemyKind kind, const EnemyStatus& status)
+	{
+		m_statusByKind[kind] = status;
+		if (m_enemyFactory)
+		{
+			m_enemyFactory->SetStatus(kind, status);
+		}
+	}
+
+	EnemyStatus WaveController::GetEnemyStatus(EnemyKind kind) const
+	{
+		auto it = m_statusByKind.find(kind);
+		if (it != m_statusByKind.end())
+		{
+			return it->second;
+		}
+
+		auto defaultIt = m_statusByKind.find(EnemyKind::Default);
+		if (defaultIt != m_statusByKind.end())
+		{
+			return defaultIt->second;
+		}
+
+		return EnemyStatus();
 	}
 
 	void WaveController::Update(double elapsedTime, const Vec3& spawnCenter)
@@ -139,6 +167,11 @@ namespace shooting {
 		else
 		{
 			m_enemyFactory->SetController(controller);
+		}
+
+		for (const auto& statusByKind : m_statusByKind)
+		{
+			m_enemyFactory->SetStatus(statusByKind.first, statusByKind.second);
 		}
 	}
 

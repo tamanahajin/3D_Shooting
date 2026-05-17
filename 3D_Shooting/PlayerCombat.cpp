@@ -6,7 +6,7 @@ namespace shooting {
 	namespace
 	{
 		const float kNormalShotRange = 60.0f;
-		const int kNormalShotDamage = 3;
+		const int kNormalShotDamage = 1;
 		const double kNormalShotCooldown = 0.12;
 		const wchar_t* kPlayerBlasterModelKey = L"PLAYER_BLASTER_MODEL";
 		const wchar_t* kPlayerBlasterMaterialPrefix = L"PLAYER_BLASTER_MAT_";

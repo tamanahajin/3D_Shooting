@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include "Character.h"
 #include <memory>
+#include <map>
 #include <random>
 #include <vector>
 
@@ -8,7 +10,7 @@ namespace shooting {
 
 	class EnemyBatchController;
 
-	// 敵の種類。将来、通常敵・遠距離敵・ボスなどを増やすときはここを入口に分岐させる。
+	// 敵の種類
 	enum class EnemyKind
 	{
 		Default
@@ -36,6 +38,8 @@ namespace shooting {
 			int count = 0;
 			Vec3 center = Vec3(0.0f, 0.0f, 0.0f);
 			SpawnSettings settings;
+			bool overrideStatus = false;
+			EnemyStatus status;
 		};
 
 		explicit EnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
@@ -43,8 +47,12 @@ namespace shooting {
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
 		bool IsValid() const;
 
+		void SetStatus(EnemyKind kind, const EnemyStatus& status);
+		EnemyStatus GetStatus(EnemyKind kind) const;
+
 		// 敵1体を生成する。敵種別ごとの生成差分はこの関数に集める。
 		size_t CreateEnemy(EnemyKind kind, const Vec3& position) const;
+		size_t CreateEnemy(EnemyKind kind, const Vec3& position, const EnemyStatus& status) const;
 
 		// 指定した中心位置の周囲に複数体生成する。戻り値は実際に生成できた敵数。
 		int CreateEnemiesAround(const SpawnBatchDesc& desc);
@@ -52,6 +60,7 @@ namespace shooting {
 	private:
 		std::weak_ptr<EnemyBatchController> m_controller;
 		std::mt19937 m_randomEngine;
+		std::map<EnemyKind, EnemyStatus> m_StatusByKind;
 
 		Vec3 CreateRandomPosition(const Vec3& center, const SpawnSettings& settings);
 		bool IsFarEnough(const Vec3& position, const std::vector<Vec3>& existingPositions, float minSpacing) const;

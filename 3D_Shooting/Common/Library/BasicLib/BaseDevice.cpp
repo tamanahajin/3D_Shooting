@@ -14,6 +14,16 @@
 
 namespace shooting {
 
+	namespace
+	{
+		void OutputDeviceRemovedReason(ID3D12Device* device, HRESULT fallback)
+		{
+			const HRESULT reason = device ? device->GetDeviceRemovedReason() : fallback;
+			wchar_t message[128] = {};
+			swprintf_s(message, L"D3D12 device removed reason: 0x%08X\n", static_cast<unsigned int>(reason));
+			OutputDebugString(message);
+		}
+	}
 
 	BaseDevice* BaseDevice::s_app = nullptr;
 
@@ -466,6 +476,7 @@ namespace shooting {
 			{
 				if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
 				{
+					OutputDeviceRemovedReason(m_device.Get(), e.Error());
 					RecreateD3Dresources();
 				}
 				else
@@ -696,6 +707,11 @@ namespace shooting {
 	// Wait for pending GPU work to complete.
 	void BaseDevice::WaitForGpu(ID3D12CommandQueue* pCommandQueue)
 	{
+		if (!pCommandQueue || !m_fence)
+		{
+			throw HrException(DXGI_ERROR_DEVICE_REMOVED);
+		}
+
 		// Schedule a Signal command in the queue.
 		ThrowIfFailed(pCommandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
@@ -710,6 +726,11 @@ namespace shooting {
 	// Prepare to render the next frame.
 	void BaseDevice::MoveToNextFrame()
 	{
+		if (!m_commandQueue || !m_fence || !m_swapChain)
+		{
+			throw HrException(DXGI_ERROR_DEVICE_REMOVED);
+		}
+
 		// Schedule a Signal command in the queue.
 		const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
 		ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), currentFenceValue));

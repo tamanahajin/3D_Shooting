@@ -91,7 +91,7 @@ namespace shooting {
 		float  m_ExplosionScale = 3.0f;
 
 		// 範囲ダメージ
-		int    m_ExplosionDamage = 12;
+		int    m_ExplosionDamage = 10;
 
 		// 爆発中の多重ヒット防止
 		std::unordered_set<const GameObject*> m_HitOnce;

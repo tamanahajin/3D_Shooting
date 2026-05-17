@@ -52,11 +52,15 @@ namespace shooting {
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyBatchController>& controller,
 		size_t enemyIndex,
-		const Vec3& startPosition) :
+		const Vec3& startPosition,
+		const EnemyStatus& status) :
 		GameObject(stage),
 		m_Controller(controller),
 		m_EnemyIndex(enemyIndex),
-		m_StartPosition(startPosition)
+		m_StartPosition(startPosition),
+		m_ModelScale(status.modelScale),
+		m_CollisionRadius(status.collisionRadius),
+		m_CollisionHeight(status.collisionHeight)
 	{
 		m_transParam.position = startPosition;
 	}
@@ -71,13 +75,13 @@ namespace shooting {
 
 		auto transform = GetComponent<Transform>();
 		transform->SetPosition(m_StartPosition);
-		transform->SetScale(0.01f, 0.01f, 0.01f);
+		transform->SetScale(m_ModelScale);
 		transform->SetRotation(0.0f, 0.0f, 0.0f);
 
 		auto collision = AddComponent<CollisionCapsule>();
 		collision->SetDebugDraw(false);
-		collision->SetMakedRadius(0.2f);
-		collision->SetMakedHeight(0.3f);
+		collision->SetMakedRadius(m_CollisionRadius);
+		collision->SetMakedHeight(m_CollisionHeight);
 		collision->AddExcludeCollisionTag(L"Enemy");
 		collision->AddExcludeCollisionTag(L"Floor");
 
@@ -196,21 +200,28 @@ namespace shooting {
 
 	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition)
 	{
+		return AddEnemy(startPosition, EnemyStatus());
+	}
+
+	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
+	{
 		EnemyState enemy;
+		enemy.status = status;
 		enemy.position = startPosition;
 		enemy.previousPosition = startPosition;
 		enemy.rotation = Quat();
 		enemy.steeringTimer = static_cast<double>(m_Enemies.size() & 3) * 0.0125;
+		enemy.steeringInterval = status.steeringInterval;
 		enemy.animationState = AnimState::Idle;
 		enemy.animationTime = 0.0;
 		enemy.animationFinished = false;
-		enemy.maxHp = 20;
+		enemy.maxHp = status.maxHp > 0 ? status.maxHp : 1;
 		enemy.hp = enemy.maxHp;
 
 		const size_t index = m_Enemies.size();
 		m_Enemies.push_back(enemy);
 
-		auto proxy = GetStage()->AddGameObject<EnemyCollisionProxy>(GetThis<EnemyBatchController>(), index, startPosition);
+		auto proxy = GetStage()->AddGameObject<EnemyCollisionProxy>(GetThis<EnemyBatchController>(), index, startPosition, enemy.status);
 		m_Enemies[index].proxy = proxy;
 		SyncProxyTransform(index);
 		return index;
@@ -451,7 +462,7 @@ namespace shooting {
 		if (gameStage)
 		{
 			Vec3 damagePosition = m_Enemies[index].position;
-			damagePosition.y += 0.35f;
+			damagePosition.y += m_Enemies[index].status.damageNumberOffsetY;
 			gameStage->SpawnDamageNumber(damagePosition, info.m_Damage);
 		}
 	}
@@ -587,7 +598,7 @@ namespace shooting {
 
 		transform->SetPosition(m_Enemies[index].position);
 		transform->SetQuaternion(m_Enemies[index].rotation);
-		transform->SetScale(m_ModelScale);
+		transform->SetScale(m_Enemies[index].status.modelScale);
 	}
 
 	void EnemyBatchController::RemoveEnemyProxy(size_t index)
@@ -720,7 +731,7 @@ namespace shooting {
 					if (bsmUtil::lengthSqr(toTarget) > 1e-6f)
 					{
 						toTarget.normalize();
-						seekForce = toTarget * (m_BaseMoveSpeed * m_MoveSpeedMultiplier) - enemy.velocity;
+						seekForce = toTarget * (enemy.status.moveSpeed * m_MoveSpeedMultiplier) - enemy.velocity;
 					}
 
 					Vec3 separation = m_SeparationForces[i];
@@ -809,7 +820,7 @@ namespace shooting {
 		}
 
 		ShowDamageNumber(index, info);
-		StartDamageFlash(enemy, 0.2);
+		StartDamageFlash(enemy, enemy.status.damageFlashDuration);
 
 		enemy.hp -= bsmUtil::Clamp(info.m_Damage, 0, info.m_Damage);
 		if (enemy.hp <= 0)
@@ -926,7 +937,7 @@ namespace shooting {
 
 			Mat4x4 world;
 			world.affineTransformation(
-				m_ModelScale,
+				enemy.status.modelScale,
 				Vec3(0.0f, 0.0f, 0.0f),
 				enemy.rotation,
 				enemy.position + modelOffset);
