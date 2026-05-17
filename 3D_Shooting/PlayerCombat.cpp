@@ -17,11 +17,14 @@ namespace shooting {
 		const Vec3 kBlasterSocketOffset(-0.1f, 0.05f, 0.1f);
 		const float kWeaponAttachMaxIdleSnapDistance = 0.25f;
 		const char* kPlayerBlasterMuzzleSocketName = "MuzzleSocket";
-		const wchar_t* kMuzzleFlashMeshKey = L"MUZZLE_FLASH_MESH";
+		// Scene.cppで登録した3種類のメッシュを、発射ごとに切り替える。
+		const wchar_t* kMuzzleFlashMeshKeys[] = { L"MUZZLE_FLASH_MESH_0", L"MUZZLE_FLASH_MESH_1", L"MUZZLE_FLASH_MESH_2" };
+		const size_t kMuzzleFlashMeshCount = sizeof(kMuzzleFlashMeshKeys) / sizeof(kMuzzleFlashMeshKeys[0]);
 		const wchar_t* kMuzzleFlashTextureKey = L"EXPLOSION_FIRE_TX";
+		// 短い寿命の間に少し拡大しながらフェードアウトする。
 		const float kMuzzleFlashLifeTime = 0.065f;
-		const float kMuzzleFlashStartScale = 0.08f;
-		const float kMuzzleFlashEndScale = 0.14f;
+		const float kMuzzleFlashStartScale = 0.11f;
+		const float kMuzzleFlashEndScale = 0.20f;
 		const float kMuzzleFlashForwardOffset = -0.5f;
 		const Vec3 kBlasterMuzzleLocalPosition(0.0f, 5.204915f, 46.0f);
 		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
@@ -380,9 +383,12 @@ namespace shooting {
 			std::weak_ptr<Player> m_Player;
 			Vec3 m_FallbackPosition;
 			Vec3 m_FallbackForward;
+			// この発射で選ばれたマズルフラッシュ形状。
+			std::wstring m_MeshKey;
 			float m_Elapsed = 0.0f;
 			float m_CurrentScale = kMuzzleFlashStartScale;
 
+			// 銃口ソケットを追従して、移動中もエフェクトが置き去りにならないようにする。
 			void UpdateFollowTransform(float scale)
 			{
 				if (auto transform = GetComponent<Transform>(false))
@@ -408,13 +414,15 @@ namespace shooting {
 				const TransParam& param,
 				const std::shared_ptr<Player>& player,
 				const Vec3& fallbackPosition,
-				const Vec3& fallbackForward) :
+				const Vec3& fallbackForward,
+				const std::wstring& meshKey) :
 				GameObject(stagePtr)
 			{
 				m_transParam = param;
 				m_Player = player;
 				m_FallbackPosition = fallbackPosition;
 				m_FallbackForward = fallbackForward;
+				m_MeshKey = meshKey;
 			}
 
 			virtual ~MuzzleFlashEffect() = default;
@@ -427,7 +435,7 @@ namespace shooting {
 				SetShadowActive(false);
 
 				auto draw = AddComponent<SpPNTStaticDraw>();
-				draw->AddBaseMesh(kMuzzleFlashMeshKey);
+				draw->AddBaseMesh(m_MeshKey);
 				draw->AddBaseTexture(kMuzzleFlashTextureKey);
 				draw->SetOwnShadowActive(false);
 				draw->SetEmissive(Col4(2.0f, 1.25f, 0.35f, 1.0f));
@@ -470,7 +478,14 @@ namespace shooting {
 				UpdateFollowTransform(m_CurrentScale);
 			}
 		};
-
+		// 連射時に同じ形が続かないよう、3パターンを順番に使う。
+		const wchar_t* SelectMuzzleFlashMeshKey()
+		{
+			static size_t nextPattern = 0;
+			const wchar_t* key = kMuzzleFlashMeshKeys[nextPattern % kMuzzleFlashMeshCount];
+			++nextPattern;
+			return key;
+		}
 		void SpawnMuzzleFlash(
 			const std::shared_ptr<Player>& player,
 			const Vec3& fallbackPosition,
@@ -492,7 +507,8 @@ namespace shooting {
 				param,
 				player,
 				fallbackPosition,
-				fallbackForward);
+				fallbackForward,
+				SelectMuzzleFlashMeshKey());
 		}
 
 		void ApplyHitscanDamage(

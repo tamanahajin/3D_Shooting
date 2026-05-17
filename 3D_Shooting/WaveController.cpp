@@ -18,7 +18,7 @@ namespace shooting {
 	void WaveController::SetController(const std::shared_ptr<EnemyBatchController>& controller)
 	{
 		m_controller = controller;
-		EnsureEnemyFactory(controller);
+		WaveEnemyFactory(controller);
 	}
 
 	bool WaveController::IsValid() const
@@ -74,7 +74,7 @@ namespace shooting {
 			return;
 		}
 
-		EnsureEnemyFactory(controller);
+		WaveEnemyFactory(controller);
 		if (!m_enemyFactory)
 		{
 			return;
@@ -108,7 +108,7 @@ namespace shooting {
 			return 0;
 		}
 
-		EnsureEnemyFactory(controller);
+		WaveEnemyFactory(controller);
 		if (!m_enemyFactory)
 		{
 			return 0;
@@ -153,7 +153,7 @@ namespace shooting {
 		return m_controller.lock();
 	}
 
-	void WaveController::EnsureEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller)
+	void WaveController::WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller)
 	{
 		if (!controller)
 		{

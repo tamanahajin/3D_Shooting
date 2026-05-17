@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="・ｽ\・ｽ[・ｽX ・ｽt・ｽ@・ｽC・ｽ・ｽ\imgui">
-      <UniqueIdentifier>{f4e0d318-18d5-43ec-a2fd-2729337ee475}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Libs">
       <UniqueIdentifier>{616a77bd-5bef-4d6d-9eca-543091ce041e}</UniqueIdentifier>
     </Filter>
@@ -40,18 +37,24 @@
     <Filter Include="Libs\StandardLib\Shaders">
       <UniqueIdentifier>{88bcc0ef-e470-456a-b536-fc989b8b6f02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="・ｽ\・ｽ[・ｽX ・ｽt・ｽ@・ｽC・ｽ・ｽ\Bullet">
-      <UniqueIdentifier>{e4cd0e38-f530-41e6-9762-5245a69ee509}</UniqueIdentifier>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{6403bb8b-604f-467b-b20a-ea2eb530326b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers">
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{9357705d-ec04-4d69-a309-70bdf0f22957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Headers\Bullet">
+    <Filter Include="Scripts\Headers\Bullet">
       <UniqueIdentifier>{f05ee6fa-cae5-4167-8df6-785171611ce2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{6403bb8b-604f-467b-b20a-ea2eb530326b}</UniqueIdentifier>
+    <Filter Include="Scripts\Sources">
+      <UniqueIdentifier>{42c831f3-7806-4539-bdc0-d97a54eda409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Bullet">
+      <UniqueIdentifier>{fbb0f114-b3ef-474c-a7f1-95a34fc58433}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -145,12 +148,6 @@
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Bullet.cpp">
-      <Filter>・ｽ\・ｽ[・ｽX ・ｽt・ｽ@・ｽC・ｽ・ｽ\Bullet</Filter>
-    </ClCompile>
-    <ClCompile Include="BulletManager.cpp">
-      <Filter>・ｽ\・ｽ[・ｽX ・ｽt・ｽ@・ｽC・ｽ・ｽ\Bullet</Filter>
-    </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
@@ -162,9 +159,6 @@
     </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="BombTuning.cpp">
-      <Filter>・ｽ\・ｽ[・ｽX ・ｽt・ｽ@・ｽC・ｽ・ｽ\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
@@ -178,47 +172,94 @@
     <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Character.cpp" />
-    <ClCompile Include="EnemyBatchController.cpp" />
-    <ClCompile Include="EnemyFactory.cpp" />
-    <ClCompile Include="WaveController.cpp" />
-    <ClCompile Include="GameStage.cpp" />
-    <ClCompile Include="GameStageEnvironment.cpp" />
-    <ClCompile Include="Item.cpp" />
-    <ClCompile Include="ItemFactory.cpp" />
-    <ClCompile Include="MainCamera.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerCombat.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="StageObjectCatalog.cpp" />
-    <ClCompile Include="StageGroundResolver.cpp" />
-    <ClCompile Include="SeekObject.cpp" />
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="UIManager.cpp" />
-    <ClCompile Include="WinMain.cpp" />
-    <ClCompile Include="WorldObjects.cpp" />
+    <ClCompile Include="BombTuning.cpp">
+      <Filter>Scripts\Sources\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>Scripts\Sources\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletManager.cpp">
+      <Filter>Scripts\Sources\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBatchController.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyFactory.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStage.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStageEnvironment.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemFactory.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MainCamera.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCombat.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SeekObject.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="StageGroundResolver.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="StageObjectCatalog.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveController.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldObjects.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainCamera.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageObjectCatalog.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageGroundResolver.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Project.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ProjectUtil.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BaseTexture.h">
       <Filter>Libs\BasicLib\Headers</Filter>
@@ -317,7 +358,7 @@
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -332,16 +373,16 @@
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
     <ClInclude Include="GameStage.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Character.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="EnemyFactory.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="WaveController.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h">
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
@@ -350,7 +391,7 @@
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\DxHelper.h">
       <Filter>Libs\BasicLib\Headers</Filter>
@@ -368,22 +409,22 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="IBullet.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="BulletType.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="BulletPool.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="BulletManager.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="IBulletPool.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -392,7 +433,7 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="DamageInfo.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -401,7 +442,7 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BombTuning.h">
-      <Filter>Headers\Bullet</Filter>
+      <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -410,7 +451,7 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="UIManager.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BaseMaterial.h">
       <Filter>Libs\BasicLib\Headers</Filter>
@@ -428,10 +469,10 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ItemFactory.h">
-      <Filter>Headers</Filter>
+      <Filter>Scripts\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

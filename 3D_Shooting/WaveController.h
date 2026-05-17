@@ -62,7 +62,7 @@ namespace shooting {
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
 		std::shared_ptr<EnemyBatchController> GetController() const;
-		void EnsureEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
+		void WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
 	};
 
 }

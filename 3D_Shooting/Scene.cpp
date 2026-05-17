@@ -72,25 +72,107 @@ namespace shooting {
 
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
-		std::shared_ptr<BaseMesh> CreateMuzzleFlashMesh(ID3D12GraphicsCommandList* pCommandList)
+
+		std::shared_ptr<BaseMesh> CreateMuzzleFlashMesh(ID3D12GraphicsCommandList* pCommandList, int patternIndex)
 		{
+			struct MuzzleFlashShard
+			{
+				float angle;   // 飛び散る方向
+				float radius;  // 中心から少し離す量
+				float length;  // 三角形の長さ
+				float width;   // 三角形の太さ
+				float skew;    // 先端の横ずらし
+			};
+
+			// 形状違いを出すために、三角片の並びを3セット用意する。
+			static const MuzzleFlashShard kPatternA[] =
+			{
+				{ XMConvertToRadians(   0.0f), 0.00f, 1.62f, 0.38f,  0.02f },
+				{ XMConvertToRadians(  32.0f), 0.04f, 1.08f, 0.25f, -0.03f },
+				{ XMConvertToRadians(  72.0f), 0.02f, 0.82f, 0.20f,  0.04f },
+				{ XMConvertToRadians( 128.0f), 0.06f, 1.24f, 0.29f,  0.01f },
+				{ XMConvertToRadians( 185.0f), 0.03f, 0.66f, 0.18f, -0.02f },
+				{ XMConvertToRadians( 226.0f), 0.05f, 0.99f, 0.24f,  0.05f },
+				{ XMConvertToRadians( 286.0f), 0.01f, 1.40f, 0.31f, -0.04f },
+				{ XMConvertToRadians( 326.0f), 0.07f, 0.74f, 0.17f,  0.02f },
+			};
+			static const MuzzleFlashShard kPatternB[] =
+			{
+				{ XMConvertToRadians( -12.0f), 0.00f, 1.52f, 0.30f, -0.05f },
+				{ XMConvertToRadians(  18.0f), 0.06f, 0.78f, 0.17f,  0.02f },
+				{ XMConvertToRadians(  58.0f), 0.03f, 1.28f, 0.27f,  0.06f },
+				{ XMConvertToRadians( 112.0f), 0.07f, 0.88f, 0.19f, -0.03f },
+				{ XMConvertToRadians( 170.0f), 0.02f, 1.10f, 0.24f,  0.04f },
+				{ XMConvertToRadians( 244.0f), 0.05f, 0.70f, 0.16f, -0.02f },
+				{ XMConvertToRadians( 302.0f), 0.01f, 1.48f, 0.33f,  0.03f },
+			};
+			static const MuzzleFlashShard kPatternC[] =
+			{
+				{ XMConvertToRadians(   8.0f), 0.02f, 1.74f, 0.42f,  0.00f },
+				{ XMConvertToRadians(  45.0f), 0.04f, 0.86f, 0.18f, -0.05f },
+				{ XMConvertToRadians(  94.0f), 0.00f, 1.18f, 0.26f,  0.04f },
+				{ XMConvertToRadians( 148.0f), 0.08f, 0.72f, 0.16f,  0.02f },
+				{ XMConvertToRadians( 214.0f), 0.03f, 1.34f, 0.28f, -0.06f },
+				{ XMConvertToRadians( 270.0f), 0.06f, 0.92f, 0.21f,  0.03f },
+				{ XMConvertToRadians( 318.0f), 0.01f, 1.06f, 0.23f, -0.02f },
+				{ XMConvertToRadians( 350.0f), 0.05f, 0.62f, 0.15f,  0.04f },
+			};
+
+			// 登録時に渡された番号から使うパターンを選ぶ。
+			const MuzzleFlashShard* shards = kPatternA;
+			size_t shardCount = sizeof(kPatternA) / sizeof(kPatternA[0]);
+			switch (patternIndex)
+			{
+			case 1:
+				shards = kPatternB;
+				shardCount = sizeof(kPatternB) / sizeof(kPatternB[0]);
+				break;
+			case 2:
+				shards = kPatternC;
+				shardCount = sizeof(kPatternC) / sizeof(kPatternC[0]);
+				break;
+			default:
+				break;
+			}
+
 			std::vector<VertexPositionNormalTexture> vertices;
 			std::vector<uint32_t> indices;
-			vertices.reserve(4);
-			indices.reserve(6);
+			vertices.reserve(shardCount * 3);
+			indices.reserve(shardCount * 3);
 
 			const XMFLOAT3 normal(0.0f, 0.0f, -1.0f);
-			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f, -0.5f, 0.0f), normal, XMFLOAT2(0.0f, 1.0f)));
-			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f, -0.5f, 0.0f), normal, XMFLOAT2(1.0f, 1.0f)));
-			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3( 0.5f,  0.5f, 0.0f), normal, XMFLOAT2(1.0f, 0.0f)));
-			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-0.5f,  0.5f, 0.0f), normal, XMFLOAT2(0.0f, 0.0f)));
+			// 各三角片を1枚の三角形に展開して、1つのメッシュにまとめる。
+			for (size_t i = 0; i < shardCount; ++i)
+			{
+				const auto& shard = shards[i];
+				const float c = std::cos(shard.angle);
+				const float s = std::sin(shard.angle);
+				const XMFLOAT2 dir(c, s);
+				const XMFLOAT2 tangent(-s, c);
+				const float halfWidth = shard.width * 0.5f;
 
-			indices.push_back(0);
-			indices.push_back(1);
-			indices.push_back(2);
-			indices.push_back(0);
-			indices.push_back(2);
-			indices.push_back(3);
+				const XMFLOAT3 tip(
+					dir.x * (shard.radius + shard.length) + tangent.x * shard.skew,
+					dir.y * (shard.radius + shard.length) + tangent.y * shard.skew,
+					0.0f);
+				const XMFLOAT3 left(
+					dir.x * shard.radius - tangent.x * halfWidth,
+					dir.y * shard.radius - tangent.y * halfWidth,
+					0.0f);
+				const XMFLOAT3 right(
+					dir.x * shard.radius + tangent.x * halfWidth,
+					dir.y * shard.radius + tangent.y * halfWidth,
+					0.0f);
+
+				const uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(VertexPositionNormalTexture(tip, normal, XMFLOAT2(0.5f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(left, normal, XMFLOAT2(0.15f, 1.0f)));
+				vertices.push_back(VertexPositionNormalTexture(right, normal, XMFLOAT2(0.85f, 1.0f)));
+
+				indices.push_back(baseIndex);
+				indices.push_back(baseIndex + 1);
+				indices.push_back(baseIndex + 2);
+			}
 
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
@@ -157,7 +239,10 @@ namespace shooting {
 
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
-		RegisterMesh(L"MUZZLE_FLASH_MESH", CreateMuzzleFlashMesh(pCommandList));
+		// 発射ごとに切り替えられるよう、形状違いのメッシュを別キーで登録する。
+		RegisterMesh(L"MUZZLE_FLASH_MESH_0", CreateMuzzleFlashMesh(pCommandList, 0));
+		RegisterMesh(L"MUZZLE_FLASH_MESH_1", CreateMuzzleFlashMesh(pCommandList, 1));
+		RegisterMesh(L"MUZZLE_FLASH_MESH_2", CreateMuzzleFlashMesh(pCommandList, 2));
 		// 汎用テクスチャ
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);

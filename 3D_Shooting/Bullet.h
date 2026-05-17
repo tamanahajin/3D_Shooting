@@ -68,7 +68,7 @@ namespace shooting {
 		double m_FuseTime = FUSE_TIME;
 
 		Vec3  m_Velocity = Vec3(0, 0, 0);
-		Vec3  m_Gravity = Vec3(0, -9.8f, 0); // Y+が上の座標系ならこれ
+		Vec3  m_Gravity = Vec3(0, -9.8f, 0);
 		Vec3  m_TargetPos = Vec3(0, 0, 0);
 		Vec3  m_TargetNormal = Vec3(0, 1, 0);
 		bool  m_HasTarget = false;
