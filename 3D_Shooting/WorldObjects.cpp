@@ -23,6 +23,15 @@ namespace shooting {
         const float kTreeTrunkCollisionRadiusScale = 0.08f;
         const float kTreeJumpCollisionRadiusScale = 0.18f;
         const float kTreeJumpCollisionBottomOffset = 0.70f;
+        // shadow map の境界ギリギリで影が欠けないよう、範囲判定に少し余白を持たせる。
+        const float kStageObjectShadowCullMargin = 12.0f;
+        // 注視点がこの距離以上動いたときだけ shadow 用インスタンス buffer を作り直す。
+        const float kStageObjectShadowCullMoveThreshold = 2.0f;
+        const std::wstring kStageObjectBoxShadowProxyMeshKey = L"DEFAULT_CUBE";
+        const std::wstring kStageObjectSlopeShadowProxyMeshKey = L"STAGEOBJ_SHADOW_SLOPE_PROXY";
+
+        bool TryGetStageObjectLocalBounds(const std::wstring& meshKey, StageObjectLocalBounds& outBounds);
+        Vec3 TransformStageObjectPoint(const Vec3& localPoint, const Mat4x4& world);
 
         const StageObjectDef* FindStageObjectDefByKey(const std::wstring& key)
         {
@@ -72,6 +81,203 @@ namespace shooting {
             return true;
         }
 
+
+        bool IsSlopeStageObject(const StageObjectDef* def)
+        {
+            return def && def->name.find(L"slope") != std::wstring::npos;
+        }
+
+        bool ShouldUseStageObjectShadowProxy(const StageObjectDef* def)
+        {
+            if (!def)
+            {
+                return false;
+            }
+
+            // 高台・坂は元モデルを shadow pass に出さず、軽量 proxy mesh だけで影を作る。
+            return def->category == StageObjectCategory::Cliff ||
+                def->category == StageObjectCategory::Platform ||
+                IsSlopeStageObject(def);
+        }
+
+        const std::wstring& GetStageObjectShadowProxyMeshKey(const StageObjectDef* def)
+        {
+            // 坂を cube proxy で描くと箱の影になるため、坂だけ斜面形状の proxy mesh を使う。
+            return IsSlopeStageObject(def)
+                ? kStageObjectSlopeShadowProxyMeshKey
+                : kStageObjectBoxShadowProxyMeshKey;
+        }
+        bool ShouldCastStageObjectShadow(const StageObjectDef* def)
+        {
+            if (!def)
+            {
+                return false;
+            }
+
+            // 外周壁は画面を囲う大きな面なので、影は受けるだけにして shadow pass には出さない。
+            if (def->category == StageObjectCategory::OutSideWall)
+            {
+                return false;
+            }
+
+            if (ShouldUseStageObjectShadowProxy(def))
+            {
+                return true;
+            }
+
+            return def->category == StageObjectCategory::Tree ||
+                def->category == StageObjectCategory::Log ||
+                def->category == StageObjectCategory::Rock ||
+                def->category == StageObjectCategory::Stone;
+        }
+
+        bool ShouldReceiveStageObjectShadow(const StageObjectDef* def)
+        {
+            if (!def)
+            {
+                return false;
+            }
+
+            // 高台・坂・外周壁は、木やログなどが落とす影を受ける。
+            return def->category == StageObjectCategory::Cliff ||
+                def->category == StageObjectCategory::Platform ||
+                def->category == StageObjectCategory::OutSideWall ||
+                def->name.find(L"slope") != std::wstring::npos;
+        }
+
+        // ライト情報が使えない場合の簡易判定用。shadow map サイズを円形範囲として扱う。
+        float GetStageObjectShadowCullHalfExtent()
+        {
+            const float halfWidth = ShadowMap::GetViewWidth() * 0.5f;
+            const float halfHeight = ShadowMap::GetViewHeight() * 0.5f;
+            return (halfWidth > halfHeight ? halfWidth : halfHeight) + kStageObjectShadowCullMargin;
+        }
+
+        // 毎フレーム buffer を再作成すると重いので、注視点の移動量で更新必要性を判定する。
+        bool HasStageObjectShadowCullCenterMoved(const Vec3& currentAt, const Vec3& lastAt)
+        {
+            const float dx = currentAt.x - lastAt.x;
+            const float dy = currentAt.y - lastAt.y;
+            const float dz = currentAt.z - lastAt.z;
+            const float thresholdSq = kStageObjectShadowCullMoveThreshold * kStageObjectShadowCullMoveThreshold;
+            return (dx * dx) + (dy * dy) + (dz * dz) >= thresholdSq;
+        }
+
+        // fallback 用。カメラ注視点周辺にあるインスタンスだけを shadow pass 候補にする。
+        bool IsStageObjectInsideFocusRange(const Mat4x4& instanceWorld, const Vec3& focus)
+        {
+            const Vec3 position = instanceWorld.transInMatrix();
+            const float range = GetStageObjectShadowCullHalfExtent();
+            const float dx = position.x - focus.x;
+            const float dz = position.z - focus.z;
+            return (dx * dx) + (dz * dz) <= range * range;
+        }
+
+        Mat4x4 BuildStageObjectShadowProxyWorld(
+            const StageObjectLocalBounds& bounds,
+            const Mat4x4& instanceWorld)
+        {
+            Vec3 worldScale = instanceWorld.scaleInMatrix();
+            Vec3 proxyScale(
+                std::fabs(bounds.size.x * worldScale.x),
+                std::fabs(bounds.size.y * worldScale.y),
+                std::fabs(bounds.size.z * worldScale.z));
+
+            const float minProxySize = 0.05f;
+            if (proxyScale.x < minProxySize) proxyScale.x = minProxySize;
+            if (proxyScale.y < minProxySize) proxyScale.y = minProxySize;
+            if (proxyScale.z < minProxySize) proxyScale.z = minProxySize;
+
+            Mat4x4 proxyWorld;
+            proxyWorld.affineTransformation(
+                proxyScale,
+                Vec3(0.0f, 0.0f, 0.0f),
+                instanceWorld.quatInMatrix(),
+                TransformStageObjectPoint(bounds.center, instanceWorld));
+            return proxyWorld;
+        }
+
+        // インスタンス位置をライト視点に変換し、現在の shadow map 正射影範囲に入るか調べる。
+        bool IsStageObjectInsideShadowMapRange(
+            const Mat4x4& instanceWorld,
+            const Vec3& lightAt,
+            const Light& mainLight)
+        {
+            Vec3 lightDir = -mainLight.m_directional;
+            Vec3 lightEye = lightAt + (lightDir * ShadowMap::GetLightHeight());
+
+            XMMATRIX lightView = XMMatrixLookAtLH(
+                (XMVECTOR)lightEye,
+                (XMVECTOR)lightAt,
+                (XMVECTOR)Vec3(0.0f, 1.0f, 0.0f));
+
+            const Vec3 position = instanceWorld.transInMatrix();
+            XMVECTOR lightSpacePos = XMVector3TransformCoord(
+                XMVectorSet(position.x, position.y, position.z, 1.0f),
+                lightView);
+
+            XMFLOAT3 p{};
+            XMStoreFloat3(&p, lightSpacePos);
+
+            const float halfWidth = (ShadowMap::GetViewWidth() * 0.5f) + kStageObjectShadowCullMargin;
+            const float halfHeight = (ShadowMap::GetViewHeight() * 0.5f) + kStageObjectShadowCullMargin;
+            const float nearZ = ShadowMap::GetLightNear() - kStageObjectShadowCullMargin;
+            const float farZ = ShadowMap::GetLightFar() + kStageObjectShadowCullMargin;
+
+            return std::fabs(p.x) <= halfWidth &&
+                std::fabs(p.y) <= halfHeight &&
+                p.z >= nearZ &&
+                p.z <= farZ;
+        }
+
+        // 通常描画は全インスタンスを使うが、shadow pass では影に効く範囲のものだけを抜き出す。
+        std::vector<Mat4x4> BuildStageObjectShadowInstanceWorlds(
+            const StageObjectDef* def,
+            const std::vector<Mat4x4>& instanceWorlds,
+            const std::shared_ptr<Camera>& camera,
+            const std::shared_ptr<LightSet>& lightSet)
+        {
+            if (!ShouldCastStageObjectShadow(def))
+            {
+                return {};
+            }
+
+            if (!camera)
+            {
+                // 初期化直後などカメラがまだ取れない場合は、全件投入せず次の更新で再判定する。
+                return {};
+            }
+
+            const bool useProxyMesh = ShouldUseStageObjectShadowProxy(def);
+            StageObjectLocalBounds proxyBounds;
+            if (useProxyMesh && !TryGetStageObjectLocalBounds(def->key, proxyBounds))
+            {
+                return {};
+            }
+
+            const Vec3 focus = camera->GetAt();
+            const bool useShadowMapRange = lightSet && lightSet->GetNumLights() > 0;
+            const Light mainLight = useShadowMapRange ? lightSet->GetMainBaseLight() : Light();
+
+            std::vector<Mat4x4> shadowWorlds;
+            shadowWorlds.reserve(instanceWorlds.size());
+            for (const auto& instanceWorld : instanceWorlds)
+            {
+                const bool insideRange = useShadowMapRange
+                    ? IsStageObjectInsideShadowMapRange(instanceWorld, focus, mainLight)
+                    : IsStageObjectInsideFocusRange(instanceWorld, focus);
+                if (insideRange)
+                {
+                    // 高台・坂は元メッシュではなく、ローカル境界から作った軽量 proxy を shadow pass に渡す。
+                    shadowWorlds.push_back(useProxyMesh
+                        ? BuildStageObjectShadowProxyWorld(proxyBounds, instanceWorld)
+                        : instanceWorld);
+                }
+            }
+
+            return shadowWorlds;
+        }
+
         void IncludeBoundsPoint(const aiVector3D& point, Vec3& minPoint, Vec3& maxPoint)
         {
             if (point.x < minPoint.x) minPoint.x = point.x;
@@ -84,6 +290,14 @@ namespace shooting {
 
         bool TryGetStageObjectLocalBounds(const std::wstring& meshKey, StageObjectLocalBounds& outBounds)
         {
+            static std::map<std::wstring, StageObjectLocalBounds> boundsCache;
+            const auto cached = boundsCache.find(meshKey);
+            if (cached != boundsCache.end())
+            {
+                outBounds = cached->second;
+                return outBounds.valid;
+            }
+
             const auto& meshes = BaseScene::Get()->GetModelMesh(meshKey);
             std::shared_ptr<BaseAssimp> assimp;
             for (const auto& mesh : meshes)
@@ -129,6 +343,7 @@ namespace shooting {
             outBounds.center = (minPoint + maxPoint) * 0.5f;
             outBounds.size = maxPoint - minPoint;
             outBounds.valid = true;
+            boundsCache[meshKey] = outBounds;
             return true;
         }
 
@@ -267,7 +482,7 @@ namespace shooting {
 			);
 		}
 
-		ptrDraw->SetOwnShadowActive(false);
+		ptrDraw->SetOwnShadowActive(true);
 	}
 
 	FloorInstancedRenderer::FloorInstancedRenderer(
@@ -294,7 +509,8 @@ namespace shooting {
 		ptrDraw->SetBaseColorOverride(Col4(0.627f, 0.659f, 0.788f, 1.0f));
 		ptrDraw->SetUseMaterialTexture(false);
 		ptrDraw->SetLightingEnabled(true);
-		ptrDraw->SetOwnShadowActive(false);
+		ptrDraw->SetOwnShadowActive(true);
+		ptrDraw->SetCastShadowActive(false);
 		ptrDraw->BuildInstanceBuffer();
 
 		AddTag(L"Floor");
@@ -315,18 +531,82 @@ namespace shooting {
 	}
 
 	StageObjectInstancedRenderer::~StageObjectInstancedRenderer() {}
+    void StageObjectInstancedRenderer::RefreshShadowInstances(bool force)
+    {
+        const auto* def = FindStageObjectDefByKey(m_MeshKey);
+        if (!ShouldCastStageObjectShadow(def))
+        {
+            // 影を落とさない種類は shadow 用 buffer を空にして、shadow pass 自体も無効化する。
+            if (force || !m_ShadowInstanceWorlds.empty())
+            {
+                m_ShadowInstanceWorlds.clear();
+                SetShadowActive(false);
+                if (m_Draw)
+                {
+                    m_Draw->SetCastShadowActive(false);
+                    m_Draw->SetShadowInstanceWorlds(m_ShadowInstanceWorlds);
+                    m_Draw->BuildShadowInstanceBuffer();
+                }
+            }
+            return;
+        }
+
+        auto camera = GetCamera();
+        const Vec3 currentAt = camera ? camera->GetAt() : Vec3(0.0f, 0.0f, 0.0f);
+        // 注視点がほぼ動いていない間は、前回作った shadow 用インスタンス配列を使い回す。
+        if (!force && m_ShadowCullInitialized &&
+            !HasStageObjectShadowCullCenterMoved(currentAt, m_LastShadowCullAt))
+        {
+            return;
+        }
+
+        m_LastShadowCullAt = currentAt;
+        m_ShadowCullInitialized = true;
+        // ここで shadow pass 専用にカリング済み配列を作り、GPU へ渡す instance buffer を軽くする。
+        m_ShadowInstanceWorlds = BuildStageObjectShadowInstanceWorlds(def, m_InstanceWorlds, camera, GetLightSet());
+
+        const bool castShadow = !m_ShadowInstanceWorlds.empty();
+        SetShadowActive(castShadow);
+        if (m_Draw)
+        {
+            m_Draw->SetCastShadowActive(castShadow);
+            m_Draw->SetShadowInstanceWorlds(m_ShadowInstanceWorlds);
+            m_Draw->BuildShadowInstanceBuffer();
+        }
+    }
+
+    void StageObjectInstancedRenderer::OnUpdate(double elapsedTime)
+    {
+        (void)elapsedTime;
+        RefreshShadowInstances(false);
+    }
+
     void StageObjectInstancedRenderer::OnCreate()
     {
-        auto ptrDraw = AddComponent<InstancedStaticDraw>();
+        m_Draw = AddComponent<InstancedStaticDraw>();
+        auto ptrDraw = m_Draw;
         ptrDraw->SetMeshKey(m_MeshKey);
         ptrDraw->SetMaterialPrefix(m_MaterialPrefix);
         ptrDraw->SetInstanceWorlds(m_InstanceWorlds);
         ptrDraw->SetUseMaterialTexture(true);
         ptrDraw->SetLightingEnabled(true);
-        ptrDraw->SetOwnShadowActive(false);
-        ptrDraw->BuildInstanceBuffer();
 
         const auto* def = FindStageObjectDefByKey(m_MeshKey);
+        const bool receiveShadow = ShouldReceiveStageObjectShadow(def);
+        if (ShouldUseStageObjectShadowProxy(def))
+        {
+            // 高台は cube、坂は斜面形状の proxy を使う。通常描画は元モデルのまま。
+            ptrDraw->SetShadowMeshKey(GetStageObjectShadowProxyMeshKey(def));
+        }
+        else
+        {
+            ptrDraw->ClearShadowMeshKey();
+        }
+        // Scene pass は全インスタンス、shadow pass は RefreshShadowInstances() で絞った配列を使う。
+        ptrDraw->SetOwnShadowActive(receiveShadow);
+        ptrDraw->SetCastShadowActive(false);
+        ptrDraw->BuildInstanceBuffer();
+        RefreshShadowInstances(true);
         if (ShouldCreateStageObjectCollision(def))
         {
             StageObjectLocalBounds bounds;
@@ -470,11 +750,11 @@ namespace shooting {
 		ptrColl->SetFixed(true);
 		//タグをつける
 		AddTag(L"FixedBox");
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_CUBE");
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->AddBaseMesh(L"DEFAULT_CUBE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
+		// 壁は shadow pass に出さず、表示シェーダ側で影だけ受ける。
+		SetShadowActive(false);
 		ptrDraw->SetOwnShadowActive(true);
 	}
 
@@ -496,11 +776,11 @@ namespace shooting {
 		//重力をつける
 		auto ptrGra = AddComponent<Gravity>();
 
-		auto ptrShadow = AddComponent<ShadowMap>();
-		ptrShadow->AddBaseMesh(L"DEFAULT_CUBE");
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->AddBaseMesh(L"DEFAULT_CUBE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
+		// 壁は shadow pass に出さず、表示シェーダ側で影だけ受ける。
+		SetShadowActive(false);
 		ptrDraw->SetOwnShadowActive(true);
 	}
 

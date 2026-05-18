@@ -601,6 +601,9 @@
     <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTStaticPL.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSShadowmap.hlsl">
+      <Filter>Libs\StandardLib\Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Common\Library\StandardLib\Shaders\InstancedVSPNTBonePL.hlsl">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </FxCompile>

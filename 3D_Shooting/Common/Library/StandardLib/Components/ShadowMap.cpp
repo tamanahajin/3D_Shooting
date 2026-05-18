@@ -11,6 +11,7 @@ namespace shooting {
 	float ShadowMap::m_lightHeight(200.0f);
 	float ShadowMap::m_lightNear(0.1f);
 	float ShadowMap::m_lightFar(220.0f);
+	// shadow map ‚Ì³Ë‰e”ÍˆÍBL‚°‚é‚Ù‚Ç‰“‚­‚Ì‰e‚Ü‚Åo‚é‚ªA‰e‚Ì‰ğ‘œŠ´‚Í—‚¿‚éB
 	float ShadowMap::m_viewWidth(32.0f);
 	float ShadowMap::m_viewHeight(32.0f);
 	float ShadowMap::m_posAdjustment(0.1f);

@@ -6,6 +6,7 @@ namespace shooting {
 	DECLARE_DX12SHADER(InstancedVSPNTStaticPL)
 	DECLARE_DX12SHADER(InstancedVSPNTBonePL)
 	DECLARE_DX12SHADER(InstancedPSPNTPL)
+	DECLARE_DX12SHADER(InstancedVSShadowmap)
 
 	struct StaticInstanceData
 	{
@@ -21,6 +22,7 @@ namespace shooting {
 		std::vector<size_t> m_MaterialConstantBufferIndices;
 
 		bool m_OwnShadowActive = false;
+		bool m_CastShadowActive = false;
 		bool m_UseBaseColorOverride = false;
 		bool m_UseMaterialTexture = true;
 		bool m_LightingEnabled = true;
@@ -28,14 +30,29 @@ namespace shooting {
 
 		std::wstring m_MeshKey;
 		std::wstring m_MaterialPrefix;
+		// 空でない場合、shadow pass だけ通常モデルではなくこの軽量メッシュを使う。
+		std::wstring m_ShadowMeshKey;
 
 		std::vector<Mat4x4> m_InstanceWorlds;
 		std::vector<StaticInstanceData> m_InstanceData;
+
+		std::vector<Mat4x4> m_ShadowInstanceWorlds;
+		std::vector<StaticInstanceData> m_ShadowInstanceData;
 
 		ComPtr<ID3D12Resource> m_InstanceBuffer;
 		UINT m_InstanceBufferCapacityBytes = 0;
 		D3D12_VERTEX_BUFFER_VIEW m_InstanceBufferView{};
 
+		ComPtr<ID3D12Resource> m_ShadowInstanceBuffer;
+		UINT m_ShadowInstanceBufferCapacityBytes = 0;
+		D3D12_VERTEX_BUFFER_VIEW m_ShadowInstanceBufferView{};
+
+		void BuildStaticInstanceBuffer(
+			const std::vector<Mat4x4>& worlds,
+			std::vector<StaticInstanceData>& instanceData,
+			ComPtr<ID3D12Resource>& instanceBuffer,
+			UINT& instanceBufferCapacityBytes,
+			D3D12_VERTEX_BUFFER_VIEW& instanceBufferView);
 		void EnsureMaterialConstantBuffers(size_t materialCount);
 
 	public:
@@ -44,21 +61,28 @@ namespace shooting {
 
 		void SetMeshKey(const std::wstring& key) { m_MeshKey = key; }
 		void SetMaterialPrefix(const std::wstring& prefix) { m_MaterialPrefix = prefix; }
+		void SetShadowMeshKey(const std::wstring& key) { m_ShadowMeshKey = key; }
+		void ClearShadowMeshKey() { m_ShadowMeshKey.clear(); }
 		void SetInstanceWorlds(const std::vector<Mat4x4>& worlds) { m_InstanceWorlds = worlds; }
+		void SetShadowInstanceWorlds(const std::vector<Mat4x4>& worlds) { m_ShadowInstanceWorlds = worlds; }
 		void SetBaseColorOverride(const Col4& color) { m_UseBaseColorOverride = true; m_BaseColorOverride = color; }
 		void ClearBaseColorOverride() { m_UseBaseColorOverride = false; m_BaseColorOverride = Col4(1.0f); }
 		void SetUseMaterialTexture(bool b) { m_UseMaterialTexture = b; }
 		void SetLightingEnabled(bool b) { m_LightingEnabled = b; }
 
 		void BuildInstanceBuffer();
+		void BuildShadowInstanceBuffer();
 
 		bool IsOwnShadowActive() const { return m_OwnShadowActive; }
 		void SetOwnShadowActive(bool b) { m_OwnShadowActive = b; }
+		bool IsCastShadowActive() const { return m_CastShadowActive; }
+		void SetCastShadowActive(bool b) { m_CastShadowActive = b; }
 
 		virtual void OnCreate() override;
 		virtual void OnUpdateConstantBuffers() override;
 		virtual void OnCommitConstantBuffers() override;
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
+		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 
 	struct SkinnedInstanceSource
@@ -82,6 +106,7 @@ namespace shooting {
 		size_t m_ConstantBufferIndex = 0;
 
 		bool m_OwnShadowActive = false;
+		bool m_CastShadowActive = false;
 
 		std::wstring m_MeshKey;
 		std::wstring m_TextureKey;
@@ -130,11 +155,14 @@ namespace shooting {
 
 		bool IsOwnShadowActive() const { return m_OwnShadowActive; }
 		void SetOwnShadowActive(bool b) { m_OwnShadowActive = b; }
+		bool IsCastShadowActive() const { return m_CastShadowActive; }
+		void SetCastShadowActive(bool b) { m_CastShadowActive = b; }
 
 		virtual void OnCreate() override;
 		virtual void OnUpdateConstantBuffers() override;
 		virtual void OnCommitConstantBuffers() override;
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) override;
+		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList) override;
 	};
 }
 

@@ -20,6 +20,9 @@ struct VSOutput
     float3 Normal : TEXCOORD1;
     float4 WorldPos : TEXCOORD2;
     float Damage : TEXCOORD3;
+    float4 LightSpacePos : TEXCOORD4;
+    float3 LightRay : TEXCOORD5;
+    float3 LightViewVec : TEXCOORD6;
 };
 
 VSOutput main(VSInput input)
@@ -42,6 +45,10 @@ VSOutput main(VSInput input)
     output.Normal = normalize(mul(input.Normal, (float3x3) instanceWorld));
     output.WorldPos = worldPos;
     output.Damage = 0.0f;
+    output.LightSpacePos = mul(worldPos, LightView);
+    output.LightSpacePos = mul(output.LightSpacePos, LightProjection);
+    output.LightRay = LightPos.xyz - worldPos.xyz;
+    output.LightViewVec = EyePos.xyz - worldPos.xyz;
 
     return output;
 }

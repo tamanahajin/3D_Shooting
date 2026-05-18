@@ -31,7 +31,7 @@ namespace shooting {
 
 		auto collision = AddComponent<CollisionSphere>();
 		collision->SetFixed(false);
-		collision->SetDebugDraw(true);
+		collision->SetDebugDraw(false);
 		collision->SetMakedRadius(1.0f);
 		collision->SetAfterCollision(AfterCollision::None);
 

@@ -14,6 +14,7 @@ namespace shooting {
 	class GameStage;
 	class EnemyCollisionProxy;
 	class SeekObject;
+	class InstancedStaticDraw;
 
 	struct EnemyStatus
 	{
@@ -82,6 +83,16 @@ namespace shooting {
 		std::wstring m_MeshKey;
 		std::wstring m_MaterialPrefix;
 		std::vector<Mat4x4> m_InstanceWorlds;
+		// 通常描画用とは別に、shadow pass で描く範囲内インスタンスだけを保持する。
+		std::vector<Mat4x4> m_ShadowInstanceWorlds;
+		// shadow 用インスタンス buffer を更新するため、作成した描画コンポーネントを保持する。
+		std::shared_ptr<InstancedStaticDraw> m_Draw;
+		// カメラ注視点が大きく動いたときだけ shadow 用配列を再構築するための状態。
+		Vec3 m_LastShadowCullAt;
+		bool m_ShadowCullInitialized = false;
+
+		// shadow map 範囲内のインスタンスだけに絞り、描画コンポーネントへ反映する。
+		void RefreshShadowInstances(bool force);
 
 	public:
 		StageObjectInstancedRenderer(
@@ -92,7 +103,7 @@ namespace shooting {
 
 		virtual ~StageObjectInstancedRenderer();
 		virtual void OnCreate() override;
-		virtual void OnUpdate(double elapsedTime) override {}
+		virtual void OnUpdate(double elapsedTime) override;
 	};
 
 

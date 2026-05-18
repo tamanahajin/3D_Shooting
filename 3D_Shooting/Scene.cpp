@@ -73,6 +73,56 @@ namespace shooting {
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
 
+		std::shared_ptr<BaseMesh> CreateStageSlopeShadowProxyMesh(ID3D12GraphicsCommandList* pCommandList)
+		{
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve(60);
+			indices.reserve(60);
+
+			auto addTriangle = [&](const XMFLOAT3& a, const XMFLOAT3& b, const XMFLOAT3& c)
+			{
+				const XMFLOAT3 normal(0.0f, 1.0f, 0.0f);
+				uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(VertexPositionNormalTexture(a, normal, XMFLOAT2(0.0f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(b, normal, XMFLOAT2(1.0f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(c, normal, XMFLOAT2(1.0f, 1.0f)));
+				indices.push_back(baseIndex);
+				indices.push_back(baseIndex + 1);
+				indices.push_back(baseIndex + 2);
+
+				// shadow pass の back-face culling で面が消えないよう、同じ三角形を逆向きにも入れる。
+				baseIndex = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(VertexPositionNormalTexture(a, normal, XMFLOAT2(0.0f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(c, normal, XMFLOAT2(1.0f, 1.0f)));
+				vertices.push_back(VertexPositionNormalTexture(b, normal, XMFLOAT2(1.0f, 0.0f)));
+				indices.push_back(baseIndex);
+				indices.push_back(baseIndex + 1);
+				indices.push_back(baseIndex + 2);
+			};
+
+			auto addQuad = [&](const XMFLOAT3& a, const XMFLOAT3& b, const XMFLOAT3& c, const XMFLOAT3& d)
+			{
+				addTriangle(a, b, c);
+				addTriangle(a, c, d);
+			};
+
+			// 1x1x1 の範囲に収まる三角柱。WorldObjects 側で実モデルの bounds に合わせて拡縮する。
+			const XMFLOAT3 lowLeft(-0.5f, -0.5f, 0.5f);
+			const XMFLOAT3 lowRight(0.5f, -0.5f, 0.5f);
+			const XMFLOAT3 highLeft(-0.5f, 0.5f, -0.5f);
+			const XMFLOAT3 highRight(0.5f, 0.5f, -0.5f);
+			const XMFLOAT3 backBottomLeft(-0.5f, -0.5f, -0.5f);
+			const XMFLOAT3 backBottomRight(0.5f, -0.5f, -0.5f);
+
+			addQuad(lowLeft, lowRight, highRight, highLeft);               // 斜面
+			addQuad(backBottomLeft, highLeft, highRight, backBottomRight); // 上側の垂直面
+			addTriangle(backBottomLeft, lowLeft, highLeft);                // 左側面
+			addTriangle(lowRight, backBottomRight, highRight);             // 右側面
+			addQuad(backBottomLeft, backBottomRight, lowRight, lowLeft);   // 底面
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
 		std::shared_ptr<BaseMesh> CreateMuzzleFlashMesh(ID3D12GraphicsCommandList* pCommandList, int patternIndex)
 		{
 			struct MuzzleFlashShard
@@ -239,6 +289,7 @@ namespace shooting {
 
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
+		RegisterMesh(L"STAGEOBJ_SHADOW_SLOPE_PROXY", CreateStageSlopeShadowProxyMesh(pCommandList));
 		// 発射ごとに切り替えられるよう、形状違いのメッシュを別キーで登録する。
 		RegisterMesh(L"MUZZLE_FLASH_MESH_0", CreateMuzzleFlashMesh(pCommandList, 0));
 		RegisterMesh(L"MUZZLE_FLASH_MESH_1", CreateMuzzleFlashMesh(pCommandList, 1));

@@ -6,6 +6,7 @@ namespace shooting {
 	IMPLEMENT_DX12SHADER(InstancedVSPNTStaticPL, App::GetShadersDir() + L"InstancedVSPNTStaticPL.cso")
 	IMPLEMENT_DX12SHADER(InstancedVSPNTBonePL, App::GetShadersDir() + L"InstancedVSPNTBonePL.cso")
 		IMPLEMENT_DX12SHADER(InstancedPSPNTPL, App::GetShadersDir() + L"InstancedPSPNTPL.cso")
+	IMPLEMENT_DX12SHADER(InstancedVSShadowmap, App::GetShadersDir() + L"InstancedVSShadowmap.cso")
 
 	InstancedStaticDraw::InstancedStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
 	Component(gameObjectPtr)
@@ -80,35 +81,88 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"InstancedPNTStatic", pipeline);
 			}
 		}
+		{
+			ComPtr<ID3D12PipelineState> pipeline =
+				PipelineStatePool::GetPipelineState(L"InstancedPNTShadowMap");
+
+			if (!pipeline)
+			{
+				auto rootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault", true);
+
+				CD3DX12_DEPTH_STENCIL_DESC depthStencilDesc(D3D12_DEFAULT);
+				depthStencilDesc.DepthEnable = TRUE;
+				depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+				depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+				depthStencilDesc.StencilEnable = FALSE;
+
+				D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+				ZeroMemory(&psoDesc, sizeof(psoDesc));
+				psoDesc.InputLayout =
+				{
+					VertexPositionNormalTextureMatrix::GetVertexElement(),
+					VertexPositionNormalTextureMatrix::GetNumElements()
+				};
+				psoDesc.pRootSignature = rootSignature.Get();
+				psoDesc.VS =
+				{
+					reinterpret_cast<UINT8*>(
+						InstancedVSShadowmap::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
+					InstancedVSShadowmap::GetPtr()->GetShaderComPtr()->GetBufferSize()
+				};
+				psoDesc.PS = { CD3DX12_SHADER_BYTECODE(0, 0) };
+				psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+				psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+				psoDesc.DepthStencilState = depthStencilDesc;
+				psoDesc.SampleMask = UINT_MAX;
+				psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+				psoDesc.NumRenderTargets = 0;
+				psoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+				psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+				psoDesc.SampleDesc.Count = 1;
+
+				ThrowIfFailed(
+					App::GetID3D12Device()->CreateGraphicsPipelineState(
+						&psoDesc,
+						IID_PPV_ARGS(&pipeline)));
+
+				NAME_D3D12_OBJECT(pipeline);
+				PipelineStatePool::AddPipelineState(L"InstancedPNTShadowMap", pipeline);
+			}
+		}
 	}
 
-	void InstancedStaticDraw::BuildInstanceBuffer()
+	void InstancedStaticDraw::BuildStaticInstanceBuffer(
+		const std::vector<Mat4x4>& worlds,
+		std::vector<StaticInstanceData>& instanceData,
+		ComPtr<ID3D12Resource>& instanceBuffer,
+		UINT& instanceBufferCapacityBytes,
+		D3D12_VERTEX_BUFFER_VIEW& instanceBufferView)
 	{
-		m_InstanceData.clear();
-		m_InstanceBufferView.SizeInBytes = 0;
+		instanceData.clear();
+		instanceBufferView = {};
 
-		if (m_InstanceWorlds.empty())
+		if (worlds.empty())
 		{
 			return;
 		}
 
-		m_InstanceData.reserve(m_InstanceWorlds.size());
+		instanceData.reserve(worlds.size());
 
-		for (const auto& world : m_InstanceWorlds)
+		for (const auto& world : worlds)
 		{
 			StaticInstanceData d{};
 			XMStoreFloat4x4(&d.matrix, (XMMATRIX)world);
-			m_InstanceData.push_back(d);
+			instanceData.push_back(d);
 		}
 
 		const UINT bufferSize =
-			static_cast<UINT>(sizeof(StaticInstanceData) * m_InstanceData.size());
+			static_cast<UINT>(sizeof(StaticInstanceData) * instanceData.size());
 		auto device = App::GetD3D12Device();
 
-		if (!m_InstanceBuffer || m_InstanceBufferCapacityBytes < bufferSize)
+		if (!instanceBuffer || instanceBufferCapacityBytes < bufferSize)
 		{
-			m_InstanceBuffer.Reset();
-			m_InstanceBufferCapacityBytes = 0;
+			instanceBuffer.Reset();
+			instanceBufferCapacityBytes = 0;
 
 			ThrowIfFailed(device->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -116,20 +170,40 @@ namespace shooting {
 				&CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
-				IID_PPV_ARGS(&m_InstanceBuffer)));
+				IID_PPV_ARGS(&instanceBuffer)));
 
-			m_InstanceBufferCapacityBytes = bufferSize;
+			instanceBufferCapacityBytes = bufferSize;
 		}
 
 		void* mappedPtr = nullptr;
 		CD3DX12_RANGE readRange(0, 0);
-		ThrowIfFailed(m_InstanceBuffer->Map(0, &readRange, &mappedPtr));
-		memcpy(mappedPtr, m_InstanceData.data(), bufferSize);
-		m_InstanceBuffer->Unmap(0, nullptr);
+		ThrowIfFailed(instanceBuffer->Map(0, &readRange, &mappedPtr));
+		memcpy(mappedPtr, instanceData.data(), bufferSize);
+		instanceBuffer->Unmap(0, nullptr);
 
-		m_InstanceBufferView.BufferLocation = m_InstanceBuffer->GetGPUVirtualAddress();
-		m_InstanceBufferView.StrideInBytes = sizeof(StaticInstanceData);
-		m_InstanceBufferView.SizeInBytes = bufferSize;
+		instanceBufferView.BufferLocation = instanceBuffer->GetGPUVirtualAddress();
+		instanceBufferView.StrideInBytes = sizeof(StaticInstanceData);
+		instanceBufferView.SizeInBytes = bufferSize;
+	}
+
+	void InstancedStaticDraw::BuildInstanceBuffer()
+	{
+		BuildStaticInstanceBuffer(
+			m_InstanceWorlds,
+			m_InstanceData,
+			m_InstanceBuffer,
+			m_InstanceBufferCapacityBytes,
+			m_InstanceBufferView);
+	}
+
+	void InstancedStaticDraw::BuildShadowInstanceBuffer()
+	{
+		BuildStaticInstanceBuffer(
+			m_ShadowInstanceWorlds,
+			m_ShadowInstanceData,
+			m_ShadowInstanceBuffer,
+			m_ShadowInstanceBufferCapacityBytes,
+			m_ShadowInstanceBufferView);
 	}
 
 	void InstancedStaticDraw::EnsureMaterialConstantBuffers(size_t materialCount)
@@ -179,6 +253,7 @@ namespace shooting {
 
 		BasicConstant baseConstant{};
 		baseConstant.activeFlg.x = m_LightingEnabled ? 3 : 0;
+		baseConstant.activeFlg.z = m_OwnShadowActive ? 1 : 0;
 
 		// インスタンス側で world を持つので、ここは identity
 		auto world = XMMatrixIdentity();
@@ -318,10 +393,21 @@ namespace shooting {
 			pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart()
 		);
 
-		pCommandList->SetGraphicsRootDescriptorTable(
-			pBaseScene->GetGpuSlotID(L"t0"),
-			cbvSrvGpuNullHandle
-		);
+		if (IsOwnShadowActive())
+		{
+			auto depthGPUDsvs = pBaseScene->GetDepthSrvGpuHandles();
+			pCommandList->SetGraphicsRootDescriptorTable(
+				pBaseScene->GetGpuSlotID(L"t0"),
+				depthGPUDsvs[SceneEnums::DepthGenPass::Shadow]
+			);
+		}
+		else
+		{
+			pCommandList->SetGraphicsRootDescriptorTable(
+				pBaseScene->GetGpuSlotID(L"t0"),
+				cbvSrvGpuNullHandle
+			);
+		}
 
 		auto pipeline = PipelineStatePool::GetPipelineState(L"InstancedPNTStatic", true);
 		pCommandList->SetPipelineState(pipeline.Get());
@@ -409,6 +495,60 @@ namespace shooting {
 		}
 	}
 
+	void InstancedStaticDraw::OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		if (!m_CastShadowActive || m_ShadowInstanceData.empty() || !m_ShadowInstanceBuffer)
+		{
+			return;
+		}
+
+		auto pBaseScene = BaseScene::Get();
+		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
+		auto pipeline = PipelineStatePool::GetPipelineState(L"InstancedPNTShadowMap", true);
+		pCommandList->SetPipelineState(pipeline.Get());
+
+		pCommandList->SetGraphicsRootConstantBufferView(
+			pBaseScene->GetGpuSlotID(L"b0"),
+			pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex]
+			.m_baseConstantBuffer->GetGPUVirtualAddress());
+
+		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		std::vector<std::shared_ptr<BaseMesh>> shadowProxyMeshes;
+		const std::vector<std::shared_ptr<BaseMesh>>* meshes = nullptr;
+		if (!m_ShadowMeshKey.empty())
+		{
+			// 高台や坂など重いモデルは、shadow pass だけ軽量 proxy mesh で描く。
+			shadowProxyMeshes.push_back(BaseScene::Get()->GetMesh(m_ShadowMeshKey));
+			meshes = &shadowProxyMeshes;
+		}
+		else
+		{
+			meshes = &BaseScene::Get()->GetModelMesh(m_MeshKey);
+		}
+
+		for (const auto& mesh : *meshes)
+		{
+			if (!mesh)
+			{
+				continue;
+			}
+
+			D3D12_VERTEX_BUFFER_VIEW views[2] =
+			{
+				mesh->GetVertexBufferView(),
+				m_ShadowInstanceBufferView
+			};
+
+			pCommandList->IASetVertexBuffers(0, 2, views);
+			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+			pCommandList->DrawIndexedInstanced(
+				mesh->GetNumIndices(),
+				static_cast<UINT>(m_ShadowInstanceData.size()),
+				0, 0, 0);
+		}
+	}
+
 	InstancedSkinnedDraw::InstancedSkinnedDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
 		Component(gameObjectPtr)
 	{
@@ -417,6 +557,11 @@ namespace shooting {
 	InstancedSkinnedDraw::~InstancedSkinnedDraw()
 	{
 		ReleaseMappedBuffers();
+	}
+
+	void InstancedSkinnedDraw::OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)
+	{
+		(void)pCommandList;
 	}
 
 	namespace {
