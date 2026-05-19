@@ -1,32 +1,73 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
 	namespace
 	{
+		// 通常射撃の最大射程。Raycastの終点計算に使う。
 		const float kNormalShotRange = 60.0f;
+		// 通常射撃が1発で与えるダメージ量。
 		const int kNormalShotDamage = 1;
+		// 通常射撃の発射間隔。小さいほど連射が速くなる。
 		const double kNormalShotCooldown = 0.12;
+		// Scene.cppで登録しているプレイヤー銃モデルのキー。
 		const wchar_t* kPlayerBlasterModelKey = L"PLAYER_BLASTER_MODEL";
+		// 銃モデルの各メッシュに割り当てるマテリアルキーの接頭辞。
 		const wchar_t* kPlayerBlasterMaterialPrefix = L"PLAYER_BLASTER_MAT_";
+		// 銃モデルに強制適用する基本色。
 		const Col4 kPlayerBlasterColor(0.18f, 0.19f, 0.21f, 1.0f);
+		// 銃モデルを手に持たせるときの表示スケール。
 		const Vec3 kBlasterAttachScale(0.006f, 0.006f, 0.006f);
+		// 銃モデルを手のソケット基準でY軸回転させる角度。
 		const float kBlasterAttachYawDegrees = 120.0f;
+		// 銃モデル装着時のローカル回転。上の角度をラジアンにして使う。
 		const Vec3 kBlasterAttachEuler(0.0f, XMConvertToRadians(kBlasterAttachYawDegrees), 0.0f);
+		// 手のソケットから銃モデルを微調整するローカル位置オフセット。
 		const Vec3 kBlasterSocketOffset(-0.1f, 0.05f, 0.1f);
+		// Idle中にソケット位置が大きく飛んだと判断する距離。武器の急なスナップ抑制に使う。
 		const float kWeaponAttachMaxIdleSnapDistance = 0.25f;
+		// 銃モデル内に作った銃口ソケット名。
 		const char* kPlayerBlasterMuzzleSocketName = "MuzzleSocket";
-		// Scene.cpp�œo�^����3��ނ̃��b�V�����A���˂��Ƃɐ؂�ւ���B
+		// マズルフラッシュ用のコード生成メッシュキー。発射ごとに順番に切り替える。
 		const wchar_t* kMuzzleFlashMeshKeys[] = { L"MUZZLE_FLASH_MESH_0", L"MUZZLE_FLASH_MESH_1", L"MUZZLE_FLASH_MESH_2" };
+		// マズルフラッシュメッシュの登録数。配列サイズから自動計算する。
 		const size_t kMuzzleFlashMeshCount = sizeof(kMuzzleFlashMeshKeys) / sizeof(kMuzzleFlashMeshKeys[0]);
+		// マズルフラッシュ、トレーサー、着弾スパークで流用する発光テクスチャキー。
 		const wchar_t* kMuzzleFlashTextureKey = L"EXPLOSION_FIRE_TX";
-		// �Z�������̊Ԃɏ����g�債�Ȃ���t�F�[�h�A�E�g����B
+		// マズルフラッシュの表示時間。
 		const float kMuzzleFlashLifeTime = 0.065f;
+		// マズルフラッシュ出現直後の大きさ。
 		const float kMuzzleFlashStartScale = 0.11f;
+		// マズルフラッシュが消える直前の大きさ。
 		const float kMuzzleFlashEndScale = 0.20f;
+		// 銃口ソケットからマズルフラッシュを前後にずらす量。
 		const float kMuzzleFlashForwardOffset = -0.5f;
+		// 見た目だけの弾道が進む速度。ヒットスキャン判定には影響しない。
+		const float kBulletTracerSpeed = 260.0f;
+		// 弾道表示の最短寿命。近距離でも一瞬は見えるようにする。
+		const float kBulletTracerLifeTimeMin = 0.045f;
+		// 弾道表示の最長寿命。遠距離でも残りすぎないようにする。
+		const float kBulletTracerLifeTimeMax = 0.14f;
+		// 弾道表示の線分長。長くすると弾の軌跡が伸びて見える。
+		const float kBulletTracerLength = 1.35f;
+		// 弾道表示の太さ。
+		const float kBulletTracerWidth = 0.035f;
+		// 銃口から弾道表示を少し前に出して、手元に重ならないようにする距離。
+		const float kBulletTracerStartOffset = 0.16f;
+		// 着弾スパーク用のコード生成メッシュキー。
+		const wchar_t* kBulletImpactSparkMeshKey = L"BULLET_IMPACT_SPARK_MESH";
+		// 着弾スパークの表示時間。
+		const float kBulletImpactSparkLifeTime = 0.12f;
+		// 着弾スパーク出現直後の大きさ。
+		const float kBulletImpactSparkStartScale = 0.3f;
+		// 着弾スパークが消える直前の大きさ。
+		const float kBulletImpactSparkEndScale = 0.6f;
+		// 着弾面からスパークを少し浮かせる距離。面とのちらつき防止に使う。
+		const float kBulletImpactSparkSurfaceOffset = 0.035f;
+		// 銃口ソケットが見つからない場合に使う、銃モデルローカル空間の予備銃口位置。
 		const Vec3 kBlasterMuzzleLocalPosition(0.0f, 5.204915f, 46.0f);
+		// ボム弾モデルの表示スケール。
 		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
 
 		struct RightHandSocketTransform
@@ -383,12 +424,12 @@ namespace shooting {
 			std::weak_ptr<Player> m_Player;
 			Vec3 m_FallbackPosition;
 			Vec3 m_FallbackForward;
-			// ���̔��˂őI�΂ꂽ�}�Y���t���b�V���`��B
+			// この発射で選ばれたマズルフラッシュ形状。
 			std::wstring m_MeshKey;
 			float m_Elapsed = 0.0f;
 			float m_CurrentScale = kMuzzleFlashStartScale;
 
-			// �e���\�P�b�g��Ǐ]���āA�ړ������G�t�F�N�g���u������ɂȂ�Ȃ��悤�ɂ���B
+			// 銃口ソケットを追従して、移動中もエフェクトが置き去りにならないようにする。
 			void UpdateFollowTransform(float scale)
 			{
 				if (auto transform = GetComponent<Transform>(false))
@@ -478,7 +519,7 @@ namespace shooting {
 				UpdateFollowTransform(m_CurrentScale);
 			}
 		};
-		// �A�ˎ��ɓ����`�������Ȃ��悤�A3�p�^�[�������ԂɎg���B
+		// 連射時に同じ形が続かないよう、3パターンを順番に使う。
 		const wchar_t* SelectMuzzleFlashMeshKey()
 		{
 			static size_t nextPattern = 0;
@@ -511,6 +552,216 @@ namespace shooting {
 				SelectMuzzleFlashMeshKey());
 		}
 
+		// ヒット判定を持たない表示専用の弾道。短い発光ロッドを高速で流して弾速感を出す。
+		class BulletTracerEffect : public GameObject
+		{
+		private:
+			Vec3 m_Start;
+			Vec3 m_Direction;
+			float m_Distance = 0.0f;
+			float m_Elapsed = 0.0f;
+			float m_LifeTime = kBulletTracerLifeTimeMin;
+
+			void UpdateTracerTransform(float t)
+			{
+				auto transform = GetComponent<Transform>(false);
+				if (!transform)
+				{
+					return;
+				}
+
+				// 全距離を1本の長い線にせず、短い線分を前方へ移動させる。
+				const float segmentLength = bsmUtil::Min(kBulletTracerLength, bsmUtil::Max(0.05f, m_Distance));
+				const float startCenter = bsmUtil::Min(m_Distance * 0.5f, kBulletTracerStartOffset + (segmentLength * 0.5f));
+				const float endCenter = bsmUtil::Max(startCenter, m_Distance - (segmentLength * 0.5f));
+				const float centerDistance = bsmUtil::Lerp(startCenter, endCenter, t);
+				const float width = kBulletTracerWidth * bsmUtil::Lerp(1.0f, 0.65f, t);
+
+				transform->SetPosition(m_Start + (m_Direction * centerDistance));
+				transform->SetQuaternion(bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Direction));
+				transform->SetScale(Vec3(width, width, segmentLength));
+			}
+
+		public:
+			BulletTracerEffect(
+				const std::shared_ptr<Stage>& stagePtr,
+				const Vec3& start,
+				const Vec3& end,
+				const Vec3& fallbackForward) :
+				GameObject(stagePtr),
+				m_Start(start)
+			{
+				Vec3 delta = end - start;
+				if (delta.length() <= 1e-5f || delta.isNaN() || delta.isInfinite())
+				{
+					delta = NormalizeOrFallback(fallbackForward, Vec3(0.0f, 0.0f, 1.0f)) * kNormalShotRange;
+				}
+
+				m_Distance = bsmUtil::Max(0.05f, delta.length());
+				m_Direction = delta;
+				m_Direction.normalize();
+				m_LifeTime = bsmUtil::Clamp(m_Distance / kBulletTracerSpeed, kBulletTracerLifeTimeMin, kBulletTracerLifeTimeMax);
+			}
+
+			virtual ~BulletTracerEffect() = default;
+
+			virtual void OnCreate() override
+			{
+				SetAlphaActive(true);
+				SetDrawActive(true);
+				SetUpdateActive(true);
+				SetShadowActive(false);
+
+				auto draw = AddComponent<SpPNTStaticDraw>();
+				// 専用メッシュを増やさず、DEFAULT_CUBEを細長く伸ばして弾筋として描く。
+				draw->AddBaseMesh(L"DEFAULT_CUBE");
+				draw->AddBaseTexture(kMuzzleFlashTextureKey);
+				draw->SetOwnShadowActive(false);
+				draw->SetEmissive(Col4(1.9f, 1.55f, 0.55f, 1.0f));
+				draw->SetDiffuse(Col4(1.0f, 0.9f, 0.35f, 0.82f));
+				draw->SetSpecular(Col4(0.0f, 0.0f, 0.0f, 1.0f));
+
+				UpdateTracerTransform(0.0f);
+			}
+
+			virtual void OnUpdate(double elapsedTime) override
+			{
+				m_Elapsed += static_cast<float>(elapsedTime);
+				const float t = bsmUtil::Clamp(m_Elapsed / m_LifeTime, 0.0f, 1.0f);
+				UpdateTracerTransform(t);
+
+				if (auto draw = GetComponent<SpPNTStaticDraw>(false))
+				{
+					// 寿命後半ほど透明・低発光にして、残像がすぐ消えるようにする。
+					const float fade = 1.0f - t;
+					draw->SetEmissive(Col4(1.9f * fade, 1.55f * fade, 0.55f * fade, 1.0f));
+					draw->SetDiffuse(Col4(1.0f, 0.9f, 0.35f, 0.82f * fade));
+				}
+
+				if (m_Elapsed >= m_LifeTime)
+				{
+					if (auto stage = GetStage(false))
+					{
+						stage->RemoveGameObject(GetThis<GameObject>());
+					}
+				}
+			}
+		};
+
+		// 射撃処理側からは開始点と終点だけ渡す。ダメージ判定はApplyHitscanDamage側で完了済み。
+		void SpawnBulletTracer(
+			const std::shared_ptr<Stage>& stage,
+			const Vec3& start,
+			const Vec3& end,
+			const Vec3& fallbackForward)
+		{
+			if (!stage)
+			{
+				return;
+			}
+
+			stage->AddGameObject<BulletTracerEffect>(start, end, fallbackForward);
+		}
+
+		// 着弾位置に一瞬だけ出す火花。ダメージや当たり判定は持たず、見た目だけを担当する。
+		class BulletImpactSparkEffect : public GameObject
+		{
+		private:
+			Vec3 m_Point;
+			Vec3 m_Normal;
+			float m_Elapsed = 0.0f;
+
+			void UpdateSparkTransform(float t)
+			{
+				auto transform = GetComponent<Transform>(false);
+				if (!transform)
+				{
+					return;
+				}
+
+				// 面の内側に埋まるとちらつくため、法線方向へ少しだけ浮かせる。
+				transform->SetPosition(m_Point + (m_Normal * kBulletImpactSparkSurfaceOffset));
+				// メッシュはローカルXY平面なので、ローカル+Zを着弾面の法線に合わせる。
+				transform->SetQuaternion(bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Normal));
+				// 出現直後は小さく、消えながら少し広がる火花にする。
+				const float scale = bsmUtil::Lerp(kBulletImpactSparkStartScale, kBulletImpactSparkEndScale, t);
+				transform->SetScale(Vec3(scale, scale, scale));
+			}
+
+		public:
+			BulletImpactSparkEffect(
+				const std::shared_ptr<Stage>& stagePtr,
+				const Vec3& point,
+				const Vec3& normal) :
+				GameObject(stagePtr),
+				m_Point(point),
+				m_Normal(NormalizeOrFallback(normal, Vec3(0.0f, 1.0f, 0.0f)))
+			{
+				m_transParam.position = m_Point + (m_Normal * kBulletImpactSparkSurfaceOffset);
+				m_transParam.scale = Vec3(kBulletImpactSparkStartScale, kBulletImpactSparkStartScale, kBulletImpactSparkStartScale);
+				m_transParam.quaternion = bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Normal);
+			}
+
+			virtual ~BulletImpactSparkEffect() = default;
+
+			virtual void OnCreate() override
+			{
+				SetAlphaActive(true);
+				SetDrawActive(true);
+				SetUpdateActive(true);
+				SetShadowActive(false);
+
+				auto draw = AddComponent<SpPNTStaticDraw>();
+				// Scene.cppで登録した三角片メッシュを使い、テクスチャ素材は既存の炎パーティクルを流用する。
+				draw->AddBaseMesh(kBulletImpactSparkMeshKey);
+				draw->AddBaseTexture(kMuzzleFlashTextureKey);
+				draw->SetOwnShadowActive(false);
+				draw->SetEmissive(Col4(1.8f, 1.2f, 0.25f, 1.0f));
+				draw->SetDiffuse(Col4(1.0f, 0.78f, 0.22f, 0.82f));
+				draw->SetSpecular(Col4(0.0f, 0.0f, 0.0f, 1.0f));
+
+				UpdateSparkTransform(0.0f);
+			}
+
+			virtual void OnUpdate(double elapsedTime) override
+			{
+				m_Elapsed += static_cast<float>(elapsedTime);
+				const float t = bsmUtil::Clamp(m_Elapsed / kBulletImpactSparkLifeTime, 0.0f, 1.0f);
+				UpdateSparkTransform(t);
+
+				if (auto draw = GetComponent<SpPNTStaticDraw>(false))
+				{
+					// フェードアウト時は発光も同時に弱め、画面に残像が残りすぎないようにする。
+					const float fade = 1.0f - t;
+					draw->SetEmissive(Col4(1.8f * fade, 1.2f * fade, 0.25f * fade, 1.0f));
+					draw->SetDiffuse(Col4(1.0f, 0.78f, 0.22f, 0.82f * fade));
+				}
+
+				if (m_Elapsed >= kBulletImpactSparkLifeTime)
+				{
+					if (auto stage = GetStage(false))
+					{
+						stage->RemoveGameObject(GetThis<GameObject>());
+					}
+				}
+			}
+		};
+
+		void SpawnBulletImpactSpark(
+			const std::shared_ptr<Stage>& stage,
+			const RaycastHit& hit,
+			const Vec3& shotForward)
+		{
+			if (!stage)
+			{
+				return;
+			}
+
+			// Raycastの法線が取れない相手でも表示できるよう、弾の進行方向の逆を予備の法線にする。
+			const Vec3 fallbackNormal = NormalizeOrFallback(shotForward * -1.0f, Vec3(0.0f, 1.0f, 0.0f));
+			const Vec3 normal = NormalizeOrFallback(hit.m_Normal, fallbackNormal);
+			stage->AddGameObject<BulletImpactSparkEffect>(hit.m_Point, normal);
+		}
 		void ApplyHitscanDamage(
 			const std::shared_ptr<GameObject>& shooter,
 			const RaycastHit& hit,
@@ -712,25 +963,25 @@ namespace shooting {
 
 		m_InputHandler.PushHandle(GetThis<Player>());
 
-		// �ړ�
+		// 移動
 		MovePlayer();
 		ResolveSlopeCollision();
 
-		// �W�����v�i�n�ʂɂ���Ƃ��̂݁j
+		// ジャンプ（地面にいるときのみ）
 		if (App::GetInputDevice().KeyDown(VK_SPACE))
 		{
 			OnPushA();
 		}
 
-		// �t���[���̍Ō�ɒn�ʔ�������Z�b�g
+		// フレームの最後に地面判定をリセット
 		m_IsGround = false;
 
-		// ���˃N�[���_�E���X�V
+		// 発射クールダウン更新
 		m_ShotCool -= elapsedTime;
 
 		const auto& input = App::GetInputDevice();
 
-		// --- ���� ---
+		// --- 入力 ---
 		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
 
 		if (m_CurrentBullet == BulletType::Bomb && m_BombAmmo <= 0)
@@ -743,7 +994,7 @@ namespace shooting {
 		const bool traceNormalShot = canFire && !bombMode;
 		const bool traceBombPreview = bombMode;
 
-		// --- �_���_�v�Z�iRaycast�j ---
+		// --- 狙い点計算（Raycast） ---
 		Vec3 muzzle(0, 0, 0);
 
 		Vec3 aimPointShot(0, 0, 0);
@@ -761,7 +1012,7 @@ namespace shooting {
 		{
 			auto trans = GetComponent<Transform>();
 
-			// �e��
+			// 銃口
 			muzzle = trans->GetPosition()
 				+ trans->GetForward() * 0.2f
 				+ Vec3(0.0f, 0.055f, 0.0f);
@@ -772,13 +1023,13 @@ namespace shooting {
 				muzzle = muzzleSocketTransform.position;
 			}
 
-			// �J�������C�i�N���X�w�A=��ʒ����j
+			// カメラレイ（クロスヘア=画面中央）
 			Vec3 rayOrigin = m_MainCamera->GetEye();
 			Vec3 rayDir = m_MainCamera->GetAt() - m_MainCamera->GetEye();
 			rayDir.normalize();
 
 			// ----------------------------
-			// �@ �e�p�iEnemy�͏E�� / Bullet�͖����j
+			// ① 弾用（Enemyは拾う / Bulletは無視）
 			// ----------------------------
 			if (traceNormalShot)
 			{
@@ -789,10 +1040,32 @@ namespace shooting {
 					hasHitShot = true;
 					aimPointShot = shotHit.m_Point;
 				}
+
+				if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+				{
+					Vec3 generatedPoint(0.0f, 0.0f, 0.0f);
+					Vec3 generatedNormal(0.0f, 1.0f, 0.0f);
+					float generatedDistance = 0.0f;
+					if (gameStage->TryRaycastGeneratedGround(rayOrigin, rayDir, kNormalShotRange, generatedPoint, generatedNormal, generatedDistance))
+					{
+						// 坂や高台の床は軽量な生成地形として管理しているため、通常のCollisionManagerだけでは拾えない場合がある。
+						// 物理Raycastのヒットが手前にある場合は敵や壁を優先し、生成床面が手前なら着弾点として使う。
+						const bool generatedIsNearest = !hasHitShot || generatedDistance < shotHit.m_Distance - 0.05f;
+						if (generatedIsNearest)
+						{
+							hasHitShot = true;
+							aimPointShot = generatedPoint;
+							shotHit = RaycastHit{};
+							shotHit.m_Point = generatedPoint;
+							shotHit.m_Normal = generatedNormal;
+							shotHit.m_Distance = generatedDistance;
+						}
+					}
+				}
 			}
 
 			// ----------------------------
-			// �A �v���r���[�p�iEnemy/Bullet�𖳎��j
+			// ② プレビュー用（Enemy/Bulletを無視）
 			// ----------------------------
 			if (traceBombPreview)
 			{
@@ -825,7 +1098,7 @@ namespace shooting {
 					}
 				}
 
-				// rot�i�e����aimPointPreview�j
+				// rot（銃口→aimPointPreview）
 				Vec3 shotDir = aimPointPreview - muzzle;
 				if (shotDir.length() > 1e-6f)
 				{
@@ -836,7 +1109,7 @@ namespace shooting {
 			}
 		}
 
-		// --- BombAimPreview �X�V ---
+		// --- BombAimPreview 更新 ---
 		if (m_BombPreview)
 		{
 			const float kArcHeight = 1.5f;
@@ -852,14 +1125,14 @@ namespace shooting {
 			);
 		}
 
-		// --- ���� ---
+		// --- 発射 ---
 		if (canFire)
 		{
 			const float kArcHeight = 1.5f;
 			const Vec3  kGravity(0, -20.0f, 0);
 			const float kExplosionRadius = 2.0f;
 
-			// �{��
+			// ボム
 			if (bombMode)
 			{
 				auto bulletMgr = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
@@ -870,7 +1143,7 @@ namespace shooting {
 					bulletMgr->FireEx<BombBullet>(muzzle, shotRotPreview, scale,
 									[&](BombBullet& b)
 									{
-										// �v���r���[�ɓn�����l�����̂܂܎��e�ցiEnemy�����̑_���_�j
+										// プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
 										b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning(), hitNormalPreview, hasHitPreview);
 									});
 				}
@@ -887,7 +1160,7 @@ namespace shooting {
 				}
 
 
-				// �U������������
+				// 攻撃方向を向く
 				Vec3 attackDir = aimPointPreview - GetComponent<Transform>()->GetPosition();
 				attackDir.y = 0.0f;
 
@@ -898,10 +1171,10 @@ namespace shooting {
 					auto util = GetBehavior<UtilBehavior>();
 					util->RotToHead(attackDir, 1.0f);
 				}
-				// �U���A�j���[�V����
+				// 攻撃アニメーション
 				anim->ChangeAnimation(AnimState::AttackMeleeLeft);
 			}
-			// �ʏ�e
+			// 通常弾
 			else
 			{
 				if (hasHitShot)
@@ -909,7 +1182,7 @@ namespace shooting {
 					ApplyHitscanDamage(GetThis<GameObject>(), shotHit, kNormalShotDamage);
 				}
 
-				// �U������������
+				// 攻撃方向を向く
 				Vec3 attackDir = aimPointShot - GetComponent<Transform>()->GetPosition();
 				attackDir.y = 0.0f;
 
@@ -932,6 +1205,13 @@ namespace shooting {
 					flashForward = GetComponent<Transform>()->GetForward();
 				}
 				SpawnMuzzleFlash(GetThis<Player>(), muzzle, flashForward);
+				if (hasHitShot)
+				{
+					// Raycastの着弾位置に小さいスパークを出す。弾道表示と同じくゲーム判定には影響しない。
+					SpawnBulletImpactSpark(GetStage(false), shotHit, flashForward);
+				}
+				// 命中処理とは別に、銃口から命中点へ見た目だけの弾道を飛ばす。
+				SpawnBulletTracer(GetStage(false), muzzle, aimPointShot, flashForward);
 				anim->ChangeAnimation(AnimState::HoldingRightShoot, true);
 			}
 		}

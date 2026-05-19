@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -91,7 +91,7 @@ namespace shooting {
 				indices.push_back(baseIndex + 1);
 				indices.push_back(baseIndex + 2);
 
-				// shadow pass ‚Ì back-face culling ‚Å–Ê‚ªÁ‚¦‚È‚¢‚æ‚¤A“¯‚¶OŠpŒ`‚ğ‹tŒü‚«‚É‚à“ü‚ê‚éB
+				// shadow pass ã® back-face culling ã§é¢ãŒæ¶ˆãˆãªã„ã‚ˆã†ã€åŒã˜ä¸‰è§’å½¢ã‚’é€†å‘ãã«ã‚‚å…¥ã‚Œã‚‹ã€‚
 				baseIndex = static_cast<uint32_t>(vertices.size());
 				vertices.push_back(VertexPositionNormalTexture(a, normal, XMFLOAT2(0.0f, 0.0f)));
 				vertices.push_back(VertexPositionNormalTexture(c, normal, XMFLOAT2(1.0f, 1.0f)));
@@ -107,7 +107,7 @@ namespace shooting {
 				addTriangle(a, c, d);
 			};
 
-			// 1x1x1 ‚Ì”ÍˆÍ‚Éû‚Ü‚éOŠp’ŒBWorldObjects ‘¤‚ÅÀƒ‚ƒfƒ‹‚Ì bounds ‚É‡‚í‚¹‚ÄŠgk‚·‚éB
+			// 1x1x1 ã®ç¯„å›²ã«åã¾ã‚‹ä¸‰è§’æŸ±ã€‚WorldObjects å´ã§å®Ÿãƒ¢ãƒ‡ãƒ«ã® bounds ã«åˆã‚ã›ã¦æ‹¡ç¸®ã™ã‚‹ã€‚
 			const XMFLOAT3 lowLeft(-0.5f, -0.5f, 0.5f);
 			const XMFLOAT3 lowRight(0.5f, -0.5f, 0.5f);
 			const XMFLOAT3 highLeft(-0.5f, 0.5f, -0.5f);
@@ -115,11 +115,85 @@ namespace shooting {
 			const XMFLOAT3 backBottomLeft(-0.5f, -0.5f, -0.5f);
 			const XMFLOAT3 backBottomRight(0.5f, -0.5f, -0.5f);
 
-			addQuad(lowLeft, lowRight, highRight, highLeft);               // Î–Ê
-			addQuad(backBottomLeft, highLeft, highRight, backBottomRight); // ã‘¤‚Ì‚’¼–Ê
-			addTriangle(backBottomLeft, lowLeft, highLeft);                // ¶‘¤–Ê
-			addTriangle(lowRight, backBottomRight, highRight);             // ‰E‘¤–Ê
-			addQuad(backBottomLeft, backBottomRight, lowRight, lowLeft);   // ’ê–Ê
+			addQuad(lowLeft, lowRight, highRight, highLeft);               // æ–œé¢
+			addQuad(backBottomLeft, highLeft, highRight, backBottomRight); // ä¸Šå´ã®å‚ç›´é¢
+			addTriangle(backBottomLeft, lowLeft, highLeft);                // å·¦å´é¢
+			addTriangle(lowRight, backBottomRight, highRight);             // å³å´é¢
+			addQuad(backBottomLeft, backBottomRight, lowRight, lowLeft);   // åº•é¢
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
+		std::shared_ptr<BaseMesh> CreateBulletImpactSparkMesh(ID3D12GraphicsCommandList* pCommandList)
+		{
+			struct ImpactSparkShard
+			{
+				float angle;   // ä¸­å¿ƒã‹ã‚‰ã©ã®æ–¹å‘ã¸ç«èŠ±ã‚’ä¼¸ã°ã™ã‹
+				float inner;   // ä¸­å¿ƒã‹ã‚‰å°‘ã—é›¢ã—ã¦ã€çœŸã‚“ä¸­ã‚’è©°ã‚ã™ããªã„ãŸã‚ã®è·é›¢
+				float length;  // ç«èŠ±ã®é•·ã•
+				float width;   // ç«èŠ±ã®æ ¹å…ƒã®å¤ªã•
+				float skew;    // å…ˆç«¯ã‚’æ¨ªã¸ãšã‚‰ã—ã¦ã€æ©Ÿæ¢°çš„ãªæ”¾å°„çŠ¶ã«è¦‹ãˆã«ããã™ã‚‹
+			};
+
+			// å°ã•ã„ç€å¼¾ç”¨ãªã®ã§ã€æ•°æšã®ä¸‰è§’ç‰‡ã ã‘ã§è»½ãè¦‹ãˆã‚‹å½¢ã«ã™ã‚‹ã€‚
+			static const ImpactSparkShard kShards[] =
+			{
+				{ XMConvertToRadians(  8.0f), 0.02f, 1.00f, 0.18f,  0.02f },
+				{ XMConvertToRadians( 48.0f), 0.04f, 0.55f, 0.11f, -0.01f },
+				{ XMConvertToRadians(104.0f), 0.03f, 0.72f, 0.13f,  0.03f },
+				{ XMConvertToRadians(176.0f), 0.02f, 0.48f, 0.10f, -0.02f },
+				{ XMConvertToRadians(228.0f), 0.05f, 0.66f, 0.12f,  0.01f },
+				{ XMConvertToRadians(292.0f), 0.01f, 0.86f, 0.15f, -0.03f },
+			};
+
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve((sizeof(kShards) / sizeof(kShards[0])) * 6);
+			indices.reserve((sizeof(kShards) / sizeof(kShards[0])) * 6);
+
+			auto addDoubleSidedTriangle = [&](const XMFLOAT3& tip, const XMFLOAT3& left, const XMFLOAT3& right)
+			{
+				// ç€å¼¾é¢ãŒå£ã§ã‚‚åºŠã§ã‚‚è¦‹ãˆã‚‹ã‚ˆã†ã€è¡¨è£ã©ã¡ã‚‰ã‹ã‚‰ã§ã‚‚æã‘ã‚‹ä¸‰è§’å½¢ã«ã™ã‚‹ã€‚
+				uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(VertexPositionNormalTexture(tip, XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT2(0.5f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(left, XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT2(0.15f, 1.0f)));
+				vertices.push_back(VertexPositionNormalTexture(right, XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT2(0.85f, 1.0f)));
+				indices.push_back(baseIndex);
+				indices.push_back(baseIndex + 1);
+				indices.push_back(baseIndex + 2);
+
+				baseIndex = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(VertexPositionNormalTexture(tip, XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(0.5f, 0.0f)));
+				vertices.push_back(VertexPositionNormalTexture(right, XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(0.85f, 1.0f)));
+				vertices.push_back(VertexPositionNormalTexture(left, XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(0.15f, 1.0f)));
+				indices.push_back(baseIndex);
+				indices.push_back(baseIndex + 1);
+				indices.push_back(baseIndex + 2);
+			};
+
+			// ãƒ­ãƒ¼ã‚«ãƒ«XYå¹³é¢ã«ç«èŠ±ã‚’ä½œã‚‹ã€‚PlayerCombatå´ã§ãƒ­ãƒ¼ã‚«ãƒ«+Zã‚’ç€å¼¾é¢ã®æ³•ç·šã¸å‘ã‘ã‚‹ã€‚
+			for (const auto& shard : kShards)
+			{
+				const float c = std::cos(shard.angle);
+				const float s = std::sin(shard.angle);
+				const XMFLOAT2 dir(c, s);
+				const XMFLOAT2 tangent(-s, c);
+				const float halfWidth = shard.width * 0.5f;
+
+				const XMFLOAT3 tip(
+					dir.x * (shard.inner + shard.length) + tangent.x * shard.skew,
+					dir.y * (shard.inner + shard.length) + tangent.y * shard.skew,
+					0.0f);
+				const XMFLOAT3 left(
+					dir.x * shard.inner - tangent.x * halfWidth,
+					dir.y * shard.inner - tangent.y * halfWidth,
+					0.0f);
+				const XMFLOAT3 right(
+					dir.x * shard.inner + tangent.x * halfWidth,
+					dir.y * shard.inner + tangent.y * halfWidth,
+					0.0f);
+
+				addDoubleSidedTriangle(tip, left, right);
+			}
 
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
@@ -127,14 +201,14 @@ namespace shooting {
 		{
 			struct MuzzleFlashShard
 			{
-				float angle;   // ”ò‚ÑU‚é•ûŒü
-				float radius;  // ’†S‚©‚ç­‚µ—£‚·—Ê
-				float length;  // OŠpŒ`‚Ì’·‚³
-				float width;   // OŠpŒ`‚Ì‘¾‚³
-				float skew;    // æ’[‚Ì‰¡‚¸‚ç‚µ
+				float angle;   // é£›ã³æ•£ã‚‹æ–¹å‘
+				float radius;  // ä¸­å¿ƒã‹ã‚‰å°‘ã—é›¢ã™é‡
+				float length;  // ä¸‰è§’å½¢ã®é•·ã•
+				float width;   // ä¸‰è§’å½¢ã®å¤ªã•
+				float skew;    // å…ˆç«¯ã®æ¨ªãšã‚‰ã—
 			};
 
-			// Œ`óˆá‚¢‚ğo‚·‚½‚ß‚ÉAOŠp•Ğ‚Ì•À‚Ñ‚ğ3ƒZƒbƒg—pˆÓ‚·‚éB
+			// å½¢çŠ¶é•ã„ã‚’å‡ºã™ãŸã‚ã«ã€ä¸‰è§’ç‰‡ã®ä¸¦ã³ã‚’3ã‚»ãƒƒãƒˆç”¨æ„ã™ã‚‹ã€‚
 			static const MuzzleFlashShard kPatternA[] =
 			{
 				{ XMConvertToRadians(   0.0f), 0.00f, 1.62f, 0.38f,  0.02f },
@@ -168,7 +242,7 @@ namespace shooting {
 				{ XMConvertToRadians( 350.0f), 0.05f, 0.62f, 0.15f,  0.04f },
 			};
 
-			// “o˜^‚É“n‚³‚ê‚½”Ô†‚©‚çg‚¤ƒpƒ^[ƒ“‚ğ‘I‚ÔB
+			// ç™»éŒ²æ™‚ã«æ¸¡ã•ã‚ŒãŸç•ªå·ã‹ã‚‰ä½¿ã†ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’é¸ã¶ã€‚
 			const MuzzleFlashShard* shards = kPatternA;
 			size_t shardCount = sizeof(kPatternA) / sizeof(kPatternA[0]);
 			switch (patternIndex)
@@ -191,7 +265,7 @@ namespace shooting {
 			indices.reserve(shardCount * 3);
 
 			const XMFLOAT3 normal(0.0f, 0.0f, -1.0f);
-			// ŠeOŠp•Ğ‚ğ1–‡‚ÌOŠpŒ`‚É“WŠJ‚µ‚ÄA1‚Â‚ÌƒƒbƒVƒ…‚É‚Ü‚Æ‚ß‚éB
+			// å„ä¸‰è§’ç‰‡ã‚’1æšã®ä¸‰è§’å½¢ã«å±•é–‹ã—ã¦ã€1ã¤ã®ãƒ¡ãƒƒã‚·ãƒ¥ã«ã¾ã¨ã‚ã‚‹ã€‚
 			for (size_t i = 0; i < shardCount; ++i)
 			{
 				const auto& shard = shards[i];
@@ -262,7 +336,7 @@ namespace shooting {
 
 	void Scene::CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 	{
-		// ƒeƒNƒXƒ`ƒƒ
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£
 		auto texFile = App::GetRelativeAssetsDir() + L"Textures/wall.png";
 		auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"WALL_TX", texture);
@@ -290,16 +364,18 @@ namespace shooting {
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
 		RegisterMesh(L"STAGEOBJ_SHADOW_SLOPE_PROXY", CreateStageSlopeShadowProxyMesh(pCommandList));
-		// ”­Ë‚²‚Æ‚ÉØ‚è‘Ö‚¦‚ç‚ê‚é‚æ‚¤AŒ`óˆá‚¢‚ÌƒƒbƒVƒ…‚ğ•ÊƒL[‚Å“o˜^‚·‚éB
+		// é€šå¸¸å°„æ’ƒã®ç€å¼¾ä½ç½®ã«å‡ºã™ã€å°ã•ã„ç«èŠ±ç”¨ã®ã‚³ãƒ¼ãƒ‰ç”Ÿæˆãƒ¡ãƒƒã‚·ãƒ¥ã€‚
+		RegisterMesh(L"BULLET_IMPACT_SPARK_MESH", CreateBulletImpactSparkMesh(pCommandList));
+		// ç™ºå°„ã”ã¨ã«åˆ‡ã‚Šæ›¿ãˆã‚‰ã‚Œã‚‹ã‚ˆã†ã€å½¢çŠ¶é•ã„ã®ãƒ¡ãƒƒã‚·ãƒ¥ã‚’åˆ¥ã‚­ãƒ¼ã§ç™»éŒ²ã™ã‚‹ã€‚
 		RegisterMesh(L"MUZZLE_FLASH_MESH_0", CreateMuzzleFlashMesh(pCommandList, 0));
 		RegisterMesh(L"MUZZLE_FLASH_MESH_1", CreateMuzzleFlashMesh(pCommandList, 1));
 		RegisterMesh(L"MUZZLE_FLASH_MESH_2", CreateMuzzleFlashMesh(pCommandList, 2));
-		// ”Ä—pƒeƒNƒXƒ`ƒƒ
+		// æ±ç”¨ãƒ†ã‚¯ã‚¹ãƒãƒ£
 		texFile = App::GetRelativeAssetsDir() + L"Model/Textures/colormap.png";
 		texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
 		RegisterTexture(L"CHARACTER_TEXTURE_SKINNED", texture);
 
-		// °
+		// åºŠ
 		{
 			auto floorParts = BaseMesh::CreateModelMeshWithMaterial(
 				pCommandList,
@@ -319,7 +395,7 @@ namespace shooting {
 			RegisterModelMesh(L"FLOOR_MODEL", floorMeshes);
 		}
 
-		// Šâ•t‚«‚Ì°
+		// å²©ä»˜ãã®åºŠ
 		{
 			auto floorDetailParts = BaseMesh::CreateModelMeshWithMaterial(
 				pCommandList,
@@ -347,7 +423,7 @@ namespace shooting {
 		);
 		RegisterMesh(L"ENEMY_MODEL_SKINNED", enemySkinnedMesh);
 
-		// ƒvƒŒƒCƒ„[
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
 		auto skinnedMesh = BaseMesh::CreateMergedBoneModelMesh(
 			pCommandList,
 			App::GetRelativeAssetsDir(),
@@ -533,7 +609,7 @@ namespace shooting {
 		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
 		auto hp = player ? player->GetComponent<Health>() : nullptr;
 
-		// ¶ãFƒfƒoƒbƒO•\¦
+		// å·¦ä¸Šï¼šãƒ‡ãƒãƒƒã‚°è¡¨ç¤º
 		{
 			wchar_t buff[256];
 			swprintf_s(
@@ -550,7 +626,7 @@ namespace shooting {
 				UITextAlign::Left);
 		}
 
-		// ‰EãFŒ‚”j”
+		// å³ä¸Šï¼šæ’ƒç ´æ•°
 		//{
 		//	wchar_t buff[128];
 		//	swprintf_s(
@@ -567,7 +643,7 @@ namespace shooting {
 		//		UITextAlign::Right);
 		//}
 
-		// ‰º’†‰›FHPƒQ[ƒW
+		// ä¸‹ä¸­å¤®ï¼šHPã‚²ãƒ¼ã‚¸
 		if (hp)
 		{
 			wchar_t hpLabel[128];
@@ -583,7 +659,7 @@ namespace shooting {
 		}
 
 
-		// ƒ_ƒ[ƒW”
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸æ•°
 		if (auto camera = gameStage->GetCamera())
 		{
 			const float screenW = uiLayer->GetWidth();
