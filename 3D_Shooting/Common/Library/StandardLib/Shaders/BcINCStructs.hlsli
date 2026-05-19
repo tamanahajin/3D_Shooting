@@ -1,7 +1,7 @@
 
 /*!
 @file BcINCStructs.hlsli
-@brief ÉVÉFÅ[É_Å[ç\ë¢ëÃ
+@brief „Ç∑„Çß„Éº„ÉÄ„ÉºÊßãÈÄ†‰Ωì
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -340,7 +340,7 @@ struct PSInputPixelLightingTxTangentShadow
     float3 norm : TEXCOORD4;
     float3 lightRay : TEXCOORD5;
     float3 lightView : TEXCOORD6;
-    float4 lightSpacePos : TEXCOORD7; // Å© VS Ç∆àÍív
+    float4 lightSpacePos : TEXCOORD7; // ‚Üê VS „Å®‰∏ÄËá¥
 };
 
 

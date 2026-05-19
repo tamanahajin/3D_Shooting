@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -15,7 +15,7 @@ namespace shooting {
 		void SetDamage(int d) { m_Damage = d; }
 		int  GetDamage() const { return m_Damage; }
 
-		// 1”­‚ÅÁ‚¦‚é’e‚È‚ç true
+		// 1ç™ºã§æ¶ˆãˆã‚‹å¼¾ãªã‚‰ true
 		void SetDestroyOnHit(bool b) { m_DestroyOnHit = b; }
 		bool DestroyOnHit() const { return m_DestroyOnHit; }
 	};

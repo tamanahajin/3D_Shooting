@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 #include "IBulletPool.h"
@@ -34,7 +34,7 @@ namespace shooting {
 			return id;
 		}
 
-		// w’èŒ^‚Ìƒv[ƒ‹‚ğæ“¾i–³‚¯‚ê‚Îì‚éj
+		// æŒ‡å®šå‹ã®ãƒ—ãƒ¼ãƒ«ã‚’å–å¾—ï¼ˆç„¡ã‘ã‚Œã°ä½œã‚‹ï¼‰
 		template <class BulletT>
 		BulletPool<BulletT>* GetOrCreatePool()
 		{
@@ -48,14 +48,14 @@ namespace shooting {
 			if (!m_Pools[typeId])
 			{
 				auto p = std::make_unique<BulletPool<BulletT>>(GetStage());
-				p->OnCreate(); // –‘O¶¬
+				p->OnCreate(); // äº‹å‰ç”Ÿæˆ
 				m_Pools[typeId] = std::move(p);
 			}
 
 			return static_cast<BulletPool<BulletT>*>(m_Pools[typeId].get());
 		}
 
-		// ƒeƒ“ƒvƒŒ‚Ì”­ËAPI
+		// ãƒ†ãƒ³ãƒ—ãƒ¬ã®ç™ºå°„API
 		template <class BulletT>
 		void Fire(const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
 		{
@@ -64,7 +64,7 @@ namespace shooting {
 
 		void FireBombTo(const Vec3& pos, const Quat& rot, const Vec3& target, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
 		{
-			// uSpawn‚·‚é’¼‘O‚É SetTargetv‚Å‚«‚é‚æ‚¤APool‘¤‚É preReset ‚ğ“n‚·”Å‚ª—‘z
+			// ã€ŒSpawnã™ã‚‹ç›´å‰ã« SetTargetã€ã§ãã‚‹ã‚ˆã†ã€Poolå´ã« preReset ã‚’æ¸¡ã™ç‰ˆãŒç†æƒ³
 			GetOrCreatePool<BombBullet>()->Spawn(pos, rot, scale, [&](BombBullet& b){
 				b.SetTarget(target);
 			});
@@ -77,7 +77,7 @@ namespace shooting {
 			GetOrCreatePool<BulletT>()->Spawn(pos, rot, scale, std::forward<SetupFn>(setup));
 		}
 
-		// BulletType ‚ÅØ‚è‘Ö‚¦‚é”­ËAPI
+		// BulletType ã§åˆ‡ã‚Šæ›¿ãˆã‚‹ç™ºå°„API
 		void FireByType(BulletType type, const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
 		{
 			switch (type)

@@ -1,6 +1,6 @@
 /*!
 @file BcPSPNTPLShadow.hlsli
-@brief PNTƒsƒNƒZƒ‹ƒ‰ƒCƒeƒBƒ“ƒO‰e•t‚«ƒsƒNƒZƒ‹ƒVƒF[ƒ_[
+@brief PNTãƒ”ã‚¯ã‚»ãƒ«ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°å½±ä»˜ããƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -37,7 +37,7 @@ float4 main(PSInputPixelLightingTxShadow pin) : SV_Target0
 
 
 
-	//‰e‚Ì”Z‚³
+	//å½±ã®æ¿ƒã•
 	const float3 ambient = float3(0.7f, 0.7f, 0.7f);
 	float3 N = normalize(pin.norm);
 	float3 L = normalize(pin.lightRay);

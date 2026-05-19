@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file RigidComp.cpp
-@brief •¨—‰‰ZƒRƒ“ƒ|[ƒlƒ“ƒg@À‘Ì
+@brief ç‰©ç†æ¼”ç®—ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€€å®Ÿä½“
 */
 
 
@@ -10,7 +10,7 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	 •¨—‰‰ZƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	 ç‰©ç†æ¼”ç®—ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 	Rigidbody::Rigidbody(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Component(GameObjectPtr)
@@ -32,7 +32,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	 ƒXƒ^ƒeƒBƒbƒN•¨—‰‰ZƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	 ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ç‰©ç†æ¼”ç®—ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 	RigidbodyStatic::RigidbodyStatic(const std::shared_ptr<GameObject>& GameObjectPtr,
 									 const PhysxCreateParam& pxParam) :
@@ -50,16 +50,16 @@ namespace shooting {
 		auto ptrGameObject = GetGameObject();
 		auto ptrGameStage = std::dynamic_pointer_cast<Stage>(ptrGameObject->GetStage());
 		auto ptrPxPhysics = pBaseScene->GetPxPhysics();
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 		auto ptrTrans = ptrGameObject->GetComponent<Transform>();
 		auto& param = ptrTrans->GetTransParam();
 		auto pose = bsmUtil::ToPxTransform(param.position, param.quaternion);
-		//physx::PxRigidStatic‚Ìì¬
+		//physx::PxRigidStaticã®ä½œæˆ
 		m_pRigidStatic
 			= ptrPxPhysics->createRigidStatic(
 			pose
 			);
-		//shape‚Ìì¬
+		//shapeã®ä½œæˆ
 		physx::PxShape* shape
 			= ptrPxPhysics->createShape(
 			*m_pxParam.pGeometry,
@@ -89,7 +89,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	 ƒ_ƒCƒiƒ~ƒbƒN•¨—‰‰ZƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	 ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯ç‰©ç†æ¼”ç®—ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 	RigidbodyDynamic::RigidbodyDynamic(const std::shared_ptr<GameObject>& GameObjectPtr,
 									   const PhysxCreateParam& pxParam) :
@@ -107,16 +107,16 @@ namespace shooting {
 		auto ptrGameObject = GetGameObject();
 		auto ptrGameStage = std::dynamic_pointer_cast<Stage>(ptrGameObject->GetStage());
 		auto ptrPxPhysics = pBaseScene->GetPxPhysics();
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 		auto ptrTrans = ptrGameObject->GetComponent<Transform>();
 		auto& param = ptrTrans->GetTransParam();
 		auto pose = bsmUtil::ToPxTransform(param.position, param.quaternion);
-		//physx::PxRigidDynamic‚Ìì¬
+		//physx::PxRigidDynamicã®ä½œæˆ
 		m_pRigidDynamic
 			= ptrPxPhysics->createRigidDynamic(
 			pose
 			);
-		//shape‚Ìì¬
+		//shapeã®ä½œæˆ
 		physx::PxShape* shape
 			= ptrPxPhysics->createShape(
 			*m_pxParam.pGeometry,
@@ -139,7 +139,7 @@ namespace shooting {
 		auto ptrGameObject = GetGameObject();
 		auto ptrGameStage = std::dynamic_pointer_cast<Stage>(ptrGameObject->GetStage());
 		auto ptrPxPhysics = pBaseScene->GetPxPhysics();
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 		auto ptrTrans = ptrGameObject->GetComponent<Transform>();
 		auto& param = ptrTrans->GetTransParam();
 		physx::PxTransform pose = m_pRigidDynamic->getGlobalPose();

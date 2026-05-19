@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 #include <iostream>
 
@@ -16,8 +16,8 @@ namespace shooting {
 	DefaultBullet::DefaultBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param)
 		: IBullet(stagePtr)
 	{
-		// ObjectFactory::Create ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚©‚ç OnCreate() ‚ğŒÄ‚Ô‚Ì‚Å
-		// Transform‚Ì‰Šú’l‚ğæ‚Éİ’è‚µ‚½‚¢ê‡‚Í‚±‚±‚Å•ÛŠÇ‚·‚é
+		// ObjectFactory::Create ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‹ã‚‰ OnCreate() ã‚’å‘¼ã¶ã®ã§
+		// Transformã®åˆæœŸå€¤ã‚’å…ˆã«è¨­å®šã—ãŸã„å ´åˆã¯ã“ã“ã§ä¿ç®¡ã™ã‚‹
 		m_transParam = param;
 
 		m_IsActive = false;
@@ -25,14 +25,14 @@ namespace shooting {
 
 	void DefaultBullet::OnCreate()
 	{
-		// Õ“Ë
+		// è¡çª
 		auto ptrColl = AddComponent<CollisionSphere>();
 		ptrColl->SetFixed(false);
 
-		// ƒ^ƒO
+		// ã‚¿ã‚°
 		AddTag(L"Bullet");
 
-		// •`‰æ
+		// æç”»
 		auto ptrShadow = AddComponent<ShadowMap>();
 		ptrShadow->AddBaseMesh(L"DEFAULT_SPHERE");
 
@@ -41,12 +41,12 @@ namespace shooting {
 		ptrDraw->AddBaseTexture(L"WALL_TX");
 		ptrDraw->SetOwnShadowActive(true);
 
-		// ƒ_ƒ[ƒWi‚±‚ÌƒvƒƒWƒFƒNƒg‚Å‚Í OnCollisionEnter ‚©‚ç ApplyDamage ‚ğŒÄ‚Ôj
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸ï¼ˆã“ã®ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ OnCollisionEnter ã‹ã‚‰ ApplyDamage ã‚’å‘¼ã¶ï¼‰
 		auto dmg = AddComponent<DamageDealer>();
 		dmg->SetDamage(3);
 		dmg->SetDestroyOnHit(true);
 
-		// –³‹ƒIƒuƒWƒFƒNƒg
+		// ç„¡è¦–ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 		if (auto col = GetComponent<Collision>(false))
 		{
 			col->AddExcludeCollisionTag(L"Player");
@@ -58,7 +58,7 @@ namespace shooting {
 	{
 		if (!m_IsActive) return;
 
-		// õ–½
+		// å¯¿å‘½
 		m_ElapsedTime += elapsedTime;
 		if (m_ElapsedTime >= m_LifeTime)
 		{
@@ -67,7 +67,7 @@ namespace shooting {
 			return;
 		}
 
-		// ‘Oi
+		// å‰é€²
 		if (auto ptrTrans = GetComponent<Transform>())
 		{
 			auto& param = ptrTrans->GetTransParam();
@@ -96,7 +96,7 @@ namespace shooting {
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
-		// ƒvƒŒƒCƒ„[‚ÍœŠO
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯é™¤å¤–
 		if (otherObj->FindTag(L"Player")) return;
 
 		DamageInfo info;
@@ -112,13 +112,13 @@ namespace shooting {
 			hp->ApplyDamage(info);
 		}
 
-		// ‚±‚±‚ÅI—¹iƒv[ƒ‹‚©‚çÄ—˜—p‚Í BulletPool ‘¤j
+		// ã“ã“ã§çµ‚äº†ï¼ˆãƒ—ãƒ¼ãƒ«ã‹ã‚‰å†åˆ©ç”¨ã¯ BulletPool å´ï¼‰
 		SetActive(false);
 	}
 
 	void DefaultBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// •K—v‚È‚ç Enter ‚Æ“¯—l‚Éˆ—
+		// å¿…è¦ãªã‚‰ Enter ã¨åŒæ§˜ã«å‡¦ç†
 		// OnCollisionEnter(pair);
 	}
 
@@ -189,7 +189,7 @@ namespace shooting {
 
 		if (!m_Exploding)
 		{
-			// ”òs’†iMŠÇj
+			// é£›è¡Œä¸­ï¼ˆä¿¡ç®¡ï¼‰
 			m_FuseTime -= elapsedTime;
 			if (m_FuseTime <= 0.0)
 			{
@@ -205,14 +205,14 @@ namespace shooting {
 
 			if (m_UseBallistic)
 			{
-				// ”­Ë‚©‚ç‚ÌŒo‰ß t
+				// ç™ºå°„ã‹ã‚‰ã®çµŒé t
 				m_FlyTime += static_cast<float>(elapsedTime);
 
-				// ’e“¹®Fp(t)=p0+v0*t+0.5*g*t^2
+				// å¼¾é“å¼ï¼šp(t)=p0+v0*t+0.5*g*t^2
 				const float t = m_FlyTime;
 				tp.position = m_StartPos + (m_V0 * t) + (m_Gravity * (0.5f * t * t));
 
-				// Œ»İ‘¬“xFv(t)=v0+g*ti•K—v‚È‚çj
+				// ç¾åœ¨é€Ÿåº¦ï¼šv(t)=v0+g*tï¼ˆå¿…è¦ãªã‚‰ï¼‰
 				m_Velocity = m_V0 + (m_Gravity * t);
 
 				Vec3 impactPosition;
@@ -223,18 +223,18 @@ namespace shooting {
 					return;
 				}
 
-				// --- d—vF uƒvƒŒƒrƒ…[I“_v ‚Æˆê’v‚³‚¹‚éƒRƒc ---
-				// ƒvƒŒƒrƒ…[‚Í 0..T ‚Å•`‰æ‚µ‚ÄI—¹‚È‚Ì‚ÅA’e‘¤‚à T ‚ÅI—¹‚Ü‚½‚Í’…’e‚³‚¹‚é
+				// --- é‡è¦ï¼š ã€Œãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼çµ‚ç‚¹ã€ ã¨ä¸€è‡´ã•ã›ã‚‹ã‚³ãƒ„ ---
+				// ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼ã¯ 0..T ã§æç”»ã—ã¦çµ‚äº†ãªã®ã§ã€å¼¾å´ã‚‚ T ã§çµ‚äº†ã¾ãŸã¯ç€å¼¾ã•ã›ã‚‹
 				if (m_FlyTime >= m_TotalT)
 				{
-					tp.position = m_TargetPos;   // ÅŒã‚Ò‚Á‚½‚è‚Æ‡‚í‚¹‚é
-					StartExplosion(nullptr);     // ’…’e‚Å”š”­i•s—v‚È‚çƒRƒƒ“ƒgƒAƒEƒg‚µ‚Ä’â~‚È‚Çj
+					tp.position = m_TargetPos;   // æœ€å¾Œã´ã£ãŸã‚Šã¨åˆã‚ã›ã‚‹
+					StartExplosion(nullptr);     // ç€å¼¾ã§çˆ†ç™ºï¼ˆä¸è¦ãªã‚‰ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆã—ã¦åœæ­¢ãªã©ï¼‰
 					return;
 				}
 			}
 			else
 			{
-				// ƒ^[ƒQƒbƒg‚È‚µF]—ˆ‚Ì’¼ii+d—Íj‚Å‚àOK
+				// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãªã—ï¼šå¾“æ¥ã®ç›´é€²ï¼ˆ+é‡åŠ›ï¼‰ã§ã‚‚OK
 				const float dt = static_cast<float>(elapsedTime);
 				m_Velocity += m_Gravity * dt;
 				tp.position += m_Velocity * dt;
@@ -273,19 +273,19 @@ namespace shooting {
 
 		if (!m_Exploding)
 		{
-			// ”òs’†‚É‰½‚©‚É“–‚½‚Á‚½‚ç‘¦”š”­
+			// é£›è¡Œä¸­ã«ä½•ã‹ã«å½“ãŸã£ãŸã‚‰å³çˆ†ç™º
 			StartExplosion(otherObj);
 			return;
 		}
 
-		// ”š”­’†‚Í”ÍˆÍƒ_ƒ[ƒWi‘½dƒqƒbƒg–h~j
+		// çˆ†ç™ºä¸­ã¯ç¯„å›²ãƒ€ãƒ¡ãƒ¼ã‚¸ï¼ˆå¤šé‡ãƒ’ãƒƒãƒˆé˜²æ­¢ï¼‰
 		TryApplyExplosionDamage(otherObj);
 	}
 
 	void BombBullet::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// ”š”­ƒZƒbƒgŒãê‡ Enter ‚¾‚¯‚Å‚Í•s\•ª‚È‚Æ‚«‚ ‚éB
-		// ˜A‘±Õ“ËƒCƒxƒ“ƒg‚Ìd—lŸ‘æ‚Å Execute ‚Ì•û‚ªŠmÀ‚È‚ç‚±‚±‚Åˆ—‚·‚éB
+		// çˆ†ç™ºã‚»ãƒƒãƒˆå¾Œå ´åˆ Enter ã ã‘ã§ã¯ä¸ååˆ†ãªã¨ãã‚ã‚‹ã€‚
+		// é€£ç¶šè¡çªã‚¤ãƒ™ãƒ³ãƒˆã®ä»•æ§˜æ¬¡ç¬¬ã§ Execute ã®æ–¹ãŒç¢ºå®Ÿãªã‚‰ã“ã“ã§å‡¦ç†ã™ã‚‹ã€‚
 		if (m_Exploding)
 		{
 			OnCollisionEnter(pair);
@@ -303,7 +303,7 @@ namespace shooting {
 
 		Vec3 explosionPos(0.0f, 0.0f, 0.0f);
 
-		// ”š•—”ÍˆÍ‚ğuƒXƒP[ƒ‹Šg‘åv‚Å•\Œ»
+		// çˆ†é¢¨ç¯„å›²ã‚’ã€Œã‚¹ã‚±ãƒ¼ãƒ«æ‹¡å¤§ã€ã§è¡¨ç¾
 		if (auto trans = GetComponent<Transform>())
 		{
 			explosionPos = trans->GetPosition();
@@ -311,11 +311,11 @@ namespace shooting {
 		}
 
 
-		// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg
+		// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 		SetDrawActive(false);
 		SetShadowActive(false);
 
-		// ”š”­VFX¶¬
+		// çˆ†ç™ºVFXç”Ÿæˆ
 		{
 			TransParam fxParam;
 			fxParam.position = explosionPos;
@@ -328,7 +328,7 @@ namespace shooting {
 			fx->SetTextureKey(L"EXPLOSION_FIRE_TX");
 		}
 
-		// ’e‘¤‚ª’N‚©‚È‚ç‘¦ƒ_ƒ[ƒWi”š”­ŠJn“_‚ÅÕ“Ë’†‚Ì‰Â”\«‚ª‚ ‚é‚½‚ßj
+		// å¼¾å´ãŒèª°ã‹ãªã‚‰å³ãƒ€ãƒ¡ãƒ¼ã‚¸ï¼ˆçˆ†ç™ºé–‹å§‹æ™‚ç‚¹ã§è¡çªä¸­ã®å¯èƒ½æ€§ãŒã‚ã‚‹ãŸã‚ï¼‰
 		if (firstHit)
 		{
 			TryApplyExplosionDamage(firstHit);
@@ -340,7 +340,7 @@ namespace shooting {
 	{
 		if (!target) return;
 
-		// ‘½dƒqƒbƒg–h~
+		// å¤šé‡ãƒ’ãƒƒãƒˆé˜²æ­¢
 		if (m_HitOnce.find(target.get()) != m_HitOnce.end())
 		{
 			return;
@@ -387,13 +387,13 @@ namespace shooting {
 			return;
 		}
 
-		// ƒ_ƒ[ƒW“K—p
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸é©ç”¨
 		if (auto hp = target->GetComponent<Health>(false))
 		{
 			hp->ApplyDamage(info);
 		}
 
-		// ƒ^[ƒQƒbƒg‚ª€‚ñ‚Å‚¢‚½‚ç‚«”ò‚Î‚µ‚à•s—v
+		// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãŒæ­»ã‚“ã§ã„ãŸã‚‰å¹ãé£›ã°ã—ã‚‚ä¸è¦
 		if (auto hp = target->GetComponent<Health>(false))
 		{
 			if (hp->IsDead())
@@ -402,10 +402,10 @@ namespace shooting {
 			}
 		}
 
-		// --- ‚«”ò‚Î‚µˆ—iGravityƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ—˜—pj ---
+		// --- å¹ãé£›ã°ã—å‡¦ç†ï¼ˆGravityã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’åˆ©ç”¨ï¼‰ ---
 		if (auto gravity = target->GetComponent<Gravity>(false))
 		{
-			// ”š”­’†S‚©‚ç‘ÎÛ‚Ö‚Ì•ûŒü‚ğŒvZ
+			// çˆ†ç™ºä¸­å¿ƒã‹ã‚‰å¯¾è±¡ã¸ã®æ–¹å‘ã‚’è¨ˆç®—
 			auto bombTrans = GetComponent<Transform>();
 			auto targetTrans = target->GetComponent<Transform>();
 			if (bombTrans && targetTrans)
@@ -414,7 +414,7 @@ namespace shooting {
 				Vec3 targetPos = targetTrans->GetPosition();
 				Vec3 knockbackDir = targetPos - explosionCenter;
 				
-				// …•½•ûŒü‚Ì‚«”ò‚Î‚µ
+				// æ°´å¹³æ–¹å‘ã®å¹ãé£›ã°ã—
 				knockbackDir.y = 0.0f;
 				float distance = knockbackDir.length();
 				
@@ -422,16 +422,16 @@ namespace shooting {
 				{
 					knockbackDir.normalize();
 					
-					// ‹——£‚É‰‚¶‚ÄˆĞ—Í‚ğ’²®i‹ß‚¢‚Ù‚Ç‹­‚¢j
-					float maxKnockbackDist = m_ExplosionScale * 0.5f; // ”š”­”¼Œa
+					// è·é›¢ã«å¿œã˜ã¦å¨åŠ›ã‚’èª¿æ•´ï¼ˆè¿‘ã„ã»ã©å¼·ã„ï¼‰
+					float maxKnockbackDist = m_ExplosionScale * 0.5f; // çˆ†ç™ºåŠå¾„
 					float strength = 1.0f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
 					strength = bsmUtil::Max(strength, 0.3f);
 					
-					// ‚«”ò‚Î‚µƒxƒNƒgƒ‹i…•½•ûŒü + ã•ûŒüj
-					Vec3 knockbackVelocity = knockbackDir * (15.0f * strength); // …•½•ûŒü‚Ì‘¬“x
-					knockbackVelocity.y = 20.0f * strength; // ã•ûŒü‚Ì‘¬“x
+					// å¹ãé£›ã°ã—ãƒ™ã‚¯ãƒˆãƒ«ï¼ˆæ°´å¹³æ–¹å‘ + ä¸Šæ–¹å‘ï¼‰
+					Vec3 knockbackVelocity = knockbackDir * (15.0f * strength); // æ°´å¹³æ–¹å‘ã®é€Ÿåº¦
+					knockbackVelocity.y = 20.0f * strength; // ä¸Šæ–¹å‘ã®é€Ÿåº¦
 					
-					// GravityƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì‘¬“x‚ğã‘‚«iŠù‘¶‚ÌƒWƒƒƒ“ƒv‹@”\‚ğ—¬—pj
+					// Gravityã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®é€Ÿåº¦ã‚’ä¸Šæ›¸ãï¼ˆæ—¢å­˜ã®ã‚¸ãƒ£ãƒ³ãƒ—æ©Ÿèƒ½ã‚’æµç”¨ï¼‰
 					gravity->SetGravityVelocity(knockbackVelocity);
 				}
 			}
@@ -546,10 +546,10 @@ namespace shooting {
 			return;
 		}
 
-		// ”­Ë‚Ì‹N“_ p0
+		// ç™ºå°„æ™‚ã®èµ·ç‚¹ p0
 		m_StartPos = trans->GetTransParam().position;
 
-		// ƒ^[ƒQƒbƒg‚È‚¯‚ê‚ÎMŠÇ‚Å’¼i
+		// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãªã‘ã‚Œã°ä¿¡ç®¡ã§ç›´é€²
 		if (!m_HasTarget)
 		{
 			m_V0 = trans->GetForward() * m_Speed;
@@ -567,7 +567,7 @@ namespace shooting {
 		const float distXZ = deltaXZ.length();
 		const float arcHeight = m_ArcHeight + distXZ * m_ArcHeightPerDistXZ;
 
-		// ƒ^[ƒQƒbƒg’e“¹iƒvƒŒƒrƒ…[‚Æ“¯ˆêŒvZj
+		// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆå¼¾é“ï¼ˆãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼ã¨åŒä¸€è¨ˆç®—ï¼‰
 		Vec3 v0;
 		float T = 0.0f;
 		if (SolveBallistic_ApexHeight(m_StartPos, m_TargetPos, m_Gravity, arcHeight, v0, T))
@@ -576,22 +576,22 @@ namespace shooting {
 			m_TotalT = T;
 			m_UseBallistic = true;
 
-			// ‰‘¬iŒü‚«‰ñ“]‚È‚Ç‚Ég‚¤‚È‚çj
+			// åˆé€Ÿï¼ˆå‘ãå›è»¢ãªã©ã«ä½¿ã†ãªã‚‰ï¼‰
 			m_Velocity = m_V0;
 
-			// ƒ^[ƒQƒbƒg‚É“’B‚·‚é‘O‚ÉMŠÇ‚ªØ‚ê‚È‚¢‚æ‚¤MŠÇ
-			// i’…’e‚É”š”­‚³‚¹‚È‚¢‚È‚çA‚±‚ÌMŠÇ‚Í–Àã•s—vj
+			// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«åˆ°é”ã™ã‚‹å‰ã«ä¿¡ç®¡ãŒåˆ‡ã‚Œãªã„ã‚ˆã†ä¿¡ç®¡
+			// ï¼ˆç€å¼¾ã«çˆ†ç™ºã•ã›ãªã„ãªã‚‰ã€ã“ã®ä¿¡ç®¡ã¯äº‹å®Ÿä¸Šä¸è¦ï¼‰
 			m_FuseTime = bsmUtil::Max(m_FuseTime, (double)T + 0.2);
 		}
 		else
 		{
-			// ‰ğ‚¯‚È‚©‚Á‚½‚ç]—ˆ‚Ì’¼i‚ÉƒtƒH[ƒ‹ƒoƒbƒN
+			// è§£ã‘ãªã‹ã£ãŸã‚‰å¾“æ¥ã®ç›´é€²ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
 			m_V0 = trans->GetForward() * m_Speed;
 			m_Velocity = m_V0;
 			m_UseBallistic = false;
 		}
 
-		// ŒJ‚è•Ô‚µ‚Ì–h~
+		// ç¹°ã‚Šè¿”ã—æ™‚ã®é˜²æ­¢
 		m_HasTarget = false;
 		m_HasTargetSurface = false;
 	}

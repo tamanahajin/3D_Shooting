@@ -1,6 +1,6 @@
 /*!
 @file BcINCLighting.hlsli
-@brief ƒVƒF[ƒ_ƒ‰ƒCƒeƒBƒ“ƒOƒ†[ƒeƒBƒŠƒeƒB
+@brief ã‚·ã‚§ãƒ¼ãƒ€ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

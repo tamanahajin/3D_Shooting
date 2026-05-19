@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Character.cpp
-@brief ”z’uƒIƒuƒWƒFƒNƒg À‘Ì
+@brief é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -23,9 +23,9 @@ namespace shooting {
         const float kTreeTrunkCollisionRadiusScale = 0.08f;
         const float kTreeJumpCollisionRadiusScale = 0.18f;
         const float kTreeJumpCollisionBottomOffset = 0.70f;
-        // shadow map ‚Ì‹«ŠEƒMƒŠƒMƒŠ‚Å‰e‚ªŒ‡‚¯‚È‚¢‚æ‚¤A”ÍˆÍ”»’è‚É­‚µ—]”’‚ğ‚½‚¹‚éB
+        // shadow map ã®å¢ƒç•Œã‚®ãƒªã‚®ãƒªã§å½±ãŒæ¬ ã‘ãªã„ã‚ˆã†ã€ç¯„å›²åˆ¤å®šã«å°‘ã—ä½™ç™½ã‚’æŒãŸã›ã‚‹ã€‚
         const float kStageObjectShadowCullMargin = 12.0f;
-        // ’‹“_‚ª‚±‚Ì‹——£ˆÈã“®‚¢‚½‚Æ‚«‚¾‚¯ shadow —pƒCƒ“ƒXƒ^ƒ“ƒX buffer ‚ğì‚è’¼‚·B
+        // æ³¨è¦–ç‚¹ãŒã“ã®è·é›¢ä»¥ä¸Šå‹•ã„ãŸã¨ãã ã‘ shadow ç”¨ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ buffer ã‚’ä½œã‚Šç›´ã™ã€‚
         const float kStageObjectShadowCullMoveThreshold = 2.0f;
         const std::wstring kStageObjectBoxShadowProxyMeshKey = L"DEFAULT_CUBE";
         const std::wstring kStageObjectSlopeShadowProxyMeshKey = L"STAGEOBJ_SHADOW_SLOPE_PROXY";
@@ -53,21 +53,21 @@ namespace shooting {
                 return false;
             }
 
-            // ‘‚â‚«‚Ì‚±‚ÍˆÚ“®‚ğ×–‚‚µ‚È‚¢ü‚è‚Æ‚µ‚Äˆµ‚¤B
+            // è‰ã‚„ãã®ã“ã¯ç§»å‹•ã‚’é‚ªé­”ã—ãªã„é£¾ã‚Šã¨ã—ã¦æ‰±ã†ã€‚
             if (def->category == StageObjectCategory::Plant ||
                 def->category == StageObjectCategory::Mushroom)
             {
                 return false;
             }
 
-            // ŠOüŠR‚ÍGameStage‘¤‚Ì4–‡‚Ì‘å‚«‚¢•ÇƒRƒŠƒWƒ‡ƒ“‚Åˆµ‚¤BŒ©‚½–Ú—p‚ÌŠOüƒ‚ƒfƒ‹‘S‚Ä‚É•t‚¯‚é‚Æ”‚ª‘‚¦‚·‚¬‚éB
+            // å¤–å‘¨å´–ã¯GameStageå´ã®4æšã®å¤§ãã„å£ã‚³ãƒªã‚¸ãƒ§ãƒ³ã§æ‰±ã†ã€‚è¦‹ãŸç›®ç”¨ã®å¤–å‘¨ãƒ¢ãƒ‡ãƒ«å…¨ã¦ã«ä»˜ã‘ã‚‹ã¨æ•°ãŒå¢—ãˆã™ãã‚‹ã€‚
             if (def->category == StageObjectCategory::OutSideWall)
             {
                 return false;
             }
 
-            // ƒXƒ[ƒv‚Æ‚’á·ƒuƒƒbƒN‚ÍAGameStage‘¤‚Å‚‚³ƒOƒŠƒbƒh‚©‚çW–ñƒRƒŠƒWƒ‡ƒ“‚ğì‚éB
-            // Œ©‚½–Ú—p‚ÉÏ‚ñ‚¾ƒuƒƒbƒN‘S•”‚ÖOBB‚ğ•t‚¯‚é‚ÆA3’i\¬‚ÅÕ“Ë”‚ÆƒfƒoƒbƒO•`‰æ‚ª‘‚¦‚·‚¬‚éB
+            // ã‚¹ãƒ­ãƒ¼ãƒ—ã¨é«˜ä½å·®ãƒ–ãƒ­ãƒƒã‚¯ã¯ã€GameStageå´ã§é«˜ã•ã‚°ãƒªãƒƒãƒ‰ã‹ã‚‰é›†ç´„ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚’ä½œã‚‹ã€‚
+            // è¦‹ãŸç›®ç”¨ã«ç©ã‚“ã ãƒ–ãƒ­ãƒƒã‚¯å…¨éƒ¨ã¸OBBã‚’ä»˜ã‘ã‚‹ã¨ã€3æ®µæ§‹æˆã§è¡çªæ•°ã¨ãƒ‡ãƒãƒƒã‚°æç”»ãŒå¢—ãˆã™ãã‚‹ã€‚
             if (def->name.find(L"slope") != std::wstring::npos)
             {
                 return false;
@@ -94,7 +94,7 @@ namespace shooting {
                 return false;
             }
 
-            // ‚‘äEâ‚ÍŒ³ƒ‚ƒfƒ‹‚ğ shadow pass ‚Éo‚³‚¸AŒy—Ê proxy mesh ‚¾‚¯‚Å‰e‚ğì‚éB
+            // é«˜å°ãƒ»å‚ã¯å…ƒãƒ¢ãƒ‡ãƒ«ã‚’ shadow pass ã«å‡ºã•ãšã€è»½é‡ proxy mesh ã ã‘ã§å½±ã‚’ä½œã‚‹ã€‚
             return def->category == StageObjectCategory::Cliff ||
                 def->category == StageObjectCategory::Platform ||
                 IsSlopeStageObject(def);
@@ -102,7 +102,7 @@ namespace shooting {
 
         const std::wstring& GetStageObjectShadowProxyMeshKey(const StageObjectDef* def)
         {
-            // â‚ğ cube proxy ‚Å•`‚­‚Æ” ‚Ì‰e‚É‚È‚é‚½‚ßAâ‚¾‚¯Î–ÊŒ`ó‚Ì proxy mesh ‚ğg‚¤B
+            // å‚ã‚’ cube proxy ã§æãã¨ç®±ã®å½±ã«ãªã‚‹ãŸã‚ã€å‚ã ã‘æ–œé¢å½¢çŠ¶ã® proxy mesh ã‚’ä½¿ã†ã€‚
             return IsSlopeStageObject(def)
                 ? kStageObjectSlopeShadowProxyMeshKey
                 : kStageObjectBoxShadowProxyMeshKey;
@@ -114,7 +114,7 @@ namespace shooting {
                 return false;
             }
 
-            // ŠOü•Ç‚Í‰æ–Ê‚ğˆÍ‚¤‘å‚«‚È–Ê‚È‚Ì‚ÅA‰e‚Íó‚¯‚é‚¾‚¯‚É‚µ‚Ä shadow pass ‚É‚Ío‚³‚È‚¢B
+            // å¤–å‘¨å£ã¯ç”»é¢ã‚’å›²ã†å¤§ããªé¢ãªã®ã§ã€å½±ã¯å—ã‘ã‚‹ã ã‘ã«ã—ã¦ shadow pass ã«ã¯å‡ºã•ãªã„ã€‚
             if (def->category == StageObjectCategory::OutSideWall)
             {
                 return false;
@@ -138,14 +138,14 @@ namespace shooting {
                 return false;
             }
 
-            // ‚‘äEâEŠOü•Ç‚ÍA–Ø‚âƒƒO‚È‚Ç‚ª—‚Æ‚·‰e‚ğó‚¯‚éB
+            // é«˜å°ãƒ»å‚ãƒ»å¤–å‘¨å£ã¯ã€æœ¨ã‚„ãƒ­ã‚°ãªã©ãŒè½ã¨ã™å½±ã‚’å—ã‘ã‚‹ã€‚
             return def->category == StageObjectCategory::Cliff ||
                 def->category == StageObjectCategory::Platform ||
                 def->category == StageObjectCategory::OutSideWall ||
                 def->name.find(L"slope") != std::wstring::npos;
         }
 
-        // ƒ‰ƒCƒgî•ñ‚ªg‚¦‚È‚¢ê‡‚ÌŠÈˆÕ”»’è—pBshadow map ƒTƒCƒY‚ğ‰~Œ`”ÍˆÍ‚Æ‚µ‚Äˆµ‚¤B
+        // ãƒ©ã‚¤ãƒˆæƒ…å ±ãŒä½¿ãˆãªã„å ´åˆã®ç°¡æ˜“åˆ¤å®šç”¨ã€‚shadow map ã‚µã‚¤ã‚ºã‚’å††å½¢ç¯„å›²ã¨ã—ã¦æ‰±ã†ã€‚
         float GetStageObjectShadowCullHalfExtent()
         {
             const float halfWidth = ShadowMap::GetViewWidth() * 0.5f;
@@ -153,7 +153,7 @@ namespace shooting {
             return (halfWidth > halfHeight ? halfWidth : halfHeight) + kStageObjectShadowCullMargin;
         }
 
-        // –ˆƒtƒŒ[ƒ€ buffer ‚ğÄì¬‚·‚é‚Æd‚¢‚Ì‚ÅA’‹“_‚ÌˆÚ“®—Ê‚ÅXV•K—v«‚ğ”»’è‚·‚éB
+        // æ¯ãƒ•ãƒ¬ãƒ¼ãƒ  buffer ã‚’å†ä½œæˆã™ã‚‹ã¨é‡ã„ã®ã§ã€æ³¨è¦–ç‚¹ã®ç§»å‹•é‡ã§æ›´æ–°å¿…è¦æ€§ã‚’åˆ¤å®šã™ã‚‹ã€‚
         bool HasStageObjectShadowCullCenterMoved(const Vec3& currentAt, const Vec3& lastAt)
         {
             const float dx = currentAt.x - lastAt.x;
@@ -163,7 +163,7 @@ namespace shooting {
             return (dx * dx) + (dy * dy) + (dz * dz) >= thresholdSq;
         }
 
-        // fallback —pBƒJƒƒ‰’‹“_ü•Ó‚É‚ ‚éƒCƒ“ƒXƒ^ƒ“ƒX‚¾‚¯‚ğ shadow pass Œó•â‚É‚·‚éB
+        // fallback ç”¨ã€‚ã‚«ãƒ¡ãƒ©æ³¨è¦–ç‚¹å‘¨è¾ºã«ã‚ã‚‹ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã ã‘ã‚’ shadow pass å€™è£œã«ã™ã‚‹ã€‚
         bool IsStageObjectInsideFocusRange(const Mat4x4& instanceWorld, const Vec3& focus)
         {
             const Vec3 position = instanceWorld.transInMatrix();
@@ -197,7 +197,7 @@ namespace shooting {
             return proxyWorld;
         }
 
-        // ƒCƒ“ƒXƒ^ƒ“ƒXˆÊ’u‚ğƒ‰ƒCƒg‹“_‚É•ÏŠ·‚µAŒ»İ‚Ì shadow map ³Ë‰e”ÍˆÍ‚É“ü‚é‚©’²‚×‚éB
+        // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ä½ç½®ã‚’ãƒ©ã‚¤ãƒˆè¦–ç‚¹ã«å¤‰æ›ã—ã€ç¾åœ¨ã® shadow map æ­£å°„å½±ç¯„å›²ã«å…¥ã‚‹ã‹èª¿ã¹ã‚‹ã€‚
         bool IsStageObjectInsideShadowMapRange(
             const Mat4x4& instanceWorld,
             const Vec3& lightAt,
@@ -230,7 +230,7 @@ namespace shooting {
                 p.z <= farZ;
         }
 
-        // ’Êí•`‰æ‚Í‘SƒCƒ“ƒXƒ^ƒ“ƒX‚ğg‚¤‚ªAshadow pass ‚Å‚Í‰e‚ÉŒø‚­”ÍˆÍ‚Ì‚à‚Ì‚¾‚¯‚ğ”²‚«o‚·B
+        // é€šå¸¸æç”»ã¯å…¨ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½¿ã†ãŒã€shadow pass ã§ã¯å½±ã«åŠ¹ãç¯„å›²ã®ã‚‚ã®ã ã‘ã‚’æŠœãå‡ºã™ã€‚
         std::vector<Mat4x4> BuildStageObjectShadowInstanceWorlds(
             const StageObjectDef* def,
             const std::vector<Mat4x4>& instanceWorlds,
@@ -244,7 +244,7 @@ namespace shooting {
 
             if (!camera)
             {
-                // ‰Šú‰»’¼Œã‚È‚ÇƒJƒƒ‰‚ª‚Ü‚¾æ‚ê‚È‚¢ê‡‚ÍA‘SŒ“Š“ü‚¹‚¸Ÿ‚ÌXV‚ÅÄ”»’è‚·‚éB
+                // åˆæœŸåŒ–ç›´å¾Œãªã©ã‚«ãƒ¡ãƒ©ãŒã¾ã å–ã‚Œãªã„å ´åˆã¯ã€å…¨ä»¶æŠ•å…¥ã›ãšæ¬¡ã®æ›´æ–°ã§å†åˆ¤å®šã™ã‚‹ã€‚
                 return {};
             }
 
@@ -268,7 +268,7 @@ namespace shooting {
                     : IsStageObjectInsideFocusRange(instanceWorld, focus);
                 if (insideRange)
                 {
-                    // ‚‘äEâ‚ÍŒ³ƒƒbƒVƒ…‚Å‚Í‚È‚­Aƒ[ƒJƒ‹‹«ŠE‚©‚çì‚Á‚½Œy—Ê proxy ‚ğ shadow pass ‚É“n‚·B
+                    // é«˜å°ãƒ»å‚ã¯å…ƒãƒ¡ãƒƒã‚·ãƒ¥ã§ã¯ãªãã€ãƒ­ãƒ¼ã‚«ãƒ«å¢ƒç•Œã‹ã‚‰ä½œã£ãŸè»½é‡ proxy ã‚’ shadow pass ã«æ¸¡ã™ã€‚
                     shadowWorlds.push_back(useProxyMesh
                         ? BuildStageObjectShadowProxyWorld(proxyBounds, instanceWorld)
                         : instanceWorld);
@@ -386,14 +386,14 @@ namespace shooting {
                 const float capsuleTotalHeight = collisionSize.y * kTreeCollisionHeightScale;
                 const float originalBottomY = collisionParam.position.y - (collisionSize.y * 0.5f);
 
-                // Š²—pB’nã‚Å–Ø‚Ì‰¡‚ğ’Ê‚é‚Æ‚«‚Ìˆø‚Á‚©‚©‚è‚ğ‘‚â‚µ‚·‚¬‚È‚¢‚æ‚¤×‚ß‚É‚·‚éB
+                // å¹¹ç”¨ã€‚åœ°ä¸Šã§æœ¨ã®æ¨ªã‚’é€šã‚‹ã¨ãã®å¼•ã£ã‹ã‹ã‚Šã‚’å¢—ã‚„ã—ã™ããªã„ã‚ˆã†ç´°ã‚ã«ã™ã‚‹ã€‚
                 TransParam trunkParam = collisionParam;
                 trunkParam.position.y = originalBottomY + (capsuleTotalHeight * 0.5f);
                 const float heightBase = capsuleTotalHeight - (capsuleRadius * 2.0f);
                 const float capsuleHeight = heightBase > minSize ? heightBase : minSize;
                 stage->AddGameObject<StageCollisionCapsule>(trunkParam, capsuleRadius, capsuleHeight);
 
-                // ƒWƒƒƒ“ƒv’†‚ÉŒ©‚½–Ú‚Ì–Ø‚Ìã•”‚ğ‚·‚è”²‚¯‚È‚¢‚æ‚¤Aã‘¤‚¾‚¯­‚µ‘¾‚¢•â•ƒJƒvƒZƒ‹‚ğ’u‚­B
+                // ã‚¸ãƒ£ãƒ³ãƒ—ä¸­ã«è¦‹ãŸç›®ã®æœ¨ã®ä¸Šéƒ¨ã‚’ã™ã‚ŠæŠœã‘ãªã„ã‚ˆã†ã€ä¸Šå´ã ã‘å°‘ã—å¤ªã„è£œåŠ©ã‚«ãƒ—ã‚»ãƒ«ã‚’ç½®ãã€‚
                 const float jumpRadiusBase = maxHorizontalSize * kTreeJumpCollisionRadiusScale;
                 const float jumpCapsuleRadius = jumpRadiusBase > capsuleRadius ? jumpRadiusBase : capsuleRadius;
                 const float jumpBottomOffset = kTreeJumpCollisionBottomOffset < capsuleTotalHeight ? kTreeJumpCollisionBottomOffset : capsuleTotalHeight * 0.25f;
@@ -451,7 +451,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	// ƒtƒƒAƒIƒuƒWƒFƒNƒg
+	// ãƒ•ãƒ­ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	Floor::Floor(
 		const std::shared_ptr<Stage>& stage,
@@ -536,7 +536,7 @@ namespace shooting {
         const auto* def = FindStageObjectDefByKey(m_MeshKey);
         if (!ShouldCastStageObjectShadow(def))
         {
-            // ‰e‚ğ—‚Æ‚³‚È‚¢í—Ş‚Í shadow —p buffer ‚ğ‹ó‚É‚µ‚ÄAshadow pass ©‘Ì‚à–³Œø‰»‚·‚éB
+            // å½±ã‚’è½ã¨ã•ãªã„ç¨®é¡ã¯ shadow ç”¨ buffer ã‚’ç©ºã«ã—ã¦ã€shadow pass è‡ªä½“ã‚‚ç„¡åŠ¹åŒ–ã™ã‚‹ã€‚
             if (force || !m_ShadowInstanceWorlds.empty())
             {
                 m_ShadowInstanceWorlds.clear();
@@ -553,7 +553,7 @@ namespace shooting {
 
         auto camera = GetCamera();
         const Vec3 currentAt = camera ? camera->GetAt() : Vec3(0.0f, 0.0f, 0.0f);
-        // ’‹“_‚ª‚Ù‚Ú“®‚¢‚Ä‚¢‚È‚¢ŠÔ‚ÍA‘O‰ñì‚Á‚½ shadow —pƒCƒ“ƒXƒ^ƒ“ƒX”z—ñ‚ğg‚¢‰ñ‚·B
+        // æ³¨è¦–ç‚¹ãŒã»ã¼å‹•ã„ã¦ã„ãªã„é–“ã¯ã€å‰å›ä½œã£ãŸ shadow ç”¨ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹é…åˆ—ã‚’ä½¿ã„å›ã™ã€‚
         if (!force && m_ShadowCullInitialized &&
             !HasStageObjectShadowCullCenterMoved(currentAt, m_LastShadowCullAt))
         {
@@ -562,7 +562,7 @@ namespace shooting {
 
         m_LastShadowCullAt = currentAt;
         m_ShadowCullInitialized = true;
-        // ‚±‚±‚Å shadow pass ê—p‚ÉƒJƒŠƒ“ƒOÏ‚İ”z—ñ‚ğì‚èAGPU ‚Ö“n‚· instance buffer ‚ğŒy‚­‚·‚éB
+        // ã“ã“ã§ shadow pass å°‚ç”¨ã«ã‚«ãƒªãƒ³ã‚°æ¸ˆã¿é…åˆ—ã‚’ä½œã‚Šã€GPU ã¸æ¸¡ã™ instance buffer ã‚’è»½ãã™ã‚‹ã€‚
         m_ShadowInstanceWorlds = BuildStageObjectShadowInstanceWorlds(def, m_InstanceWorlds, camera, GetLightSet());
 
         const bool castShadow = !m_ShadowInstanceWorlds.empty();
@@ -595,14 +595,14 @@ namespace shooting {
         const bool receiveShadow = ShouldReceiveStageObjectShadow(def);
         if (ShouldUseStageObjectShadowProxy(def))
         {
-            // ‚‘ä‚Í cubeAâ‚ÍÎ–ÊŒ`ó‚Ì proxy ‚ğg‚¤B’Êí•`‰æ‚ÍŒ³ƒ‚ƒfƒ‹‚Ì‚Ü‚ÜB
+            // é«˜å°ã¯ cubeã€å‚ã¯æ–œé¢å½¢çŠ¶ã® proxy ã‚’ä½¿ã†ã€‚é€šå¸¸æç”»ã¯å…ƒãƒ¢ãƒ‡ãƒ«ã®ã¾ã¾ã€‚
             ptrDraw->SetShadowMeshKey(GetStageObjectShadowProxyMeshKey(def));
         }
         else
         {
             ptrDraw->ClearShadowMeshKey();
         }
-        // Scene pass ‚Í‘SƒCƒ“ƒXƒ^ƒ“ƒXAshadow pass ‚Í RefreshShadowInstances() ‚Åi‚Á‚½”z—ñ‚ğg‚¤B
+        // Scene pass ã¯å…¨ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã€shadow pass ã¯ RefreshShadowInstances() ã§çµã£ãŸé…åˆ—ã‚’ä½¿ã†ã€‚
         ptrDraw->SetOwnShadowActive(receiveShadow);
         ptrDraw->SetCastShadowActive(false);
         ptrDraw->BuildInstanceBuffer();
@@ -729,7 +729,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	// ƒ{ƒbƒNƒXƒIƒuƒWƒFƒNƒg
+	// ãƒœãƒƒã‚¯ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	FixedBox::FixedBox(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage)
@@ -741,25 +741,25 @@ namespace shooting {
 	void FixedBox::OnCreate()
 	{
 		ID3D12GraphicsCommandList* pCommandList = BaseScene::Get()->m_pTgtCommandList;
-		//OBBÕ“Ëj”»’è‚ğ•t‚¯‚é
+		//OBBè¡çªjåˆ¤å®šã‚’ä»˜ã‘ã‚‹
 		auto ptrColl = AddComponent<CollisionObb>();
 		auto trans = GetComponent<Transform>();
 		auto scale = trans->GetScale();
 
 		ptrColl->SetMakedSize(scale.x, scale.y, scale.z);
 		ptrColl->SetFixed(true);
-		//ƒ^ƒO‚ğ‚Â‚¯‚é
+		//ã‚¿ã‚°ã‚’ã¤ã‘ã‚‹
 		AddTag(L"FixedBox");
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->AddBaseMesh(L"DEFAULT_CUBE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
-		// •Ç‚Í shadow pass ‚Éo‚³‚¸A•\¦ƒVƒF[ƒ_‘¤‚Å‰e‚¾‚¯ó‚¯‚éB
+		// å£ã¯ shadow pass ã«å‡ºã•ãšã€è¡¨ç¤ºã‚·ã‚§ãƒ¼ãƒ€å´ã§å½±ã ã‘å—ã‘ã‚‹ã€‚
 		SetShadowActive(false);
 		ptrDraw->SetOwnShadowActive(true);
 	}
 
 	//--------------------------------------------------------------------------------------
-	// lŠp‚ÌƒIƒuƒWƒFƒNƒg
+	// å››è§’ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	WallBox::WallBox(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
@@ -771,22 +771,22 @@ namespace shooting {
 
 	void WallBox::OnCreate()
 	{
-		//OBBÕ“Ëj”»’è‚ğ•t‚¯‚é
+		//OBBè¡çªjåˆ¤å®šã‚’ä»˜ã‘ã‚‹
 		auto ptrColl = AddComponent<CollisionObb>();
-		//d—Í‚ğ‚Â‚¯‚é
+		//é‡åŠ›ã‚’ã¤ã‘ã‚‹
 		auto ptrGra = AddComponent<Gravity>();
 
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 		ptrDraw->AddBaseMesh(L"DEFAULT_CUBE");
 		ptrDraw->AddBaseTexture(L"WALL_TX");
-		// •Ç‚Í shadow pass ‚Éo‚³‚¸A•\¦ƒVƒF[ƒ_‘¤‚Å‰e‚¾‚¯ó‚¯‚éB
+		// å£ã¯ shadow pass ã«å‡ºã•ãšã€è¡¨ç¤ºã‚·ã‚§ãƒ¼ãƒ€å´ã§å½±ã ã‘å—ã‘ã‚‹ã€‚
 		SetShadowActive(false);
 		ptrDraw->SetOwnShadowActive(true);
 	}
 
 	void WallBox::OnUpdate(double elapsedTime)
 	{
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 		auto ptrTrans = GetComponent<Transform>();
 		auto& param = ptrTrans->GetTransParam();
 
@@ -800,7 +800,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	’Ç‚¢‚©‚¯‚é”z’uƒIƒuƒWƒFƒNƒg
+	//	è¿½ã„ã‹ã‘ã‚‹é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 }

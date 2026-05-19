@@ -8,7 +8,7 @@
 
 float4 main(PSPCInput input) : SV_TARGET
 {
-	//’¸“_F‚©‚çƒ‰ƒCƒeƒBƒ“ƒO‚ðì¬
+	//é ‚ç‚¹è‰²ã‹ã‚‰ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°ã‚’ä½œæˆ
 	float4 Light = (saturate(input.color) * Diffuse) + Emissive;
 	return Light;
 }

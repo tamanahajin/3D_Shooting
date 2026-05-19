@@ -2,7 +2,7 @@
 
 float4 main() : SV_TARGET
 {
-	// damage‚Å”Z‚³‚ğ’²®i“_–Å‚³‚¹‚½‚¢‚È‚ç time ‚ğ“n‚µ‚Ä sin ‚È‚Çj
+	// damageã§æ¿ƒã•ã‚’èª¿æ•´ï¼ˆç‚¹æ»…ã•ã›ãŸã„ãªã‚‰ time ã‚’æ¸¡ã—ã¦ sin ãªã©ï¼‰
     return float4(1.0f, 0.0f, 0.0f, saturate(gDamage) * 0.8);
     //return float4(1.0f, 0.0f, 0.0f, 1.0f);
 }

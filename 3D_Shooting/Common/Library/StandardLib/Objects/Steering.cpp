@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Steering.cpp
-@brief ‘€‘ÇŠÖ˜A@À‘Ì
+@brief æ“èˆµé–¢é€£ã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -9,25 +9,25 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	struct Steering;
-	//	—p“r: ‘€‘ÇŠÖ˜Aƒ†[ƒeƒBƒŠƒeƒB
-	//	–staticŒÄ‚Ño‚µ‚ğ‚·‚é
+	//	ç”¨é€”: æ“èˆµé–¢é€£ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£
+	//	ï¼Šstaticå‘¼ã³å‡ºã—ã‚’ã™ã‚‹
 	//--------------------------------------------------------------------------------------
-	//ƒXƒ^ƒeƒBƒbƒNƒƒ“ƒo
+	//ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãƒ¡ãƒ³ãƒ
 	bool Steering::AccumulateForce(Vec3& Force, const Vec3& ForceToAdd, float MaxForce)
 	{
-		//Œ»İ‚Ì—Í‚Ì’·‚³‚ğ“¾‚é
+		//ç¾åœ¨ã®åŠ›ã®é•·ã•ã‚’å¾—ã‚‹
 		float MagnitudeSoFar = bsmUtil::length(Force);
-		//Å‘å’l‚Æ‚Ì·‚ğ‹‚ß‚é
+		//æœ€å¤§å€¤ã¨ã®å·®ã‚’æ±‚ã‚ã‚‹
 		float magnitudeRemaining = MaxForce - MagnitudeSoFar;
-		//·‚ª0ˆÈ‰ºi‚Â‚Ü‚èÅ‘å’l‚ğ’´‚¦‚Ä‚¢‚½‚çj
-		//’Ç‰Á‚µ‚È‚¢‚ÅƒŠƒ^[ƒ“
+		//å·®ãŒ0ä»¥ä¸‹ï¼ˆã¤ã¾ã‚Šæœ€å¤§å€¤ã‚’è¶…ãˆã¦ã„ãŸã‚‰ï¼‰
+		//è¿½åŠ ã—ãªã„ã§ãƒªã‚¿ãƒ¼ãƒ³
 		if (magnitudeRemaining <= 0.0f)
 		{
 			return false;
 		}
-		//’Ç‰Á‚·‚é—Í‚Ì‘å‚«‚³‚ğ‹‚ß‚é
+		//è¿½åŠ ã™ã‚‹åŠ›ã®å¤§ãã•ã‚’æ±‚ã‚ã‚‹
 		float MagnitudeToAdd = bsmUtil::length(ForceToAdd);
-		//—Í‚Ì’Ç‰Á
+		//åŠ›ã®è¿½åŠ 
 		if (MagnitudeToAdd < magnitudeRemaining)
 		{
 			Force += ForceToAdd;
@@ -36,12 +36,12 @@ namespace shooting {
 		{
 			Force += (bsmUtil::normalize(ForceToAdd) * MagnitudeToAdd);
 		}
-		//’Ç‰Á‚³‚ê‚½w•W‚ğ•Ô‚·  
+		//è¿½åŠ ã•ã‚ŒãŸæŒ‡æ¨™ã‚’è¿”ã™
 		return true;
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	’T‚·s“®
+	///	æ¢ã™è¡Œå‹•
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Seek(const Vec3& Velocity, const Vec3& Target, const Vec3& Pos, float MaxSpeed)
 	{
@@ -51,7 +51,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	“¦‚°‚és“®
+	///	é€ƒã’ã‚‹è¡Œå‹•
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Flee(const Vec3& Velocity, const Vec3& Target,
 						const Vec3& Pos, float MaxSpeed, float PanicDistance)
@@ -67,7 +67,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	//	“’…‚·‚és“®
+	//	åˆ°ç€ã™ã‚‹è¡Œå‹•
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Arrive(const Vec3& Velocity, const Vec3& Target, const Vec3& Pos, float MaxSpeed, float Decl)
 	{
@@ -85,7 +85,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	// ’ÇÕ‚·‚és“®
+	// è¿½è·¡ã™ã‚‹è¡Œå‹•
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Pursuit(const Vec3& Velocity, const Vec3& Pos, const Vec3& Rot, float MaxSpeed,
 						   const Vec3& TargetVelocity, const Vec3& Target, const Vec3& TargetRot)
@@ -105,7 +105,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	œpœj‚·‚és“®
+	//	å¾˜å¾Šã™ã‚‹è¡Œå‹•
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Wander(const Mat4x4 Matrix,
 						  float WanderRadius, float WanderDistance, float WanderJitter, Vec3& WanderTarget)
@@ -147,7 +147,7 @@ namespace shooting {
 									 const Vec3& Velocity, float MaxSpeed, float Width, float Height,
 									 const std::vector<SPHERE>& SphereVec)
 	{
-		//Œ»İ‚Ì‘¬“x‚ÆˆÊ’u‚Æ“¹•‚©‚çAÕ“Ë”»’èOBB‚ğì¬‚·‚é
+		//ç¾åœ¨ã®é€Ÿåº¦ã¨ä½ç½®ã¨é“å¹…ã‹ã‚‰ã€è¡çªåˆ¤å®šOBBã‚’ä½œæˆã™ã‚‹
 		Vec3 Scale(Width, Height, bsmUtil::length(Velocity));
 		Mat4x4 ObbMat;
 		ObbMat.affineTransformation(
@@ -163,22 +163,22 @@ namespace shooting {
 			ObstacleAvoidanceSphere Sp(SphereVec[i], len);
 			ChangeVec.push_back(Sp);
 		}
-		//‡˜‚ğ•ÏXƒ\[ƒg
+		//é †åºã‚’å¤‰æ›´ã‚½ãƒ¼ãƒˆ
 		std::sort(ChangeVec.begin(), ChangeVec.end(), SortSphereObstacleAvoidanceHandle);
-		//‹ß‚¢‡‚ÉŒŸ¸‚µ‚Ä‰½‚©‚ÆÕ“Ë‚µ‚Ä‚¢‚½‚çAƒ^[ƒQƒbƒg‚ğŒˆ‚ßSEEK
+		//è¿‘ã„é †ã«æ¤œæŸ»ã—ã¦ä½•ã‹ã¨è¡çªã—ã¦ã„ãŸã‚‰ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’æ±ºã‚SEEK
 		for (size_t i = 0; i < ChangeVec.size(); i++)
 		{
 			Vec3 RetVec;
 			if (HitTest::SPHERE_OBB(ChangeVec[i].m_Sp, Obb, RetVec))
 			{
-				//is•ûŒü‚ÌOBB‚ÆÕ“Ë‚µ‚½
-				//OBBis•ûŒü‚Ìü•ª‚ÆRetVec‚Æ‚ÌÅ‹ßÚ“_‚ğ‹‚ß‚é
+				//é€²è¡Œæ–¹å‘ã®OBBã¨è¡çªã—ãŸ
+				//OBBé€²è¡Œæ–¹å‘ã®ç·šåˆ†ã¨RetVecã¨ã®æœ€è¿‘æ¥ç‚¹ã‚’æ±‚ã‚ã‚‹
 				float t;
 				Vec3 d;
 				HitTest::ClosetPtPointSegment(RetVec, Matrix.transInMatrix(), Matrix.transInMatrix() + Velocity, t, d);
-				//‘Ş”ğ•ûŒü‚ğŒvZ‚·‚é
+				//é€€é¿æ–¹å‘ã‚’è¨ˆç®—ã™ã‚‹
 				Vec3 AvoidanceVec = (d - RetVec);
-				//³‹K‰»
+				//æ­£è¦åŒ–
 				AvoidanceVec.normalize();
 				AvoidanceVec *= (Width + MaxSpeed);
 				return AvoidanceVec;
@@ -202,7 +202,7 @@ namespace shooting {
 	Vec3 Steering::WallAvoidance(const Mat4x4 Matrix,
 								 const Vec3& Velocity, float MaxSpeed, const std::vector<PLANE>& PlaneVec)
 	{
-		//‚Ü‚¸GŠo‚É‚È‚éü•ª”z—ñ‚ğì¬
+		//ã¾ãšè§¦è¦šã«ãªã‚‹ç·šåˆ†é…åˆ—ã‚’ä½œæˆ
 		float Len = bsmUtil::length(Velocity) * 0.5f;
 		std::vector<AvoidanceSegment> Segments;
 		Segments.push_back(AvoidanceSegment(Vec3(0, 0, Len), Vec3(0, 0, 0)));
@@ -215,10 +215,10 @@ namespace shooting {
 		Segments.push_back(AvoidanceSegment(Vec3(0, 0, -Len), Vec3(0, 0, 0)));
 		for (size_t i = 0; i < Segments.size(); i++)
 		{
-			//GŠo‚ÌŠe’¸“_‚És—ñ‚ğŒvZ‚µ‚ÄAƒ[ƒ‹ƒhÀ•W‚É•ÏŠ·
+			//è§¦è¦šã®å„é ‚ç‚¹ã«è¡Œåˆ—ã‚’è¨ˆç®—ã—ã¦ã€ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã«å¤‰æ›
 			Segments[i].m_PointA *= Matrix;
 			Segments[i].m_PointB *= Matrix;
-			//ü•ª‚Æ•Ç‚ÌÕ“Ë”»’è
+			//ç·šåˆ†ã¨å£ã®è¡çªåˆ¤å®š
 			Vec3 RetVec;
 			float t;
 			for (size_t j = 0; j < PlaneVec.size(); j++)
@@ -229,8 +229,8 @@ namespace shooting {
 				}
 				if (HitTest::SEGMENT_PLANE(Segments[i].m_PointA, Segments[i].m_PointB, PlaneVec[j], t, RetVec))
 				{
-					//ü•ª‚Æ–Ê‚ªÕ“Ë‚µ‚Ä‚¢‚é
-					//–Ê‚Ì–@ü‚Ì•ûŒü‚ÉŒ»İ‚Ì‘¬“x‚ÅƒtƒH[ƒX‚ğ•Ô‚·
+					//ç·šåˆ†ã¨é¢ãŒè¡çªã—ã¦ã„ã‚‹
+					//é¢ã®æ³•ç·šã®æ–¹å‘ã«ç¾åœ¨ã®é€Ÿåº¦ã§ãƒ•ã‚©ãƒ¼ã‚¹ã‚’è¿”ã™
 					return PlaneVec[j].m_Normal * bsmUtil::length(Velocity);
 				}
 			}
@@ -268,7 +268,7 @@ namespace shooting {
 	{
 		Vec3 steeringForce(0, 0, 0);
 		const auto& vec = Group->GetGroupVector();
-		// ©•ª‚Ì Transform / ˆÊ’u‚Í1‰ñ‚¾‚¯æ“¾
+		// è‡ªåˆ†ã® Transform / ä½ç½®ã¯1å›ã ã‘å–å¾—
 		auto myTransform = MyObj->GetComponent<Transform>();
 		const Vec3 myPos = myTransform->GetWorldPosition();
 
@@ -289,7 +289,7 @@ namespace shooting {
 				continue;
 			}
 
-			// normalize(v) / length(v) ‚Æ“¯‚¶Œü‚«‚¾‚ªAsqrt•s—v
+			// normalize(v) / length(v) ã¨åŒã˜å‘ãã ãŒã€sqrtä¸è¦
 			steeringForce += toAgent * (1.0f / distSq);
 		}
 
@@ -301,11 +301,11 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	static Vec3 Alignment(
-	//	const shared_ptr<GameObjectGroup>& Group,	//İ’è‚·‚éƒOƒ‹[ƒv‚Ì”z—ñ
-	//	const shared_ptr<GameObject>& MyObj				//©•ª©g
+	//	const shared_ptr<GameObjectGroup>& Group,	//è¨­å®šã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã®é…åˆ—
+	//	const shared_ptr<GameObject>& MyObj				//è‡ªåˆ†è‡ªèº«
 	//	);
-	//	—p“r: ®—ñs“®
-	//	–ß‚è’l: ƒtƒH[ƒX
+	//	ç”¨é€”: æ•´åˆ—è¡Œå‹•
+	//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Alignment(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj)
 	{
@@ -336,20 +336,20 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	static Vec3 Cohesion(
-	//	const shared_ptr<GameObjectGroup>& Group,	//İ’è‚·‚éƒOƒ‹[ƒv‚Ì”z—ñ
-	//	const shared_ptr<GameObject>& MyObj			//©•ª©g
-	//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-	//	float MaxSpeed				//Å‚‘¬“x
+	//	const shared_ptr<GameObjectGroup>& Group,	//è¨­å®šã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã®é…åˆ—
+	//	const shared_ptr<GameObject>& MyObj			//è‡ªåˆ†è‡ªèº«
+	//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+	//	float MaxSpeed				//æœ€é«˜é€Ÿåº¦
 	//	);
-	//	—p“r: Œ‹‡s“®
-	//	–ß‚è’l: ƒtƒH[ƒX
+	//	ç”¨é€”: çµåˆè¡Œå‹•
+	//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 	//--------------------------------------------------------------------------------------
 	Vec3 Steering::Cohesion(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj,
 							const Vec3& Velocity, float MaxSpeed)
 	{
 		auto Vec = Group->GetGroupVector();
 		Vec3 SteeringForce(0, 0, 0);
-		//dS
+		//é‡å¿ƒ
 		Vec3 CenterOfMass(0, 0, 0);
 		int count = 0;
 		for (auto Ptr : Vec)

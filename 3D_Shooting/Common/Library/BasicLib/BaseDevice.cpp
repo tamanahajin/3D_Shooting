@@ -1,4 +1,4 @@
-//*********************************************************
+﻿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -77,20 +77,20 @@ namespace shooting {
 		LoadSizeDependentResources();
 	}
 
-	// �����_�����O �p�C�v���C���̈ˑ��֌W��ǂݍ��݂܂��B
+	// レンダリング パイプラインの依存関係を読み込みます。
 	void BaseDevice::LoadPipeline()
 	{
 		m_dxgiFactoryFlags = 0;
 
 #if defined(_DEBUG)
-		// �f�o�b�O ���C���[��L���ɂ��܂� (�O���t�B�b�N�X �c�[���́u�I�v�V�����@�\�v���K�v�ł�)�B.
+		// デバッグ レイヤーを有効にします (グラフィックス ツールの「オプション機能」が必要です)。.
 		{
 			ComPtr<ID3D12Debug> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 			{
 				debugController->EnableDebugLayer();
 
-				// �ǉ��̃f�o�b�O ���C���[��L���ɂ��܂��B
+				// 追加のデバッグ レイヤーを有効にします。
 				m_dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 			}
 		}
@@ -116,7 +116,7 @@ namespace shooting {
 		GetGPUAdapter(m_activeAdapter, &hardwareAdapter);
 		ThrowIfFailed(D3D12CreateDevice(
 			hardwareAdapter.Get(),
-			D3D_FEATURE_LEVEL_12_1,//D3D_FEATURE_LEVEL_11_0����������
+			D3D_FEATURE_LEVEL_12_1,//D3D_FEATURE_LEVEL_11_0を書き換え
 			IID_PPV_ARGS(&m_device)
 		));
 		//ComPtr<ID3D12InfoQueue> infoQueue;
@@ -128,44 +128,44 @@ namespace shooting {
 		//}
 		m_activeAdapterLuid = m_gpuAdapterDescs[m_activeAdapter].desc.AdapterLuid;
 
-		// �R�}���h �L���[���L�q���č쐬���܂��B
+		// コマンド キューを記述して作成します。
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT; // �R�}���h���X�g�̎��
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // �t���O
+		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT; // コマンドリストの種類
+		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // フラグ
 
 		ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
 
-		// �X���b�v�`�F�[���̍쐬
+		// スワップチェーンの作成
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.BufferCount = FrameCount; // �o�b�N�o�b�t�@�̐�
-		swapChainDesc.Width = m_width;         // �o�b�N�o�b�t�@�̕�
-		swapChainDesc.Height = m_height;       // �o�b�N�o�b�t�@�̍���
-		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // �o�b�N�o�b�t�@�̃t�H�[�}�b�g
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // �o�b�N�o�b�t�@�̎g�p�@
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // �Ăяo������ɕ\���T�[�t�F�C�X�̃s�N�Z�����������邽�߂̃I�v�V����
-		swapChainDesc.SampleDesc.Count = 1; // �}���`�T���v�����O�̐ݒ�
-		// �e�B�A�����O �t���O���g�p�\�ȏꍇ�͏�ɂ�����g�p���邱�Ƃ������߂��܂��B
-		// ���̃X���b�v�`�F�[���̓e�B�A�����O�iVSync�Ȃ��̕\���j��������Ƃ����쐬���̐錾
-		// 1.VSync OFF�iPresent(0, �c)�j�𐳂����s������
-		// VSync OFF �� ��ʂ̍X�V�^�C�~���O��҂����ɕ\������̂ŁA���͒x�������点�܂����A�e�B�A�����O�����Ȃ��� OS/DXGI �������̌o�H��I�ׂȂ����Ƃ�����܂��B
-		// 2.VRR�iG-SYNC / FreeSync�j������������
-		// �� VRR ���ł́A�e�B�A�����O���t���O�����邱�ƂŁuVSync OFF �����ǃJ�N���ɂ����v�\���iVRR����j�ɂȂ�
-		// 3.�g�ォ��g�������h���ł��Ȃ�����
-		// �� DXGI_PRESENT_ALLOW_TEARING �́A�X���b�v�`�F�[���쐬���� DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ��t���Ă��邱�Ƃ��O��ł��B
-		// �� ���� VSync �ؑւ� VRR �Ή��������Ȃ������̂��߂ɁA�Ή����ł͍ŏ�����t���Ă����̂����p�I�ł��B
-		// V-SYNC(���������B�\�t�g�E�F�A�����`�悷��t���[�����[�g�����j�^�[���̃��t���b�V�����[�g�Ɠ���������Z�p�B)
-		// �e�B�A�����O�i������j
+		swapChainDesc.BufferCount = FrameCount; // バックバッファの数
+		swapChainDesc.Width = m_width;         // バックバッファの幅
+		swapChainDesc.Height = m_height;       // バックバッファの高さ
+		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // バックバッファのフォーマット
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // バックバッファの使用法
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // 呼び出した後に表示サーフェイスのピクセルを処理するためのオプション
+		swapChainDesc.SampleDesc.Count = 1; // マルチサンプリングの設定
+		// ティアリング フラグが使用可能な場合は常にそれを使用することをお勧めします。
+		// このスワップチェーンはティアリング（VSyncなしの表示）を許可するという作成時の宣言
+		// 1.VSync OFF（Present(0, …)）を正しく行うため
+		// VSync OFF は 画面の更新タイミングを待たずに表示するので、入力遅延を減らせますが、ティアリング許可がないと OS/DXGI 側がその経路を選べないことがあります。
+		// 2.VRR（G-SYNC / FreeSync）を活かすため
+		// └ VRR 環境では、ティアリング許可フラグがあることで「VSync OFF だけどカクつきにくい」表示（VRR動作）になる
+		// 3.“後から使いたい”ができないため
+		// └ DXGI_PRESENT_ALLOW_TEARING は、スワップチェーン作成時に DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING を付けていることが前提です。
+		// └ 将来 VSync 切替や VRR 対応したくなった時のために、対応環境では最初から付けておくのが実用的です。
+		// V-SYNC(垂直同期。ソフトウェア側が描画するフレームレートをモニター側のリフレッシュレートと同期させる技術。)
+		// ティアリング（ちらつき）
 		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
 		ComPtr<IDXGISwapChain1> swapChain;
-		// DXGI �ł́A�t���X�N���[�� �X�^�C�� (���E���Ȃ� + �ŏ��) �����E�B���h�E���^�[�Q�b�g�Ƃ���X���b�v�`�F�[���̍쐬�͋�����܂���B
-		// �X���b�v�`�F�[�����쐬���邽�߂ɁA�ꎞ�I�ɍŏ�ʃv���p�e�B���폜���܂��B
+		// DXGI では、フルスクリーン スタイル (境界線なし + 最上位) を持つウィンドウをターゲットとするスワップチェーンの作成は許可されません。
+		// スワップチェーンを作成するために、一時的に最上位プロパティを削除します。
 		bool prevIsFullscreen = App::IsFullscreen();
 		if (prevIsFullscreen)
 		{
 			App::SetWindowZorderToTopMost(false);
 		}
-		//�X���b�v�`�F�[���̍쐬
+		//スワップチェーンの作成
 		ThrowIfFailed(m_dxgiFactory->CreateSwapChainForHwnd(
 			m_commandQueue.Get(),		// Swap chain needs the queue so that it can force a flush on it.
 			App::GetHwnd(),
@@ -174,30 +174,30 @@ namespace shooting {
 			nullptr,
 			&swapChain
 		));
-		//�ꎞ�I�ɍŏ�ʃv���p�e�B�̕��A
+		//一時的に最上位プロパティの復帰
 		if (prevIsFullscreen)
 		{
 			App::SetWindowZorderToTopMost(true);
 		}
-		//�e�B�A�����O�T�|�[�g��L���ɂ���ƁA
-		// DXGI �� SetFullscreenState ���Ăяo���ď�������̂ł͂Ȃ��A
-		// �E�B���h�E ���b�Z�[�W ���[�v���� ALT+Enter �L�[�̉������������܂��B
-		// DXGI �������� SetFullscreenState���Ă�Łu�r���t���X�N���[���ؑցv������Ă���鋓���𖳌���
+		//ティアリングサポートを有効にすると、
+		// DXGI が SetFullscreenState を呼び出して処理するのではなく、
+		// ウィンドウ メッセージ ループ内で ALT+Enter キーの押下を処理します。
+		// DXGI が自動で SetFullscreenStateを呼んで「排他フルスクリーン切替」をやってくれる挙動を無効化
 		m_dxgiFactory->MakeWindowAssociation(App::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 
-		// As�́A�֘A�����C���^�[�t�F�[�X���擾���܂�
-		// IDXGISwapChain1�Ŏ擾���Ă����A�w�b�_�[�t�@�C����ifdef���Ă���̂Ŋ֘A����o�[�W�����ň�����
+		// Asは、関連したインターフェースを取得します
+		// IDXGISwapChain1で取得しておき、ヘッダーファイルでifdefしているので関連するバージョンで扱える
 		ThrowIfFailed(swapChain.As(&m_swapChain));
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-		// �����I�u�W�F�N�g�i�t�F���X�ƃC�x���g�j���쐬���܂��B
-		// �t�F���X�FGPU�������܂ŏ������I�������Ƃ��������߂̃J�E���^
-		// �C�x���g�FCPU��GPU�̏���������ҋ@���邽��
+		// 同期オブジェクト（フェンスとイベント）を作成します。
+		// フェンス：GPUがここまで処理を終えたことを示すためのカウンタ
+		// イベント：CPUがGPUの処理完了を待機するため
 		{
 			ThrowIfFailed(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 			m_fenceValues[m_frameIndex]++;
 
-			// �t���[�������Ɏg�p����C�x���g �n���h�����쐬���܂��B
+			// フレーム同期に使用するイベント ハンドルを作成します。
 			m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 			if (m_fenceEvent == nullptr)
 			{
@@ -206,10 +206,10 @@ namespace shooting {
 		}
 	}
 
-	// �����_�����O�ɕK�v�ȃA�Z�b�g��ǂݍ��݂܂��B
+	// レンダリングに必要なアセットを読み込みます。
 	void BaseDevice::LoadAssets()
 	{
-		// �V�[�� �I�u�W�F�N�g���쐬
+		// シーン オブジェクトを作成
 		if (!m_scene)
 		{
 			m_scene = std::make_unique<Scene>(FrameCount, this);
@@ -217,27 +217,27 @@ namespace shooting {
 
 		// Create a temporary command queue and command list for initializing data on the GPU.
 		// Performance tip: Copy command queues are optimized for transfer over PCIe.
-		// ���{��F �ꎞ�I�ȃR�}���h �L���[�ƃR�}���h ���X�g���쐬���āAGPU ��̃f�[�^�����������܂��B
-		// �p�t�H�[�}���X�̃q���g: �R�s�[ �R�}���h �L���[�� PCI
+		// 日本語： 一時的なコマンド キューとコマンド リストを作成して、GPU 上のデータを初期化します。
+		// パフォーマンスのヒント: コピー コマンド キューは PCI
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 
-		// �ꎞ�I�ȃR�}���h �L���[���쐬���܂�
+		// 一時的なコマンド キューを作成します
 		ComPtr<ID3D12CommandQueue> copyCommandQueue;
 		ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&copyCommandQueue)));
 		NAME_D3D12_OBJECT(copyCommandQueue);
 
-		// �R�}���h �A���P�[�^���쐬
+		// コマンド アロケータを作成
 		ComPtr<ID3D12CommandAllocator> commandAllocator;
 		ThrowIfFailed(m_device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&commandAllocator)));
 		NAME_D3D12_OBJECT(commandAllocator);
 
-		// �R�}���h ���X�g���쐬
+		// コマンド リストを作成
 		ComPtr<ID3D12GraphicsCommandList> commandList;
 		ThrowIfFailed(m_device->CreateCommandList(0, queueDesc.Type, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
 		NAME_D3D12_OBJECT(commandList);
 
-		// �V�[���̏�����
+		// シーンの初期化
 		m_scene->Initialize(m_device.Get(), m_commandQueue.Get(), commandList.Get(), m_frameIndex);
 
 		ThrowIfFailed(commandList->Close());
@@ -251,16 +251,16 @@ namespace shooting {
 
 	void BaseDevice::LoadSizeDependentResources()
 	{
-		// �X���b�v�`�F�[������o�b�N�o�b�t�@���擾
+		// スワップチェーンからバックバッファを取得
 		for (UINT i = 0; i < FrameCount; i++)
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i])));
 		}
 
-		// �V�[���ɉ�ʃT�C�Y�ˑ��̃��\�[�X��ǂݍ��܂���
+		// シーンに画面サイズ依存のリソースを読み込ませる
 		m_scene->LoadSizeDependentResources(m_device.Get(), m_renderTargets, m_width, m_height);
 
-		// UI ���C���[�̏�����
+		// UI レイヤーの初期化
 		if (m_enableUI)
 		{
 			if (!m_uiLayer)
@@ -286,13 +286,13 @@ namespace shooting {
 
 	void BaseDevice::UpdateUI()
 	{
-		//UI������̓V�[���ɔC����
+		//UI文字列はシーンに任せる
 		m_scene->UpdateUI(m_uiLayer);
 	}
 
 	void BaseDevice::ReleaseD3DObjects()
 	{
-		// �V�[������GPU���\�[�X���ɉ��
+		// シーン側のGPUリソースを先に解放
 		m_scene->ReleaseD3DObjects();
 		if (m_enableUI)
 		{
@@ -305,22 +305,22 @@ namespace shooting {
 		m_swapChain.Reset();
 		m_device.Reset();
 
-		// �A�_�v�^�ύX�ʒm�̓o�^����
-		// �A�v���I�����Ƀn���h�����[�N�i�C�x���g�������Ȃ��j��A�f�o�b�O���Ɂu�����Ă�I�u�W�F�N�g���c���Ă�v�Əo�錴���ɂȂ邽��
+		// アダプタ変更通知の登録解除
+		// アプリ終了時にハンドルリーク（イベントが閉じられない）や、デバッグ時に「生きてるオブジェクトが残ってる」と出る原因になるため
 #ifdef USE_DXGI_1_6
 		ComPtr<IDXGIFactory7> spDxgiFactory7;
 		if (m_adapterChangeRegistrationCookie != 0 && SUCCEEDED(m_dxgiFactory->QueryInterface(IID_PPV_ARGS(&spDxgiFactory7))))
 		{
 			ThrowIfFailed(spDxgiFactory7->UnregisterAdaptersChangedEvent(m_adapterChangeRegistrationCookie));
 			m_adapterChangeRegistrationCookie = 0;
-			// �C�x���g �n���h�������
+			// イベント ハンドルを閉じる
 			CloseHandle(m_adapterChangeEvent);
 			m_adapterChangeEvent = NULL;
 		}
 #endif
 		m_dxgiFactory.Reset();
 
-		// �f�o�b�O���A�܂��������Ă��Ȃ�DXGI/D3D�I�u�W�F�N�g�̈ꗗ/�v����o��
+		// デバッグ時、まだ解放されていないDXGI/D3Dオブジェクトの一覧/要約を出す
 #if defined(_DEBUG)
 		{
 			ComPtr<IDXGIDebug1> dxgiDebug;
@@ -665,7 +665,7 @@ namespace shooting {
 			// Check to see if the adapter supports Direct3D 12.
 			ThrowIfFailed(
 				D3D12CreateDevice(adapter.Get(),
-				D3D_FEATURE_LEVEL_12_1,//D3D_FEATURE_LEVEL_11_0����������
+				D3D_FEATURE_LEVEL_12_1,//D3D_FEATURE_LEVEL_11_0を書き換え
 				_uuidof(ID3D12Device),
 				nullptr));
 

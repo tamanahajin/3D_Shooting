@@ -1,7 +1,7 @@
 
 /*!
 @file INCStructs.hlsli
-@brief ÉVÉFÅ[É_Å[ç\ë¢ëÃ
+@brief „Ç∑„Çß„Éº„ÉÄ„ÉºÊßãÈÄ†‰Ωì
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

@@ -1,16 +1,16 @@
-/*!
+ï»¿/*!
 @file Project.h
-@brief ƒRƒ“ƒeƒ“ƒc‘¤ƒCƒ“ƒNƒ‹[ƒh
+@brief ã‚³ãƒ³ãƒ†ãƒ³ãƒ„å´ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 */
 
 
 #pragma once
 
-////ƒRƒ“ƒeƒ“ƒc‘¤ƒ‰ƒCƒuƒ‰ƒŠ
+////ã‚³ãƒ³ãƒ†ãƒ³ãƒ„å´ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
 
 #include "StandardInclude.h"
 
-//ŒÂ•ÊƒIƒuƒWƒFƒNƒg“™
+//å€‹åˆ¥ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç­‰
 #include "ProjectUtil.h"
 #include "UIManager.h"
 #include "MainCamera.h"

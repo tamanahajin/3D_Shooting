@@ -1,4 +1,4 @@
-﻿struct SceneParameters
+struct SceneParameters
 {
     float4x4 mtxView;
     float4x4 mtxProj;

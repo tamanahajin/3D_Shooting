@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -9,31 +9,31 @@ namespace shooting {
 	struct CollisionPair;
 
 	/// <summary>
-	/// ”z’u‚³‚ê‚éƒIƒuƒWƒFƒNƒg‚Ìe
+	/// é…ç½®ã•ã‚Œã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¦ª
 	/// </summary>
 	class GameObject : public IObject
 	{
 	private:
 		std::weak_ptr<Stage> m_stage;
 		
-		// update‚Ì—LŒø–³Œø
+		// updateã®æœ‰åŠ¹ç„¡åŠ¹
 		bool m_updateActive;
-		// ŠO•”ƒoƒbƒ`XV‚Ì‘ÎÛ‚©‚Ç‚¤‚©
+		// å¤–éƒ¨ãƒãƒƒãƒæ›´æ–°ã®å¯¾è±¡ã‹ã©ã†ã‹
 		bool m_batchUpdateManaged;
-		// draw‚Ì—LŒø–³Œø
+		// drawã®æœ‰åŠ¹ç„¡åŠ¹
 		bool m_drawActive;
-		// ‰e‚Ì—LŒø–³Œø
+		// å½±ã®æœ‰åŠ¹ç„¡åŠ¹
 		bool m_shadowActive;
-		// “§–¾‚©‚Ç‚¤‚©
+		// é€æ˜ã‹ã©ã†ã‹
 		bool m_alphaActive;
 
-		// s“®‚Ìƒ}ƒbƒv
+		// è¡Œå‹•ã®ãƒãƒƒãƒ—
 		std::map<std::type_index, std::shared_ptr<Behavior>> m_behaviorMap;
-		// ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ìƒ}ƒbƒv
+		// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ãƒãƒƒãƒ—
 		std::map<std::type_index, std::shared_ptr<Component>> m_componentMap;
-		// ƒRƒ“ƒ|[ƒlƒ“ƒgÀs‡”Ô
+		// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆå®Ÿè¡Œé †ç•ª
 		std::list<std::type_index> m_componentOrder;
-		// w’è‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ’T‚·i”h¶ƒNƒ‰ƒX‚àŒŸõj
+		// æŒ‡å®šã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æ¢ã™ï¼ˆæ´¾ç”Ÿã‚¯ãƒ©ã‚¹ã‚‚æ¤œç´¢ï¼‰
 		template<typename T>
 		std::shared_ptr<T> SearchDynamicComponent() const
 		{
@@ -50,9 +50,9 @@ namespace shooting {
 			return nullptr;
 		}
 
-		int m_drawLayer = 0; // •`‰æƒŒƒCƒ„[
-		std::set<std::wstring> m_tagSet; // ƒ^ƒOƒZƒbƒg
-		std::set<int> m_numTagSet; // ”šƒ^ƒO‚ÌƒZƒbƒg
+		int m_drawLayer = 0; // æç”»ãƒ¬ã‚¤ãƒ¤ãƒ¼
+		std::set<std::wstring> m_tagSet; // ã‚¿ã‚°ã‚»ãƒƒãƒˆ
+		std::set<int> m_numTagSet; // æ•°å­—ã‚¿ã‚°ã®ã‚»ãƒƒãƒˆ
 
 		const std::map<std::type_index, std::shared_ptr<Behavior> >& GetBehaviorMap() const
 		{
@@ -73,10 +73,10 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// ì¬‚³‚ê‚½ƒrƒwƒCƒrƒA‚ğŒ^ƒCƒ“ƒfƒbƒNƒX‚ÆŠÖ˜A•t‚¯‚Äƒ}ƒbƒv‚É’Ç‰Á‚µ‚Ü‚·B
+		/// ä½œæˆã•ã‚ŒãŸãƒ“ãƒ˜ã‚¤ãƒ“ã‚¢ã‚’å‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨é–¢é€£ä»˜ã‘ã¦ãƒãƒƒãƒ—ã«è¿½åŠ ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="TypeIndex">ƒrƒwƒCƒrƒA‚ÌŒ^‚ğ¯•Ê‚·‚éŒ^ƒCƒ“ƒfƒbƒNƒXB</param>
-		/// <param name="behavior">’Ç‰Á‚·‚éƒrƒwƒCƒrƒAƒIƒuƒWƒFƒNƒg‚Ö‚Ì‹¤—Lƒ|ƒCƒ“ƒ^B</param>
+		/// <param name="TypeIndex">ãƒ“ãƒ˜ã‚¤ãƒ“ã‚¢ã®å‹ã‚’è­˜åˆ¥ã™ã‚‹å‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚</param>
+		/// <param name="behavior">è¿½åŠ ã™ã‚‹ãƒ“ãƒ˜ã‚¤ãƒ“ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®å…±æœ‰ãƒã‚¤ãƒ³ã‚¿ã€‚</param>
 		void AddMakedBehavior(std::type_index TypeIndex, const std::shared_ptr<Behavior>& behavior)
 		{
 			m_behaviorMap[TypeIndex] = behavior;
@@ -147,7 +147,7 @@ namespace shooting {
 		{
 			std::type_index typeIndex = std::type_index(typeid(T));
 			auto ptr = SearchDynamicComponent<T>();
-			// w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+			// æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 			if (ptr)
 			{
 				auto retPtr = std::dynamic_pointer_cast<T>(ptr);
@@ -157,17 +157,17 @@ namespace shooting {
 				}
 				else
 				{
-					throw std::runtime_error("Šù‚ÉƒRƒ“ƒ|[ƒlƒ“ƒg‚ª‘¶İ‚·‚é‚ªAŒ^ƒLƒƒƒXƒg‚É¸”s‚µ‚Ü‚µ‚½B");
+					throw std::runtime_error("æ—¢ã«ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒå­˜åœ¨ã™ã‚‹ãŒã€å‹ã‚­ãƒ£ã‚¹ãƒˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚");
 				}
 				return ptr;
 			}
 			else
 			{
-				// w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½‚Ì‚ÅV‹Kì¬
+				// æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸã®ã§æ–°è¦ä½œæˆ
 				std::shared_ptr<T> newPtr = ObjectFactory::Create<T>(GetThis<GameObject>(), params...);
-				// ‚»‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ª‚Ü‚¾‚È‚¯‚ê‚ÎV‹K“o˜^
+				// ãã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒã¾ã ãªã‘ã‚Œã°æ–°è¦ç™»éŒ²
 				m_componentOrder.push_back(typeIndex);
-				// map‚É’Ç‰Á‚à‚µ‚­‚ÍXV
+				// mapã«è¿½åŠ ã‚‚ã—ãã¯æ›´æ–°
 				m_componentMap[typeIndex] = newPtr;
 				newPtr->AttachGameObject(GetThis<GameObject>());
 				return newPtr;
@@ -192,7 +192,7 @@ namespace shooting {
 			if (exceptionActive)
 			{
 				throw BaseException(
-					L"ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+					L"ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 					Util::GetWSTypeName<T>(),
 					L"GameObject::GetComponent<T>()"
 				);
@@ -201,14 +201,14 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// w’è‚³‚ê‚½Œ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğíœ‚µ‚Ü‚·B
+		/// æŒ‡å®šã•ã‚ŒãŸå‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <typeparam name="T">íœ‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌŒ^B</typeparam>
+		/// <typeparam name="T">å‰Šé™¤ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®å‹ã€‚</typeparam>
 		template <typename T>
 		void RemoveComponent()
 		{
 			auto typeIndex = type_index(typeid(T));
-			//‡”ÔƒŠƒXƒg‚ğŒŸØ‚µ‚Äíœ
+			//é †ç•ªãƒªã‚¹ãƒˆã‚’æ¤œè¨¼ã—ã¦å‰Šé™¤
 			auto it = m_componentOrder.begin();
 			while (it != m_componentOrder.end())
 			{
@@ -217,8 +217,8 @@ namespace shooting {
 					auto it2 = m_componentMap.find(*it);
 					if (it2 != m_componentMap.end())
 					{
-						//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
-						//mapƒf[ƒ^‚ğíœ
+						//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
+						//mapãƒ‡ãƒ¼ã‚¿ã‚’å‰Šé™¤
 						m_componentMap.erase(it2);
 					}
 					m_componentOrder.erase(it);
@@ -229,7 +229,7 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// s“®‚Ìæ“¾B‘¶İ‚µ‚È‚¯‚ê‚Îì¬‚·‚é
+		/// è¡Œå‹•ã®å–å¾—ã€‚å­˜åœ¨ã—ãªã‘ã‚Œã°ä½œæˆã™ã‚‹
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
@@ -248,7 +248,7 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// s“®‚ÌŒŸõ
+		/// è¡Œå‹•ã®æ¤œç´¢
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
@@ -258,7 +258,7 @@ namespace shooting {
 			auto Ptr = SearchBehavior(type_index(typeid(T)));
 			if (Ptr)
 			{
-				//w’è‚ÌŒ^‚Ìs“®‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®è¡Œå‹•ãŒè¦‹ã¤ã‹ã£ãŸ
 				auto RetPtr = dynamic_pointer_cast<T>(Ptr);
 				if (RetPtr)
 				{
@@ -292,9 +292,9 @@ namespace shooting {
 		{
 			if (tagstr == L"")
 			{
-				//‹ó”’‚È‚ç—áŠO
+				//ç©ºç™½ãªã‚‰ä¾‹å¤–
 				throw BaseException(
-					L"İ’è‚·‚éƒ^ƒO‚ª‹ó‚Å‚·",
+					L"è¨­å®šã™ã‚‹ã‚¿ã‚°ãŒç©ºã§ã™",
 					L"if (tagstr == L"")",
 					L"GameObject::AddTag()"
 				);
@@ -332,21 +332,21 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// Õ“Ë”­¶‚ÌƒCƒxƒ“ƒgiƒfƒtƒHƒ‹ƒg‚Í‰½‚à‚µ‚È‚¢jB•¡”‚ ‚Á‚½ê‡‚Í•¡”‰ñŒÄ‚Î‚ê‚é
+		/// è¡çªç™ºç”Ÿæ™‚ã®ã‚¤ãƒ™ãƒ³ãƒˆï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯ä½•ã‚‚ã—ãªã„ï¼‰ã€‚è¤‡æ•°ã‚ã£ãŸå ´åˆã¯è¤‡æ•°å›å‘¼ã°ã‚Œã‚‹
 		/// </summary>
 		/// <param name="Other"></param>
 		virtual void OnCollisionEnter(std::shared_ptr<GameObject>& Other) {}
 		virtual void OnCollisionEnter(const CollisionPair& Pair) {}
 
 		/// <summary>
-		/// Õ“Ë‚µ‘±‚¯‚é‘Šè‚ª‚ ‚Á‚½ê‡‚ÌƒCƒxƒ“ƒgiƒfƒtƒHƒ‹ƒg‚Í‰½‚à‚µ‚È‚¢jB•¡”‚ ‚Á‚½ê‡‚Í•¡”‰ñŒÄ‚Î‚ê‚é
+		/// è¡çªã—ç¶šã‘ã‚‹ç›¸æ‰‹ãŒã‚ã£ãŸå ´åˆã®ã‚¤ãƒ™ãƒ³ãƒˆï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯ä½•ã‚‚ã—ãªã„ï¼‰ã€‚è¤‡æ•°ã‚ã£ãŸå ´åˆã¯è¤‡æ•°å›å‘¼ã°ã‚Œã‚‹
 		/// </summary>
 		/// <param name="Other"></param>
 		virtual void OnCollisionExecute(std::shared_ptr<GameObject>& Other) {}
 		virtual void OnCollisionExecute(const CollisionPair& Pair) {}
 
 		/// <summary>
-		/// Õ“Ë‚ğ”²‚¯‚½‘Šè‚ª‚ ‚Á‚½ê‡‚ÌƒCƒxƒ“ƒgiƒfƒtƒHƒ‹ƒg‚Í‰½‚à‚µ‚È‚¢jB•¡”‚ ‚Á‚½ê‡‚Í•¡”‰ñŒÄ‚Î‚ê‚é
+		/// è¡çªã‚’æŠœã‘ãŸç›¸æ‰‹ãŒã‚ã£ãŸå ´åˆã®ã‚¤ãƒ™ãƒ³ãƒˆï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯ä½•ã‚‚ã—ãªã„ï¼‰ã€‚è¤‡æ•°ã‚ã£ãŸå ´åˆã¯è¤‡æ•°å›å‘¼ã°ã‚Œã‚‹
 		/// </summary>
 		/// <param name="Other"></param>
 		virtual void OnCollisionExit(std::shared_ptr<GameObject>& Other) {}
@@ -370,7 +370,7 @@ namespace shooting {
 	};
 
 	/// <summary>
-	/// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Ìweak_ptr‚ğƒOƒ‹[ƒv‰»‚µ‚½ƒNƒ‰ƒX
+	/// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®weak_ptrã‚’ã‚°ãƒ«ãƒ¼ãƒ—åŒ–ã—ãŸã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class GameObjectGroup : public IObject
 	{
@@ -379,28 +379,28 @@ namespace shooting {
 		GameObjectGroup();
 		virtual ~GameObjectGroup();
 		/// <summary>
-		/// ƒOƒ‹[ƒv“à‚ÌƒIƒuƒWƒFƒNƒg‚Ìweak_ptr”z—ñ‚ğæ“¾‚·‚é
+		/// ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®weak_ptré…åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <returns></returns>
 		const std::vector<std::weak_ptr<GameObject> >& GetGroupVector() const;
 		/// <summary>
-		/// ƒOƒ‹[ƒv“à‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾
+		/// ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
 		/// </summary>
-		/// <param name="index">ƒOƒ‹[ƒv“àƒIƒuƒWƒFƒNƒg‚ÌƒCƒ“ƒfƒbƒNƒX</param>
+		/// <param name="index">ã‚°ãƒ«ãƒ¼ãƒ—å†…ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹</param>
 		/// <returns></returns>
 		std::shared_ptr<GameObject> GameObjectAt(size_t index);
 		/// <summary>
-		/// ƒOƒ‹[ƒv“à‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Ì”‚ğæ“¾
+		/// ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ•°ã‚’å–å¾—
 		/// </summary>
 		/// <returns></returns>
 		size_t size() const;
 		/// <summary>
-		/// ƒOƒ‹[ƒv‚ÉƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğ’Ç‰Á‚·‚é
+		/// ã‚°ãƒ«ãƒ¼ãƒ—ã«ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <param name="obj"></param>
 		void IntoGroup(const std::shared_ptr<GameObject>& obj);
 		/// <summary>
-		/// ƒOƒ‹[ƒv‚ğƒNƒŠƒA
+		/// ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ã‚¯ãƒªã‚¢
 		/// </summary>
 		void AllClear();
 

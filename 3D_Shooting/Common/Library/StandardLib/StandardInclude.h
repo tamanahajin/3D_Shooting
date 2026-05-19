@@ -1,14 +1,14 @@
-/*!
+ï»¿/*!
 @file Project.h
-@brief ƒRƒ“ƒeƒ“ƒc‘¤ƒCƒ“ƒNƒ‹[ƒh
+@brief ã‚³ãƒ³ãƒ†ãƒ³ãƒ„å´ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 */
 
 
 #pragma once
 
-////ƒRƒ“ƒeƒ“ƒc‘¤ƒ‰ƒCƒuƒ‰ƒŠ
+////ã‚³ãƒ³ãƒ†ãƒ³ãƒ„å´ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
 
-//ŒÂ•ÊƒIƒuƒWƒFƒNƒg“™
+//å€‹åˆ¥ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç­‰
 #include "Objects/Constants.h"
 
 #include "Components/Component.h"

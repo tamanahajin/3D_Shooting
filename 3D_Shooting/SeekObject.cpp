@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Character.cpp
-@brief ”z’uƒIƒuƒWƒFƒNƒg À‘Ì
+@brief é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -73,7 +73,7 @@ namespace shooting {
 		}
 	}
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void SeekObject::OnCreate()
 	{
 		auto ptrTransform = GetComponent<Transform>();
@@ -82,11 +82,11 @@ namespace shooting {
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 		SetBatchUpdateManaged(true);
 
-		//ƒIƒuƒWƒFƒNƒg‚ÌƒOƒ‹[ƒv‚ğ“¾‚é
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚°ãƒ«ãƒ¼ãƒ—ã‚’å¾—ã‚‹
 		auto group = GetStage()->GetSharedObjectGroup(L"SeekGroup");
 		group->IntoGroup(GetThis<SeekObject>());
 		
-		// ƒRƒŠƒWƒ‡ƒ“
+		// ã‚³ãƒªã‚¸ãƒ§ãƒ³
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
@@ -95,21 +95,21 @@ namespace shooting {
 		ptrColl->SetMakedHeight(segmentHeight);
 
 		auto ptrGra = AddComponent<Gravity>();
-		//•ª—£s“®‚ğ‚Â‚¯‚é
+		//åˆ†é›¢è¡Œå‹•ã‚’ã¤ã‘ã‚‹
 		auto PtrSep = GetBehavior<SeparationSteering>();
 		PtrSep->SetGameObjectGroup(group);
 		
-		// •`‰æ‚Í EnemyInstancedRenderer ‚Å‚Ü‚Æ‚ß‚Äs‚¤
+		// æç”»ã¯ EnemyInstancedRenderer ã§ã¾ã¨ã‚ã¦è¡Œã†
 
-		// ƒAƒjƒ[ƒVƒ‡ƒ“
+		// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		anim->SetFallbackMeshKey(L"ENEMY_MODEL_SKINNED");
 		anim->ChangeAnimation(AnimState::Idle);
-		//“§–¾ˆ—‚ğ‚·‚é
+		//é€æ˜å‡¦ç†ã‚’ã™ã‚‹
 		SetAlphaActive(false);
 		AddTag(L"Enemy");
 
-		// HPİ’è
+		// HPè¨­å®š
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
@@ -131,7 +131,7 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Dead);
 		};
 
-		// ƒXƒe[ƒgƒ}ƒVƒ“
+		// ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
 		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
 		m_StateMachine->ChangeState(SeekFarState::Instance());
 
@@ -275,7 +275,7 @@ namespace shooting {
 		m_IsGround = false;
 	}
 
-	//‘€ì
+	//æ“ä½œ
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
 		if (IsBatchUpdateManaged())
@@ -321,28 +321,28 @@ namespace shooting {
 
 		m_SteeringUpdateTimer -= elapsedTime;
 
-		// ‘€‘ÇŒvZ‚Í20Hz‚¾‚¯
+		// æ“èˆµè¨ˆç®—ã¯20Hzã ã‘
 		if (m_SteeringUpdateTimer <= 0.0)
 		{
 			m_SteeringUpdateTimer += m_SteeringUpdateInterval;
 
 			m_Force = Vec3(0);
-			m_StateMachine->Update(); // ‚±‚Ì’†‚Å SetForce / ApplyForce ‚³‚ê‚é
+			m_StateMachine->Update(); // ã“ã®ä¸­ã§ SetForce / ApplyForce ã•ã‚Œã‚‹
 		}
 		else
 		{
-			// ‘O‰ñ‚Ì force ‚ğg‚Á‚ÄˆÚ“®‚¾‚¯Œp‘±
+			// å‰å›ã® force ã‚’ä½¿ã£ã¦ç§»å‹•ã ã‘ç¶™ç¶š
 			ApplyForce();
 		}
 
-		// Œü‚«XV‚Í velocity ƒx[ƒX
+		// å‘ãæ›´æ–°ã¯ velocity ãƒ™ãƒ¼ã‚¹
 		if (bsmUtil::lengthSqr(m_Velocity) > 1e-6f)
 		{
 			auto ptrUtil = GetBehavior<UtilBehavior>();
 			ptrUtil->RotToHead(m_Velocity, 0.35f);
 		}
 
-		// ’n–Ê”»’è‚ğƒŠƒZƒbƒg
+		// åœ°é¢åˆ¤å®šã‚’ãƒªã‚»ãƒƒãƒˆ
 		m_IsGround = false;
 	}
 
@@ -358,18 +358,18 @@ namespace shooting {
 
 	void SeekObject::CheckGroundCollision(const CollisionPair& pair)
 	{
-		// Õ“Ë–@ü‚ÌY¬•ª‚ğƒ`ƒFƒbƒNiãŒü‚«‚Ì–@ü = ’n–Ê‚Æ‚ÌÕ“Ëj
-		// 0.7f ‚Í–ñ45“xicos(45‹) ? 0.707j
-		// ‚±‚ê‚æ‚è‘å‚«‚¢ = ‚æ‚è…•½‚É‹ß‚¢–Ê = ’n–Ê‚Æ‚İ‚È‚·
+		// è¡çªæ³•ç·šã®Yæˆåˆ†ã‚’ãƒã‚§ãƒƒã‚¯ï¼ˆä¸Šå‘ãã®æ³•ç·š = åœ°é¢ã¨ã®è¡çªï¼‰
+		// 0.7f ã¯ç´„45åº¦ï¼ˆcos(45Â°) ? 0.707ï¼‰
+		// ã“ã‚Œã‚ˆã‚Šå¤§ãã„ = ã‚ˆã‚Šæ°´å¹³ã«è¿‘ã„é¢ = åœ°é¢ã¨ã¿ãªã™
 		if (pair.m_SrcHitNormal.y > 0.7f)
 		{
 			m_IsGround = true;
 
-			// d—Í‘¬“x‚ğƒŠƒZƒbƒgi’n–Ê‚É’…’nj
+			// é‡åŠ›é€Ÿåº¦ã‚’ãƒªã‚»ãƒƒãƒˆï¼ˆåœ°é¢ã«ç€åœ°ï¼‰
 			auto grav = GetComponent<Gravity>();
 			auto gravVel = grav->GetGravityVelocity();
 
-			// ‰ºŒü‚«‚Ì‘¬“x‚Ìê‡‚Ì‚İƒŠƒZƒbƒgi’…’nj
+			// ä¸‹å‘ãã®é€Ÿåº¦ã®å ´åˆã®ã¿ãƒªã‚»ãƒƒãƒˆï¼ˆç€åœ°æ™‚ï¼‰
 			if (gravVel.y < 0.0f)
 			{
 				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
@@ -403,7 +403,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	ƒvƒŒƒCƒ„[‚©‚ç‰“‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰é ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	std::shared_ptr<SeekFarState> SeekFarState::Instance()
 	{
@@ -434,7 +434,7 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	//	ƒvƒŒƒCƒ„[‚©‚ç‹ß‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰è¿‘ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	std::shared_ptr<SeekNearState> SeekNearState::Instance()
 	{

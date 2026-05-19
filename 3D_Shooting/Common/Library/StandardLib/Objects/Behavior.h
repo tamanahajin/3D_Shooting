@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "IObject.h"
 #include "BaseMath.h"
 
@@ -7,7 +7,7 @@ namespace shooting {
 	class GameObject;
 
 	/// <summary>
-	/// s“®ƒNƒ‰ƒX‚ÌeƒNƒ‰ƒX
+	/// è¡Œå‹•ã‚¯ãƒ©ã‚¹ã®è¦ªã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class Behavior : public IObject
 	{
@@ -17,9 +17,9 @@ namespace shooting {
 		virtual ~Behavior();
 	public:
 		/// <summary>
-		/// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚µ‚Ü‚·B
+		/// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <returns>‚±‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğŠ‚·‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒg</returns>
+		/// <returns>ã“ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æ‰€æŒã™ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 		std::shared_ptr<GameObject> GetGameObject() const;
 
 		std::shared_ptr<Stage> GetStage() const;
@@ -35,7 +35,7 @@ namespace shooting {
 	};
 
 	/// <summary>
-	/// s“®ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+	/// è¡Œå‹•ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class UtilBehavior : public Behavior
 	{
@@ -48,13 +48,13 @@ namespace shooting {
 		virtual ~UtilBehavior() {}
 
 		/// <summary>
-		/// is•ûŒü‚ğŒü‚­‚æ‚¤‚É‚·‚é
+		/// é€²è¡Œæ–¹å‘ã‚’å‘ãã‚ˆã†ã«ã™ã‚‹
 		/// </summary>
-		/// <param name="LerpFact">•âŠÔŒW”i0.0‚©‚ç1.0‚ÌŠÔj</param>
+		/// <param name="LerpFact">è£œé–“ä¿‚æ•°ï¼ˆ0.0ã‹ã‚‰1.0ã®é–“ï¼‰</param>
 		void RotToHead(float LerpFact);
 
 		/// <summary>
-		/// is•ûŒü‚ğŒü‚­‚æ‚¤‚É‚·‚éi‘¬“xw’è•û®j
+		/// é€²è¡Œæ–¹å‘ã‚’å‘ãã‚ˆã†ã«ã™ã‚‹ï¼ˆé€Ÿåº¦æŒ‡å®šæ–¹å¼ï¼‰
 		/// </summary>
 		/// <param name="Velocity"></param>
 		/// <param name="LerpFact"></param>
@@ -75,9 +75,9 @@ namespace shooting {
 
 	public:
 		/// <summary>
-		/// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚µ‚Ü‚·B
+		/// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <returns>‚±‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğŠ‚·‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒg</returns>
+		/// <returns>ã“ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æ‰€æŒã™ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 		std::shared_ptr<T> GetGameObject() const
 		{
 			auto shPtr = m_gameObject.lock();

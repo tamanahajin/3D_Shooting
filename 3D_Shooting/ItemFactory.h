@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include <memory>
 
@@ -7,20 +7,20 @@ namespace shooting {
 	class BaseItem;
 	class Stage;
 
-	// �A�C�e���̎�ށB�V�����A�C�e���𑝂₷�Ƃ��͂���������ɕ��򂳂���B
+	// アイテムの種類。新しいアイテムを増やすときはここを入口に分岐させる。
 	enum class ItemKind
 	{
 		HpRecovery,
 		Bomb
 	};
 
-	// �A�C�e�������̐Ӗ������N���X�B
-	// GameStage�́u�ǂ��ɁE���ێ����邩�v���������߁A��̓I�ȃA�C�e���N���X�̑I���͂����ɏW�񂷂�B
+	// アイテム生成の責務を持つクラス。
+	// GameStageは「どこに・何個維持するか」だけを決め、具体的なアイテムクラスの選択はここに集約する。
 	class ItemFactory
 	{
 	public:
-		// 1�̃A�C�e�������ɕK�v�ȏ��B
-		// ��ނ��Ƃ̌ŗL�p�����[�^�́A�Y������ItemKind�̂Ƃ������g�p����B
+		// 1個のアイテム生成に必要な情報。
+		// 種類ごとの固有パラメータは、該当するItemKindのときだけ使用する。
 		struct SpawnDesc
 		{
 			ItemKind kind = ItemKind::HpRecovery;
@@ -36,10 +36,10 @@ namespace shooting {
 		void SetStage(const std::shared_ptr<Stage>& stage);
 		bool IsValid() const;
 
-		// �A�C�e��1�𐶐�����B��ނ��Ƃ̍����͂��̊֐��ɏW�߂�B
+		// アイテム1個を生成する。種類ごとの差分はこの関数に集める。
 		std::shared_ptr<BaseItem> CreateItem(const SpawnDesc& desc) const;
 
-		// �w�肵����ނ́A�܂��擾����Ă��Ȃ��L���A�C�e������Ԃ��B
+		// 指定した種類の、まだ取得されていない有効アイテム数を返す。
 		int CountActiveItems(ItemKind kind) const;
 
 	private:

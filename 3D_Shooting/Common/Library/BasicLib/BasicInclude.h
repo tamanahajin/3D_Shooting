@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 
-#define WIN32_LEAN_AND_MEAN             // Windows ƒwƒbƒ_[‚©‚ç‚Ù‚Æ‚ñ‚Çg—p‚³‚ê‚Ä‚¢‚È‚¢•”•ª‚ğœŠO‚·‚é
+#define WIN32_LEAN_AND_MEAN             // Windows ãƒ˜ãƒƒãƒ€ãƒ¼ã‹ã‚‰ã»ã¨ã‚“ã©ä½¿ç”¨ã•ã‚Œã¦ã„ãªã„éƒ¨åˆ†ã‚’é™¤å¤–ã™ã‚‹
 
 #include <windows.h>
 #include "targetver.h"
@@ -28,7 +28,7 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
-//C++”ÅCéŒ¾
+//C++ç‰ˆCå®£è¨€
 #include <cstdio>
 #include <cfloat>
 #include <clocale>
@@ -68,7 +68,7 @@ using namespace DirectX;
 #include <assimp/postprocess.h>     // Post processing flags
 
 //BaseLib
-//ƒVƒ“ƒvƒ‹ƒIƒuƒWƒFƒNƒg
+//ã‚·ãƒ³ãƒ—ãƒ«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 #include "BaseMath.h"
 namespace shooting { namespace bsm {} }
 using namespace shooting::bsm;
@@ -106,14 +106,14 @@ using namespace shooting::bsm;
 #pragma comment( lib, "comctl32.lib" )
 // XInput
 #pragma comment( lib, "XInput.lib" )
-//ƒI[ƒfƒBƒI
+//ã‚ªãƒ¼ãƒ‡ã‚£ã‚ª
 #pragma comment( lib, "xaudio2.lib" )
 #pragma comment(lib, "Mfplat.lib")
 #pragma comment(lib, "Mfreadwrite.lib")
 //WinHTTP
 #pragma comment( lib, "Winhttp.lib" )
 
-//Dx11ŠÖ˜A
+//Dx11é–¢é€£
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "d2d1.lib" )
 #pragma comment( lib, "dwrite.lib" )

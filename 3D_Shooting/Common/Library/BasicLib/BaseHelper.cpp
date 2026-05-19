@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file BaseHelper.cpp
-@brief ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒXAŠÖ”ŒQ
+@brief ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹ã€é–¢æ•°ç¾¤
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -25,11 +25,11 @@ namespace shooting {
 
 	namespace Dx12ShaderHelper {
 		//--------------------------------------------------------------------------------------
-		//@void CreateShaderFlomCso(
-		//		const wstring& fileName,	//csoƒtƒ@ƒCƒ‹
+		//ã€€void CreateShaderFlomCso(
+		//		const wstring& fileName,	//csoãƒ•ã‚¡ã‚¤ãƒ«
 		//		ID3DBlob** pResult	//Blob
 		//	);
-		//	—p“r: CSOƒf[ƒ^‚©‚çƒVƒF[ƒ_—p‚ÌBlob‚ğì¬‚·‚é
+		//	ç”¨é€”: CSOãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ã‚·ã‚§ãƒ¼ãƒ€ç”¨ã®Blobã‚’ä½œæˆã™ã‚‹
 		//--------------------------------------------------------------------------------------
 		void CreateShaderFlomCso(const std::wstring& fileName, ID3DBlob** pResult)
 		{
@@ -38,7 +38,7 @@ namespace shooting {
 				if (fileName == L"")
 				{
 					throw BaseException(
-						L"ƒtƒ@ƒCƒ‹‚ªw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ\n",
+						L"ãƒ•ã‚¡ã‚¤ãƒ«ãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“\n",
 						L"if(fileName == L\"\")\n",
 						L"Dx12ShaderResource::CreateShaderFlomCso()"
 					);
@@ -48,14 +48,14 @@ namespace shooting {
 				if (RetCode == -1)
 				{
 					throw BaseException(
-						L"ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñ\n",
+						L"ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“\n",
 						fileName,
 						L"\nDx12ShaderResource::CreateShaderFlomCso()"
 					);
 				}
 				ThrowIfFailedEx(
 					D3DReadFileToBlob(fileName.c_str(), pResult),
-					L"Blpb‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B\n",
+					L"Blpbã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n",
 					fileName,
 					L"\nDx12ShaderResource::CreateShaderFlomCso()"
 				);
@@ -71,18 +71,18 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class Dx12ShaderResource;
-	//	—p“r: ƒVƒF[ƒ_ŠÖ˜AƒŠƒ\[ƒX‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX
+	//	ç”¨é€”: ã‚·ã‚§ãƒ¼ãƒ€é–¢é€£ãƒªã‚½ãƒ¼ã‚¹ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹
 	//--------------------------------------------------------------------------------------
 	Dx12ShaderResource::Dx12ShaderResource() {}
 	Dx12ShaderResource::~Dx12ShaderResource() {}
 
 
-	//ƒVƒF[ƒ_ƒAƒNƒZƒbƒT
+	//ã‚·ã‚§ãƒ¼ãƒ€ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 	ID3DBlob* Dx12ShaderResource::GetShaderBlob(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderComPtr)
 	{
-		//ƒ~ƒ…[ƒeƒbƒNƒX
+		//ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
 		std::mutex Mutex;
-		//ƒ‰ƒ€ƒ_®—˜—p
+		//ãƒ©ãƒ ãƒ€å¼åˆ©ç”¨
 		return Util::DemandCreate(shaderComPtr, Mutex, [&](ID3DBlob** pResult)
 								  {
 									  Dx12ShaderHelper::CreateShaderFlomCso(fileName, pResult);
@@ -91,9 +91,9 @@ namespace shooting {
 
 	ComPtr<ID3DBlob>& Dx12ShaderResource::GetShaderBlobComPtr(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderComPtr)
 	{
-		//ƒ~ƒ…[ƒeƒbƒNƒX
+		//ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
 		std::mutex mutex;
-		//ƒ‰ƒ€ƒ_®—˜—p
+		//ãƒ©ãƒ ãƒ€å¼åˆ©ç”¨
 		Util::DemandCreate(shaderComPtr, mutex, [&](ID3DBlob** pResult)
 						   {
 							   Dx12ShaderHelper::CreateShaderFlomCso(fileName, pResult);

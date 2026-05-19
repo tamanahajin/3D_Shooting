@@ -1,11 +1,11 @@
-
+ï»¿
 #include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	//	MainCameraƒJƒƒ‰
+	//	MainCameraã‚«ãƒ¡ãƒ©
 	//--------------------------------------------------------------------------------------
 	MainCamera::MainCamera(const std::shared_ptr<Stage>& stage) :
 		PerspecCamera(),
@@ -51,7 +51,7 @@ namespace shooting {
 
 	MainCamera::~MainCamera() {}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	void MainCamera::SetEye(const Vec3& Eye)
 	{
 		PerspecCamera::SetEye(Eye);
@@ -98,12 +98,12 @@ namespace shooting {
 		m_ArmLen = bsmUtil::length(vec);
 		if (m_ArmLen >= m_MaxArm)
 		{
-			//m_MaxArmˆÈã—£‚ê‚È‚¢‚æ‚¤‚É‚·‚é
+			//m_MaxArmä»¥ä¸Šé›¢ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹
 			m_ArmLen = m_MaxArm;
 		}
 		if (m_ArmLen <= m_MinArm)
 		{
-			//m_MinArmˆÈ‰º‹ß‚Ã‚©‚È‚¢‚æ‚¤‚É‚·‚é
+			//m_MinArmä»¥ä¸‹è¿‘ã¥ã‹ãªã„ã‚ˆã†ã«ã™ã‚‹
 			m_ArmLen = m_MinArm;
 		}
 	}
@@ -253,7 +253,7 @@ namespace shooting {
 
 	void MainCamera::SetCursorVisible(bool visible, int& counter)
 	{
-		// ShowCursor‚Í“à•”ƒJƒEƒ“ƒ^®‚È‚Ì‚ÅA–Ú“I‚Ìó‘Ô‚É‚È‚é‚Ü‚Å‰ñ‚·
+		// ShowCursorã¯å†…éƒ¨ã‚«ã‚¦ãƒ³ã‚¿å¼ãªã®ã§ã€ç›®çš„ã®çŠ¶æ…‹ã«ãªã‚‹ã¾ã§å›ã™
 		if (visible)
 		{
 			while (::ShowCursor(TRUE) < 0) {}
@@ -272,19 +272,19 @@ namespace shooting {
 
 		HWND hwnd = App::GetHwnd();
 
-		// ”O‚Ì‚½‚ßƒtƒH[ƒJƒX‚ğæ‚éiD‚İj
+		// å¿µã®ãŸã‚ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å–ã‚‹ï¼ˆå¥½ã¿ï¼‰
 		::SetForegroundWindow(hwnd);
 		::SetFocus(hwnd);
 		::SetCapture(hwnd);
 
-		// Œ»İˆÊ’u‚ğ•Û‘¶i‰ğœ‚É–ß‚µ‚½‚¢ê‡j
+		// ç¾åœ¨ä½ç½®ã‚’ä¿å­˜ï¼ˆè§£é™¤æ™‚ã«æˆ»ã—ãŸã„å ´åˆï¼‰
 		::GetCursorPos(&m_SaveCursorPos);
 
-		// ƒJ[ƒ\ƒ‹”ñ•\¦ + ƒEƒBƒ“ƒhƒE“à‚É§ŒÀ
+		// ã‚«ãƒ¼ã‚½ãƒ«éè¡¨ç¤º + ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å†…ã«åˆ¶é™
 		SetCursorVisible(false, m_ShowCursorCount);
 		ClipCursorToClient(hwnd, true);
 
-		// ’†‰›‚ÖˆÚ“®i‰‰ñdelta–\‚ê–h~j
+		// ä¸­å¤®ã¸ç§»å‹•ï¼ˆåˆå›deltaæš´ã‚Œé˜²æ­¢ï¼‰
 		POINT c = GetClientCenterInScreen(hwnd);
 		::SetCursorPos(c.x, c.y);
 
@@ -301,13 +301,13 @@ namespace shooting {
 		ClipCursorToClient(hwnd, false);
 		SetCursorVisible(true, m_ShowCursorCount);
 
-		// •Û‘¶‚µ‚½ˆÊ’u‚Ö–ß‚·i•s—v‚È‚çÁ‚µ‚ÄOKj
+		// ä¿å­˜ã—ãŸä½ç½®ã¸æˆ»ã™ï¼ˆä¸è¦ãªã‚‰æ¶ˆã—ã¦OKï¼‰
 		::SetCursorPos(m_SaveCursorPos.x, m_SaveCursorPos.y);
 
 		m_CursorLocked = false;
 	}
 
-	// pivot -> desiredEye ‚ÌˆÚ“®‚ğu”¼Œaradius‚Ì‹…v‚Æ‚µ‚ÄƒXƒC[ƒv‚µA“–‚½‚Á‚½‚çè‘O‚ÉŠñ‚¹‚½Eye‚ğ•Ô‚·
+	// pivot -> desiredEye ã®ç§»å‹•ã‚’ã€ŒåŠå¾„radiusã®çƒã€ã¨ã—ã¦ã‚¹ã‚¤ãƒ¼ãƒ—ã—ã€å½“ãŸã£ãŸã‚‰æ‰‹å‰ã«å¯„ã›ãŸEyeã‚’è¿”ã™
 	Vec3 MainCamera::ResolveCameraEyeBySweep(
 		const std::shared_ptr<Stage>& stage,
 		const Vec3& pivot,
@@ -323,7 +323,7 @@ namespace shooting {
 		if (!std::isfinite(radius) || radius <= 0.0f) return desiredEye;
 		if (!std::isfinite(skin) || skin < 0.0f) skin = 0.0f;
 
-		// ‚±‚ÌƒtƒŒ[ƒ€‚Å pivot¨desiredEye ‚Ü‚ÅˆÚ“®‚·‚é‘¬“xiunits/secj
+		// ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§ pivotâ†’desiredEye ã¾ã§ç§»å‹•ã™ã‚‹é€Ÿåº¦ï¼ˆunits/secï¼‰
 		const float dt = bsmUtil::Max(1e-4f, (float)Scene::GetElapsedTime());
 		const Vec3 move = desiredEye - pivot;
 		const float moveLen = bsmUtil::length(move);
@@ -333,9 +333,9 @@ namespace shooting {
 		dir.normalize();
 
 		const Vec3 camVel = move / dt;         // src velocity
-		const SPHERE camBefore(pivot, radius); // 0‚Å‚ÌƒJƒƒ‰‹…
+		const SPHERE camBefore(pivot, radius); // æ™‚åˆ»0ã§ã®ã‚«ãƒ¡ãƒ©çƒ
 
-		// broad-phasei‚´‚Á‚­‚èŒó•â‚ğŒ¸‚ç‚·j: ü•ª‚ğ•ï‚ŞAABB
+		// broad-phaseï¼ˆã–ã£ãã‚Šå€™è£œã‚’æ¸›ã‚‰ã™ï¼‰: ç·šåˆ†ã‚’åŒ…ã‚€AABB
 		const Vec3 mn(
 			std::min(pivot.x, desiredEye.x) - radius,
 			std::min(pivot.y, desiredEye.y) - radius,
@@ -349,10 +349,10 @@ namespace shooting {
 		const AABB sweepAabb(mn, mx);
 
 		bool hit = false;
-		float bestHitTime = dt; // Å’Zƒqƒbƒg
-		// ‚±‚±‚Å‚ÍgÅ‰‚É“–‚½‚Á‚½h‚¾‚¯—~‚µ‚¢i“–‚½‚è–Ê‚Ì–@ü‚Í•s—vj
+		float bestHitTime = dt; // æœ€çŸ­ãƒ’ãƒƒãƒˆ
+		// ã“ã“ã§ã¯â€œæœ€åˆã«å½“ãŸã£ãŸæ™‚åˆ»â€ã ã‘æ¬²ã—ã„ï¼ˆå½“ãŸã‚Šé¢ã®æ³•ç·šã¯ä¸è¦ï¼‰
 
-		// ƒqƒbƒgŒó•â‚ªŒ©‚Â‚©‚Á‚½‚Æ‚«‚ÉA‚»‚Ìƒqƒbƒg‚ÅXV‚·‚éƒ‰ƒ€ƒ_
+		// ãƒ’ãƒƒãƒˆå€™è£œãŒè¦‹ã¤ã‹ã£ãŸã¨ãã«ã€ãã®ãƒ’ãƒƒãƒˆæ™‚åˆ»ã§æ›´æ–°ã™ã‚‹ãƒ©ãƒ ãƒ€
 		auto ConsiderHitTime = [&](float t)
 			{
 				if (!std::isfinite(t)) return;
@@ -368,13 +368,13 @@ namespace shooting {
 
 			auto col = obj->GetComponent<Collision>(false);
 			if (!col || !col->IsUpdateActive()) continue;
-			// ŠÂ‹«i’n–ÊE•Çj‚¾‚¯‚Å‚æ‚¯‚ê‚Î fixed ‚Ì‚İ‚Éi‚é
+			// ç’°å¢ƒï¼ˆåœ°é¢ãƒ»å£ï¼‰ã ã‘ã§ã‚ˆã‘ã‚Œã° fixed ã®ã¿ã«çµã‚‹
 			if (onlyFixed && !col->IsFixed()) continue;
 
 			// broad-phase
 			if (!HitTest::AABB_AABB(sweepAabb, col->GetWrappedAABB())) continue;
 
-			// ‘Šè‚ª“®‚­ê‡‚Ì‘Š‘Î‘¬“x‚É‚à‘Î‰ifixed‚È‚çŠî–{0‚Ì‚Í‚¸j
+			// ç›¸æ‰‹ãŒå‹•ãå ´åˆã®ç›¸å¯¾é€Ÿåº¦ã«ã‚‚å¯¾å¿œï¼ˆfixedãªã‚‰åŸºæœ¬0ã®ã¯ãšï¼‰
 			Vec3 destVel(0, 0, 0);
 			if (!col->IsFixed())
 			{
@@ -393,12 +393,12 @@ namespace shooting {
 			const Vec3 spanVel = camVel - destVel;
 			if (!bsmUtil::IsFiniteVec3(spanVel))
 			{
-				continue; // ‰ó‚ê‚½‘Šè‚Í–³‹iƒNƒ‰ƒbƒVƒ…‰ñ”ğj
+				continue; // å£Šã‚ŒãŸç›¸æ‰‹ã¯ç„¡è¦–ï¼ˆã‚¯ãƒ©ãƒƒã‚·ãƒ¥å›é¿ï¼‰
 			}
 
 			float hitTime = 0.0f;
 
-			// ‘Šè‚ÌŒ`ó‚²‚Æ‚É g‹… vs ››h ‚Ì˜A‘±”»’è‚ğŒÄ‚Ô
+			// ç›¸æ‰‹ã®å½¢çŠ¶ã”ã¨ã« â€œçƒ vs â—‹â—‹â€ ã®é€£ç¶šåˆ¤å®šã‚’å‘¼ã¶
 			if (auto csp = obj->GetComponent<CollisionSphere>(false))
 			{
 				SPHERE destBefore = csp->GetBeforeSphere();
@@ -450,20 +450,20 @@ namespace shooting {
 
 		if (!hit) return desiredEye;
 
-		// ƒqƒbƒg‚ÌgˆÀ‘S‚È’†SˆÊ’uhi‹…‚ªÚG‚µ‚½uŠÔ‚Ì’†Sj
+		// ãƒ’ãƒƒãƒˆæ™‚åˆ»ã®â€œå®‰å…¨ãªä¸­å¿ƒä½ç½®â€ï¼ˆçƒãŒæ¥è§¦ã—ãŸç¬é–“ã®ä¸­å¿ƒï¼‰
 		Vec3 eyeAtHit = pivot + camVel * bestHitTime;
 
-		// NaN•ÛŒ¯
+		// NaNä¿é™º
 		if (!bsmUtil::IsFiniteVec3(eyeAtHit))
 			return desiredEye;
 
-		// ”’lŒë·‚Åƒ`ƒ‰‚Â‚©‚È‚¢‚æ‚¤‚É­‚µ‚¾‚¯è‘O‚Ö
+		// æ•°å€¤èª¤å·®ã§ãƒãƒ©ã¤ã‹ãªã„ã‚ˆã†ã«å°‘ã—ã ã‘æ‰‹å‰ã¸
 		float distFromPivot = bsmUtil::dot(eyeAtHit - pivot, dir);
 		distFromPivot = bsmUtil::Max(0.0f, distFromPivot - skin);
 
 		Vec3 safeEye = pivot + dir * distFromPivot;
 
-		// ÅINaN•ÛŒ¯
+		// æœ€çµ‚NaNä¿é™º
 		if (!bsmUtil::IsFiniteVec3(safeEye))
 			return desiredEye;
 
@@ -477,12 +477,12 @@ namespace shooting {
 
 	void MainCamera::OnUpdate(double elapsedTime)
 	{
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		Vec3 newEye = GetEye();
 		Vec3 newAt = GetAt();
-		//ŒvZ‚Ég‚¤‚½‚ß‚Ì˜rŠp“xiƒxƒNƒgƒ‹j
+		//è¨ˆç®—ã«ä½¿ã†ãŸã‚ã®è…•è§’åº¦ï¼ˆãƒ™ã‚¯ãƒˆãƒ«ï¼‰
 		Vec3 armVec = newEye - newAt;
-		//³‹K‰»‚µ‚Ä‚¨‚­
+		//æ­£è¦åŒ–ã—ã¦ãŠã
 		armVec.normalize();
 
 		auto& input = App::GetInputDevice();
@@ -492,25 +492,25 @@ namespace shooting {
 		{
 			BeginMouseLook();
 
-			// ‰Ÿ‚µ‚½uŠÔ‚ÌƒtƒŒ[ƒ€‚Ídelta‚ğ–³‹iƒWƒƒƒ“ƒv–h~j
+			// æŠ¼ã—ãŸç¬é–“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã¯deltaã‚’ç„¡è¦–ï¼ˆã‚¸ãƒ£ãƒ³ãƒ—é˜²æ­¢ï¼‰
 			//POINT d = input.MousePressed(VK_RBUTTON) ? POINT{ 0,0 } : input.GetMouseDelta();
-			// ’†‰›ŒÅ’è•û®F–ˆƒtƒŒ[ƒ€A’†‰›‚©‚ç‚ÌƒYƒŒ‚ğdelta‚Æ‚µ‚Äg‚¤
+			// ä¸­å¤®å›ºå®šæ–¹å¼ï¼šæ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã€ä¸­å¤®ã‹ã‚‰ã®ã‚ºãƒ¬ã‚’deltaã¨ã—ã¦ä½¿ã†
 			POINT d = input.GetMouseDelta();
 
 			float dx = float(d.x);
 			float dy = float(d.y);
 
-			// yawi¶‰Ej
+			// yawï¼ˆå·¦å³ï¼‰
 			if (IsLRBaseMode())  m_RadXZ += (dx)*m_MouseSens * m_RotSpeed;
 			else                m_RadXZ += (-dx) * m_MouseSens * m_RotSpeed;
 
 			if (std::abs(m_RadXZ) >= XM_2PI) m_RadXZ = 0.0f;
 
-			// pitchiã‰ºj
+			// pitchï¼ˆä¸Šä¸‹ï¼‰
 			if (IsUDBaseMode())  m_RadY += (dy)*m_MouseSens * m_CameraUpDownSpeed;
 			else                m_RadY += (-dy) * m_MouseSens * m_CameraUpDownSpeed;
 
-			// g—pŒã‚É’†‰›‚Ö–ß‚·i‚±‚ê‚Å–³ŒÀ‰ñ“]j
+			// ä½¿ç”¨å¾Œã«ä¸­å¤®ã¸æˆ»ã™ï¼ˆã“ã‚Œã§ç„¡é™å›è»¢ï¼‰
 			//POINT c = GetClientCenterInScreen(hwnd);
 			//::SetCursorPos(c.x, c.y);
 			POINT centerClient = GetClientCenter(hwnd);
@@ -522,10 +522,10 @@ namespace shooting {
 		}
 
 
-		// pitch§ŒÀ
+		// pitchåˆ¶é™
 		m_RadY = bsmUtil::Clamp(m_RadY, m_PitchMin, m_PitchMax);
 
-		// ƒzƒC[ƒ‹‚ÅƒY[ƒ€iã‚ÅŠñ‚éj
+		// ãƒ›ã‚¤ãƒ¼ãƒ«ã§ã‚ºãƒ¼ãƒ ï¼ˆä¸Šã§å¯„ã‚‹ï¼‰
 		const int wheel = input.GetMouseWheelDelta();
 		if (wheel != 0)
 		{
@@ -574,17 +574,17 @@ namespace shooting {
 		if (auto cm = m_CollisionManager.lock())
 		{
 			RaycastHit hit{};
-			// ’‹“_(newAt)‚©‚çƒJƒƒ‰•ûŒü(armVec)‚Ö SphereCast
+			// æ³¨è¦–ç‚¹(newAt)ã‹ã‚‰ã‚«ãƒ¡ãƒ©æ–¹å‘(armVec)ã¸ SphereCast
 			if (cm->SphereCast(newAt, armVec, desiredArm, m_CameraColRadius, hit, ptrTarget))
 			{
-				// •Ç‚Ì­‚µè‘O‚Ü‚Åk‚ß‚é
+				// å£ã®å°‘ã—æ‰‹å‰ã¾ã§ç¸®ã‚ã‚‹
 				//targetArm = hit.m_Distance - m_CameraColMargin;
 				//targetArm = bsmUtil::Clamp(targetArm, m_MinArm, desiredArm);
 
-				// •Ç•\–Ê“_ + –@ü * (”¼Œa+ƒ}[ƒWƒ“) ‚ÅuƒJƒƒ‰’†S‚ÌˆÀ‘SˆÊ’uv
+				// å£è¡¨é¢ç‚¹ + æ³•ç·š * (åŠå¾„+ãƒãƒ¼ã‚¸ãƒ³) ã§ã€Œã‚«ãƒ¡ãƒ©ä¸­å¿ƒã®å®‰å…¨ä½ç½®ã€
 				const Vec3 safeEye = hit.m_Point + hit.m_Normal * (m_CameraColRadius + m_CameraColMargin);
 
-				// ’‹“_‚©‚çarmVec•ûŒü‚Ì‹——£‚É•ÏŠ·
+				// æ³¨è¦–ç‚¹ã‹ã‚‰armVecæ–¹å‘ã®è·é›¢ã«å¤‰æ›
 				float safeArm = bsmUtil::dot(safeEye - newAt, armVec);
 
 				targetArm = bsmUtil::Clamp(safeArm, m_MinArm, desiredArm);
@@ -592,38 +592,38 @@ namespace shooting {
 			}
 		}
 
-		// gk‚Şh ‚Æ g–ß‚éh ‚Å‘¬“x‚ğ•Ï‚¦‚é:contentReference[oaicite:3]{index=3}
+		// â€œç¸®ã‚€â€ ã¨ â€œæˆ»ã‚‹â€ ã§é€Ÿåº¦ã‚’å¤‰ãˆã‚‹:contentReference[oaicite:3]{index=3}
 		//const float rate = (targetArm < m_ArmLenCurrent) ? m_PushInRate : m_ReturnRate;
 		//m_ArmLenCurrent += (targetArm - m_ArmLenCurrent) * rate;
 		//m_ArmLenCurrent = bsmUtil::Clamp(m_ArmLenCurrent, m_MinArm, m_MaxArm);
 
 		if (targetArm < m_ArmLenCurrent)
 		{
-			// •Ç‚É“–‚½‚Á‚Äk‚Ş‚Í‘¦À‚É
+			// å£ã«å½“ãŸã£ã¦ç¸®ã‚€æ™‚ã¯å³åº§ã«
 			m_ArmLenCurrent = targetArm;
 		}
 		else
 		{
-			// •Ç‚ª–³‚¢i–ß‚éj‚¾‚¯‚ä‚Á‚­‚è
+			// å£ãŒç„¡ã„ï¼ˆæˆ»ã‚‹ï¼‰æ™‚ã ã‘ã‚†ã£ãã‚Š
 			m_ArmLenCurrent += (targetArm - m_ArmLenCurrent) * m_ReturnRate;
 		}
 		m_ArmLenCurrent = bsmUtil::Clamp(m_ArmLenCurrent, m_MinArm, m_MaxArm);
 
 		Vec3 toEye = newAt + armVec * m_ArmLenCurrent;
 
-		if (hitNow)  // SphereCast‚ª“–‚½‚Á‚½ƒtƒ‰ƒO
+		if (hitNow)  // SphereCastãŒå½“ãŸã£ãŸãƒ•ãƒ©ã‚°
 		{
-			newEye = toEye; // ’¼sƒ[ƒvi•ÇŠÑ’Ê–h~‚ğÅ—Dæj
+			newEye = toEye; // ç›´è¡Œãƒ¯ãƒ¼ãƒ—ï¼ˆå£è²«é€šé˜²æ­¢ã‚’æœ€å„ªå…ˆï¼‰
 		}
 		else
 		{
 			newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
 		}
 
-		// Šù‘¶‚Ì Eye lerp ‚Íc‚µ‚ÄOKiD‚İ‚Å m_ToTargetLerp=1 ‚É‚µ‚Ä‚à—Ç‚¢j
+		// æ—¢å­˜ã® Eye lerp ã¯æ®‹ã—ã¦OKï¼ˆå¥½ã¿ã§ m_ToTargetLerp=1 ã«ã—ã¦ã‚‚è‰¯ã„ï¼‰
 		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
 
-		// SetAt‚ªEye‚ğ“®‚©‚·À‘•‚¾‚ÆƒKƒ^‚Â‚­‚Ì‚ÅAƒx[ƒX‚ğ’¼ÚŒÄ‚Ô
+		// SetAtãŒEyeã‚’å‹•ã‹ã™å®Ÿè£…ã ã¨ã‚¬ã‚¿ã¤ãã®ã§ã€ãƒ™ãƒ¼ã‚¹ã‚’ç›´æ¥å‘¼ã¶
 		PerspecCamera::SetAt(newAt);
 		PerspecCamera::SetEye(newEye);
 		PerspecCamera::OnUpdate(elapsedTime);

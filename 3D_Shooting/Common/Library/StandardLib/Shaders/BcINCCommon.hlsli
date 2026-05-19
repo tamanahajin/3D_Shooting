@@ -1,6 +1,6 @@
 /*!
 @file BcINCCommon.hlsli
-@brief シェーダユーティリティ
+@brief 繧ｷ繧ｧ繝ｼ繝繝ｦ繝ｼ繝�繧｣繝ｪ繝�繧｣
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

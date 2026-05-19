@@ -1,4 +1,4 @@
-﻿#include "ShaderCommon.hlsli"
+#include "ShaderCommon.hlsli"
 
 PSInput main(VSInput input)
 {

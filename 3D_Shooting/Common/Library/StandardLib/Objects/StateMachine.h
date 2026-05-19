@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -7,7 +7,7 @@ namespace shooting {
 	class StateMachine;
 
 	/// <summary>
-	/// ƒXƒe[ƒgÀ‘•ƒeƒ“ƒvƒŒ[ƒgƒNƒ‰ƒX(’ŠÛƒNƒ‰ƒX)
+	/// ã‚¹ãƒ†ãƒ¼ãƒˆå®Ÿè£…ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚¯ãƒ©ã‚¹(æŠ½è±¡ã‚¯ãƒ©ã‚¹)
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	template<typename T>
@@ -17,19 +17,19 @@ namespace shooting {
 		ObjState() {}
 		virtual ~ObjState() {}
 		/// <summary>
-		/// ƒXƒe[ƒg‚É“ü‚Á‚½‚Æ‚«‚ÉÀs‚³‚ê‚é
+		/// ã‚¹ãƒ†ãƒ¼ãƒˆã«å…¥ã£ãŸã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="Obj">ƒXƒe[ƒg‚ğ•Û‚·‚éƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="Obj">ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ä¿æŒã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		virtual void Enter(const std::shared_ptr<T>& obj) = 0;
 		/// <summary>
-		/// Update‚Ì‚Æ‚«‚ÉÀs‚³‚ê‚é
+		/// Updateã®ã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="Obj">ƒXƒe[ƒg‚ğ•Û‚·‚éƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="Obj">ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ä¿æŒã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		virtual void Execute(const std::shared_ptr<T>& obj) = 0;
 		/// <summary>
-		/// ƒXƒe[ƒg‚ğo‚é‚Æ‚«‚ÉÀs‚³‚ê‚é
+		/// ã‚¹ãƒ†ãƒ¼ãƒˆã‚’å‡ºã‚‹ã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="obj">ƒXƒe[ƒg‚ğ•Û‚·‚éƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="obj">ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ä¿æŒã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		virtual void Exit(const std::shared_ptr<T>& obj) = 0;
 	};
 
@@ -37,11 +37,11 @@ namespace shooting {
 	class StateMachine
 	{
 	private:
-		//‚±‚ÌƒXƒe[ƒgƒ}ƒVƒ“‚ğ‚ÂƒI[ƒi[
+		//ã“ã®ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³ã‚’æŒã¤ã‚ªãƒ¼ãƒŠãƒ¼
 		std::weak_ptr<T> m_Owner;
-		//Œ»İ‚ÌƒXƒe[ƒg
+		//ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ãƒˆ
 		std::weak_ptr< ObjState<T> > m_CurrentState;
-		//ˆê‚Â‘O‚ÌƒXƒe[ƒg
+		//ä¸€ã¤å‰ã®ã‚¹ãƒ†ãƒ¼ãƒˆ
 		std::weak_ptr< ObjState<T> > m_PreviousState;
 	public:
 		explicit StateMachine(const std::shared_ptr<T>& owner) :
@@ -89,21 +89,21 @@ namespace shooting {
 		}
 		void  ChangeState(const std::shared_ptr< ObjState<T> >& newState)
 		{
-			//Œ³‚ÌƒXƒe[ƒg‚ğ•Û‘¶
+			//å…ƒã®ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ä¿å­˜
 			m_PreviousState = m_CurrentState;
 			auto shptr = m_CurrentState.lock();
 			auto ow_shptr = m_Owner.lock();
 			if (shptr && ow_shptr)
 			{
-				//Œ³‚ÌƒXƒe[ƒg‚ÉI—¹‚ğ’m‚ç‚¹‚é
+				//å…ƒã®ã‚¹ãƒ†ãƒ¼ãƒˆã«çµ‚äº†ã‚’çŸ¥ã‚‰ã›ã‚‹
 				shptr->Exit(ow_shptr);
 			}
-			//V‚µ‚¢ƒXƒe[ƒg‚ğƒJƒŒƒ“ƒg‚Éİ’è
+			//æ–°ã—ã„ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ã‚«ãƒ¬ãƒ³ãƒˆã«è¨­å®š
 			m_CurrentState = newState;
 			shptr = m_CurrentState.lock();
 			if (shptr && ow_shptr)
 			{
-				//V‚µ‚¢ƒXƒe[ƒg‚ÉŠJn‚ğ’m‚ç‚¹‚é
+				//æ–°ã—ã„ã‚¹ãƒ†ãƒ¼ãƒˆã«é–‹å§‹ã‚’çŸ¥ã‚‰ã›ã‚‹
 				shptr->Enter(ow_shptr);
 			}
 		}
@@ -112,7 +112,7 @@ namespace shooting {
 			ChangeState(m_PreviousState);
 		}
 		/// <summary>
-		/// ƒJƒŒƒ“ƒgƒXƒe[ƒg‚ªw’è‚ÌƒXƒe[ƒg‚©‚Ç‚¤‚©’²‚×‚é
+		/// ã‚«ãƒ¬ãƒ³ãƒˆã‚¹ãƒ†ãƒ¼ãƒˆãŒæŒ‡å®šã®ã‚¹ãƒ†ãƒ¼ãƒˆã‹ã©ã†ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		/// <param name="st"></param>
 		/// <returns></returns>

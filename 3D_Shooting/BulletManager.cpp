@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -10,10 +10,10 @@ namespace shooting {
 
 	void BulletManager::OnCreate()
 	{
-		// ‹¤—L“o˜^
+		// å…±æœ‰ç™»éŒ²
 		GetStage()->SetSharedGameObject(L"BulletManager", GetThis<BulletManager>());
 
-		// –‘O‚Éƒv[ƒ‹ì¬i‚±‚±‚Å•K—v‚È’e‚¾‚¯ì‚ê‚ÎOKj
+		// äº‹å‰ã«ãƒ—ãƒ¼ãƒ«ä½œæˆï¼ˆã“ã“ã§å¿…è¦ãªå¼¾ã ã‘ä½œã‚Œã°OKï¼‰
 		GetOrCreatePool<DefaultBullet>();
 		GetOrCreatePool<BombBullet>();
 	}
@@ -22,7 +22,7 @@ namespace shooting {
 	{
 		for (auto& pool : m_Pools)
 		{
-			if (pool) { pool->OnUpdate(elapsedTime); } // Pool‚Í‰ñû‚¾‚¯’S“–
+			if (pool) { pool->OnUpdate(elapsedTime); } // Poolã¯å›åã ã‘æ‹…å½“
 		}
 	}
 

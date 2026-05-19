@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -9,15 +9,15 @@ namespace shooting {
 	DECLARE_DX12SHADER(BcPSPNTPLShadow)
 
 	/// <summary>
-	/// ƒXƒ^ƒeƒBƒbƒN‚ÈƒƒbƒVƒ…‚ğ•`‰æ‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg
-	/// ƒ|ƒWƒVƒ‡ƒ“A–@üAƒeƒNƒXƒ`ƒƒ‚ğŠÜ‚Ş’¸“_ƒtƒH[ƒ}ƒbƒg
+	/// ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãªãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+	/// ãƒã‚¸ã‚·ãƒ§ãƒ³ã€æ³•ç·šã€ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å«ã‚€é ‚ç‚¹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 	/// </summary>
 	class BcPNTStaticDraw : public Component
 	{
 	protected:
 		BasicConstant m_ConstantBuffer;
 		size_t m_ConstantBufferIndex;
-		// ©•ª©g‚É‰e‚ğ•`‰æ‚·‚é‚©‚Ç‚¤‚©
+		// è‡ªåˆ†è‡ªèº«ã«å½±ã‚’æç”»ã™ã‚‹ã‹ã©ã†ã‹
 		bool m_OwnShadowActive;
 		bool m_FogEnabled = true;
 		float m_FogStart = -10.0f;

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "EnemyFactory.h"
 #include "Character.h"
 
@@ -55,8 +55,8 @@ namespace shooting {
 			return static_cast<size_t>(-1);
 		}
 
-		// “G‚ÌÀ‘Ì‚ÍEnemyBatchController‚Ì”z—ñ‚É’Ç‰Á‚·‚éB
-		// ¡ŒãA“Gí•Ê‚²‚Æ‚Ìƒ‚ƒfƒ‹·•ª‚ª•K—v‚É‚È‚Á‚½‚çA‚±‚Ìswitch‚É•ªŠò‚ğ’Ç‰Á‚·‚éB
+		// æ•µã®å®Ÿä½“ã¯EnemyBatchControllerã®é…åˆ—ã«è¿½åŠ ã™ã‚‹ã€‚
+		// ä»Šå¾Œã€æ•µç¨®åˆ¥ã”ã¨ã®ãƒ¢ãƒ‡ãƒ«å·®åˆ†ãŒå¿…è¦ã«ãªã£ãŸã‚‰ã€ã“ã®switchã«åˆ†å²ã‚’è¿½åŠ ã™ã‚‹ã€‚
 		switch (kind)
 		{
 		case EnemyKind::Default:
@@ -72,7 +72,7 @@ namespace shooting {
 			return 0;
 		}
 
-		// “¯‚¶ƒEƒF[ƒu‚Å¶¬‚·‚é“G“¯m‚ªd‚È‚è‚É‚­‚¢‚æ‚¤Aæ‚É‘SƒXƒ|[ƒ“ˆÊ’u‚ğŒˆ‚ß‚éB
+		// åŒã˜ã‚¦ã‚§ãƒ¼ãƒ–ã§ç”Ÿæˆã™ã‚‹æ•µåŒå£«ãŒé‡ãªã‚Šã«ãã„ã‚ˆã†ã€å…ˆã«å…¨ã‚¹ãƒãƒ¼ãƒ³ä½ç½®ã‚’æ±ºã‚ã‚‹ã€‚
 		std::vector<Vec3> positions;
 		positions.reserve(static_cast<size_t>(desc.count));
 
@@ -108,7 +108,7 @@ namespace shooting {
 
 	Vec3 EnemyFactory::CreateRandomPosition(const Vec3& center, const SpawnSettings& settings)
 	{
-		// min/max‚ª‹t‚Éİ’è‚³‚ê‚Ä‚à¶¬‚Å‚«‚é‚æ‚¤‚ÉA‚±‚±‚Å³‹K‰»‚·‚éB
+		// min/maxãŒé€†ã«è¨­å®šã•ã‚Œã¦ã‚‚ç”Ÿæˆã§ãã‚‹ã‚ˆã†ã«ã€ã“ã“ã§æ­£è¦åŒ–ã™ã‚‹ã€‚
 		const float minDistance = settings.minDistance < settings.maxDistance ?
 			settings.minDistance : settings.maxDistance;
 		const float maxDistance = settings.minDistance < settings.maxDistance ?

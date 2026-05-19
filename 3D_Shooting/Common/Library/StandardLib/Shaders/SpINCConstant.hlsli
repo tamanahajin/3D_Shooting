@@ -11,7 +11,7 @@ cbuffer ParametersBuffer : register(b0)
 	float4 Emissive : packoffset(c12);
 	float4 Diffuse : packoffset(c13);
 	float4 Specular : packoffset(c14);
-	uint4 Activeflags : packoffset(c15);			//ƒtƒ‰ƒO
+	uint4 Activeflags : packoffset(c15);			//ãƒ•ãƒ©ã‚°
 	float4 LightDir	: packoffset(c16);
 	float4 LightPos	: packoffset(c17);
 	float4 EyePos	: packoffset(c18);

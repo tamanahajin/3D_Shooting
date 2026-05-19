@@ -9,15 +9,15 @@
 PSPCTInput main(VSPCTInput input)
 {
 	PSPCTInput result;
-	//’¸“_‚ÌˆÊ’u‚ğ•ÏŠ·
+	//é ‚ç‚¹ã®ä½ç½®ã‚’å¤‰æ›
 	float4 pos = float4(input.position.xyz, 1.0f);
-	//ƒ[ƒ‹ƒh•ÏŠ·
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›
 	pos = mul(pos, World);
-	//ƒrƒ…[•ÏŠ·
+	//ãƒ“ãƒ¥ãƒ¼å¤‰æ›
 	pos = mul(pos, View);
-	//Ë‰e•ÏŠ·
+	//å°„å½±å¤‰æ›
 	pos = mul(pos, Projection);
-	//ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚É“n‚·•Ï”‚Éİ’è
+	//ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã«æ¸¡ã™å¤‰æ•°ã«è¨­å®š
 	result.position = pos;
 	result.color = input.color;
 	result.tex = input.tex;

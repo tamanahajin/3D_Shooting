@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BaseMesh.cpp
-@brief ƒƒbƒVƒ…ƒNƒ‰ƒX
+@brief ãƒ¡ãƒƒã‚·ãƒ¥ã‚¯ãƒ©ã‚¹
 @copyright Copyright (c) 2022 WiZ Tamura Hiroki,Yamanoi Yasushi.
  MIT License URL: https://opensource.org/license/mit
 */
@@ -12,7 +12,7 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	Assimpƒ[ƒ_[
+	///	Assimpãƒ­ãƒ¼ãƒ€ãƒ¼
 	//--------------------------------------------------------------------------------------
 
 /*
@@ -22,11 +22,11 @@ Assimp::Importer importer;
  uint32_t flag = 0;
  flag |= aiProcess_ConvertToLeftHanded;
  flag |= aiProcess_Triangulate;
- importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // ©ƒsƒ{ƒbƒg‚ğ“Ç‚İ‚Ü‚È‚¢İ’è
+ importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // â†ãƒ”ãƒœãƒƒãƒˆã‚’èª­ã¿è¾¼ã¾ãªã„è¨­å®š
  auto constScene = importer.ReadFile(modelFileName, flag);
  if (!constScene)
  {
-  MessageBox(0, L"aiScene‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½", 0, 0);
+  MessageBox(0, L"aiSceneã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ", 0, 0);
  }
 
 */
@@ -39,16 +39,16 @@ Assimp::Importer importer;
 			uint32_t flag = ASSIMP_LOAD_FLAGS;
 			//flag |= aiProcess_ConvertToLeftHanded;
 			flag |= aiProcess_Triangulate;
-			m_importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // ©ƒsƒ{ƒbƒg‚ğ“Ç‚İ‚Ü‚È‚¢İ’è
+			m_importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // â†ãƒ”ãƒœãƒƒãƒˆã‚’èª­ã¿è¾¼ã¾ãªã„è¨­å®š
 
 			m_pScene = m_importer.ReadFile(m_ModelFile, flag);
 			if (nullptr == m_pScene) {
 				throw BaseException(
-					L"ƒf[ƒ^‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"BaseAssimp::BaseAssimp()"
 				);
 			}
-			//À•W•ÏŠ·‚Ì‹ts—ñ‚ğ‰Šú‰»
+			//åº§æ¨™å¤‰æ›ã®é€†è¡Œåˆ—ã‚’åˆæœŸåŒ–
 			Mat4x4 tmpMat(m_pScene->mRootNode->mTransformation);
 			m_GlobalInverseTransform = tmpMat;
 			m_GlobalInverseTransform.inverse();
@@ -71,7 +71,7 @@ Assimp::Importer importer;
 		CountVerticesAndIndices(NumVertices, NumIndices);
 
 		ReserveSpace(NumVertices, NumIndices);
-		//ƒƒbƒVƒ…‚ğ“Ç‚İ‚Ş
+		//ãƒ¡ãƒƒã‚·ãƒ¥ã‚’èª­ã¿è¾¼ã‚€
 		InitSingleMeshBase(meshIndex);
 
 		//if (!InitMaterials(pScene, Filename)) {
@@ -164,11 +164,11 @@ Assimp::Importer importer;
 		std::vector<VertexPositionNormalTextureSkinning>& vertices,
 		std::vector<uint32_t>& indices)
 	{
-		// o—Íƒoƒbƒtƒ@‚ğƒNƒŠƒA
+		// å‡ºåŠ›ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢
 		vertices.clear();
 		indices.clear();
 
-		// “à•”ƒf[ƒ^‚ğ‚·‚×‚ÄƒNƒŠƒA
+		// å†…éƒ¨ãƒ‡ãƒ¼ã‚¿ã‚’ã™ã¹ã¦ã‚¯ãƒªã‚¢
 		m_Meshes.clear();
 		m_SkinnedVertices.clear();
 		m_Indices.clear();
@@ -178,35 +178,35 @@ Assimp::Importer importer;
 		m_BoneNameToIndexMap.clear();
 		m_requiredNodeMap.clear();
 
-		// ƒƒbƒVƒ…”z—ñ‚ğŠm•Û
+		// ãƒ¡ãƒƒã‚·ãƒ¥é…åˆ—ã‚’ç¢ºä¿
 		m_Meshes.resize(m_pScene->mNumMeshes);
 
-		// ‘SƒƒbƒVƒ…‚Ì’¸“_”‚ÆƒCƒ“ƒfƒbƒNƒX”‚ğƒJƒEƒ“ƒg
+		// å…¨ãƒ¡ãƒƒã‚·ãƒ¥ã®é ‚ç‚¹æ•°ã¨ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆ
 		unsigned int NumVertices = 0;
 		unsigned int NumIndices = 0;
 		CountVerticesAndIndices(NumVertices, NumIndices);
 		ReserveSpace(NumVertices, NumIndices);
 
-		// ƒeƒNƒXƒ`ƒƒÀ•W‚ÌƒfƒtƒHƒ‹ƒg’l
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
 		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 
-		// ‘SƒƒbƒVƒ…‚ğŒ‹‡‚µ‚Ä’Pˆê‚ÌƒƒbƒVƒ…ƒf[ƒ^‚ğ\’z
+		// å…¨ãƒ¡ãƒƒã‚·ãƒ¥ã‚’çµåˆã—ã¦å˜ä¸€ã®ãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿ã‚’æ§‹ç¯‰
 		for (unsigned int meshIndex = 0; meshIndex < m_pScene->mNumMeshes; ++meshIndex)
 		{
 			const aiMesh* paiMesh = m_pScene->mMeshes[meshIndex];
-			// Œ»İ‚Ì’¸“_”z—ñ‚Ì––”ö‚ğŠî“_ƒCƒ“ƒfƒbƒNƒX‚Æ‚µ‚Ä‹L˜^
+			// ç¾åœ¨ã®é ‚ç‚¹é…åˆ—ã®æœ«å°¾ã‚’åŸºç‚¹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã—ã¦è¨˜éŒ²
 			const uint32_t baseVertex = static_cast<uint32_t>(m_SkinnedVertices.size());
 
-			// ’¸“_ƒf[ƒ^‚Ì“Ç‚İ‚İ
+			// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 			for (unsigned int i = 0; i < paiMesh->mNumVertices; ++i)
 			{
 				SkinnedVertex v{};
 
-				// ˆÊ’uÀ•W
+				// ä½ç½®åº§æ¨™
 				const aiVector3D& pPos = paiMesh->mVertices[i];
 				v.Position = Vec3(pPos.x, pPos.y, pPos.z);
 
-				// –@üƒxƒNƒgƒ‹
+				// æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«
 				if (paiMesh->mNormals)
 				{
 					const aiVector3D& pNormal = paiMesh->mNormals[i];
@@ -214,34 +214,34 @@ Assimp::Importer importer;
 				}
 				else
 				{
-					// –@ü‚ª‚È‚¢ê‡‚ÍƒfƒtƒHƒ‹ƒg‚ÅãŒü‚«‚Éİ’è
+					// æ³•ç·šãŒãªã„å ´åˆã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ä¸Šå‘ãã«è¨­å®š
 					v.Normal = Vec3(0.0f, 1.0f, 0.0f);
 				}
 
-				// UVÀ•W(ƒeƒNƒXƒ`ƒƒÀ•W)
+				// UVåº§æ¨™(ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™)
 				const aiVector3D& pTexCoord =
 					paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
 
-				// FBX/Assimp‚©‚çæ“¾‚µ‚½UV‚Íã‰º‚ª”½“]‚µ‚Ä‚¢‚éê‡‚ª‚ ‚é‚½‚ßAV‚ğ”½“]
+				// FBX/Assimpã‹ã‚‰å–å¾—ã—ãŸUVã¯ä¸Šä¸‹ãŒåè»¢ã—ã¦ã„ã‚‹å ´åˆãŒã‚ã‚‹ãŸã‚ã€Vã‚’åè»¢
 				v.TexCoords = Vec2(pTexCoord.x, 1.0f - pTexCoord.y);
 				m_SkinnedVertices.push_back(v);
 			}
 
-			// ƒCƒ“ƒfƒbƒNƒXƒf[ƒ^‚Ì“Ç‚İ‚İ
+			// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 			for (unsigned int i = 0; i < paiMesh->mNumFaces; ++i)
 			{
 				const aiFace& Face = paiMesh->mFaces[i];
-				// baseVertex‚ğ‰ÁZ‚µ‚ÄƒOƒ[ƒoƒ‹ƒCƒ“ƒfƒbƒNƒX‚É•ÏŠ·
+				// baseVertexã‚’åŠ ç®—ã—ã¦ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«å¤‰æ›
 				m_Indices.push_back(baseVertex + Face.mIndices[0]);
 				m_Indices.push_back(baseVertex + Face.mIndices[1]);
 				m_Indices.push_back(baseVertex + Face.mIndices[2]);
 			}
 
-			// ƒ{[ƒ“î•ñ‚Ì“Ç‚İ‚İ(ƒXƒLƒjƒ“ƒO—p‚ÌƒEƒFƒCƒg‚Æƒ{[ƒ“ƒCƒ“ƒfƒbƒNƒX)
+			// ãƒœãƒ¼ãƒ³æƒ…å ±ã®èª­ã¿è¾¼ã¿(ã‚¹ã‚­ãƒ‹ãƒ³ã‚°ç”¨ã®ã‚¦ã‚§ã‚¤ãƒˆã¨ãƒœãƒ¼ãƒ³ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)
 			LoadMeshBones(meshIndex, paiMesh, m_SkinnedVertices, baseVertex);
 		}
 
-		// “à•”Œ`®‚©‚çƒGƒ“ƒWƒ“—p‚Ì’¸“_Œ`®‚É•ÏŠ·
+		// å†…éƒ¨å½¢å¼ã‹ã‚‰ã‚¨ãƒ³ã‚¸ãƒ³ç”¨ã®é ‚ç‚¹å½¢å¼ã«å¤‰æ›
 		vertices.reserve(m_SkinnedVertices.size());
 		for (const auto& v : m_SkinnedVertices)
 		{
@@ -250,7 +250,7 @@ Assimp::Importer importer;
 			tempV.normal = v.Normal;
 			tempV.textureCoordinate = v.TexCoords;
 
-			// ƒ{[ƒ“ƒCƒ“ƒfƒbƒNƒX‚ÆƒEƒFƒCƒg‚ğƒRƒs[
+			// ãƒœãƒ¼ãƒ³ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã‚¦ã‚§ã‚¤ãƒˆã‚’ã‚³ãƒ”ãƒ¼
 			for (int i = 0; i < MAX_NUM_BONES_PER_VERTEX; ++i)
 			{
 				tempV.indices[i] = v.Bones.BoneIDs[i];
@@ -260,7 +260,7 @@ Assimp::Importer importer;
 			vertices.push_back(tempV);
 		}
 
-		// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğƒRƒs[
+		// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ã‚³ãƒ”ãƒ¼
 		indices = m_Indices;
 		return true;
 	}
@@ -283,7 +283,7 @@ Assimp::Importer importer;
 	void BaseAssimp::InitSingleMeshBase(UINT meshIndex) {
 		if (m_Meshes.size() == 0) {
 			throw BaseException(
-				L"ƒƒbƒVƒ…‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+				L"ãƒ¡ãƒƒã‚·ãƒ¥ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 				L"BaseAssimp::InitSingleMeshBase()"
 			);
 		}
@@ -493,8 +493,8 @@ Assimp::Importer importer;
 			const aiVector3D& pTexCoord =
 				paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][i] : Zero3D;
 
-			// FBX/Assimp ‚©‚çæ“¾‚µ‚½ UV ‚Í•`‰æ‘¤‚ÌÀ•WŒn‚Æã‰º‚ª‹t‚É‚È‚éê‡‚ª‚ ‚é‚½‚ß
-			// V‚ğ”½“]‚µ‚Äg—p‚·‚é
+			// FBX/Assimp ã‹ã‚‰å–å¾—ã—ãŸ UV ã¯æç”»å´ã®åº§æ¨™ç³»ã¨ä¸Šä¸‹ãŒé€†ã«ãªã‚‹å ´åˆãŒã‚ã‚‹ãŸã‚
+			// Vã‚’åè»¢ã—ã¦ä½¿ç”¨ã™ã‚‹
 			v.TexCoords = Vec2(pTexCoord.x, 1.0f - pTexCoord.y);
 			m_SkinnedVertices.push_back(v);
 		}
@@ -507,7 +507,7 @@ Assimp::Importer importer;
 			m_Indices.push_back(Face.mIndices[2]);
 		}
 
-		// •¡”mesh”Å‚Å‚Í m_SkinnedVertices ‚Íu‚±‚Ìmesh‚¾‚¯v‚È‚Ì‚Å BaseVertex ‚Í 0
+		// è¤‡æ•°meshç‰ˆã§ã¯ m_SkinnedVertices ã¯ã€Œã“ã®meshã ã‘ã€ãªã®ã§ BaseVertex ã¯ 0
 		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, 0);
 	}
 
@@ -547,7 +547,7 @@ Assimp::Importer importer;
 			m_Indices.push_back(Face.mIndices[2]);
 		}
 
-		// •¡”mesh”Å‚Å‚Í m_SkinnedVertices ‚Íu‚±‚Ìmesh‚¾‚¯v‚È‚Ì‚Å BaseVertex ‚Í 0
+		// è¤‡æ•°meshç‰ˆã§ã¯ m_SkinnedVertices ã¯ã€Œã“ã®meshã ã‘ã€ãªã®ã§ BaseVertex ã¯ 0
 		LoadMeshBones(MeshIndex, paiMesh, m_SkinnedVertices, 0);
 	}
 
@@ -612,7 +612,7 @@ Assimp::Importer importer;
 			return 0.0f;
 		}
 
-		// ƒ‹[ƒvI’[‚Ìd•¡ƒtƒŒ[ƒ€‚ğ“¥‚Ü‚È‚¢‚æ‚¤‚ÉAI’[‚ğ­‚µ‚¾‚¯è‘O‚É‚·‚é
+		// ãƒ«ãƒ¼ãƒ—çµ‚ç«¯ã®é‡è¤‡ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è¸ã¾ãªã„ã‚ˆã†ã«ã€çµ‚ç«¯ã‚’å°‘ã—ã ã‘æ‰‹å‰ã«ã™ã‚‹
 		const double LoopEpsilon = bsmUtil::Max(1e-3, RawDuration * 1e-4);
 		const double EffectiveDuration = bsmUtil::Max(RawDuration - LoopEpsilon, LoopEpsilon);
 
@@ -671,7 +671,7 @@ Assimp::Importer importer;
 
 		std::string name = anim->mName.C_Str();
 
-		// –¼‘O‚ª‚È‚¢FBX‚à‚ ‚é
+		// åå‰ãŒãªã„FBXã‚‚ã‚ã‚‹
 		if (name.empty())
 		{
 			return L"Anim_" + std::to_wstring(index);
@@ -821,7 +821,7 @@ Assimp::Importer importer;
 		float t = (AnimationTimeTicks - t1) / dt;
 		t = bsmUtil::Clamp(t, 0.0f, 1.0f);
 
-		// root ‚¾‚¯ŠŠ‚ç‚©•âŠÔ
+		// root ã ã‘æ»‘ã‚‰ã‹è£œé–“
 		if (std::string(pNodeAnim->mNodeName.C_Str()) == "root" && keyCount >= 4)
 		{
 			uint32_t i0 = (i1 + keyCount - 1) % keyCount;
@@ -902,7 +902,7 @@ Assimp::Importer importer;
 		aiQuaternion StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
 		aiQuaternion EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
 
-		// Å’ZŒo˜H‚É‚È‚é‚æ‚¤‚É•„†‚ğ‚»‚ë‚¦‚é
+		// æœ€çŸ­çµŒè·¯ã«ãªã‚‹ã‚ˆã†ã«ç¬¦å·ã‚’ãã‚ãˆã‚‹
 		float dot =
 			StartRotationQ.x * EndRotationQ.x +
 			StartRotationQ.y * EndRotationQ.y +
@@ -979,7 +979,7 @@ Assimp::Importer importer;
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	ƒƒbƒVƒ…
+	///	ãƒ¡ãƒƒã‚·ãƒ¥
 	//--------------------------------------------------------------------------------------
 	std::shared_ptr<BaseMesh> BaseMesh::CreateSquare(ID3D12GraphicsCommandList* pCommandList, float size) {
 		std::vector<VertexPositionNormalTexture> vertices;
@@ -1007,7 +1007,7 @@ Assimp::Importer importer;
 		std::vector<uint32_t> indices;
 		XMFLOAT3 pointA(0, -height / 2.0f, 0);
 		XMFLOAT3 pointB(0, height / 2.0f, 0);
-		//Capsule‚Ìì¬(ƒwƒ‹ƒp[ŠÖ”‚ğ—˜—p)
+		//Capsuleã®ä½œæˆ(ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°ã‚’åˆ©ç”¨)
 		MeshUtill::CreateCapsule(diameter, pointA, pointB, tessellation, vertices, indices);
 		return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 	}

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 namespace shooting {
 
@@ -45,13 +45,13 @@ namespace shooting {
 
 	void Gravity::OnUpdate(double elapsedTime)
 	{
-		//ƒRƒŠƒWƒ‡ƒ“‚ª‚ ‚Á‚ÄAƒXƒŠ[ƒvó‘Ô‚È‚çXV‚µ‚È‚¢
+		//ã‚³ãƒªã‚¸ãƒ§ãƒ³ãŒã‚ã£ã¦ã€ã‚¹ãƒªãƒ¼ãƒ—çŠ¶æ…‹ãªã‚‰æ›´æ–°ã—ãªã„
 		//auto PtrCollision = GetGameObject()->GetComponent<Collision>(false);
 		//if (PtrCollision && PtrCollision->IsSleep()) {
 		//	return;
 		//}
 		auto PtrTransform = GetGameObject()->GetComponent<Transform>();
-		//‘O‰ñ‚ÌƒtƒŒ[ƒ€‚©‚ç‚ÌŽžŠÔiƒtƒŒ[ƒ€ƒŒ[ƒg”ñˆË‘¶‚É‚·‚é‚½‚ßj
+		//å‰å›žã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®æ™‚é–“ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ ãƒ¬ãƒ¼ãƒˆéžä¾å­˜ã«ã™ã‚‹ãŸã‚ï¼‰
 		float ElapsedTime = (float)Scene::GetElapsedTime();
 		m_GravityVelocity += m_Gravity * ElapsedTime;
 		auto Pos = PtrTransform->GetPosition();

@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file GameStage.cpp
-@brief ƒQ[ƒ€ƒXƒe[ƒWƒNƒ‰ƒX@À‘Ì
+@brief ã‚²ãƒ¼ãƒ ã‚¹ãƒ†ãƒ¼ã‚¸ã‚¯ãƒ©ã‚¹ã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -11,7 +11,7 @@ namespace shooting {
 
 
 
-	// ƒ_ƒ[ƒW•\¦‚Í’Z–½‚ÈUIƒf[ƒ^‚¾‚¯‚ğ•Û‚µA•`‰æ‚ÍUIManager‘¤‚Å‚Ü‚Æ‚ß‚Äs‚¤B
+	// ãƒ€ãƒ¡ãƒ¼ã‚¸è¡¨ç¤ºã¯çŸ­å‘½ãªUIãƒ‡ãƒ¼ã‚¿ã ã‘ã‚’ä¿æŒã—ã€æç”»ã¯UIManagerå´ã§ã¾ã¨ã‚ã¦è¡Œã†ã€‚
 	void GameStage::SpawnDamageNumber(const Vec3& position, int damage)
 	{
 		if (damage <= 0)
@@ -83,7 +83,7 @@ namespace shooting {
 		MaintainBombItems();
 	}
 
-	//’Ç‚¢‚©‚¯‚éƒIƒuƒWƒFƒNƒg‚Ìì¬
+	//è¿½ã„ã‹ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½œæˆ
 	void GameStage::CreateSeekObject()
 	{
 		auto controller = GetEnemyController();
@@ -122,39 +122,39 @@ namespace shooting {
 
 	void GameStage::OnCreate()
 	{
-		//ƒJƒƒ‰‚Æƒ‰ƒCƒg‚Ìİ’è
+		//ã‚«ãƒ¡ãƒ©ã¨ãƒ©ã‚¤ãƒˆã®è¨­å®š
 		m_camera = ObjectFactory::Create<MainCamera>(GetThis<Stage>());
 		//m_camera = ObjectFactory::Create<MainCamera>();
 		m_camera->SetEye(Vec3(0, 3.43f, -6.37f));
 		m_camera->SetAt(Vec3(0, 0.125f, 0));
 		m_lightSet = ObjectFactory::Create<LightSet>();
 		
-		// ’n–Ê
+		// åœ°é¢
 		CreateGround();
-		// •Ç
+		// å£
 		CreateWalls();
-		// ƒXƒ[ƒv‚Æ‚‘ä
+		// ã‚¹ãƒ­ãƒ¼ãƒ—ã¨é«˜å°
 		CreateHeightVariationObjects();
-		// ”z’u•¨
+		// é…ç½®ç‰©
 		CreateCoverObjects();
-		// ƒAƒCƒeƒ€
+		// ã‚¢ã‚¤ãƒ†ãƒ 
 		CreateItems();
-		// ‹ó
+		// ç©º
 		AddGameObject<SkyDome>();
-		// ƒvƒŒƒCƒ„[
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
 		TransParam param;
 		param.scale = Vec3(0.3f, 0.3f, 0.3f);
 		param.quaternion = Quat();
 		param.position = Vec3(0.0f, 0.525f, 0.0f);
 		auto player = AddGameObject<Player>(param);
 		AddGameObject<PlayerWeapon>(player);
-		// “G
+		// æ•µ
 		auto enemyController = AddGameObject<EnemyBatchController>();
 		m_waveController.SetController(enemyController);
 		AddGameObject<EnemyInstancedRenderer>();
 		m_waveController.StartNextWave(GetEnemySpawnCenter());
 
-		// ’eŠÇ—
+		// å¼¾ç®¡ç†
 		AddGameObject<BulletManager>();
 	}
 

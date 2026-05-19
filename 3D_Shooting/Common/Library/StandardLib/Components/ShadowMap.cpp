@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file ShadowmapComp.cpp
-@brief ƒVƒƒƒhƒEƒ}ƒbƒvƒRƒ“ƒ|[ƒlƒ“ƒg@À‘Ì
+@brief ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -11,7 +11,7 @@ namespace shooting {
 	float ShadowMap::m_lightHeight(200.0f);
 	float ShadowMap::m_lightNear(0.1f);
 	float ShadowMap::m_lightFar(220.0f);
-	// shadow map ‚Ì³Ë‰e”ÍˆÍBL‚°‚é‚Ù‚Ç‰“‚­‚Ì‰e‚Ü‚Åo‚é‚ªA‰e‚Ì‰ğ‘œŠ´‚Í—‚¿‚éB
+	// shadow map ã®æ­£å°„å½±ç¯„å›²ã€‚åºƒã’ã‚‹ã»ã©é ãã®å½±ã¾ã§å‡ºã‚‹ãŒã€å½±ã®è§£åƒæ„Ÿã¯è½ã¡ã‚‹ã€‚
 	float ShadowMap::m_viewWidth(32.0f);
 	float ShadowMap::m_viewHeight(32.0f);
 	float ShadowMap::m_posAdjustment(0.1f);
@@ -34,19 +34,19 @@ namespace shooting {
 		auto pBaseScene = BaseScene::Get();
 		auto& frameResources = pBaseScene->GetFrameResources();
 		auto pBaseDevice = BaseDevice::GetBaseDevice();
-		//ƒVƒƒƒhƒEƒ}ƒbƒv‚ÌƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+		//ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ã®ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
 		{
 			m_shadowConstantBufferIndex =
 				frameResources[i]->AddBaseConstantBufferSet<ShadowConstantBuffer>(pBaseDevice->GetD3D12Device());
 		}
-		// ƒVƒƒƒhƒEƒ}ƒbƒvƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		// ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
 		{
 			ComPtr<ID3D12PipelineState> PNTShadowMapPipelineState
 				= PipelineStatePool::GetPipelineState(L"PNTShadowMap");
 			auto rootSignature = RootSignaturePool::GetRootSignature(L"BaseCrossDefault", true);
 
-			// ƒVƒƒƒhƒEƒ}ƒbƒv—p
+			// ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ç”¨
 			CD3DX12_DEPTH_STENCIL_DESC depthStencilDesc(D3D12_DEFAULT);
 			depthStencilDesc.DepthEnable = TRUE;
 			depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -82,7 +82,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"PNTShadowMap", PNTShadowMapPipelineState);
 			}
 		}
-		// ƒXƒLƒjƒ“ƒOƒVƒƒƒhƒEƒ}ƒbƒvƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		// ã‚¹ã‚­ãƒ‹ãƒ³ã‚°ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
 		{
 			ComPtr<ID3D12PipelineState> skinningShadowPipelineState
 				= PipelineStatePool::GetPipelineState(L"PNTSkinningShadowMap");
@@ -211,7 +211,7 @@ namespace shooting {
 	{
 		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
 		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
-		//ƒVƒƒƒhƒEƒ}ƒbƒv
+		//ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—
 		memcpy(pCurrentFrameResource->m_baseConstantBufferSetVec[m_shadowConstantBufferIndex].m_pBaseConstantBufferWO,
 			   &m_shadowConstantBuffer, sizeof(m_shadowConstantBuffer));
 	}
@@ -227,7 +227,7 @@ namespace shooting {
 		auto pBaseScene = BaseScene::Get();
 		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
 
-		// ƒXƒLƒjƒ“ƒO—L–³‚ÅPSOØ‚è‘Ö‚¦
+		// ã‚¹ã‚­ãƒ‹ãƒ³ã‚°æœ‰ç„¡ã§PSOåˆ‡ã‚Šæ›¿ãˆ
 		if (m_UseSkinning)
 		{
 			auto pso = PipelineStatePool::GetPipelineState(L"PNTSkinningShadowMap");

@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file PipelineState.h
-@brief ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ü‚Æ‚ß
+@brief ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã¾ã¨ã‚
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -12,10 +12,10 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒgƒNƒ‰ƒX(staticŒÄ‚Ño‚µ‚ğ‚·‚é)
+	///	ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã‚¯ãƒ©ã‚¹(staticå‘¼ã³å‡ºã—ã‚’ã™ã‚‹)
 	//--------------------------------------------------------------------------------------
 	class PipelineStatePool {
-		//ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ìmap
+		//ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®map
 		static std::map<std::wstring, ComPtr<ID3D12PipelineState>> m_pipelineStateMap;
 	public:
 		static ComPtr<ID3D12PipelineState> GetPipelineState(const std::wstring& key, bool ExceptionActive = false);

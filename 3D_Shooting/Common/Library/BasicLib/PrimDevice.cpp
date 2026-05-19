@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file PrimDevice.cpp
-@brief ƒfƒoƒCƒXeƒNƒ‰ƒX@À‘Ì
+@brief ãƒ‡ãƒã‚¤ã‚¹è¦ªã‚¯ãƒ©ã‚¹ã€€å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -60,7 +60,7 @@ namespace shooting {
 	}
 
 	// Helper function for resolving the full path of assets.
-	// “ú–{ŒêF ƒAƒZƒbƒg‚Ìƒtƒ‹ƒpƒX‚ğ‰ğŒˆ‚·‚é‚½‚ß‚Ìƒwƒ‹ƒp[ŠÖ”B
+	// æ—¥æœ¬èªï¼š ã‚¢ã‚»ãƒƒãƒˆã®ãƒ•ãƒ«ãƒ‘ã‚¹ã‚’è§£æ±ºã™ã‚‹ãŸã‚ã®ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°ã€‚
 	std::wstring PrimDevice::GetAssetFullPath(LPCWSTR assetName)
 	{
 		return m_assetsPath + assetName;
@@ -68,8 +68,8 @@ namespace shooting {
 
 	// Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
 	// If no such adapter can be found, *ppAdapter will be set to nullptr.
-	// “ú–{ŒêF Direct3D 12‚ğƒTƒ|[ƒg‚·‚éÅ‰‚É—˜—p‰Â”\‚Èƒn[ƒhƒEƒFƒAƒAƒ_ƒvƒ^‚ğæ“¾‚·‚é‚½‚ß‚Ìƒwƒ‹ƒp[ŠÖ”B
-	// Œ©‚Â‚©‚ç‚È‚¢ê‡A*ppAdapter‚Ínullptr‚Éİ’è‚³‚ê‚Ü‚·B
+	// æ—¥æœ¬èªï¼š Direct3D 12ã‚’ã‚µãƒãƒ¼ãƒˆã™ã‚‹æœ€åˆã«åˆ©ç”¨å¯èƒ½ãªãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ€ãƒ—ã‚¿ã‚’å–å¾—ã™ã‚‹ãŸã‚ã®ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°ã€‚
+	// è¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã€*ppAdapterã¯nullptrã«è¨­å®šã•ã‚Œã¾ã™ã€‚
 	_Use_decl_annotations_
 		void PrimDevice::GetHardwareAdapter(
 		IDXGIFactory1* pFactory,
@@ -98,14 +98,14 @@ namespace shooting {
 				{
 					// Don't select the Basic Render Driver adapter.
 					// If you want a software adapter, pass in "/warp" on the command line.
-					// “ú–{ŒêF Basic Render DriverƒAƒ_ƒvƒ^‚ğ‘I‘ğ‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
-					// ƒ\ƒtƒgƒEƒFƒAƒAƒ_ƒvƒ^‚ª•K—v‚Èê‡‚ÍAƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚Åu/warpv‚ğ“n‚µ‚Ü‚·B
+					// æ—¥æœ¬èªï¼š Basic Render Driverã‚¢ãƒ€ãƒ—ã‚¿ã‚’é¸æŠã—ãªã„ã§ãã ã•ã„ã€‚
+					// ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚¢ãƒ€ãƒ—ã‚¿ãŒå¿…è¦ãªå ´åˆã¯ã€ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³ã§ã€Œ/warpã€ã‚’æ¸¡ã—ã¾ã™ã€‚
 					continue;
 				}
 
 				// Check to see whether the adapter supports Direct3D 12, but don't create the
 				// actual device yet.
-				// “ú–{ŒêF ƒAƒ_ƒvƒ^‚ªDirect3D 12‚ğƒTƒ|[ƒg‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğŠm”F‚µ‚Ü‚·‚ªAÀÛ‚ÌƒfƒoƒCƒX‚Í‚Ü‚¾ì¬‚µ‚Ü‚¹‚ñB
+				// æ—¥æœ¬èªï¼š ã‚¢ãƒ€ãƒ—ã‚¿ãŒDirect3D 12ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ç¢ºèªã—ã¾ã™ãŒã€å®Ÿéš›ã®ãƒ‡ãƒã‚¤ã‚¹ã¯ã¾ã ä½œæˆã—ã¾ã›ã‚“ã€‚
 				if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 				{
 					break;
@@ -147,7 +147,7 @@ namespace shooting {
 	}
 
 	// Helper function for parsing any supplied command line args.
-	// “ú–{ŒêF ’ñ‹Ÿ‚³‚ê‚½ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ğ‰ğÍ‚·‚é‚½‚ß‚Ìƒwƒ‹ƒp[ŠÖ”B
+	// æ—¥æœ¬èªï¼š æä¾›ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã‚’è§£æã™ã‚‹ãŸã‚ã®ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°ã€‚
 	_Use_decl_annotations_
 		void PrimDevice::ParseCommandLineArgs(WCHAR* argv[], int argc)
 	{
@@ -190,20 +190,20 @@ namespace shooting {
 	}
 
 
-	//ƒXƒŒƒbƒh—p‚Ì•Ï”
+	//ã‚¹ãƒ¬ãƒƒãƒ‰ç”¨ã®å¤‰æ•°
 	static bool g_threadEnded;
 	static std::string g_msg;
-	//ƒ~ƒ…[ƒeƒbƒNƒX
+	//ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
 	static std::mutex g_mtx;
 
-	//ƒƒbƒZ[ƒWƒ{ƒbƒNƒX—p‚ÌƒXƒŒƒbƒh
+	//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ç”¨ã®ã‚¹ãƒ¬ãƒƒãƒ‰
 	static void MsgBoxFunc()
 	{
 		g_mtx.lock();
 		g_threadEnded = false;
 		g_mtx.unlock();
 
-		MessageBoxA(nullptr, g_msg.c_str(), "ƒGƒ‰[", MB_OK);
+		MessageBoxA(nullptr, g_msg.c_str(), "ã‚¨ãƒ©ãƒ¼", MB_OK);
 		g_mtx.lock();
 		g_threadEnded = true;
 		g_mtx.unlock();
@@ -261,8 +261,8 @@ namespace shooting {
 		}
 		m_nextFrameTime.QuadPart += targetTicks;
 	}
-	//ƒ‰ƒ“ƒ^ƒCƒ€ƒ‹[ƒ`ƒ“
-	//ƒGƒ‰[•\¦—p‚ÉAƒXƒŒƒbƒh‚ğV‚µ‚­Ø‚Á‚ÄƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•\¦
+	//ãƒ©ãƒ³ã‚¿ã‚¤ãƒ ãƒ«ãƒ¼ãƒãƒ³
+	//ã‚¨ãƒ©ãƒ¼è¡¨ç¤ºç”¨ã«ã€ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’æ–°ã—ãåˆ‡ã£ã¦ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’è¡¨ç¤º
 	void PrimDevice::OnUpdateDraw()
 	{
 
@@ -287,40 +287,40 @@ namespace shooting {
 		}
 		catch (BaseException& e)
 		{
-			//ƒfƒoƒbƒOo—Í‚ğ‚·‚éB
+			//ãƒ‡ãƒãƒƒã‚°å‡ºåŠ›ã‚’ã™ã‚‹ã€‚
 			std::string str = e.what_m() + "\n";
 			OutputDebugStringA(str.c_str());
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒX
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹
 			g_msg = e.what_m() + "\n";
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒXƒXƒŒƒbƒh‚ÌƒXƒ^[ƒg
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆ
 			std::thread MsgThread(MsgBoxFunc);
 			MsgThread.join();
 			retCode = 1;
 		}
 		catch (std::runtime_error& e)
 		{
-			//ƒfƒoƒbƒOo—Í‚ğ‚·‚éB
+			//ãƒ‡ãƒãƒƒã‚°å‡ºåŠ›ã‚’ã™ã‚‹ã€‚
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒX
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹
 			g_msg = e.what();
 			g_msg += "\n";
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒXƒXƒŒƒbƒh‚ÌƒXƒ^[ƒg
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆ
 			std::thread MsgThread(MsgBoxFunc);
 			MsgThread.join();
 			retCode = 1;
 		}
 		catch (std::exception& e)
 		{
-			//STLƒGƒ‰[
+			//STLã‚¨ãƒ©ãƒ¼
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒX
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹
 			g_msg = e.what();
 			g_msg += "\n";
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒXƒXƒŒƒbƒh‚ÌƒXƒ^[ƒg
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆ
 			std::thread MsgThread(MsgBoxFunc);
 			MsgThread.join();
 
@@ -328,11 +328,11 @@ namespace shooting {
 		}
 		catch (...)
 		{
-			OutputDebugStringA("Œ´ˆö•s–¾‚ÌƒGƒ‰[\n");
+			OutputDebugStringA("åŸå› ä¸æ˜ã®ã‚¨ãƒ©ãƒ¼\n");
 
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒX
-			g_msg = "Œ´ˆö•s–¾‚ÌƒGƒ‰[\n";
-			//ƒƒbƒZ[ƒWƒ{ƒbƒNƒXƒXƒŒƒbƒh‚ÌƒXƒ^[ƒg
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹
+			g_msg = "åŸå› ä¸æ˜ã®ã‚¨ãƒ©ãƒ¼\n";
+			//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆ
 			std::thread MsgThread(MsgBoxFunc);
 			MsgThread.join();
 
@@ -363,30 +363,30 @@ namespace shooting {
 	//	m_mouseX = ix;
 	//	m_mouseY = iy;
 
-	//	// ƒƒbƒZ[ƒWŠÔ‚ÌˆÚ“®—Ê‚ğ—İÏ‚µ‚Ä‚¨‚­iƒtƒŒ[ƒ€ŠJn‚ÉŠm’èj
+	//	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é–“ã®ç§»å‹•é‡ã‚’ç´¯ç©ã—ã¦ãŠãï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹æ™‚ã«ç¢ºå®šï¼‰
 	//	m_mouseAccumDX += dx;
 	//	m_mouseAccumDY += dy;
 	//}
 
 	void PrimDevice::OnMouseWheel(int wheelDelta)
 	{
-		// wheelDelta ‚Í’Êí }120 ‚ª—ˆ‚éi•¡”‰ñ•ª‚à‚ ‚è“¾‚éj
+		// wheelDelta ã¯é€šå¸¸ Â±120 ãŒæ¥ã‚‹ï¼ˆè¤‡æ•°å›åˆ†ã‚‚ã‚ã‚Šå¾—ã‚‹ï¼‰
 		m_wheelAccum += wheelDelta;
 	}
 
 	void PrimDevice::FlushMouseInputForFrame()
 	{
-		// ÅV‚Ìâ‘ÎÀ•W
+		// æœ€æ–°ã®çµ¶å¯¾åº§æ¨™
 		m_mouseFrame.x = m_mouseX;
 		m_mouseFrame.y = m_mouseY;
 		m_mouseFrame.hasPos = m_mouseHasPos;
 
-		// ‚±‚ÌƒtƒŒ[ƒ€‚Ì“ü—Í‚Æ‚µ‚ÄŠm’è
+		// ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®å…¥åŠ›ã¨ã—ã¦ç¢ºå®š
 		m_mouseFrame.deltaX = m_mouseAccumDX;
 		m_mouseFrame.deltaY = m_mouseAccumDY;
 		m_mouseFrame.wheelDelta = m_wheelAccum;
 
-		// ŸƒtƒŒ[ƒ€‚É”õ‚¦‚ÄƒNƒŠƒA
+		// æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã«å‚™ãˆã¦ã‚¯ãƒªã‚¢
 		m_mouseAccumDX = 0;
 		m_mouseAccumDY = 0;
 		m_wheelAccum = 0;

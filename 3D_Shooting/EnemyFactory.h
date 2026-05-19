@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "Character.h"
 #include <memory>
@@ -10,28 +10,28 @@ namespace shooting {
 
 	class EnemyBatchController;
 
-	// “G‚Ìí—Ş
+	// æ•µã®ç¨®é¡
 	enum class EnemyKind
 	{
 		Default
 	};
 
-	// “G¶¬‚ÌÓ–±‚ğ‚ÂƒNƒ‰ƒXB
-	// GameStage‚Íu‚¢‚ÂE‰½‘Ìo‚·‚©v‚¾‚¯‚ğŒˆ‚ßAÀÛ‚Ì¶¬ˆÊ’uŒˆ’è‚ÆEnemyBatchController‚Ö‚Ì“o˜^‚Í‚±‚±‚ÉW–ñ‚·‚éB
+	// æ•µç”Ÿæˆã®è²¬å‹™ã‚’æŒã¤ã‚¯ãƒ©ã‚¹ã€‚
+	// GameStageã¯ã€Œã„ã¤ãƒ»ä½•ä½“å‡ºã™ã‹ã€ã ã‘ã‚’æ±ºã‚ã€å®Ÿéš›ã®ç”Ÿæˆä½ç½®æ±ºå®šã¨EnemyBatchControllerã¸ã®ç™»éŒ²ã¯ã“ã“ã«é›†ç´„ã™ã‚‹ã€‚
 	class EnemyFactory
 	{
 	public:
-		// •¡”‘Ì¶¬‚Ì”z’uƒ‹[ƒ‹BƒEƒF[ƒu‘¤‚Ì’²®’l‚©‚ç‚±‚Ì\‘¢‘Ì‚É‹l‚ß‚Ä“n‚·B
+		// è¤‡æ•°ä½“ç”Ÿæˆæ™‚ã®é…ç½®ãƒ«ãƒ¼ãƒ«ã€‚ã‚¦ã‚§ãƒ¼ãƒ–å´ã®èª¿æ•´å€¤ã‹ã‚‰ã“ã®æ§‹é€ ä½“ã«è©°ã‚ã¦æ¸¡ã™ã€‚
 		struct SpawnSettings
 		{
-			float minDistance = 5.0f;   // ’†SˆÊ’u‚©‚çÅ’áŒÀ—£‚·‹——£
-			float maxDistance = 20.0f;  // ’†SˆÊ’u‚©‚çÅ‘å‚Å—£‚·‹——£
-			float spawnY = 0.525f;      // ¶¬‚ÌYÀ•W
-			float minSpacing = 2.5f;    // “¯‚¶¶¬ƒoƒbƒ`“à‚Ì“G“¯m‚ÌÅ’á‹——£
-			int maxAttempts = 50;       // ˆÊ’uÄ’Š‘I‚ÌÅ‘å‰ñ”
+			float minDistance = 5.0f;   // ä¸­å¿ƒä½ç½®ã‹ã‚‰æœ€ä½é™é›¢ã™è·é›¢
+			float maxDistance = 20.0f;  // ä¸­å¿ƒä½ç½®ã‹ã‚‰æœ€å¤§ã§é›¢ã™è·é›¢
+			float spawnY = 0.525f;      // ç”Ÿæˆæ™‚ã®Yåº§æ¨™
+			float minSpacing = 2.5f;    // åŒã˜ç”Ÿæˆãƒãƒƒãƒå†…ã®æ•µåŒå£«ã®æœ€ä½è·é›¢
+			int maxAttempts = 50;       // ä½ç½®å†æŠ½é¸ã®æœ€å¤§å›æ•°
 		};
 
-		// 1‰ñ‚Ì¶¬ƒoƒbƒ`‚É•K—v‚Èî•ñB
+		// 1å›ã®ç”Ÿæˆãƒãƒƒãƒã«å¿…è¦ãªæƒ…å ±ã€‚
 		struct SpawnBatchDesc
 		{
 			EnemyKind kind = EnemyKind::Default;
@@ -50,11 +50,11 @@ namespace shooting {
 		void SetStatus(EnemyKind kind, const EnemyStatus& status);
 		EnemyStatus GetStatus(EnemyKind kind) const;
 
-		// “G1‘Ì‚ğ¶¬‚·‚éB“Gí•Ê‚²‚Æ‚Ì¶¬·•ª‚Í‚±‚ÌŠÖ”‚ÉW‚ß‚éB
+		// æ•µ1ä½“ã‚’ç”Ÿæˆã™ã‚‹ã€‚æ•µç¨®åˆ¥ã”ã¨ã®ç”Ÿæˆå·®åˆ†ã¯ã“ã®é–¢æ•°ã«é›†ã‚ã‚‹ã€‚
 		size_t CreateEnemy(EnemyKind kind, const Vec3& position) const;
 		size_t CreateEnemy(EnemyKind kind, const Vec3& position, const EnemyStatus& status) const;
 
-		// w’è‚µ‚½’†SˆÊ’u‚ÌüˆÍ‚É•¡”‘Ì¶¬‚·‚éB–ß‚è’l‚ÍÀÛ‚É¶¬‚Å‚«‚½“G”B
+		// æŒ‡å®šã—ãŸä¸­å¿ƒä½ç½®ã®å‘¨å›²ã«è¤‡æ•°ä½“ç”Ÿæˆã™ã‚‹ã€‚æˆ»ã‚Šå€¤ã¯å®Ÿéš›ã«ç”Ÿæˆã§ããŸæ•µæ•°ã€‚
 		int CreateEnemiesAround(const SpawnBatchDesc& desc);
 
 	private:

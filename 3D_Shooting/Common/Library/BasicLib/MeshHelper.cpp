@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file MeshHelper.h
-@brief ƒƒbƒVƒ…§ìƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX À‘Ì
+@brief ãƒ¡ãƒƒã‚·ãƒ¥åˆ¶ä½œãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹ å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -59,12 +59,12 @@ namespace shooting {
 		std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices) {
 		try {
 			float HelfSize = size / 2.0f;
-			//’¸“_”z—ñ
+			//é ‚ç‚¹é…åˆ—
 			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-HelfSize, HelfSize, 0), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(0.0f, 0.0f)));
 			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(HelfSize, HelfSize, 0), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(1.0f, 0.0f)));
 			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(-HelfSize, -HelfSize, 0), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(0.0f, 1.0f)));
 			vertices.push_back(VertexPositionNormalTexture(XMFLOAT3(HelfSize, -HelfSize, 0), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT2(1.0f, 1.0f)));
-			//ƒCƒ“ƒfƒbƒNƒX‚ğì¬‚·‚é‚½‚ß‚Ì”z—ñ
+			//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ä½œæˆã™ã‚‹ãŸã‚ã®é…åˆ—
 			indices.push_back((uint32_t)0);
 			indices.push_back((uint32_t)1);
 			indices.push_back((uint32_t)2);
@@ -80,7 +80,7 @@ namespace shooting {
 	void MeshUtill::CreateCube(float size,
 		std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices) {
 		try {
-			//Face”‚Í6
+			//Faceæ•°ã¯6
 			const int FaceCount = 6;
 			static const XMVECTORF32 faceNormals[FaceCount] =
 			{
@@ -98,11 +98,11 @@ namespace shooting {
 				{ 0, 1 },
 				{ 0, 0 },
 			};
-			//‚P•Ó‚Ì’·‚³‚ğ‚µ‚ÄˆÊ’u‚É‚·‚é‚½‚ßA”¼•ª‚É‚·‚é
+			//ï¼‘è¾ºã®é•·ã•ã‚’ã—ã¦ä½ç½®ã«ã™ã‚‹ãŸã‚ã€åŠåˆ†ã«ã™ã‚‹
 			size /= 2;
 			for (int i = 0; i < FaceCount; i++)
 			{
-				//–@ü
+				//æ³•ç·š
 				XMVECTOR normal = faceNormals[i];
 
 				XMVECTOR basis = (i >= 4) ? g_XMIdentityR2 : g_XMIdentityR1;
@@ -110,7 +110,7 @@ namespace shooting {
 				XMVECTOR side1 = XMVector3Cross(normal, basis);
 				XMVECTOR side2 = XMVector3Cross(normal, side1);
 
-				//ƒCƒ“ƒfƒbƒNƒX‚Ì“o˜^
+				//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®ç™»éŒ²
 				size_t vbase = vertices.size();
 				indices.push_back((uint32_t)vbase + 0);
 				indices.push_back((uint32_t)vbase + 1);
@@ -119,13 +119,13 @@ namespace shooting {
 				indices.push_back((uint32_t)vbase + 0);
 				indices.push_back((uint32_t)vbase + 2);
 				indices.push_back((uint32_t)vbase + 3);
-				//’¸“_‚Ì“o˜^
+				//é ‚ç‚¹ã®ç™»éŒ²
 				vertices.push_back(VertexPositionNormalTexture((normal - side1 - side2) * size, normal, textureCoordinates[0]));
 				vertices.push_back(VertexPositionNormalTexture((normal - side1 + side2) * size, normal, textureCoordinates[1]));
 				vertices.push_back(VertexPositionNormalTexture((normal + side1 + side2) * size, normal, textureCoordinates[2]));
 				vertices.push_back(VertexPositionNormalTexture((normal + side1 - side2) * size, normal, textureCoordinates[3]));
 			}
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 		}
 		catch (...) {
@@ -137,8 +137,8 @@ namespace shooting {
 		std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices) {
 		try {
 			if (tessellation < 3) {
-				// ‰Šú‰»¸”s
-				throw std::runtime_error("•ªŠ„”‚Í3ˆÈã•K—v‚Å‚·");
+				// åˆæœŸåŒ–å¤±æ•—
+				throw std::runtime_error("åˆ†å‰²æ•°ã¯3ä»¥ä¸Šå¿…è¦ã§ã™");
 			}
 			float radius = diameter / 2;
 			size_t verticalSegments = tessellation;
@@ -188,7 +188,7 @@ namespace shooting {
 					indices.push_back((uint32_t)(nextI * stride + nextJ));
 				}
 			}
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 		}
 		catch (...) {
@@ -203,8 +203,8 @@ namespace shooting {
 		bool landscape) {
 		try {
 			if (tessellation < 3) {
-				// ‰Šú‰»¸”s
-				throw std::runtime_error("•ªŠ„”‚Í3ˆÈã•K—v‚Å‚·");
+				// åˆæœŸåŒ–å¤±æ•—
+				throw std::runtime_error("åˆ†å‰²æ•°ã¯3ä»¥ä¸Šå¿…è¦ã§ã™");
 			}
 			float radius = diameter / 2;
 			size_t verticalSegments = tessellation;
@@ -274,10 +274,10 @@ namespace shooting {
 					indices.push_back((uint32_t)(nextI * stride + nextJ));
 				}
 			}
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 
-			//‰¡‚ÉQ‚¹‚é
+			//æ¨ªã«å¯ã›ã‚‹
 			if (landscape) {
 				auto  mat = XMMatrixRotationZ(XM_PIDIV2);
 				for (auto& v : vertices) {
@@ -304,8 +304,8 @@ namespace shooting {
 		try {
 
 			if (tessellation < 3) {
-				// ‰Šú‰»¸”s
-				throw std::runtime_error("•ªŠ„”‚Í3ˆÈã•K—v‚Å‚·");
+				// åˆæœŸåŒ–å¤±æ•—
+				throw std::runtime_error("åˆ†å‰²æ•°ã¯3ä»¥ä¸Šå¿…è¦ã§ã™");
 			}
 
 			height /= 2;
@@ -338,11 +338,11 @@ namespace shooting {
 			}
 			CreateCylinderCap(vertices, indices, tessellation, height, radius, true);
 			CreateCylinderCap(vertices, indices, tessellation, height, radius, false);
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 
 
-			//‰¡‚ÉQ‚¹‚é
+			//æ¨ªã«å¯ã›ã‚‹
 			if (landscape) {
 				auto  mat = XMMatrixRotationZ(XM_PIDIV2);
 				for (auto& v : vertices) {
@@ -365,8 +365,8 @@ namespace shooting {
 		std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices) {
 		try {
 			if (tessellation < 3) {
-				// ‰Šú‰»¸”s
-				throw std::runtime_error("•ªŠ„”‚Í3ˆÈã•K—v‚Å‚·");
+				// åˆæœŸåŒ–å¤±æ•—
+				throw std::runtime_error("åˆ†å‰²æ•°ã¯3ä»¥ä¸Šå¿…è¦ã§ã™");
 			}
 
 			height /= 2;
@@ -400,7 +400,7 @@ namespace shooting {
 			}
 
 			CreateCylinderCap(vertices, indices, tessellation, height, radius, false);
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 
 
@@ -414,8 +414,8 @@ namespace shooting {
 		std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices) {
 		try {
 			if (tessellation < 3) {
-				// ‰Šú‰»¸”s
-				throw std::runtime_error("•ªŠ„”‚Í3ˆÈã•K—v‚Å‚·");
+				// åˆæœŸåŒ–å¤±æ•—
+				throw std::runtime_error("åˆ†å‰²æ•°ã¯3ä»¥ä¸Šå¿…è¦ã§ã™");
 			}
 
 			size_t stride = tessellation + 1;
@@ -459,7 +459,7 @@ namespace shooting {
 				}
 			}
 
-			//RH‚©‚çLH‚É•ÏX
+			//RHã‹ã‚‰LHã«å¤‰æ›´
 			ReverseWinding(indices, vertices);
 
 
@@ -516,10 +516,10 @@ namespace shooting {
 			}
 
 			if (vertices.size() != 4 * 3) {
-				throw std::runtime_error("’¸“_‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("é ‚ç‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 			if (indices.size() != 4 * 3) {
-				throw std::runtime_error("ƒCƒ“ƒfƒbƒNƒX‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 
 		}
@@ -580,10 +580,10 @@ namespace shooting {
 			}
 
 			if (vertices.size() != 8 * 3) {
-				throw std::runtime_error("’¸“_‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("é ‚ç‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 			if (indices.size() != 8 * 3) {
-				throw std::runtime_error("ƒCƒ“ƒfƒbƒNƒX‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 
 		}
@@ -709,10 +709,10 @@ namespace shooting {
 			}
 
 			if (vertices.size() != 12 * 5) {
-				throw std::runtime_error("’¸“_‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("é ‚ç‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 			if (indices.size() != 12 * 3 * 3) {
-				throw std::runtime_error("ƒCƒ“ƒfƒbƒNƒX‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 
 		}
@@ -794,10 +794,10 @@ namespace shooting {
 			}
 
 			if (vertices.size() != 20 * 3) {
-				throw std::runtime_error("’¸“_‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("é ‚ç‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 			if (indices.size() != 20 * 3) {
-				throw std::runtime_error("ƒCƒ“ƒfƒbƒNƒX‚Ì”‚ª‡‚¢‚Ü‚¹‚ñ");
+				throw std::runtime_error("ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®æ•°ãŒåˆã„ã¾ã›ã‚“");
 			}
 
 

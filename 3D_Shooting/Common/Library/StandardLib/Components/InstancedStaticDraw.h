@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -30,7 +30,7 @@ namespace shooting {
 
 		std::wstring m_MeshKey;
 		std::wstring m_MaterialPrefix;
-		// ‹ó‚Å‚È‚¢ê‡Ashadow pass ‚¾‚¯’Êíƒ‚ƒfƒ‹‚Å‚Í‚È‚­‚±‚ÌŒy—ÊƒƒbƒVƒ…‚ğg‚¤B
+		// ç©ºã§ãªã„å ´åˆã€shadow pass ã ã‘é€šå¸¸ãƒ¢ãƒ‡ãƒ«ã§ã¯ãªãã“ã®è»½é‡ãƒ¡ãƒƒã‚·ãƒ¥ã‚’ä½¿ã†ã€‚
 		std::wstring m_ShadowMeshKey;
 
 		std::vector<Mat4x4> m_InstanceWorlds;

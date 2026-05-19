@@ -1,6 +1,6 @@
 /*!
 @file BcVSPNTStaticPL.hlsli
-@brief PNTƒXƒ^ƒeƒBƒbƒNƒsƒNƒZƒ‹ƒ‰ƒCƒeƒBƒ“ƒO’¸“_ƒVƒF[ƒ_[
+@brief PNTã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãƒ”ã‚¯ã‚»ãƒ«ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

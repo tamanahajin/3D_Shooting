@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 namespace shooting {
 
@@ -13,7 +13,7 @@ namespace shooting {
 		if (!gameObjectPtr)
 		{
 			throw BaseException(
-				L"GameObject‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ",
+				L"GameObjectã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“",
 				L"if (!gameObjectPtr)",
 				L"Behavior::GetGameObject()"
 			);
@@ -30,34 +30,34 @@ namespace shooting {
 	}
 
 	//--------------------------------------------------------------------------------------
-	///	s“®ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+	///	è¡Œå‹•ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
 	//--------------------------------------------------------------------------------------
-	//is•ûŒü‚ğŒü‚­‚æ‚¤‚É‚·‚é
+	//é€²è¡Œæ–¹å‘ã‚’å‘ãã‚ˆã†ã«ã™ã‚‹
 	void UtilBehavior::RotToHead(float LerpFact)
 	{
 		if (LerpFact <= 0.0f)
 		{
-			//•âŠÔŒW”‚ª0ˆÈ‰º‚È‚ç‰½‚à‚µ‚È‚¢
+			//è£œé–“ä¿‚æ•°ãŒ0ä»¥ä¸‹ãªã‚‰ä½•ã‚‚ã—ãªã„
 			return;
 		}
-		//‰ñ“]‚ÌXV
-		//Velocity‚Ì’l‚ÅA‰ñ“]‚ğ•ÏX‚·‚é
-		//‚±‚ê‚Åis•ûŒü‚ğŒü‚­‚æ‚¤‚É‚È‚é
+		//å›è»¢ã®æ›´æ–°
+		//Velocityã®å€¤ã§ã€å›è»¢ã‚’å¤‰æ›´ã™ã‚‹
+		//ã“ã‚Œã§é€²è¡Œæ–¹å‘ã‚’å‘ãã‚ˆã†ã«ãªã‚‹
 		auto PtrTransform = GetGameObject()->GetComponent<Transform>();
 		Vec3 Velocity = PtrTransform->GetVelocity();
 		if (Velocity.length() > 0.0f)
 		{
 			Vec3 Temp = Velocity;
 			Temp.normalize();
-			// —^‚¦‚ç‚ê‚½ Y À•W‚Æ X À•W‚ÉŠî‚Ã‚¢‚ÄA“_‚Ì‹ÉÀ•W‚É‚¨‚¯‚éŠp“x‚ğ‹‚ß‚é
+			// ä¸ãˆã‚‰ã‚ŒãŸ Y åº§æ¨™ã¨ X åº§æ¨™ã«åŸºã¥ã„ã¦ã€ç‚¹ã®æ¥µåº§æ¨™ã«ãŠã‘ã‚‹è§’åº¦ã‚’æ±‚ã‚ã‚‹
 			float ToAngle = atan2(Temp.x, Temp.z);
 			Quat Qt;
 			Qt.rotationRollPitchYawFromVector(Vec3(0, ToAngle, 0));
 			Qt.normalize();
-			// Œ»İ‚Ì‰ñ“]‚ğæ“¾
+			// ç¾åœ¨ã®å›è»¢ã‚’å–å¾—
 			Quat NowQt = PtrTransform->GetQuaternion();
-			// Œ»İ‚Æ–Ú•W‚ğ•âŠÔ
-			// •âŠÔ‚ª1.0–¢–‚È‚çŠŠ‚ç‚©‚É‰ñ“]
+			// ç¾åœ¨ã¨ç›®æ¨™ã‚’è£œé–“
+			// è£œé–“ãŒ1.0æœªæº€ãªã‚‰æ»‘ã‚‰ã‹ã«å›è»¢
 			if (LerpFact >= 1.0f)
 			{
 				NowQt = Qt;
@@ -74,11 +74,11 @@ namespace shooting {
 	{
 		if (LerpFact <= 0.0f)
 		{
-			//•âŠÔŒW”‚ª0ˆÈ‰º‚È‚ç‰½‚à‚µ‚È‚¢
+			//è£œé–“ä¿‚æ•°ãŒ0ä»¥ä¸‹ãªã‚‰ä½•ã‚‚ã—ãªã„
 			return;
 		}
 		auto PtrTransform = GetGameObject()->GetComponent<Transform>();
-		//‰ñ“]‚ÌXV
+		//å›è»¢ã®æ›´æ–°
 		if (Velocity.length() > 0.0f)
 		{
 			Vec3 Temp = Velocity;
@@ -87,9 +87,9 @@ namespace shooting {
 			Quat Qt;
 			Qt.rotationRollPitchYawFromVector(Vec3(0, ToAngle, 0));
 			Qt.normalize();
-			//Œ»İ‚Ì‰ñ“]‚ğæ“¾
+			//ç¾åœ¨ã®å›è»¢ã‚’å–å¾—
 			Quat NowQt = PtrTransform->GetQuaternion();
-			//Œ»İ‚Æ–Ú•W‚ğ•âŠÔ
+			//ç¾åœ¨ã¨ç›®æ¨™ã‚’è£œé–“
 			if (LerpFact >= 1.0f)
 			{
 				NowQt = Qt;

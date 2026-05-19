@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Collision.cpp
-@brief Õ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒgÀ‘Ì
+@brief è¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆå®Ÿä½“
 */
 #include "stdafx.h"
 
@@ -23,9 +23,9 @@ namespace shooting {
 	}
 	//--------------------------------------------------------------------------------------
 	//	class Collision : public Component ;
-	//	—p“r: Õ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌeƒNƒ‰ƒX
+	//	ç”¨é€”: è¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¦ªã‚¯ãƒ©ã‚¹
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	Collision::Collision(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Component(GameObjectPtr),
 		m_Fixed(false),
@@ -123,9 +123,9 @@ namespace shooting {
 	{
 		if (tagstr == L"")
 		{
-			//‹ó”’‚È‚ç—áŠO
+			//ç©ºç™½ãªã‚‰ä¾‹å¤–
 			throw BaseException(
-				L"İ’è‚·‚éƒ^ƒO‚ª‹ó‚Å‚·",
+				L"è¨­å®šã™ã‚‹ã‚¿ã‚°ãŒç©ºã§ã™",
 				L"if (tagstr == L\"\")",
 				L"Collision::AddExcludeCollisionTag()"
 			);
@@ -259,7 +259,7 @@ namespace shooting {
 		SetDrawActive(b);
 	}
 
-	//‘€ì
+	//æ“ä½œ
 	std::shared_ptr<CollisionManager> Collision::GetCollisionManager() const
 	{
 		return GetGameObject()->GetStage()->GetCollisionManager();
@@ -313,7 +313,7 @@ namespace shooting {
 
 		m_DebugConstantBuffer = {};
 		m_DebugConstantBuffer.activeFlg.x = 3;
-		m_DebugConstantBuffer.activeFlg.y = 0; // texture‚È‚µ
+		m_DebugConstantBuffer.activeFlg.y = 0; // textureãªã—
 		m_DebugConstantBuffer.worldViewProj =
 			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
@@ -373,7 +373,7 @@ namespace shooting {
 
 	void Collision::OnUpdateConstantBuffers()
 	{
-		// base ‚Í‰½‚à‚µ‚È‚¢
+		// base ã¯ä½•ã‚‚ã—ãªã„
 	}
 
 	void Collision::OnCommitConstantBuffers()
@@ -408,7 +408,7 @@ namespace shooting {
 		auto pCurrentFrameResource = pBaseScene->GetCurrentFrameResource();
 		auto cbvSrvHeap = pBaseScene->GetCbvSrvUavDescriptorHeap();
 
-		// ƒfƒoƒbƒO—p‚Ìê—pPSO‚ğg‚¤
+		// ãƒ‡ãƒãƒƒã‚°ç”¨ã®å°‚ç”¨PSOã‚’ä½¿ã†
 		const std::wstring psoKey = alphaBlend ? L"CollisionDebugAlpha" : L"CollisionDebugOpaque";
 		ComPtr<ID3D12PipelineState> pipeline = PipelineStatePool::GetPipelineState(psoKey);
 
@@ -470,7 +470,7 @@ namespace shooting {
 			auto depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 			if (alphaBlend)
 			{
-				// ”¼“§–¾•\¦‚Å‚Í[“x‚Í“Ç‚Ş‚ª‘‚©‚È‚¢
+				// åŠé€æ˜è¡¨ç¤ºã§ã¯æ·±åº¦ã¯èª­ã‚€ãŒæ›¸ã‹ãªã„
 				depthDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 			}
 			psoDesc.DepthStencilState = depthDesc;
@@ -498,7 +498,7 @@ namespace shooting {
 
 		pCommandList->SetPipelineState(pipeline.Get());
 
-		// ‰eƒeƒNƒXƒ`ƒƒ‚Íg‚í‚È‚¢
+		// å½±ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¯ä½¿ã‚ãªã„
 		pCommandList->SetGraphicsRootDescriptorTable(
 			pBaseScene->GetGpuSlotID(L"t0"),
 			nullSrv
@@ -526,7 +526,7 @@ namespace shooting {
 			samplerHandle2
 		);
 
-		// ƒeƒNƒXƒ`ƒƒ‚È‚µ
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãªã—
 		pCommandList->SetGraphicsRootDescriptorTable(
 			pBaseScene->GetGpuSlotID(L"t1"),
 			nullSrv
@@ -547,9 +547,9 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class CollisionSphere : public Collision ;
-	//	—p“r: ‹…Õ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒg
+	//	ç”¨é€”: çƒè¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	CollisionSphere::CollisionSphere(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Collision(GameObjectPtr),
 		m_MakedDiameter(1.0f),
@@ -565,7 +565,7 @@ namespace shooting {
 		InitDebugDrawResources();
 	}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	float CollisionSphere::GetMakedDiameter() const
 	{
 		return m_MakedDiameter;
@@ -600,7 +600,7 @@ namespace shooting {
 		Mat4x4 MatBase;
 		MatBase.scale(Vec3(m_MakedDiameter, m_MakedDiameter, m_MakedDiameter));
 		MatBase *= TransPtr->GetWorldMatrix();
-		//‚±‚ÌƒIƒuƒWƒFƒNƒg‚ÌSPHERE‚ğì¬
+		//ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®SPHEREã‚’ä½œæˆ
 		SPHERE Ret(MatBase.transInMatrix(), MatBase.scaleInMatrix().x * 0.5f);
 		switch (m_CalcScaling)
 		{
@@ -626,7 +626,7 @@ namespace shooting {
 		Mat4x4 MatBase;
 		MatBase.scale(Vec3(m_MakedDiameter, m_MakedDiameter, m_MakedDiameter));
 		MatBase *= TransPtr->GetBeforeWorldMatrix();
-		//‚±‚ÌƒIƒuƒWƒFƒNƒg‚ÌSPHERE‚ğì¬
+		//ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®SPHEREã‚’ä½œæˆ
 		SPHERE Ret(MatBase.transInMatrix(), MatBase.scaleInMatrix().x * 0.5f);
 		switch (m_CalcScaling)
 		{
@@ -728,15 +728,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//‹…‚Ìê‡‚ÍA‚·‚×‚ÄˆÚ“®ˆÈŠO•Ï‰»‚È‚µ‚Æ‚·‚é
+		//çƒã®å ´åˆã¯ã€ã™ã¹ã¦ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—ã¨ã™ã‚‹
 		SPHERE SrcSphere = GetSphere();
 		SPHERE SrcBeforSphere = GetBeforeSphere();
-		//‘Šè‚ÌCollisionSphere
+		//ç›¸æ‰‹ã®CollisionSphere
 		SPHERE DestSphere = DestColl->GetSphere();
 		SPHERE DestBeforeSphere = DestColl->GetBeforeSphere();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		if (!HitTest::SPHERE_SPHERE(SrcSphere, DestSphere))
 		{
 			return;
@@ -768,15 +768,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		SPHERE SrcSphere = GetSphere();
 		SPHERE SrcBeforSphere = GetBeforeSphere();
-		//‘Šè
+		//ç›¸æ‰‹
 		CAPSULE DestCap = DestColl->GetCapsule();
 		CAPSULE DestBeforeCap = DestColl->GetBeforeCapsule();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::SPHERE_CAPSULE(SrcSphere, DestCap, ret))
 		{
@@ -797,7 +797,7 @@ namespace shooting {
 			DestChkCapsule.SetCenter(pair.m_DestCalcHitCenter);
 			Vec3 ret;
 			HitTest::SPHERE_CAPSULE(SrcChkSphere, DestChkCapsule, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkSphere.m_Center - ret;
 			pair.m_SrcHitNormal.normalize();
 			pair.m_CalcHitPoint = ret;
@@ -813,15 +813,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		SPHERE SrcSphere = GetSphere();
 		SPHERE SrcBeforSphere = GetBeforeSphere();
-		//‘Šè
+		//ç›¸æ‰‹
 		OBB DestObb = DestColl->GetObb();
 		OBB DestBeforeObb = DestColl->GetBeforeObb();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::SPHERE_OBB(SrcSphere, DestObb, ret))
 		{
@@ -842,7 +842,7 @@ namespace shooting {
 			pair.m_DestCalcHitCenter = DestChkObb.m_Center;
 			Vec3 ret;
 			HitTest::SPHERE_OBB(SrcChkSphere, DestChkObb, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkSphere.m_Center - ret;
 			pair.m_SrcHitNormal.normalize();
 			pair.m_CalcHitPoint = ret;
@@ -857,15 +857,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		SPHERE SrcSphere = GetSphere();
 		SPHERE SrcBeforSphere = GetBeforeSphere();
-		//‘Šè
+		//ç›¸æ‰‹
 		COLRECT DestRect = DestColl->GetColRect();
 		COLRECT DestBeforeRect = DestColl->GetBeforeColRect();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::SPHERE_COLRECT(SrcSphere, DestRect, ret))
 		{
@@ -886,7 +886,7 @@ namespace shooting {
 			pair.m_DestCalcHitCenter = DestChkRect.m_Center;
 			Vec3 ret;
 			HitTest::SPHERE_COLRECT(SrcChkSphere, DestChkRect, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkSphere.m_Center - ret;
 			pair.m_SrcHitNormal.normalize();
 			pair.m_CalcHitPoint = ret;
@@ -941,9 +941,9 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class CollisionCapsule : public Collision ;
-	//	—p“r: ƒJƒvƒZƒ‹Õ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒg
+	//	ç”¨é€”: ã‚«ãƒ—ã‚»ãƒ«è¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	CollisionCapsule::CollisionCapsule(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Collision(GameObjectPtr),
 		m_MakedDiameter(1.0f),
@@ -954,14 +954,14 @@ namespace shooting {
 	}
 	CollisionCapsule::~CollisionCapsule() {}
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void CollisionCapsule::OnCreate()
 	{
 		SetDrawActive(false);
 		InitDebugDrawResources();
 	}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	float CollisionCapsule::GetMakedDiameter() const
 	{
 		return m_MakedDiameter;
@@ -1105,21 +1105,21 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		CAPSULE SrcCapsule = GetCapsule();
 		CAPSULE SrcBeforCapsule = GetBeforeCapsule();
-		//‘Šè‚ÌCollisionSphere
+		//ç›¸æ‰‹ã®CollisionSphere
 		SPHERE DestSphere = DestColl->GetSphere();
 		SPHERE DestBeforeSphere = DestColl->GetBeforeSphere();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::SPHERE_CAPSULE(DestSphere, SrcCapsule, ret))
 		{
 			return;
 		}
-		//SPHERE‚ÆCAPSULE‚Ìˆµ‚¢‚ª‹t‚É‚È‚é
+		//SPHEREã¨CAPSULEã®æ‰±ã„ãŒé€†ã«ãªã‚‹
 		Vec3 SpanVelocity = DestVelocity - SrcVelocity;
 		float HitTime = 0;
 		if (HitTest::CollisionTestSphereCapsule(DestBeforeSphere, SpanVelocity, SrcBeforCapsule, 0, ElapsedTime, HitTime))
@@ -1135,7 +1135,7 @@ namespace shooting {
 			pair.m_DestCalcHitCenter = DestChkSphere.m_Center;
 			Vec3 ret;
 			HitTest::SPHERE_CAPSULE(DestChkSphere, SrcChkCapsule, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = ret - DestChkSphere.m_Center;
 			pair.m_SrcHitNormal.normalize();
 			pair.m_CalcHitPoint = ret;
@@ -1150,12 +1150,12 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		CAPSULE SrcCapsule = GetCapsule();
 		CAPSULE SrcBeforCapsule = GetBeforeCapsule();
-		//‘Šè‚ÌCollisionCapsule
+		//ç›¸æ‰‹ã®CollisionCapsule
 		CAPSULE DestCapsule = DestColl->GetCapsule();
 		CAPSULE DestBeforeCapsule = DestColl->GetBeforeCapsule();
 		Vec3 ret1, ret2;
@@ -1188,7 +1188,7 @@ namespace shooting {
 		}
 
 		HitTest::CAPSULE_CAPSULE(SrcChkCapsule, DestChkCapsule, ret1, ret2);
-		// ƒWƒƒƒ“ƒv’†‚ÉŒ»İˆÊ’u‚Å‚Í”²‚¯‚Ä‚¢‚Ä‚àAˆÚ“®’†‚ÉG‚ê‚½ˆÊ’u‚Å–@ü‚ğì‚éB
+		// ã‚¸ãƒ£ãƒ³ãƒ—ä¸­ã«ç¾åœ¨ä½ç½®ã§ã¯æŠœã‘ã¦ã„ã¦ã‚‚ã€ç§»å‹•ä¸­ã«è§¦ã‚ŒãŸä½ç½®ã§æ³•ç·šã‚’ä½œã‚‹ã€‚
 		Vec3 Start = DestChkCapsule.m_PointBottom;
 		Vec3 End = DestChkCapsule.m_PointTop;
 		float t;
@@ -1220,15 +1220,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		CAPSULE SrcCapsule = GetCapsule();
 		CAPSULE SrcBeforCapsule = GetBeforeCapsule();
-		//‘Šè‚ÌCollisionObb
+		//ç›¸æ‰‹ã®CollisionObb
 		OBB DestObb = DestColl->GetObb();
 		OBB DestBeforeObb = DestColl->GetBeforeObb();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::CAPSULE_OBB(SrcCapsule, DestObb, ret))
 		{
@@ -1249,7 +1249,7 @@ namespace shooting {
 			pair.m_DestCalcHitCenter = DestChkObb.m_Center;
 			Vec3 RetVec;
 			HitTest::CAPSULE_OBB(SrcChkCapsule, DestChkObb, RetVec);
-			//Ú“_‚Ö‚ÌƒxƒNƒgƒ‹
+			//æ¥ç‚¹ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
 			float t;
 			Vec3 SegPoint;
 			HitTest::ClosetPtPointSegment(RetVec, SrcChkCapsule.m_PointBottom, SrcChkCapsule.m_PointTop, t, SegPoint);
@@ -1267,15 +1267,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		CAPSULE SrcCapsule = GetCapsule();
 		CAPSULE SrcBeforCapsule = GetBeforeCapsule();
-		//‘Šè
+		//ç›¸æ‰‹
 		COLRECT DestRect = DestColl->GetColRect();
 		COLRECT DestBeforeRect = DestColl->GetBeforeColRect();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::CAPSULE_COLRECT(SrcCapsule, DestRect, ret))
 		{
@@ -1295,7 +1295,7 @@ namespace shooting {
 			DestChkRect.m_Center += DestVelocity * HitTime;
 			pair.m_DestCalcHitCenter = DestChkRect.m_Center;
 			HitTest::CAPSULE_COLRECT(SrcChkCapsule, DestChkRect, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkCapsule.GetCenter() - ret;
 			pair.m_SrcHitNormal.normalize();
 			pair.m_CalcHitPoint = ret;
@@ -1359,9 +1359,9 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class CollisionObb : public Collision ;
-	//	—p“r: ObbÕ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒg
+	//	ç”¨é€”: Obbè¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	CollisionObb::CollisionObb(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Collision(GameObjectPtr),
 		m_Size(1.0f),
@@ -1370,7 +1370,7 @@ namespace shooting {
 	}
 	CollisionObb::~CollisionObb() {}
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void CollisionObb::OnCreate()
 	{
 		SetDrawActive(false);
@@ -1398,7 +1398,7 @@ namespace shooting {
 		DrawDebugMesh(pCommandList, mesh, true);
 	}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	float CollisionObb::GetMakedSize() const
 	{
 		return m_Size;
@@ -1526,21 +1526,21 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		OBB SrcObb = GetObb();
 		OBB SrcBeforeObb = GetBeforeObb();
-		//‘Šè
+		//ç›¸æ‰‹
 		SPHERE DestSphere = DestColl->GetSphere();
 		SPHERE DestBeforeSphere = DestColl->GetBeforeSphere();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::SPHERE_OBB(DestSphere, SrcObb, ret))
 		{
 			return;
 		}
-		//SPHERE‚ÆOBB‚Ìˆµ‚¢‚ª‹t‚É‚È‚é
+		//SPHEREã¨OBBã®æ‰±ã„ãŒé€†ã«ãªã‚‹
 		Vec3 SpanVelocity = DestVelocity - SrcVelocity;
 		float HitTime = 0;
 		if (HitTest::CollisionTestSphereObb(DestBeforeSphere, SpanVelocity, SrcBeforeObb, 0, ElapsedTime, HitTime))
@@ -1556,7 +1556,7 @@ namespace shooting {
 			pair.m_DestCalcHitCenter = DestChkSphere.m_Center;
 			Vec3 ret;
 			HitTest::SPHERE_OBB(DestChkSphere, SrcChkObb, ret);
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = ret - DestChkSphere.m_Center;
 			pair.m_CalcHitPoint = ret;
 			pair.m_SrcHitNormal.normalize();
@@ -1571,21 +1571,21 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		OBB SrcObb = GetObb();
 		OBB SrcBeforeObb = GetBeforeObb();
-		//‘Šè
+		//ç›¸æ‰‹
 		CAPSULE DestCapsule = DestColl->GetCapsule();
 		CAPSULE DestBeforeCapsule = DestColl->GetBeforeCapsule();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		Vec3 ret;
 		if (!HitTest::CAPSULE_OBB(DestCapsule, SrcObb, ret))
 		{
 			return;
 		}
-		//SPHERE‚ÆOBB‚Ìˆµ‚¢‚ª‹t‚É‚È‚é
+		//SPHEREã¨OBBã®æ‰±ã„ãŒé€†ã«ãªã‚‹
 		Vec3 SpanVelocity = DestVelocity - SrcVelocity;
 		float HitTime = 0;
 		if (HitTest::CollisionTestCapsuleObb(DestBeforeCapsule, SpanVelocity, SrcBeforeObb, 0, ElapsedTime, HitTime))
@@ -1601,7 +1601,7 @@ namespace shooting {
 			DestChkCapsule.SetCenter(pair.m_DestCalcHitCenter);
 			Vec3 RetVec;
 			HitTest::CAPSULE_OBB(DestChkCapsule, SrcChkObb, RetVec);
-			//Ú“_‚Ö‚ÌƒxƒNƒgƒ‹
+			//æ¥ç‚¹ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
 			float t;
 			Vec3 SegPoint;
 			HitTest::ClosetPtPointSegment(RetVec, DestChkCapsule.m_PointBottom, DestChkCapsule.m_PointTop, t, SegPoint);
@@ -1620,15 +1620,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		OBB SrcObb = GetObb();
 		OBB SrcBeforeObb = GetBeforeObb();
-		//‘Šè
+		//ç›¸æ‰‹
 		OBB DestObb = DestColl->GetObb();
 		OBB DestBeforeObb = DestColl->GetBeforeObb();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		if (!HitTest::OBB_OBB(SrcObb, DestObb))
 		{
 			return;
@@ -1647,10 +1647,10 @@ namespace shooting {
 			DestChkObb.m_Center += DestVelocity * HitTime;
 			pair.m_DestCalcHitCenter = DestChkObb.m_Center;
 			Vec3 RetVec;
-			//Src‚ÌOBB‚ÆDest‚ÌÅ‹ßÚ“_‚ğ“¾‚é
+			//Srcã®OBBã¨Destã®æœ€è¿‘æ¥ç‚¹ã‚’å¾—ã‚‹
 			HitTest::ClosestPtPointOBB(SrcChkObb.m_Center, DestChkObb, RetVec);
-			//Ú“_‚Ö‚ÌƒxƒNƒgƒ‹
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//æ¥ç‚¹ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkObb.m_Center - RetVec;
 			pair.m_CalcHitPoint = RetVec;
 			pair.m_SrcHitNormal.normalize();
@@ -1665,15 +1665,15 @@ namespace shooting {
 		auto PtrDestTransform = DestColl->GetGameObject()->GetComponent<Transform>();
 		Vec3 SrcVelocity = PtrTransform->GetVelocity();
 		Vec3 DestVelocity = PtrDestTransform->GetVelocity();
-		//‘O‰ñ‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
+		//å‰å›ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
 		float ElapsedTime = (float)Scene::GetElapsedTime();
-		//ˆÚ“®ˆÈŠO•Ï‰»‚È‚µ
+		//ç§»å‹•ä»¥å¤–å¤‰åŒ–ãªã—
 		OBB SrcObb = GetObb();
 		OBB SrcBeforeObb = GetBeforeObb();
-		//‘Šè
+		//ç›¸æ‰‹
 		COLRECT DestRect = DestColl->GetColRect();
 		COLRECT DestBeforeRect = DestColl->GetBeforeColRect();
-		//ŠÈˆÕ“I‚È”»’è
+		//ç°¡æ˜“çš„ãªåˆ¤å®š
 		if (!HitTest::OBB_COLRECT(SrcObb, DestRect))
 		{
 			return;
@@ -1692,10 +1692,10 @@ namespace shooting {
 			DestChkRect.m_Center += DestVelocity * HitTime;
 			pair.m_DestCalcHitCenter = DestChkRect.m_Center;
 			Vec3 RetVec;
-			//Src‚ÌOBB‚ÆDest‚ÌÅ‹ßÚ“_‚ğ“¾‚é
+			//Srcã®OBBã¨Destã®æœ€è¿‘æ¥ç‚¹ã‚’å¾—ã‚‹
 			HitTest::ClosetPtPointPlane(SrcChkObb.m_Center, DestChkRect.GetPLANE(), RetVec);
-			//Ú“_‚Ö‚ÌƒxƒNƒgƒ‹
-			//Õ“Ë‚µ‚½uŠÔ‚Å–@ü‚ğŒvZ
+			//æ¥ç‚¹ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
+			//è¡çªã—ãŸç¬é–“ã§æ³•ç·šã‚’è¨ˆç®—
 			pair.m_SrcHitNormal = SrcChkObb.m_Center - RetVec;
 			pair.m_CalcHitPoint = RetVec;
 			pair.m_SrcHitNormal.normalize();
@@ -1725,9 +1725,9 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class CollisionRect : public Collision ;
-	//	—p“r: Rect(‹éŒ`)Õ“Ë”»’èƒRƒ“ƒ|[ƒlƒ“ƒg
+	//	ç”¨é€”: Rect(çŸ©å½¢)è¡çªåˆ¤å®šã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
-	//\’z‚Æ”jŠü
+	//æ§‹ç¯‰ã¨ç ´æ£„
 	CollisionRect::CollisionRect(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Collision(GameObjectPtr),
 		m_Size(1.0f)
@@ -1735,20 +1735,20 @@ namespace shooting {
 	}
 	CollisionRect::~CollisionRect() {}
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void CollisionRect::OnCreate()
 	{
 		SetFixed(true),
 			SetDrawActive(false);
 	}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	void CollisionRect::SetFixed(bool b)
 	{
 		if (!b)
 		{
 			throw BaseException(
-				L"CollisionRect‚ÍFixedˆÈŠO‚Í‘I‘ğ‚Å‚«‚Ü‚¹‚ñ",
+				L"CollisionRectã¯Fixedä»¥å¤–ã¯é¸æŠã§ãã¾ã›ã‚“",
 				L"if (!b)",
 				L"CollisionRect::SetFixed()"
 			);

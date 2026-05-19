@@ -23,8 +23,8 @@ float4x4 GetBoneMatrix(uint index)
     float4 r1 = gBones[index * 3 + 1];
     float4 r2 = gBones[index * 3 + 2];
 
-    // C++‘¤‚Í bone s—ñ‚ğ 3 s•ª‚Ì Vec4 ‚Æ‚µ‚Ä‹l‚ß‚Ä‚¢‚é‚½‚ßA
-    // HLSL‘¤‚Å transpose ‚µ‚Ä’Êí‚Ìs—ñŒü‚«‚É–ß‚·
+    // C++å´ã¯ bone è¡Œåˆ—ã‚’ 3 è¡Œåˆ†ã® Vec4 ã¨ã—ã¦è©°ã‚ã¦ã„ã‚‹ãŸã‚ã€
+    // HLSLå´ã§ transpose ã—ã¦é€šå¸¸ã®è¡Œåˆ—å‘ãã«æˆ»ã™
     return transpose(float4x4(
         r0,
         r1,

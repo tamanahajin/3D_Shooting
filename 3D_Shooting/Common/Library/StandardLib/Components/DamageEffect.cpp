@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file DamageEffectComponent.cpp
-@brief ƒ_ƒ[ƒWƒGƒtƒFƒNƒgƒRƒ“ƒ|[ƒlƒ“ƒg À‘Ìiƒ‚ƒfƒ‹‘S‘Ì‚ğÔ‚­‚·‚éj
+@brief ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ å®Ÿä½“ï¼ˆãƒ¢ãƒ‡ãƒ«å…¨ä½“ã‚’èµ¤ãã™ã‚‹ï¼‰
 */
 
 #include "stdafx.h"
@@ -84,7 +84,7 @@ namespace shooting {
 		depthStencil.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 		// -----------------------------
-		// static —p
+		// static ç”¨
 		// -----------------------------
 		{
 			ComPtr<ID3D12PipelineState> pso =
@@ -130,7 +130,7 @@ namespace shooting {
 		}
 
 		// -----------------------------
-		// skinning —p
+		// skinning ç”¨
 		// -----------------------------
 		{
 			ComPtr<ID3D12PipelineState> pso =
@@ -201,9 +201,9 @@ namespace shooting {
 		}
 
 		// -----------------------------------------
-		// world s—ñ
-		// enemy ‚Í BcPNTBoneDraw ‘¤‚Å model offset ‚ğ‘«‚µ‚Ä•`‚¢‚Ä‚¢‚é‚Ì‚ÅA
-		// ‚±‚±‚Å‚à“¯‚¶ offset ‚ğ”½‰f‚·‚é
+		// world è¡Œåˆ—
+		// enemy ã¯ BcPNTBoneDraw å´ã§ model offset ã‚’è¶³ã—ã¦æã„ã¦ã„ã‚‹ã®ã§ã€
+		// ã“ã“ã§ã‚‚åŒã˜ offset ã‚’åæ˜ ã™ã‚‹
 		// -----------------------------------------
 		auto boneDraw = gameObject->GetComponent<BcPNTBoneDraw>(false);
 
@@ -235,7 +235,7 @@ namespace shooting {
 		}
 
 		// -----------------------------------------
-		// damage ’l
+		// damage å€¤
 		// -----------------------------------------
 		float denom = (m_EffectDuration <= 0.0f) ? 0.001f : m_EffectDuration;
 		float damageValue = static_cast<float>(m_EffectTimer / denom);
@@ -246,7 +246,7 @@ namespace shooting {
 		m_ConstantBuffer.Pad = XMFLOAT2(0, 0);
 
 		// -----------------------------------------
-		// bone s—ñ
+		// bone è¡Œåˆ—
 		// -----------------------------------------
 		if (boneDraw)
 		{
@@ -316,7 +316,7 @@ namespace shooting {
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// -----------------------------------------
-		// skinning ƒ‚ƒfƒ‹
+		// skinning ãƒ¢ãƒ‡ãƒ«
 		// -----------------------------------------
 		if (boneDraw)
 		{
@@ -333,7 +333,7 @@ namespace shooting {
 		}
 
 		// -----------------------------------------
-		// static ƒ‚ƒfƒ‹
+		// static ãƒ¢ãƒ‡ãƒ«
 		// -----------------------------------------
 		if (staticDraw)
 		{

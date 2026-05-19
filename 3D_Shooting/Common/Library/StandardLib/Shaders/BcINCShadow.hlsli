@@ -1,11 +1,11 @@
 /*!
 @file BcINCShadow.hlsli
-@brief ƒVƒƒƒhƒEŠÖ˜AƒŠƒ\[ƒX
+@brief ã‚·ãƒ£ãƒ‰ã‚¦é–¢é€£ãƒªã‚½ãƒ¼ã‚¹
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
 
-// [“xƒ}ƒbƒv
+// æ·±åº¦ãƒãƒƒãƒ—
 Texture2D g_DepthMap : register(t0);
 SamplerComparisonState g_SamplerDepthMap : register(s1);
 
@@ -62,12 +62,12 @@ float4 AddPixelShadow(float4 color, float3 ambient, float3 norm, float3 lightRay
 			);
 		if (lighting == 0.f)
 		{
-			//‰e‚Ì’†
+			//å½±ã®ä¸­
 			return float4(color.xyz * ambient, color.w);
 		}
 		else if (lighting < 1.0f)
 		{
-			//‰e‚Æ‰eˆÈŠO‚Ì‹«ŠEü
+			//å½±ã¨å½±ä»¥å¤–ã®å¢ƒç•Œç·š
 			float3 light = lighting * (ambient + DplusS(N, L, NdotL, lightView));
 			float3 shadow = (1.0f - lighting) * ambient;
 			return float4(color.xyz * (light + shadow), color.w);

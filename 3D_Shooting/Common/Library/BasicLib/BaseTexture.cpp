@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BaseTexture.cpp
-@brief ƒeƒNƒXƒ`ƒƒƒNƒ‰ƒX
+@brief ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¯ãƒ©ã‚¹
 @copyright Copyright (c) 2021 WiZ Tamura Hiroki,Yamanoi Yasushi.
  MIT License URL: https://opensource.org/license/mit
 */
@@ -13,7 +13,7 @@ namespace shooting {
 		const std::wstring& fileName, const CD3DX12_CPU_DESCRIPTOR_HANDLE& mapHandle) {
 		if (fileName == L"") {
 			throw BaseException(
-				L"ƒtƒ@ƒCƒ‹‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ\n",
+				L"ãƒ•ã‚¡ã‚¤ãƒ«ãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“\n",
 				L"BaseTexture::CreateBaseTexture()"
 			);
 		}
@@ -21,13 +21,13 @@ namespace shooting {
 		retCode = GetFileAttributes(fileName.c_str());
 		if (retCode == -1) {
 			throw BaseException(
-				L"ƒtƒ@ƒCƒ‹‚ª‘¶Ý‚µ‚Ü‚¹‚ñ\n",
+				L"ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
 		}
-		//ƒeƒNƒXƒ`ƒƒì¬
-		//ƒtƒ@ƒCƒ‹Šg’£Žq‚Ì’²¸
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ä½œæˆ
+		//ãƒ•ã‚¡ã‚¤ãƒ«æ‹¡å¼µå­ã®èª¿æŸ»
 		wchar_t Drivebuff[_MAX_DRIVE];
 		wchar_t Dirbuff[_MAX_DIR];
 		wchar_t FileNamebuff[_MAX_FNAME];
@@ -52,7 +52,7 @@ namespace shooting {
 		if (extStr == L".dds" || extStr == L".DDS") {
 			ThrowIfFailedEx(
 				DirectX::LoadFromDDSFile(fileName.c_str(), DDS_FLAGS_NONE, &matadata, ptrTexture->m_image),
-				L"ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+				L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
@@ -60,7 +60,7 @@ namespace shooting {
 		else if (extStr == L".tga" || extStr == L".TGA") {
 			ThrowIfFailedEx(
 				DirectX::LoadFromTGAFile(fileName.c_str(), &matadata, ptrTexture->m_image),
-				L"ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+				L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
@@ -69,7 +69,7 @@ namespace shooting {
 		{
 			ThrowIfFailedEx(
 				DirectX::LoadFromHDRFile(fileName.c_str(), &matadata, ptrTexture->m_image),
-				L"ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+				L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
@@ -77,16 +77,16 @@ namespace shooting {
 		else {
 			ThrowIfFailedEx(
 				DirectX::LoadFromWICFile(fileName.c_str(), WIC_FLAGS_NONE, &matadata, ptrTexture->m_image),
-				L"ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+				L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
 		}
-		//ƒfƒoƒCƒX‚ÌŽæ“¾
+		//ãƒ‡ãƒã‚¤ã‚¹ã®å–å¾—
 		auto device = App::GetID3D12Device();
 		ThrowIfFailedEx(
 			DirectX::CreateTexture(device.Get(), matadata, &ptrTexture->m_texture),
-			L"ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìì¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+			L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹ã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 			fileName,
 			L"\nBaseTexture::CreateBaseTexture()"
 		);
@@ -95,7 +95,7 @@ namespace shooting {
 		ThrowIfFailedEx(
 			DirectX::PrepareUpload(device.Get(), ptrTexture->m_image.GetImages(),
 				ptrTexture->m_image.GetImageCount(), matadata, ptrTexture->m_subresources),
-			L"DirectX::PrepareUpload()‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+			L"DirectX::PrepareUpload()ã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 			fileName,
 			L"\nBaseTexture::CreateBaseTexture()"
 		);
@@ -113,7 +113,7 @@ namespace shooting {
 				D3D12_RESOURCE_STATE_COMMON,
 				nullptr,
 				IID_PPV_ARGS(ptrTexture->m_textureUploadHeap.GetAddressOf())),
-			L"ƒeƒNƒXƒ`ƒƒ‚ÌƒAƒbƒvƒ[ƒhƒq[ƒvì¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½\n",
+			L"ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸ\n",
 			fileName,
 			L"\nBaseTexture::CreateBaseTexture()"
 		);
@@ -122,26 +122,26 @@ namespace shooting {
 		NAME_D3D12_OBJECT(ptrTexture->m_textureUploadHeap);
 
 		ptrTexture->m_maphandle = mapHandle;
-		//SRV‚Ìì¬
+		//SRVã®ä½œæˆ
 		ptrTexture->UpdateSRAndCreateSRV(pCommandList);
 
 		return ptrTexture;
 	}
 
 	std::shared_ptr<BaseTexture> BaseTexture::CreateTextureFlomFile(ID3D12GraphicsCommandList* pCommandList, const std::wstring& falsename) {
-		//ƒfƒoƒCƒX‚ÌŽæ“¾
+		//ãƒ‡ãƒã‚¤ã‚¹ã®å–å¾—
 		auto device = App::GetID3D12Device();
-		//ƒV[ƒ“‚ÌŽæ“¾
+		//ã‚·ãƒ¼ãƒ³ã®å–å¾—
 		auto& sceneBase = BaseDevice::GetScene();
-		//ƒeƒNƒXƒ`ƒƒ‚Ìì¬
-		//ƒVƒF[ƒ_ƒŠƒ\[ƒXƒnƒ“ƒhƒ‹‚ðì¬
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆ
+		//ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ãƒãƒ³ãƒ‰ãƒ«ã‚’ä½œæˆ
 		UINT srvIndex = sceneBase->GetSrvNextIndex();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(
 			sceneBase->GetCbvSrvUavDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
 			srvIndex,
 			sceneBase->GetCbvSrvUavDescriptorHandleIncrementSize()
 		);
-		//‰æ‘œƒtƒ@ƒCƒ‹‚ð‚à‚Æ‚ÉƒeƒNƒXƒ`ƒƒ‚ðì¬(SRVž‚Ý)
+		//ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚‚ã¨ã«ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆ(SRVè¾¼ã¿)
 		auto texture = BaseTexture::CreateBaseTextureFromFilePrim(pCommandList, falsename, srvHandle);
 		texture->SetSrvIndex(srvIndex);
 		return texture;
@@ -152,14 +152,14 @@ namespace shooting {
 			m_texture.Get(), m_textureUploadHeap.Get(),
 			0, 0, static_cast<unsigned int>(m_subresources.size()),
 			m_subresources.data());
-		//ƒeƒNƒXƒ`ƒƒ‚ÌƒVƒF[ƒ_ƒŠƒ\[ƒXƒrƒ…[‚ðì¬
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã‚’ä½œæˆ
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		//ƒtƒH[ƒ}ƒbƒg
+		//ãƒ•ã‚©ãƒ¼ãƒžãƒƒãƒˆ
 		srvDesc.Format = m_texture->GetDesc().Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = m_texture->GetDesc().MipLevels;
-		//ƒVƒF[ƒ_ƒŠƒ\[ƒXƒrƒ…[
+		//ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼
 		auto device = App::GetID3D12Device();
 
 		device->CreateShaderResourceView(

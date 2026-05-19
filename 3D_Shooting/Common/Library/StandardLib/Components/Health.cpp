@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "DamageInfo.h"
 
 namespace shooting {
@@ -22,7 +22,7 @@ namespace shooting {
 		return m_Hp > before;
 	}
 
-	// ƒ_ƒ[ƒW“K—pi–ß‚è’lF€–S‚µ‚½‚©j
+	// ãƒ€ãƒ¡ãƒ¼ã‚¸é©ç”¨ï¼ˆæˆ»ã‚Šå€¤ï¼šæ­»äº¡ã—ãŸã‹ï¼‰
 	bool Health::ApplyDamage(const DamageInfo& info)
 	{
 		if (m_Invincible || IsDead()) return false;

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -139,7 +139,7 @@ namespace shooting {
 	};
 
 	//--------------------------------------------------------------------------------------
-	///	Assimpƒ[ƒ_[
+	///	Assimpãƒ­ãƒ¼ãƒ€ãƒ¼
 	//--------------------------------------------------------------------------------------
 	struct BaseAssimp {
 		BaseAssimp(const std::string& modelFile);
@@ -172,21 +172,21 @@ namespace shooting {
 		void LoadMeshBones(uint32_t MeshIndex, const aiMesh* paiMesh, std::vector<SkinnedVertex>& SkinnedVertices, int BaseVertex);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒƒbƒVƒ…‚ÌƒeƒNƒXƒ`ƒƒƒpƒX‚Ìæ“¾
-		@param[in]	meshIndex	ƒƒbƒVƒ…‚ÌƒCƒ“ƒfƒbƒNƒX
-		@return	ƒƒbƒVƒ…‚ÌƒeƒNƒXƒ`ƒƒƒpƒX
+		@brief	ãƒ¡ãƒƒã‚·ãƒ¥ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹ã®å–å¾—
+		@param[in]	meshIndex	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹
 		*/
 		//--------------------------------------------------------------------------------------
 		std::wstring GetMeshTexturePath(uint32_t meshIndex) const;
 		Col4 GetMeshBaseColor(uint32_t meshIndex) const;
-		//ƒVƒ“ƒOƒ‹ƒƒbƒVƒ…—p
+		//ã‚·ãƒ³ã‚°ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ç”¨
 		bool InitSingleScene(UINT meshIndex, std::vector<VertexPositionNormalTextureSkinning>& vertices,
 							 std::vector<uint32_t>& indices);
 
-		//ƒ}ƒ‹ƒ`ƒƒbƒVƒ…—p
+		//ãƒãƒ«ãƒãƒ¡ãƒƒã‚·ãƒ¥ç”¨
 		bool InitMultiScene(std::vector <SkinningMeshSet>& meshSetVec);
 
-		// ‘S mesh ‚ğŒ‹‡‚µ‚Ä skinned ’¸“_‚ğì‚é
+		// å…¨ mesh ã‚’çµåˆã—ã¦ skinned é ‚ç‚¹ã‚’ä½œã‚‹
 		bool InitMergedScene(
 			std::vector<VertexPositionNormalTextureSkinning>& vertices,
 			std::vector<uint32_t>& indices);
@@ -224,18 +224,18 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	///	ƒƒbƒVƒ…
+	///	ãƒ¡ãƒƒã‚·ãƒ¥
 	//--------------------------------------------------------------------------------------
 	class BaseMesh {
-		ComPtr<ID3D12Resource> m_vertexBuffer; //’¸“_ƒoƒbƒtƒ@
-		ComPtr<ID3D12Resource> m_indexBuffer; //ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
-		ComPtr<ID3D12Resource> m_vertexBufferUploadHeap; //’¸“_ƒoƒbƒtƒ@‚ÌƒAƒbƒvƒ[ƒhƒq[ƒv
-		ComPtr<ID3D12Resource> m_indexBufferUploadHeap; //ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌƒAƒbƒvƒ[ƒhƒq[ƒv
+		ComPtr<ID3D12Resource> m_vertexBuffer; //é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡
+		ComPtr<ID3D12Resource> m_indexBuffer; //ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡
+		ComPtr<ID3D12Resource> m_vertexBufferUploadHeap; //é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—
+		ComPtr<ID3D12Resource> m_indexBufferUploadHeap; //ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—
 
-		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView; //’¸“_ƒoƒbƒtƒ@ƒrƒ…[
-		D3D12_INDEX_BUFFER_VIEW m_indexBufferView; //ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[
-		UINT m_numVertices; //’¸“_”
-		UINT m_numIndices; //ƒCƒ“ƒfƒbƒNƒX”
+		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView; //é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
+		D3D12_INDEX_BUFFER_VIEW m_indexBufferView; //ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
+		UINT m_numVertices; //é ‚ç‚¹æ•°
+		UINT m_numIndices; //ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ•°
 
 		std::shared_ptr<BaseAssimp> m_BaseAssimp;
 
@@ -245,8 +245,8 @@ namespace shooting {
 		~BaseMesh() {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	’¸“_ƒoƒbƒtƒ@‚Ìæ“¾
-		@return	ƒŠƒ\[ƒX‚ÌComPt
+		@brief	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®å–å¾—
+		@return	ãƒªã‚½ãƒ¼ã‚¹ã®ComPt
 		*/
 		//--------------------------------------------------------------------------------------
 		ComPtr<ID3D12Resource> GetVertexBuffer() const
@@ -255,8 +255,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	’¸“_ƒoƒbƒtƒ@ƒAƒbƒvƒ[ƒhƒq[ƒv‚Ìæ“¾
-		@return	ƒŠƒ\[ƒX‚ÌComPt
+		@brief	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ã®å–å¾—
+		@return	ãƒªã‚½ãƒ¼ã‚¹ã®ComPt
 		*/
 		//--------------------------------------------------------------------------------------
 		ComPtr<ID3D12Resource> GetVertexBufferUploadHeap() const
@@ -265,8 +265,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ìæ“¾
-		@return	ƒŠƒ\[ƒX‚ÌComPt
+		@brief	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®å–å¾—
+		@return	ãƒªã‚½ãƒ¼ã‚¹ã®ComPt
 		*/
 		//--------------------------------------------------------------------------------------
 		ComPtr<ID3D12Resource> GetIndexBuffer() const
@@ -275,8 +275,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒAƒbƒvƒ[ƒhƒq[ƒv‚Ìæ“¾
-		@return	ƒŠƒ\[ƒX‚ÌComPt
+		@brief	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ã®å–å¾—
+		@return	ãƒªã‚½ãƒ¼ã‚¹ã®ComPt
 		*/
 		//--------------------------------------------------------------------------------------
 		ComPtr<ID3D12Resource> GetIndexBufferUploadHeap() const
@@ -285,8 +285,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	’¸“_ƒoƒbƒtƒ@‚Ì’¸“_”‚Ìæ“¾
-		@return	’¸“_ƒoƒbƒtƒ@‚Ì’¸“_”
+		@brief	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®é ‚ç‚¹æ•°ã®å–å¾—
+		@return	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®é ‚ç‚¹æ•°
 		*/
 		//--------------------------------------------------------------------------------------
 		UINT GetNumVertices()const
@@ -295,8 +295,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ì”‚Ìæ“¾
-		@return	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ì”
+		@brief	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®æ•°ã®å–å¾—
+		@return	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®æ•°
 		*/
 		//--------------------------------------------------------------------------------------
 		UINT GetNumIndices()const
@@ -305,8 +305,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚Ìæ“¾
-		@return	’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚ÌQÆ
+		@brief	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®å–å¾—
+		@return	é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®å‚ç…§
 		*/
 		//--------------------------------------------------------------------------------------
 		const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const
@@ -315,8 +315,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚Ìæ“¾
-		@return	ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚ÌQÆ
+		@brief	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®å–å¾—
+		@return	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®å‚ç…§
 		*/
 		//--------------------------------------------------------------------------------------
 		const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const
@@ -325,8 +325,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	Assimp‚Ìæ“¾
-		@return	Assimp‚Ìƒ|ƒCƒ“ƒ^
+		@brief	Assimpã®å–å¾—
+		@return	Assimpã®ãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		std::shared_ptr<BaseAssimp> GetBaseAssimp()
@@ -338,21 +338,21 @@ namespace shooting {
 
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ’¸“_‚Ì‚İ‚Å\¬‚³‚ê‚éƒƒbƒVƒ…‚Ìì¬
-		@tparam T	ì¬‚·‚é’¸“_‚ÌŒ^
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	vertices	’¸“_‚Ì”z—ñ
-		@return	BaseMesh‚Ìshared_ptr
+		@brief é ‚ç‚¹ã®ã¿ã§æ§‹æˆã•ã‚Œã‚‹ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@tparam T	ä½œæˆã™ã‚‹é ‚ç‚¹ã®å‹
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	vertices	é ‚ç‚¹ã®é…åˆ—
+		@return	BaseMeshã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T>
 		static std::shared_ptr<BaseMesh> CreateBaseMesh(ID3D12GraphicsCommandList* pCommandList, const std::vector<T>& vertices)
 		{
-			//ƒfƒoƒCƒX‚Ìæ“¾
+			//ãƒ‡ãƒã‚¤ã‚¹ã®å–å¾—
 			auto device = App::GetD3D12Device();
 			std::shared_ptr<BaseMesh> ptrMesh = std::shared_ptr<BaseMesh>(new BaseMesh());
 			UINT vertexBufferSize = (UINT)(sizeof(T) * vertices.size());
-			//’¸“_ƒoƒbƒtƒ@‚Ìì¬
+			//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ä½œæˆ
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -361,7 +361,7 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COPY_DEST,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_vertexBuffer)),
-					L"’¸“_ƒoƒbƒtƒ@ì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
@@ -372,11 +372,11 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_vertexBufferUploadHeap)),
-					L"’¸“_ƒoƒbƒtƒ@ì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
-				//’¸“_ƒoƒbƒtƒ@‚ÌXV
+				//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°
 				D3D12_SUBRESOURCE_DATA vertexData = {};
 				vertexData.pData = &vertices[0];
 				vertexData.RowPitch = vertexBufferSize;
@@ -395,28 +395,28 @@ namespace shooting {
 				ptrMesh->m_vertexBufferView.StrideInBytes = static_cast<UINT>(sizeof(T));
 				ptrMesh->m_vertexBufferView.SizeInBytes = vertexBufferSize;
 			}
-			//’¸“_”‚Ìİ’è
+			//é ‚ç‚¹æ•°ã®è¨­å®š
 			ptrMesh->m_numVertices = static_cast<UINT>(vertices.size());
 			return ptrMesh;
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ’¸“_‚ÆƒCƒ“ƒfƒbƒNƒX‚Å\¬‚³‚ê‚éƒƒbƒVƒ…‚Ìì¬
-		@tparam T	ì¬‚·‚é’¸“_‚ÌŒ^
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	vertices	’¸“_‚Ì”z—ñ
-		@param[in]	indices	ƒCƒ“ƒfƒbƒNƒX‚Ì”z—ñ
-		@return	BaseMesh‚Ìshared_ptr
+		@brief é ‚ç‚¹ã¨ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§æ§‹æˆã•ã‚Œã‚‹ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@tparam T	ä½œæˆã™ã‚‹é ‚ç‚¹ã®å‹
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	vertices	é ‚ç‚¹ã®é…åˆ—
+		@param[in]	indices	ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®é…åˆ—
+		@return	BaseMeshã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T>
 		static std::shared_ptr<BaseMesh> CreateBaseMesh(ID3D12GraphicsCommandList* pCommandList, const std::vector<T>& vertices, const std::vector<uint32_t>& indices)
 		{
-			//ƒfƒoƒCƒX‚Ìæ“¾
+			//ãƒ‡ãƒã‚¤ã‚¹ã®å–å¾—
 			auto device = App::GetD3D12Device();
 			std::shared_ptr<BaseMesh> ptrMesh = std::shared_ptr<BaseMesh>(new BaseMesh());
 			UINT vertexBufferSize = (UINT)(sizeof(T) * vertices.size());
-			//’¸“_ƒoƒbƒtƒ@‚Ìì¬
+			//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ä½œæˆ
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -425,7 +425,7 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_vertexBuffer)),
-					L"’¸“_ƒoƒbƒtƒ@ì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
@@ -436,12 +436,12 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_vertexBufferUploadHeap)),
-					L"’¸“_ƒoƒbƒtƒ@ƒAƒbƒvƒ[ƒhƒq[ƒvì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
 
-				//’¸“_ƒoƒbƒtƒ@‚ÌXV
+				//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°
 				D3D12_SUBRESOURCE_DATA vertexData = {};
 				vertexData.pData = &vertices[0];
 				vertexData.RowPitch = vertexBufferSize;
@@ -456,14 +456,14 @@ namespace shooting {
 					1,
 					&vertexData
 				);
-				//’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚Ìì¬
+				//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®ä½œæˆ
 				ptrMesh->m_vertexBufferView.BufferLocation = ptrMesh->m_vertexBuffer->GetGPUVirtualAddress();
 				ptrMesh->m_vertexBufferView.StrideInBytes = static_cast<UINT>(sizeof(T));
 				ptrMesh->m_vertexBufferView.SizeInBytes = vertexBufferSize;
 			}
-			//’¸“_”‚Ìİ’è
+			//é ‚ç‚¹æ•°ã®è¨­å®š
 			ptrMesh->m_numVertices = static_cast<UINT>(vertices.size());
-			//ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ìì¬
+			//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ä½œæˆ
 			UINT indexBufferSize = static_cast<UINT>(sizeof(uint32_t) * indices.size());
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
@@ -473,7 +473,7 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_indexBuffer)),
-					L"ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
@@ -484,11 +484,11 @@ namespace shooting {
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&ptrMesh->m_indexBufferUploadHeap)),
-					L"ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌƒAƒbƒvƒ[ƒhƒq[ƒvì¬‚É¸”s‚µ‚Ü‚µ‚½B",
+					L"ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚",
 					L"if(FAILED(device->CreateCommittedResource())",
 					L"BaseMesh::CreateBaseMesh()"
 				);
-				// ƒCƒ“ƒfƒNƒXƒoƒbƒtƒ@‚ÌXV
+				// ã‚¤ãƒ³ãƒ‡ã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°
 				D3D12_SUBRESOURCE_DATA indexData = {};
 				indexData.pData = (void*)&indices[0];
 				indexData.RowPitch = indexBufferSize;
@@ -499,23 +499,23 @@ namespace shooting {
 					ptrMesh->m_indexBufferUploadHeap.Get(),
 					0, 0, 1, &indexData
 				);
-				//ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚Ìì¬
+				//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®ä½œæˆ
 				ptrMesh->m_indexBufferView.BufferLocation = ptrMesh->m_indexBuffer->GetGPUVirtualAddress();
 				ptrMesh->m_indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 				ptrMesh->m_indexBufferView.SizeInBytes = indexBufferSize;
 			}
-			//ƒCƒ“ƒfƒbƒNƒX”‚Ìİ’è
+			//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ•°ã®è¨­å®š
 			ptrMesh->m_numIndices = static_cast<UINT>(indices.size());
 			return ptrMesh;
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ’¸“_‚ÆƒCƒ“ƒfƒbƒNƒX‚Å\¬‚³‚ê‚éƒVƒ“ƒOƒ‹ƒ{[ƒ“ƒ‚ƒfƒ‹ƒƒbƒVƒ…‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	dataDir	ƒf[ƒ^ƒfƒBƒŒƒNƒgƒŠ
-		@param[in]	dataFile@ƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-		@param[in]	dataFile@ƒƒbƒVƒ…‚ÌƒCƒ“ƒfƒbƒNƒX
-		@return	BaseMesh‚Ìshared_ptr
+		@brief é ‚ç‚¹ã¨ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§æ§‹æˆã•ã‚Œã‚‹ã‚·ãƒ³ã‚°ãƒ«ãƒœãƒ¼ãƒ³ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	dataDir	ãƒ‡ãƒ¼ã‚¿ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		@param[in]	dataFileã€€ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+		@param[in]	dataFileã€€ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+		@return	BaseMeshã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateSingleBoneModelMesh(
@@ -524,11 +524,11 @@ namespace shooting {
 			UINT modelIndex = 0);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	•¡”‚ÌƒƒbƒVƒ…‚Å\¬‚³‚ê‚éƒ‚ƒfƒ‹ƒƒbƒVƒ…‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	dataDir	ƒf[ƒ^ƒfƒBƒŒƒNƒgƒŠ
-		@param[in]	dataFile@ƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-		@return	BaseMesh‚Ìshared_ptr‚Ì”z—ñ
+		@brief	è¤‡æ•°ã®ãƒ¡ãƒƒã‚·ãƒ¥ã§æ§‹æˆã•ã‚Œã‚‹ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	dataDir	ãƒ‡ãƒ¼ã‚¿ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		@param[in]	dataFileã€€ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+		@return	BaseMeshã®shared_ptrã®é…åˆ—
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::vector<std::shared_ptr<BaseMesh>> CreateModelMesh(
@@ -537,11 +537,11 @@ namespace shooting {
 			const std::wstring& dataFile);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	•¡”‚ÌƒƒbƒVƒ…‚Æƒ}ƒeƒŠƒAƒ‹‚Å\¬‚³‚ê‚éƒ‚ƒfƒ‹ƒƒbƒVƒ…‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	dataDir	ƒf[ƒ^ƒfƒBƒŒƒNƒgƒŠ
-		@param[in]	dataFile@ƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-		@return	ModelMaterialPart‚Ì”z—ñ
+		@brief	è¤‡æ•°ã®ãƒ¡ãƒƒã‚·ãƒ¥ã¨ãƒãƒ†ãƒªã‚¢ãƒ«ã§æ§‹æˆã•ã‚Œã‚‹ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	dataDir	ãƒ‡ãƒ¼ã‚¿ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		@param[in]	dataFileã€€ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+		@return	ModelMaterialPartã®é…åˆ—
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::vector<ModelMaterialPart> CreateModelMeshWithMaterial(
@@ -550,11 +550,11 @@ namespace shooting {
 			const std::wstring& dataFile);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	•¡”‚ÌƒƒbƒVƒ…‚Æƒ}ƒeƒŠƒAƒ‹‚Å\¬‚³‚ê‚éƒXƒLƒjƒ“ƒOƒ‚ƒfƒ‹ƒƒbƒVƒ…‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	dataDir	ƒf[ƒ^ƒfƒBƒŒƒNƒgƒŠ
-		@param[in]	dataFile@ƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-		@return	ModelMaterialPart‚Ì”z—ñ
+		@brief	è¤‡æ•°ã®ãƒ¡ãƒƒã‚·ãƒ¥ã¨ãƒãƒ†ãƒªã‚¢ãƒ«ã§æ§‹æˆã•ã‚Œã‚‹ã‚¹ã‚­ãƒ‹ãƒ³ã‚°ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	dataDir	ãƒ‡ãƒ¼ã‚¿ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		@param[in]	dataFileã€€ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+		@return	ModelMaterialPartã®é…åˆ—
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::vector<ModelSkinnedMaterialPart> CreateSkinnedModelMeshWithMaterial(
@@ -563,11 +563,11 @@ namespace shooting {
 			const std::wstring& dataFile);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	•¡”‚ÌƒƒbƒVƒ…‚Æƒ}ƒeƒŠƒAƒ‹‚Å\¬‚³‚ê‚éƒXƒLƒjƒ“ƒOƒ‚ƒfƒ‹ƒƒbƒVƒ…‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	dataDir	ƒf[ƒ^ƒfƒBƒŒƒNƒgƒŠ
-		@param[in]	dataFile@ƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-		@return	ModelMaterialPart‚Ì”z—ñ
+		@brief	è¤‡æ•°ã®ãƒ¡ãƒƒã‚·ãƒ¥ã¨ãƒãƒ†ãƒªã‚¢ãƒ«ã§æ§‹æˆã•ã‚Œã‚‹ã‚¹ã‚­ãƒ‹ãƒ³ã‚°ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	dataDir	ãƒ‡ãƒ¼ã‚¿ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		@param[in]	dataFileã€€ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+		@return	ModelMaterialPartã®é…åˆ—
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateMergedBoneModelMesh(
@@ -576,12 +576,12 @@ namespace shooting {
 			const std::wstring& dataFile);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	’¸“_‚Ì•ÏX.<br />
-		AccessWrite‚ªtrue‚Åì¬‚³‚ê‚½ƒŠƒ\[ƒX‚ÍA’¸“_‚Ì”z—ñ‚É‚æ‚Á‚Ä’¸“_‚ğ•ÏX‚·‚éB
-		@tparam	T	’¸“_‚ÌŒ^
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	vertices	’¸“_‚Ì”z—ñ
-		@return	‚È‚µ
+		@brief	é ‚ç‚¹ã®å¤‰æ›´.<br />
+		AccessWriteãŒtrueã§ä½œæˆã•ã‚ŒãŸãƒªã‚½ãƒ¼ã‚¹ã¯ã€é ‚ç‚¹ã®é…åˆ—ã«ã‚ˆã£ã¦é ‚ç‚¹ã‚’å¤‰æ›´ã™ã‚‹ã€‚
+		@tparam	T	é ‚ç‚¹ã®å‹
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	vertices	é ‚ç‚¹ã®é…åˆ—
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T>
@@ -590,14 +590,14 @@ namespace shooting {
 			if (m_numVertices != vertices.size())
 			{
 				throw BaseException(
-					L"’¸“_”‚ªˆá‚¢‚Ü‚·B",
+					L"é ‚ç‚¹æ•°ãŒé•ã„ã¾ã™ã€‚",
 					L"BaseMesh::UpdateVirtexBuffer()"
 				);
 			}
-			//ƒfƒoƒCƒX‚Ìæ“¾
+			//ãƒ‡ãƒã‚¤ã‚¹ã®å–å¾—
 			auto device = App::GetD3D12Device();
 			UINT vertexBufferSize = (UINT)(sizeof(T) * vertices.size());
-			//’¸“_ƒoƒbƒtƒ@‚ÌXV
+			//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°
 			D3D12_SUBRESOURCE_DATA vertexData = {};
 			vertexData.pData = &vertices[0];
 			vertexData.RowPitch = vertexBufferSize;
@@ -612,7 +612,7 @@ namespace shooting {
 				1,
 				&vertexData
 			);
-			//ˆÈ‰º•K—v‚©‚Ç‚¤‚©ŒŸØ•K—v
+			//ä»¥ä¸‹å¿…è¦ã‹ã©ã†ã‹æ¤œè¨¼å¿…è¦
 			//pCommandList->ResourceBarrier(
 			//	1,
 			//	&CD3DX12_RESOURCE_BARRIER::Transition(
@@ -622,116 +622,116 @@ namespace shooting {
 			//	)
 			//);
 
-			//’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚Ìì¬
+			//é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®ä½œæˆ
 			m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 			m_vertexBufferView.StrideInBytes = static_cast<UINT>(sizeof(T));
 			m_vertexBufferView.SizeInBytes = vertexBufferSize;
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	4ŠpŒ`•½–Ê‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size		1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	4è§’å½¢å¹³é¢ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size		1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateSquare(ID3D12GraphicsCommandList* pCommandList, float size);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒLƒ…[ƒui—§•û‘Ìj‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size	1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	ã‚­ãƒ¥ãƒ¼ãƒ–ï¼ˆç«‹æ–¹ä½“ï¼‰ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size	1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateCube(ID3D12GraphicsCommandList* pCommandList, float size);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	‹…‘Ì‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	diameter	’¼Œa
-		@param[in]	tessellation	•ªŠ„”
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	çƒä½“ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	diameter	ç›´å¾„
+		@param[in]	tessellation	åˆ†å‰²æ•°
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateSphere(ID3D12GraphicsCommandList* pCommandList, float diameter, size_t tessellation);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒJƒvƒZƒ‹‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	diameter	’¼Œa
-		@param[in]	height	‚‚³
-		@param[in]	tessellation	•ªŠ„”
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	ã‚«ãƒ—ã‚»ãƒ«ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	diameter	ç›´å¾„
+		@param[in]	height	é«˜ã•
+		@param[in]	tessellation	åˆ†å‰²æ•°
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateCapsule(ID3D12GraphicsCommandList* pCommandList, float diameter, float height, size_t tessellation);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒVƒŠƒ“ƒ_[‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	height	‚‚³
-		@param[in]	diameter	’¼Œa
-		@param[in]	tessellation	•ªŠ„”
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	ã‚·ãƒªãƒ³ãƒ€ãƒ¼ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	height	é«˜ã•
+		@param[in]	diameter	ç›´å¾„
+		@param[in]	tessellation	åˆ†å‰²æ•°
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateCylinder(ID3D12GraphicsCommandList* pCommandList, float height, float diameter, size_t tessellation);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒR[ƒ“‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	diameter	’¼Œa
-		@param[in]	height	‚‚³
-		@param[in]	tessellation	•ªŠ„”
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	ã‚³ãƒ¼ãƒ³ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	diameter	ç›´å¾„
+		@param[in]	height	é«˜ã•
+		@param[in]	tessellation	åˆ†å‰²æ•°
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateCone(ID3D12GraphicsCommandList* pCommandList, float diameter, float height, size_t tessellation);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒg[ƒ‰ƒX‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	diameter	’¼Œa
-		@param[in]	thickness	ƒh[ƒiƒbƒc‚Ì‘¾‚³
-		@param[in]	tessellation	•ªŠ„”
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	ãƒˆãƒ¼ãƒ©ã‚¹ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	diameter	ç›´å¾„
+		@param[in]	thickness	ãƒ‰ãƒ¼ãƒŠãƒƒãƒ„ã®å¤ªã•
+		@param[in]	tessellation	åˆ†å‰²æ•°
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateTorus(ID3D12GraphicsCommandList* pCommandList, float diameter, float thickness, size_t tessellation);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	³4–Ê‘Ì‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size	1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	æ­£4é¢ä½“ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size	1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateTetrahedron(ID3D12GraphicsCommandList* pCommandList, float size);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	³8–Ê‘Ì‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size	1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	æ­£8é¢ä½“ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size	1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateOctahedron(ID3D12GraphicsCommandList* pCommandList, float size);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	³12–Ê‘Ì‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size	1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	æ­£12é¢ä½“ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size	1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateDodecahedron(ID3D12GraphicsCommandList* pCommandList, float size);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	³20–Ê‘Ì‚Ìì¬
-		@param[in]	pCommandList	ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@param[in]	size	1•Ó‚ÌƒTƒCƒY
-		@return	ƒƒbƒVƒ…‚ÌƒXƒ}[ƒgƒ|ƒCƒ“ƒ^
+		@brief	æ­£20é¢ä½“ã®ä½œæˆ
+		@param[in]	pCommandList	ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@param[in]	size	1è¾ºã®ã‚µã‚¤ã‚º
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		static std::shared_ptr<BaseMesh> CreateIcosahedron(ID3D12GraphicsCommandList* pCommandList, float size);

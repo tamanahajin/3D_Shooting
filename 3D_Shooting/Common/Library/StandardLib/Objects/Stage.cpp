@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 namespace shooting {
 
@@ -18,12 +18,12 @@ namespace shooting {
 		}
 	}
 
-	//ƒXƒe[ƒW“à‚ÌXViƒV[ƒ“‚©‚ç‚æ‚Î‚ê‚éj
+	//ã‚¹ãƒ†ãƒ¼ã‚¸å†…ã®æ›´æ–°ï¼ˆã‚·ãƒ¼ãƒ³ã‹ã‚‰ã‚ˆã°ã‚Œã‚‹ï¼‰
 	void Stage::UpdateStage()
 	{
-		//’Ç‰ÁEíœ‚Ü‚¿ƒIƒuƒWƒFƒNƒg‚Ì’Ç‰Á‚Æíœ
+		//è¿½åŠ ãƒ»å‰Šé™¤ã¾ã¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¿½åŠ ã¨å‰Šé™¤
 		SetWaitToObjectVec();
-		//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì’l‚ğƒoƒbƒNƒAƒbƒv‚ÉƒRƒs[
+		//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®å€¤ã‚’ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã«ã‚³ãƒ”ãƒ¼
 		for (auto& ptr : GetGameObjectVec())
 		{
 			if (ptr->IsUpdateActive())
@@ -32,7 +32,7 @@ namespace shooting {
 				ptr2->SetToBefore();
 			}
 		}
-		//”z’uƒIƒuƒWƒFƒNƒg‚ÌXVˆ—
+		//é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›´æ–°å‡¦ç†
 		for (auto& ptr : GetGameObjectVec())
 		{
 			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
@@ -40,12 +40,12 @@ namespace shooting {
 				ptr->OnUpdate(Scene::GetElapsedTime());
 			}
 		}
-		//©g‚ÌXVˆ—
+		//è‡ªèº«ã®æ›´æ–°å‡¦ç†
 		if (IsUpdateActive())
 		{
 			OnUpdate(Scene::GetElapsedTime());
 		}
-		//”z’uƒIƒuƒWƒFƒNƒg‚ÌƒRƒ“ƒ|[ƒlƒ“ƒgXV
+		//é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆæ›´æ–°
 		for (auto& ptr : GetGameObjectVec())
 		{
 			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
@@ -53,7 +53,7 @@ namespace shooting {
 				ptr->ComponentUpdate();
 			}
 		}
-		// ”z’uƒIƒuƒWƒFƒNƒg‚ÌBehaviorXV
+		// é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Behavioræ›´æ–°
 		for (auto& ptr : GetGameObjectVec())
 		{
 			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
@@ -61,9 +61,9 @@ namespace shooting {
 				ptr->BehaviorUpdate();
 			}
 		}
-		////Õ“Ë”»’è
+		////è¡çªåˆ¤å®š
 		UpdateCollision();
-		//”z’uƒIƒuƒWƒFƒNƒg‚ÌXVŒãˆ—
+		//é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›´æ–°å¾Œå‡¦ç†
 		for (auto& ptr : GetGameObjectVec())
 		{
 			if (ptr->IsUpdateActive() && !ptr->IsBatchUpdateManaged())
@@ -71,30 +71,30 @@ namespace shooting {
 				ptr->OnUpdate2(Scene::GetElapsedTime());
 			}
 		}
-		//©g‚ÌXVŒãˆ—
+		//è‡ªèº«ã®æ›´æ–°å¾Œå‡¦ç†
 		if (IsUpdateActive())
 		{
 			OnUpdate2(Scene::GetElapsedTime());
 		}
-		//ƒJƒƒ‰‚Æƒ‰ƒCƒg
+		//ã‚«ãƒ¡ãƒ©ã¨ãƒ©ã‚¤ãƒˆ
 		m_camera->OnUpdate(Scene::GetElapsedTime());
 		m_lightSet->OnUpdate(Scene::GetElapsedTime());
 		//m_BulletManager->OnUpdate(Scene::GetElapsedTime());
 	}
 
-	//Õ“Ë”»’è‚ÌXViƒXƒe[ƒW‚©‚çŒÄ‚Ôj
-	//Õ“Ë”»’è‚ğƒJƒXƒ^ƒ}ƒCƒY‚·‚é‚½‚ß‚É‚Í
-	//‚±‚ÌŠÖ”‚ğ‘½d’è‹`‚·‚é
+	//è¡çªåˆ¤å®šã®æ›´æ–°ï¼ˆã‚¹ãƒ†ãƒ¼ã‚¸ã‹ã‚‰å‘¼ã¶ï¼‰
+	//è¡çªåˆ¤å®šã‚’ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºã™ã‚‹ãŸã‚ã«ã¯
+	//ã“ã®é–¢æ•°ã‚’å¤šé‡å®šç¾©ã™ã‚‹
 	void Stage::UpdateCollision()
 	{
-		//Õ“Ë”»’èŠÇ—Ò‚ÌUpdate(”»’è)
+		//è¡çªåˆ¤å®šç®¡ç†è€…ã®Update(åˆ¤å®š)
 		m_collisionManager->OnUpdate(Scene::GetElapsedTime());
 	}
 
 
 	void Stage::OnPreCreate()
 	{
-		//ƒRƒŠƒWƒ‡ƒ“ŠÇ—Ò‚Ìì¬
+		//ã‚³ãƒªã‚¸ãƒ§ãƒ³ç®¡ç†è€…ã®ä½œæˆ
 		m_collisionManager = ObjectFactory::Create<CollisionManager>(GetThis<Stage>());
 		//m_BulletManager = ObjectFactory::Create<BulletManager>(GetThis<Stage>());
 	}
@@ -121,10 +121,10 @@ namespace shooting {
 				normalVec.push_back(v);
 			}
 		}
-		//ƒJƒƒ‰‚ÌˆÊ’u
+		//ã‚«ãƒ¡ãƒ©ã®ä½ç½®
 		Vec3 CameraEye = GetCamera()->GetEye();
-		//“§–¾‚Ì3DƒIƒuƒWƒFƒNƒg‚ğƒJƒƒ‰‚©‚ç‚Ì‹——£‚Åƒ\[ƒg
-		//ˆÈ‰º‚ÍAƒIƒuƒWƒFƒNƒg‚ğˆø”‚Éæ‚èbool‚ğ•Ô‚·ƒ‰ƒ€ƒ_®
+		//é€æ˜ã®3Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚«ãƒ¡ãƒ©ã‹ã‚‰ã®è·é›¢ã§ã‚½ãƒ¼ãƒˆ
+		//ä»¥ä¸‹ã¯ã€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å¼•æ•°ã«å–ã‚Šboolã‚’è¿”ã™ãƒ©ãƒ ãƒ€å¼
 		//--------------------------------------------------------
 		auto func = [&](std::shared_ptr<GameObject>& Left, std::shared_ptr<GameObject>& Right)->bool {
 			auto PtrLeftTrans = Left->GetComponent<Transform>();
@@ -167,20 +167,20 @@ namespace shooting {
 
 	void Stage::PushBackGameObject(const std::shared_ptr<GameObject>& Ptr)
 	{
-		//‚±‚ÌƒXƒe[ƒW‚ÍƒNƒŠƒGƒCƒgŒã‚Å‚ ‚é
+		//ã“ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã¯ã‚¯ãƒªã‚¨ã‚¤ãƒˆå¾Œã§ã‚ã‚‹
 		if (IsCreated())
 		{
 			m_waitAddObjectVec.push_back(Ptr);
 		}
 		else
 		{
-			//ƒNƒŠƒGƒCƒg‘O
+			//ã‚¯ãƒªã‚¨ã‚¤ãƒˆå‰
 			m_gameObjectVec.push_back(Ptr);
 		}
 		Ptr->TransformInit();
 	}
 
-	//íœƒIƒuƒWƒFƒNƒg‚Ìİ’è
+	//å‰Šé™¤ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¨­å®š
 	void Stage::RemoveBackGameObject(const std::shared_ptr<GameObject>& Ptr)
 	{
 		m_waitRemoveObjectVec.push_back(Ptr);
@@ -193,7 +193,7 @@ namespace shooting {
 		{
 			if (*it == targetobj)
 			{
-				//íœ‚³‚ê‚é‚±‚Æ‚ğƒIƒuƒWƒFƒNƒg‚É“`‚¦‚é
+				//å‰Šé™¤ã•ã‚Œã‚‹ã“ã¨ã‚’ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«ä¼ãˆã‚‹
 				targetobj->ComponentDestroy();
 				targetobj->OnDestroy();
 				m_gameObjectVec.erase(it);
@@ -226,7 +226,7 @@ namespace shooting {
 	std::shared_ptr<GameObject> Stage::GetSharedGameObject(const std::wstring& key, bool exceptionActive)const
 	{
 		std::map<const std::wstring, std::weak_ptr<GameObject> >::const_iterator it;
-		//d•¡ƒL[‚ÌŒŸ¸
+		//é‡è¤‡ã‚­ãƒ¼ã®æ¤œæŸ»
 		it = m_SharedMap.find(key);
 		if (it != m_SharedMap.end())
 		{
@@ -237,13 +237,13 @@ namespace shooting {
 			}
 			else
 			{
-				//‚·‚Å‚É–³Œø
+				//ã™ã§ã«ç„¡åŠ¹
 				if (exceptionActive)
 				{
-					//—áŠO”­¶
+					//ä¾‹å¤–ç™ºç”Ÿ
 					std::wstring keyerr = key;
 					throw BaseException(
-						L"ƒIƒuƒWƒFƒNƒg‚ª–³Œø‚Å‚·",
+						L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒç„¡åŠ¹ã§ã™",
 						keyerr,
 						L"Stage::GetSharedGameObject()"
 					);
@@ -252,13 +252,13 @@ namespace shooting {
 		}
 		else
 		{
-			//w’è‚Ì–¼‘O‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½
+			//æŒ‡å®šã®åå‰ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
 			if (exceptionActive)
 			{
-				//—áŠO”­¶
+				//ä¾‹å¤–ç™ºç”Ÿ
 				std::wstring keyerr = key;
 				throw BaseException(
-					L"ƒIƒuƒWƒFƒNƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+					L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 					keyerr,
 					L"Stage::GetSharedGameObject()"
 				);
@@ -270,15 +270,15 @@ namespace shooting {
 	void Stage::SetSharedGameObject(const std::wstring& key, const std::shared_ptr<GameObject>& ptr)
 	{
 		std::map<const std::wstring, std::weak_ptr<GameObject> >::iterator it;
-		//d•¡ƒL[‚ÌŒŸ¸
+		//é‡è¤‡ã‚­ãƒ¼ã®æ¤œæŸ»
 		it = m_SharedMap.find(key);
 		if (it != m_SharedMap.end())
 		{
-			//Šù‚É‘¶İ‚µ‚½
-			//—áŠO”­¶
+			//æ—¢ã«å­˜åœ¨ã—ãŸ
+			//ä¾‹å¤–ç™ºç”Ÿ
 			std::wstring keyerr = key;
 			throw BaseException(
-				L"“¯–¼‚ÌƒVƒFƒAƒIƒuƒWƒFƒNƒg‚ª‚ ‚è‚Ü‚·",
+				L"åŒåã®ã‚·ã‚§ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã‚ã‚Šã¾ã™",
 				keyerr,
 				L"Stage::SetSharedGameObject()"
 			);
@@ -294,15 +294,15 @@ namespace shooting {
 		try
 		{
 			std::map<const std::wstring, std::shared_ptr<GameObjectGroup> >::iterator it;
-			//d•¡ƒL[‚ÌŒŸ¸
+			//é‡è¤‡ã‚­ãƒ¼ã®æ¤œæŸ»
 			it = m_SharedGroupMap.find(key);
 			if (it != m_SharedGroupMap.end())
 			{
-				//Šù‚É‘¶İ‚µ‚½
-				//—áŠO”­¶
+				//æ—¢ã«å­˜åœ¨ã—ãŸ
+				//ä¾‹å¤–ç™ºç”Ÿ
 				std::wstring keyerr = key;
 				throw BaseException(
-					L"“¯–¼‚ÌƒVƒFƒAƒIƒuƒWƒFƒNƒg”z—ñ‚ª‚ ‚è‚Ü‚·",
+					L"åŒåã®ã‚·ã‚§ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆé…åˆ—ãŒã‚ã‚Šã¾ã™",
 					keyerr,
 					L"Stage::CreateSharedObjectGroup()"
 				);
@@ -322,22 +322,22 @@ namespace shooting {
 
 	std::shared_ptr<GameObjectGroup> Stage::GetSharedObjectGroup(const std::wstring& key, bool exceptionActive)const
 	{
-		//d•¡ƒL[‚ÌŒŸ¸
+		//é‡è¤‡ã‚­ãƒ¼ã®æ¤œæŸ»
 		auto it = m_SharedGroupMap.find(key);
 		if (it != m_SharedGroupMap.end())
 		{
-			//ƒyƒA‚Ìsecond‚ğ•Ô‚·
+			//ãƒšã‚¢ã®secondã‚’è¿”ã™
 			return it->second;
 		}
 		else
 		{
-			//w’è‚Ì–¼‘O‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½
+			//æŒ‡å®šã®åå‰ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
 			if (exceptionActive)
 			{
-				//—áŠO”­¶
+				//ä¾‹å¤–ç™ºç”Ÿ
 				std::wstring keyerr = key;
 				throw BaseException(
-					L"w’è‚ÌƒL[‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+					L"æŒ‡å®šã®ã‚­ãƒ¼ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 					keyerr,
 					L"Stage::GetSharedObjectGroup() const"
 				);
@@ -348,22 +348,22 @@ namespace shooting {
 
 	void Stage::SetSharedObjectGroup(const std::wstring& key, const std::shared_ptr<GameObjectGroup>& newPtr)
 	{
-		//d•¡ƒL[‚ÌŒŸ¸
+		//é‡è¤‡ã‚­ãƒ¼ã®æ¤œæŸ»
 		auto it = m_SharedGroupMap.find(key);
 		if (it != m_SharedGroupMap.end())
 		{
-			//—áŠO”­¶
+			//ä¾‹å¤–ç™ºç”Ÿ
 			std::wstring keyerr = key;
 			throw BaseException(
-				L"“¯–¼‚ÌƒVƒFƒAƒIƒuƒWƒFƒNƒg”z—ñ‚ª‚ ‚è‚Ü‚·",
+				L"åŒåã®ã‚·ã‚§ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆé…åˆ—ãŒã‚ã‚Šã¾ã™",
 				keyerr,
 				L"Stage::SetSharedObjectGroup()"
 			);
 		}
 		else
 		{
-			//w’è‚Ì–¼‘O‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½
-			//“o˜^‚Å‚«‚é
+			//æŒ‡å®šã®åå‰ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
+			//ç™»éŒ²ã§ãã‚‹
 			m_SharedGroupMap[key] = newPtr;
 		}
 	}
@@ -378,6 +378,6 @@ namespace shooting {
 				return;
 			}
 		}
-		//‘¶İ‚µ‚È‚­‚Ä‚à‰½‚à‚µ‚È‚¢
+		//å­˜åœ¨ã—ãªãã¦ã‚‚ä½•ã‚‚ã—ãªã„
 	}
 }

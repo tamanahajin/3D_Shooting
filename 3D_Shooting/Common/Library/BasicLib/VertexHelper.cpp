@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file VertexHelper.cpp
-@brief ’¸“_ƒwƒ‹ƒp[ƒNƒ‰ƒX
+@brief é ‚ç‚¹ãƒ˜ãƒ«ãƒ‘ãƒ¼ã‚¯ãƒ©ã‚¹
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -10,7 +10,7 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	// —p“r: ’¸“_’è‹`ŠÖ˜A‚ÌƒCƒ“ƒvƒŠƒƒ“ƒg
+	// ç”¨é€”: é ‚ç‚¹å®šç¾©é–¢é€£ã®ã‚¤ãƒ³ãƒ—ãƒªãƒ¡ãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 	void XM_CALLCONV VertexPositionNormalTangentColorTexture::SetColor( FXMVECTOR color )
 	{

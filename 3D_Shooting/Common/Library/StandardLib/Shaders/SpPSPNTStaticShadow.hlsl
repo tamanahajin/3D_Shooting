@@ -7,7 +7,7 @@
 #include "SpINCConstant.hlsli"
 #include "SpINCPixel.hlsli"
 
-// [“xƒ}ƒbƒv
+// æ·±åº¦ãƒãƒƒãƒ—
 //Texture2D g_DepthMap : register(t0);
 //Texture2D<float4> g_texture : register(t1);
 //SamplerState g_sampler : register(s0);
@@ -21,19 +21,19 @@ float3 DplusS(float3 N, float3 L, float NdotL, float3 view);
 //--------------------------------------------------------------------------------------
 float4 main(PSPNTInputShadow input) : SV_TARGET
 {
-	//–@üƒ‰ƒCƒeƒBƒ“ƒO
+	//æ³•ç·šãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°
 	float3 lightdir = normalize(LightDir.xyz);
 	float3 N1 = normalize(input.norm);
 	float4 RetColor = (saturate(dot(N1, -lightdir)) * Diffuse) + Emissive;
 	RetColor += input.color;
 	RetColor.a = Diffuse.a;
 	if (Activeflags.x) {
-		//ƒeƒNƒXƒ`ƒƒ‚ÆƒfƒtƒB[ƒY‚©‚çƒ‰ƒCƒeƒBƒ“ƒO‚ğì¬
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ãƒ‡ãƒ•ã‚£ãƒ¼ã‚ºã‹ã‚‰ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°ã‚’ä½œæˆ
 		RetColor = g_texture.Sample(g_sampler, input.tex) * RetColor;
 	}
 	RetColor = saturate(RetColor);
 
-	//‰e‚Ì”Z‚³
+	//å½±ã®æ¿ƒã•
 	const float3 ambient = float3(0.7f, 0.7f, 0.7f);
 	float3 N = normalize(input.norm);
 	float3 L = normalize(input.lightRay);
@@ -64,12 +64,12 @@ float4 main(PSPNTInputShadow input) : SV_TARGET
 			);
 		if (lighting == 0.f)
 		{
-			//‰e‚Ì’†
+			//å½±ã®ä¸­
 			return float4(RetColor.xyz * ambient, RetColor.w);
 		}
 		else if (lighting < 1.0f)
 		{
-			//‰e‚Æ‰eˆÈŠO‚Ì‹«ŠEü
+			//å½±ã¨å½±ä»¥å¤–ã®å¢ƒç•Œç·š
 			float3 light = lighting * (ambient + DplusS(N, L, NdotL, input.lightView));
 			float3 shadow = (1.0f - lighting) * ambient;
 			return float4(RetColor.xyz * (light + shadow), RetColor.w);

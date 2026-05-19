@@ -10,27 +10,27 @@
 PSPNTInputShadow main(VSPNTInput input)
 {
 	PSPNTInputShadow result;
-	//’¸“_‚ÌˆÊ’u‚ğ•ÏŠ·
+	//é ‚ç‚¹ã®ä½ç½®ã‚’å¤‰æ›
 	float4 pos = float4(input.position.xyz, 1.0f);
-	//ƒ[ƒ‹ƒh•ÏŠ·
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›
 	pos = mul(pos, World);
-	//ƒrƒ…[•ÏŠ·
+	//ãƒ“ãƒ¥ãƒ¼å¤‰æ›
 	pos = mul(pos, View);
-	//Ë‰e•ÏŠ·
+	//å°„å½±å¤‰æ›
 	pos = mul(pos, Projection);
-	//ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚É“n‚·•Ï”‚Éİ’è
+	//ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã«æ¸¡ã™å¤‰æ•°ã«è¨­å®š
 	result.position = pos;
-	//ƒ‰ƒCƒeƒBƒ“ƒO
+	//ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°
 	result.norm = mul(input.norm, (float3x3)World);
 	result.norm = normalize(result.norm);
-	//ƒXƒyƒLƒ…ƒ‰[
+	//ã‚¹ãƒšã‚­ãƒ¥ãƒ©ãƒ¼
 	float3 H = normalize(normalize(-LightDir.xyz) + normalize(EyePos.xyz - pos.xyz));
 	result.color = Specular * dot(result.norm, H);
-	//ƒeƒNƒXƒ`ƒƒUV
+	//ãƒ†ã‚¯ã‚¹ãƒãƒ£UV
 	result.tex = input.tex;
-	//‰e‚Ì‚½‚ß‚Ì•Ï”
+	//å½±ã®ãŸã‚ã®å¤‰æ•°
 	float4 LightModelPos = float4(input.position.xyz, 1.0f);
-	//ƒ[ƒ‹ƒh•ÏŠ·
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›
 	LightModelPos = mul(LightModelPos, World);
 
 	float4 LightSpacePos = mul(LightModelPos, LightView);

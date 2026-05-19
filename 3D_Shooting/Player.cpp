@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -14,7 +14,7 @@ namespace shooting {
 	Vec2 Player::GetInputState() const
 	{
 		Vec2 ret;
-		//ƒRƒ“ƒgƒ[ƒ‰‚Ìæ“¾
+		//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã®å–å¾—
 		//auto cntlVec = App::GetInputDevice().GetControlerVec();
 		//ret.x = 0.0f;
 		//ret.y = 0.0f;
@@ -26,9 +26,9 @@ namespace shooting {
 		//}
 		//return ret;
 
-		// ƒL[ƒ{[ƒh“ü—Íæ“¾
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
 		auto keyVec = GetInputKey();
-		// ƒL[ƒ{[ƒh“ü—Í‚ª‚ ‚ê‚Î—Dæ‚·‚é
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›ãŒã‚ã‚Œã°å„ªå…ˆã™ã‚‹
 		if (keyVec.x != 0.0f || keyVec.y != 0.0f)
 		{
 			ret = keyVec;
@@ -40,18 +40,18 @@ namespace shooting {
 	{
 		Vec2 ret(0.0f, 0.0f);
 
-		// ƒL[ƒ{[ƒh“ü—Íæ“¾
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›å–å¾—
 		const auto& input = App::GetInputDevice();
 
-		// ¶‰EiXj
+		// å·¦å³ï¼ˆXï¼‰
 		if (input.KeyDown('A') || input.KeyDown(VK_LEFT))  ret.x -= 1.0f;
 		if (input.KeyDown('D') || input.KeyDown(VK_RIGHT)) ret.x += 1.0f;
 
-		// ‘OŒãiYj¦‚±‚ÌƒNƒ‰ƒX‚Å‚Í ret.y ‚ğu‘O(+) / Œã(-)v‚Æ‚µ‚Äg‚¤
+		// å‰å¾Œï¼ˆYï¼‰â€»ã“ã®ã‚¯ãƒ©ã‚¹ã§ã¯ ret.y ã‚’ã€Œå‰(+) / å¾Œ(-)ã€ã¨ã—ã¦ä½¿ã†
 		if (input.KeyDown('W') || input.KeyDown(VK_UP))    ret.y += 1.0f;
 		if (input.KeyDown('S') || input.KeyDown(VK_DOWN))  ret.y -= 1.0f;
 
-		// Î‚ßˆÚ“®‚ª‘¬‚­‚È‚ç‚È‚¢‚æ‚¤‚É³‹K‰»
+		// æ–œã‚ç§»å‹•ãŒé€Ÿããªã‚‰ãªã„ã‚ˆã†ã«æ­£è¦åŒ–
 		if (ret.length() > 1.0f)
 		{
 			ret.normalize();
@@ -62,35 +62,35 @@ namespace shooting {
 	Vec3 Player::GetMoveVector() const
 	{
 		Vec3 angle(0, 0, 0);
-		//“ü—Í‚Ìæ“¾
+		//å…¥åŠ›ã®å–å¾—
 		auto inPut = GetInputState();
 		float moveX = inPut.x;
 		float moveZ = inPut.y;
 		if (moveX != 0 || moveZ != 0)
 		{
-			float moveLength = 0;	//“®‚¢‚½‚ÌƒXƒs[ƒh
+			float moveLength = 0;	//å‹•ã„ãŸæ™‚ã®ã‚¹ãƒ”ãƒ¼ãƒ‰
 			auto ptrTransform = GetComponent<Transform>();
 			auto ptrCamera = GetStage()->GetCamera();
-			//is•ûŒü‚ÌŒü‚«‚ğŒvZ
+			//é€²è¡Œæ–¹å‘ã®å‘ãã‚’è¨ˆç®—
 			auto front = ptrTransform->GetPosition() - ptrCamera->GetEye();
 			front.y = 0;
 			front.normalize();
-			//is•ûŒüŒü‚«‚©‚ç‚ÌŠp“x‚ğZo
+			//é€²è¡Œæ–¹å‘å‘ãã‹ã‚‰ã®è§’åº¦ã‚’ç®—å‡º
 			float frontAngle = atan2(front.z, front.x);
-			//Œü‚«ŒvZ
+			//å‘ãè¨ˆç®—
 			Vec2 moveVec(moveX, moveZ);
 			float moveSize = moveVec.length();
-			//Œü‚«‚©‚çŠp“x‚ğŒvZ
+			//å‘ãã‹ã‚‰è§’åº¦ã‚’è¨ˆç®—
 			float cntlAngle = atan2(-moveX, moveZ);
-			//ƒg[ƒ^ƒ‹‚ÌŠp“x‚ğZo
+			//ãƒˆãƒ¼ã‚¿ãƒ«ã®è§’åº¦ã‚’ç®—å‡º
 			float totalAngle = frontAngle + cntlAngle;
-			//Šp“x‚©‚çƒxƒNƒgƒ‹‚ğì¬
+			//è§’åº¦ã‹ã‚‰ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆ
 			angle = Vec3(cos(totalAngle), 0, sin(totalAngle));
-			//³‹K‰»‚·‚é
+			//æ­£è¦åŒ–ã™ã‚‹
 			angle.normalize();
-			//ˆÚ“®ƒTƒCƒY‚ğİ’èB
+			//ç§»å‹•ã‚µã‚¤ã‚ºã‚’è¨­å®šã€‚
 			angle *= moveSize;
-			//Y²‚Í•Ï‰»‚³‚¹‚È‚¢
+			//Yè»¸ã¯å¤‰åŒ–ã•ã›ãªã„
 			angle.y = 0;
 		}
 		return angle;
@@ -106,7 +106,7 @@ namespace shooting {
 			pos += angle * elapsedTime * m_Speed;
 			GetComponent<Transform>()->SetPosition(pos);
 		}
-		//‰ñ“]‚ÌŒvZ
+		//å›è»¢ã®è¨ˆç®—
 		if (angle.length() > 0.0f)
 		{
 			auto anim = GetBehavior<AnimationStateBehavior>();
@@ -128,17 +128,17 @@ namespace shooting {
 		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
-		// ƒRƒŠƒWƒ‡ƒ“
+		// ã‚³ãƒªã‚¸ãƒ§ãƒ³
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
 		const float segmentHeight = 0.3f;
 		ptrColl->SetMakedRadius(radius);
 		ptrColl->SetMakedHeight(segmentHeight);
-		//d—Í‚ğ‚Â‚¯‚é
+		//é‡åŠ›ã‚’ã¤ã‘ã‚‹
 		auto ptrGra = AddComponent<Gravity>();
 
-		// •`‰æ
+		// æç”»
 		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
 		ptrDraw->SetFogEnabled(true);
 		ptrDraw->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
@@ -150,20 +150,20 @@ namespace shooting {
 		ptrShadow->AddBaseMesh(L"PLAYER_MODEL_SKINNED");
 		ptrShadow->SetModelOffset(Vec3(0.0f, modelDown, 0.0f));
 
-		// ƒAƒjƒ[ƒVƒ‡ƒ“
+		// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		anim->ChangeAnimation(AnimState::Idle);
-		//“§–¾ˆ—
+		//é€æ˜å‡¦ç†
 		SetAlphaActive(false);
-		//ƒJƒƒ‰‚ğ“¾‚é
+		//ã‚«ãƒ¡ãƒ©ã‚’å¾—ã‚‹
 		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
 		m_CollisionManager = GetStage()->GetCollisionManager();
 		m_BulletManager = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
 
 		if (m_MainCamera)
 		{
-			//MainCamera‚Å‚ ‚é
-			//MainCamera‚É’–Ú‚·‚éƒIƒuƒWƒFƒNƒgiƒvƒŒƒCƒ„[j‚Ìİ’è
+			//MainCameraã§ã‚ã‚‹
+			//MainCameraã«æ³¨ç›®ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ï¼‰ã®è¨­å®š
 			m_MainCamera->SetTargetObject(GetThis<GameObject>());
 			m_MainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
 		}
@@ -176,7 +176,7 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<Player>()](const DamageInfo& info)
 		{
-			// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg‚ğŠJn
+			// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’é–‹å§‹
 			auto effect = self->GetComponent<DamageEffect>();
 			if (effect)
 			{
@@ -193,12 +193,12 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Dead);
 		};
 
-		// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
 		auto damageEffect = AddComponent<DamageEffect>();
 
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
-		m_BombPreview->SetMaxRange(20.0f); // Å‘å“’B‹——£‚ğİ’è
+		m_BombPreview->SetMaxRange(20.0f); // æœ€å¤§åˆ°é”è·é›¢ã‚’è¨­å®š
 	}
 
 	void Player::OnPushA()
@@ -272,26 +272,26 @@ namespace shooting {
 		CheckGroundCollision(pair);
 		CheckItemPickup(pair);
 
-		// “G‚Æ‚ÌÕ“Ë‚ğƒ`ƒFƒbƒN
+		// æ•µã¨ã®è¡çªã‚’ãƒã‚§ãƒƒã‚¯
 		auto other = pair.m_Dest.lock();
 		if (!other) return;
 
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
-		// “Gƒ^ƒO‚ğ‚ÂƒIƒuƒWƒFƒNƒg‚Æ‚ÌÕ“Ë‚©Šm”F
+		// æ•µã‚¿ã‚°ã‚’æŒã¤ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã®è¡çªã‹ç¢ºèª
 		if (otherObj->FindTag(L"Enemy"))
 		{
-			// HealthƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ“¾‚µ‚Äƒ_ƒ[ƒW‚ğ“K—p
+			// Healthã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–å¾—ã—ã¦ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’é©ç”¨
 			auto hp = GetComponent<Health>();
 			if (hp && !hp->IsDead())
 			{
-				// ƒ_ƒ[ƒWî•ñ‚ğì¬i“G‚Æ‚ÌÚG‚Í1ƒ_ƒ[ƒWj
+				// ãƒ€ãƒ¡ãƒ¼ã‚¸æƒ…å ±ã‚’ä½œæˆï¼ˆæ•µã¨ã®æ¥è§¦ã¯1ãƒ€ãƒ¡ãƒ¼ã‚¸ï¼‰
 				DamageInfo damageInfo;
 				damageInfo.m_Damage = 1;
 				//damageInfo.m_Attacker = otherObj;
 					
-				// ƒ_ƒ[ƒW‚ğ“K—p
+				// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’é©ç”¨
 				hp->ApplyDamage(damageInfo);
 			}
 		}
@@ -299,7 +299,7 @@ namespace shooting {
 
 	void Player::OnCollisionExecute(const CollisionPair& pair)
 	{
-		// Œp‘±“I‚ÈÕ“Ë‚Å‚à’n–Ê”»’è‚ğXV
+		// ç¶™ç¶šçš„ãªè¡çªã§ã‚‚åœ°é¢åˆ¤å®šã‚’æ›´æ–°
 		CheckGroundCollision(pair);
 		CheckItemPickup(pair);
 	}

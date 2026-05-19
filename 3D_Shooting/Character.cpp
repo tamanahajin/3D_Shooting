@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Character.cpp
-@brief ”z’uƒIƒuƒWƒFƒNƒg À‘Ì
+@brief é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -8,6 +8,6 @@
 
 namespace shooting {
 
-	// À‘•‚ÍÓ–±‚²‚Æ‚É WorldObjects.cpp / EnemyBatchController.cpp / SeekObject.cpp ‚Ö•ªŠ„‚µ‚Ä‚¢‚Ü‚·B
+	// å®Ÿè£…ã¯è²¬å‹™ã”ã¨ã« WorldObjects.cpp / EnemyBatchController.cpp / SeekObject.cpp ã¸åˆ†å‰²ã—ã¦ã„ã¾ã™ã€‚
 
 }

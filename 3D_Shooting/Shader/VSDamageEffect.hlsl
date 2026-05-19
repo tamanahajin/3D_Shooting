@@ -17,10 +17,10 @@ VSOut main(VSIn i)
 
     float3 posW = mul(float4(i.pos, 1.0f), gWorld).xyz;
 
-    // ¦–@ü‚Íƒ[ƒ‹ƒh‚Öi”ñˆê—lƒXƒP[ƒ‹‚ª‚ ‚é‚È‚ç‹t“]’u‚ğg‚¤‚Ì‚ª—‘zj
+    // â€»æ³•ç·šã¯ãƒ¯ãƒ¼ãƒ«ãƒ‰ã¸ï¼ˆéä¸€æ§˜ã‚¹ã‚±ãƒ¼ãƒ«ãŒã‚ã‚‹ãªã‚‰é€†è»¢ç½®ã‚’ä½¿ã†ã®ãŒç†æƒ³ï¼‰
     // float3 nW = normalize(mul(float4(i.nrm, 0.0f), gWorld).xyz);
 
-    // ƒ_ƒ[ƒW’†‚¾‚¯–c‚ç‚Ş
+    // ãƒ€ãƒ¡ãƒ¼ã‚¸ä¸­ã ã‘è†¨ã‚‰ã‚€
     // posW += nW * (gOutlineWidth * saturate(gDamage));
 
     o.svpos = mul(float4(posW, 1.0f), gViewProj);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "EnemyFactory.h"
 #include <memory>
@@ -22,8 +22,8 @@ namespace shooting {
 		int maxSpawnAttempts = 50;
 	};
 
-	// �E�F�[�u�̏�ԊǗ��ƓG�����w����S������N���X�B
-	// GameStage�̓X�|�[�����S�ʒu��n�������ɂ��A���E�F�[�u�ڂ��E���̏o�����E���x�{���͂����ɏW�񂷂�B
+	// ウェーブの状態管理と敵生成指示を担当するクラス。
+	// GameStageはスポーン中心位置を渡すだけにし、何ウェーブ目か・何体出すか・速度倍率はここに集約する。
 	class WaveController
 	{
 	public:

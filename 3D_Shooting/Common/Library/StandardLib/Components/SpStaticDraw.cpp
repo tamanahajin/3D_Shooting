@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BcStaticDraw.cpp
-@brief ƒxƒCƒVƒbƒNƒXƒ^ƒeƒBƒbƒN•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg@À‘Ì
+@brief ãƒ™ã‚¤ã‚·ãƒƒã‚¯ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -8,7 +8,7 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	SpStatic•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg(e)
+	///	SpStaticæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ(è¦ª)
 	//--------------------------------------------------------------------------------------
 	void SpStaticDraw::OnCreate()
 	{
@@ -16,13 +16,13 @@ namespace shooting {
 		auto pBaseScene = BaseScene::Get();
 		auto& frameResources = pBaseScene->GetFrameResources();
 		auto pBaseDevice = BaseDevice::GetBaseDevice();
-		//ƒVƒ“ƒvƒ‹ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+		//ã‚·ãƒ³ãƒ—ãƒ«ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
 		{
 			m_constantIndex =
 				frameResources[i]->AddBaseConstantBufferSet<SimpleConstant>(pBaseDevice->GetD3D12Device());
 		}
-		// ƒV[ƒ“ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		// ã‚·ãƒ¼ãƒ³ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
 		{
 			ComPtr<ID3D12PipelineState> defaultPipelineState
 				= PipelineStatePool::GetPipelineState(L"SpPNTStatic");
@@ -34,7 +34,7 @@ namespace shooting {
 				= PipelineStatePool::GetPipelineState(L"SpPNTStaticAlphaShadow");
 
 			CD3DX12_RASTERIZER_DESC rasterizerStateDesc(D3D12_DEFAULT);
-			//ƒJƒŠƒ“ƒO
+			//ã‚«ãƒªãƒ³ã‚°
 			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_NONE;
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -60,7 +60,7 @@ namespace shooting {
 			psoDesc.NumRenderTargets = 1;
 			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 			psoDesc.SampleDesc.Count = 1;
-			//ƒfƒtƒHƒ‹ƒg‰e–³‚µ
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ç„¡ã—
 			if (!defaultPipelineState)
 			{
 				ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&defaultPipelineState)));
@@ -68,7 +68,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"SpPNTStatic", defaultPipelineState);
 
 			}
-			//ƒfƒtƒHƒ‹ƒg‰e‚ ‚è
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ã‚ã‚Š
 			psoDesc.VS =
 			{
 				reinterpret_cast<UINT8*>(SpVSPNTStaticShadow::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
@@ -86,7 +86,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"SpPNTStaticShadow", defaultShadowPipelineState);
 
 			}
-			//ƒAƒ‹ƒtƒ@‰e–³‚µ
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ç„¡ã—
 			psoDesc.VS =
 			{
 				reinterpret_cast<UINT8*>(SpVSPNTStatic::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
@@ -105,7 +105,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"SpPNTStaticAlpha", alphaPipelineState);
 
 			}
-			//ƒAƒ‹ƒtƒ@‰e‚ ‚è
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ã‚ã‚Š
 			psoDesc.VS =
 			{
 				reinterpret_cast<UINT8*>(SpVSPNTStaticShadow::GetPtr()->GetShaderComPtr()->GetBufferPointer()),
@@ -127,7 +127,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	///	SpPNTStatic•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	SpPNTStaticæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 
 	IMPLEMENT_DX12SHADER(SpVSPNTStatic, App::GetShadersDir() + L"SpVSPNTStatic.cso")
@@ -147,7 +147,7 @@ namespace shooting {
 		SpStaticDraw(gameObjectPtr)
 	{
 		ID3D12GraphicsCommandList* pCommandList = BaseScene::Get()->m_pTgtCommandList;
-		//ƒIƒŠƒWƒiƒ‹‚ÈƒƒbƒVƒ…‚ğg‚¤
+		//ã‚ªãƒªã‚¸ãƒŠãƒ«ãªãƒ¡ãƒƒã‚·ãƒ¥ã‚’ä½¿ã†
 		m_mesh = BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 	}
 
@@ -174,46 +174,46 @@ namespace shooting {
 			myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
 			myLightSet = gameObject->GetLightSet();
 
-			//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+			//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 			auto ptrTrans = gameObject->GetComponent<Transform>();
 			auto& param = ptrTrans->GetTransParam();
-			//ƒV[ƒ“‚ÌƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+			//ã‚·ãƒ¼ãƒ³ã®ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 			{
-				//‰Šú‰»
+				//åˆæœŸåŒ–
 				m_simpleConstant = {};
 
 				Mat4x4 world = ptrTrans->GetWorldMatrix();
-				//“]’u‚·‚é
+				//è»¢ç½®ã™ã‚‹
 				world.transpose();
-				//ƒrƒ…[‚ÆË‰es—ñ‚ğ“¾‚é
+				//ãƒ“ãƒ¥ãƒ¼ã¨å°„å½±è¡Œåˆ—ã‚’å¾—ã‚‹
 				Mat4x4 viewMat = myCamera->GetViewMatrix();
-				//“]’u‚·‚é
+				//è»¢ç½®ã™ã‚‹
 				viewMat.transpose();
 				Mat4x4 projMat = myCamera->GetProjMatrix();
-				//“]’u‚·‚é
+				//è»¢ç½®ã™ã‚‹
 				projMat.transpose();
 				m_simpleConstant.world = world;
 				m_simpleConstant.view = viewMat;
 				m_simpleConstant.projection = projMat;
-				//ƒGƒ~ƒbƒVƒu
+				//ã‚¨ãƒŸãƒƒã‚·ãƒ–
 				m_simpleConstant.emissive = GetEmissive();
-				//ƒfƒtƒB[ƒY
+				//ãƒ‡ãƒ•ã‚£ãƒ¼ã‚º
 				m_simpleConstant.diffuse = GetDiffuse();
-				//ƒXƒyƒLƒ…ƒ‰[
+				//ã‚¹ãƒšã‚­ãƒ¥ãƒ©ãƒ¼
 				m_simpleConstant.specular = GetSpecular();
-				//ƒ‰ƒCƒeƒBƒ“ƒO
+				//ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°
 				auto index = myLightSet->GetMainIndex();
 				auto light = myLightSet->GetLight(index);
 				m_simpleConstant.lightDir = light.m_directional;
 				m_simpleConstant.lightDir.w = 1.0f;
 				m_simpleConstant.eyePos = myCamera->GetEye();
 				m_simpleConstant.eyePos.w = 1.0f;
-				//ƒeƒNƒXƒ`ƒƒ‚ª‚ ‚Á‚½ê‡
+				//ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒã‚ã£ãŸå ´åˆ
 				if (m_textureVec.size() > 0)
 				{
 					m_simpleConstant.activeFlg.x = 1;
 				}
-				//‰e—p
+				//å½±ç”¨
 				if (IsOwnShadowActive())
 				{
 					Vec3 CalcLightDir = light.m_directional * -1.0;
@@ -224,7 +224,7 @@ namespace shooting {
 					m_simpleConstant.lightPos = LightEye;
 					m_simpleConstant.lightPos.w = 1.0f;
 					Mat4x4 lightView, lightProj;
-					//ƒ‰ƒCƒg‚Ìƒrƒ…[‚ÆË‰e‚ğŒvZ
+					//ãƒ©ã‚¤ãƒˆã®ãƒ“ãƒ¥ãƒ¼ã¨å°„å½±ã‚’è¨ˆç®—
 					lightView = XMMatrixLookAtLH(LightEye, LightAt, Vec3(0, 1.0f, 0));
 					lightProj = XMMatrixOrthographicLH(ShadowMap::GetViewWidth(), ShadowMap::GetViewHeight(),
 													   ShadowMap::GetLightNear(), ShadowMap::GetLightFar());
@@ -239,7 +239,7 @@ namespace shooting {
 	{
 		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
 		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
-		//ƒV[ƒ“
+		//ã‚·ãƒ¼ãƒ³
 		memcpy(pCurrentFrameResource->m_baseConstantBufferSetVec[m_constantIndex].m_pBaseConstantBufferWO,
 			   &m_simpleConstant, sizeof(m_simpleConstant));
 	}
@@ -306,7 +306,7 @@ namespace shooting {
 			if (index == UINT_MAX)
 			{
 				throw BaseException(
-					L"LinearClampƒTƒ“ƒvƒ‰[‚ª“Á’è‚Å‚«‚Ü‚¹‚ñB",
+					L"LinearClampã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãŒç‰¹å®šã§ãã¾ã›ã‚“ã€‚",
 					L"Scene::ScenePass()"
 				);
 			}
@@ -321,7 +321,7 @@ namespace shooting {
 			if (index == UINT_MAX)
 			{
 				throw BaseException(
-					L"ComparisonLinearƒTƒ“ƒvƒ‰[‚ª“Á’è‚Å‚«‚Ü‚¹‚ñB",
+					L"ComparisonLinearã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãŒç‰¹å®šã§ãã¾ã›ã‚“ã€‚",
 					L"Scene::ScenePass()"
 				);
 			}
@@ -331,7 +331,7 @@ namespace shooting {
 				pBaseScene->GetSamplerDescriptorHandleIncrementSize()
 			);
 			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"s1"), samplerHandle2);
-			//ƒVƒF[ƒ_ƒŠƒ\[ƒXiƒeƒNƒXƒ`ƒƒj‚Ìƒnƒ“ƒhƒ‹‚Ìİ’è
+			//ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ï¼‰ã®ãƒãƒ³ãƒ‰ãƒ«ã®è¨­å®š
 			CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
 				pBaseScene->GetCbvSrvUavDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
 				texture->GetSrvIndex(),

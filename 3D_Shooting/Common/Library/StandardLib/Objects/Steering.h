@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Steering.h
-@brief ‘€‘ÇŠÖ˜A
+@brief æ“èˆµé–¢é€£
 */
 
 
@@ -12,20 +12,20 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class Path;
-	//	—p“r: Œo˜HƒNƒ‰ƒX
+	//	ç”¨é€”: çµŒè·¯ã‚¯ãƒ©ã‚¹
 	//--------------------------------------------------------------------------------------
 	class Path {
-		//Œo˜H‚Ìƒ|ƒCƒ“ƒg‚ÌƒŠƒXƒg
+		//çµŒè·¯ã®ãƒã‚¤ãƒ³ãƒˆã®ãƒªã‚¹ãƒˆ
 		std::list<Vec3> m_WayPoints;
-		//Œ»İƒCƒeƒŒ[ƒ^[
+		//ç¾åœ¨ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ãƒ¼
 		std::list<Vec3>::iterator m_CurWaypoint;
-		//ƒ‹[ƒv‚·‚é‚©‚Ç‚¤‚©
+		//ãƒ«ãƒ¼ãƒ—ã™ã‚‹ã‹ã©ã†ã‹
 		bool m_Looped;
 	public:
 		//--------------------------------------------------------------------------------------
 		//	Path();
-		//	—p“r: ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-		//	–ß‚è’l: ‚È‚µ
+		//	ç”¨é€”: ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+		//	æˆ»ã‚Šå€¤: ãªã—
 		//--------------------------------------------------------------------------------------
 		Path() :
 			m_Looped(false)
@@ -33,15 +33,15 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		//	virtual ~Path();
-		//	—p“r: ƒfƒXƒgƒ‰ƒNƒ^
-		//	–ß‚è’l: ‚È‚µ
+		//	ç”¨é€”: ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+		//	æˆ»ã‚Šå€¤: ãªã—
 		//--------------------------------------------------------------------------------------
 		virtual ~Path()
 		{
 			m_WayPoints.clear();
 		}
 		//--------------------------------------------------------------------------------------
-		//ƒAƒNƒZƒbƒT
+		//ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 		//--------------------------------------------------------------------------------------
 		bool GetLooped()const { return m_Looped; }
 		std::list<Vec3>* GetPathPtr() { return &m_WayPoints; }
@@ -59,8 +59,8 @@ namespace shooting {
 		void SetLooped(bool b) { m_Looped = b; }
 		//--------------------------------------------------------------------------------------
 		//	bool IsFinished();
-		//	—p“r: ÅŒã‚Ü‚Ås‚Á‚Ä‚é‚©‚Ç‚¤‚©
-		//	–ß‚è’l: ÅŒã‚Ü‚Ås‚Á‚Ä‚¢‚ê‚Îtrue
+		//	ç”¨é€”: æœ€å¾Œã¾ã§è¡Œã£ã¦ã‚‹ã‹ã©ã†ã‹
+		//	æˆ»ã‚Šå€¤: æœ€å¾Œã¾ã§è¡Œã£ã¦ã„ã‚Œã°true
 		//--------------------------------------------------------------------------------------
 		bool IsFinished()
 		{
@@ -68,16 +68,16 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		//	void Clear();
-		//	—p“r: ƒŠƒXƒg‚ğƒNƒŠƒA‚·‚é
-		//	–ß‚è’l: ‚È‚µ
+		//	ç”¨é€”: ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã™ã‚‹
+		//	æˆ»ã‚Šå€¤: ãªã—
 		//--------------------------------------------------------------------------------------
 		void Clear() { m_WayPoints.clear(); }
 		//--------------------------------------------------------------------------------------
 		//	void SetList(
-		//	const list<Vec3> new_path	//V‚µ‚¢ƒŠƒXƒg
+		//	const list<Vec3> new_path	//æ–°ã—ã„ãƒªã‚¹ãƒˆ
 		//	);
-		//	—p“r: ƒŠƒXƒg‚ğ·‚µ‘Ö‚¦‚é
-		//	–ß‚è’l: ‚È‚µ
+		//	ç”¨é€”: ãƒªã‚¹ãƒˆã‚’å·®ã—æ›¿ãˆã‚‹
+		//	æˆ»ã‚Šå€¤: ãªã—
 		//--------------------------------------------------------------------------------------
 		void SetList(const std::list<Vec3>& new_path)
 		{
@@ -92,15 +92,15 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		//	void SetNextWaypoint();
-		//	—p“r: Ÿ‚Ìƒ|ƒCƒ“ƒg‚Éi‚ß‚é
-		//	–ß‚è’l: ‚È‚µ
+		//	ç”¨é€”: æ¬¡ã®ãƒã‚¤ãƒ³ãƒˆã«é€²ã‚ã‚‹
+		//	æˆ»ã‚Šå€¤: ãªã—
 		//--------------------------------------------------------------------------------------
 		void SetNextWaypoint()
 		{
 			if (m_WayPoints.size() <= 0)
 			{
 				throw BaseException(
-					L"ƒŠƒXƒg‚ª‹ó‚Å‚·B",
+					L"ãƒªã‚¹ãƒˆãŒç©ºã§ã™ã€‚",
 					L"if(m_WayPoints.size() <= 0)",
 					L"Path::SetNextWaypoint()"
 				);
@@ -124,8 +124,8 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	struct Steering;
-	//	—p“r: ‘€‘ÇŠÖ˜Aƒ†[ƒeƒBƒŠƒeƒB
-	//	–staticŒÄ‚Ño‚µ‚ğ‚·‚é
+	//	ç”¨é€”: æ“èˆµé–¢é€£ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£
+	//	ï¼Šstaticå‘¼ã³å‡ºã—ã‚’ã™ã‚‹
 	//--------------------------------------------------------------------------------------
 	struct Steering {
 		Steering() {}
@@ -136,115 +136,115 @@ namespace shooting {
 		//	const Vec3& ForceToAdd,
 		//	float MaxForce
 		//	);
-		//	—p“r: ‘€‘Ç—Í‚ğ‰ÁZ‚·‚é
-		//	–ß‚è’l: ‰ÁZ‚³‚ê‚ê‚Îtrue
-		//	–Force‚ÉŒvZŒ‹‰Ê‚ğ‰ÁZ‚·‚é
+		//	ç”¨é€”: æ“èˆµåŠ›ã‚’åŠ ç®—ã™ã‚‹
+		//	æˆ»ã‚Šå€¤: åŠ ç®—ã•ã‚Œã‚Œã°true
+		//	ï¼ŠForceã«è¨ˆç®—çµæœã‚’åŠ ç®—ã™ã‚‹
 		//--------------------------------------------------------------------------------------
 		static bool AccumulateForce(Vec3& Force, const Vec3& ForceToAdd, float MaxForce);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Seek(
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	const Vec3& Target,		//–Ú•W
-		//	const Vec3& Pos,			//Œ»İ‚ÌˆÊ’u
-		//	float MaxSpeed				//Å‚‘¬“x
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	const Vec3& Target,		//ç›®æ¨™
+		//	const Vec3& Pos,			//ç¾åœ¨ã®ä½ç½®
+		//	float MaxSpeed				//æœ€é«˜é€Ÿåº¦
 		//	);
-		//	—p“r: ’Tõs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: æ¢ç´¢è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Seek(const Vec3& Velocity, const Vec3& Target, const Vec3& Pos, float MaxSpeed);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Flee(
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	const Vec3& Target,		//–Ú•W
-		//	const Vec3& Pos,			//Œ»İ‚ÌˆÊ’u
-		//	float MaxSpeed,				//Å‚‘¬“x
-		//	float PanicDistance			//“¦‚°o‚·•½•û‹——£”ÍˆÍ‚Ì1•Ó
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	const Vec3& Target,		//ç›®æ¨™
+		//	const Vec3& Pos,			//ç¾åœ¨ã®ä½ç½®
+		//	float MaxSpeed,				//æœ€é«˜é€Ÿåº¦
+		//	float PanicDistance			//é€ƒã’å‡ºã™å¹³æ–¹è·é›¢ç¯„å›²ã®1è¾º
 		//	);
-		//	—p“r: “¦‘–s“®
-		//	–ß‚è’l: ƒtƒH[ƒX
-		//	–ƒ^[ƒQƒbƒg‚ª PanicDistance * PanicDistance‚Ì‹——£”ÍˆÍ‚É“ü‚Á‚½‚ç“¦‚°o‚·
+		//	ç”¨é€”: é€ƒèµ°è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
+		//	ï¼Šã‚¿ãƒ¼ã‚²ãƒƒãƒˆãŒ PanicDistance * PanicDistanceã®è·é›¢ç¯„å›²ã«å…¥ã£ãŸã‚‰é€ƒã’å‡ºã™
 		//--------------------------------------------------------------------------------------
 		static Vec3 Flee(const Vec3& Velocity, const Vec3& Target,
 						 const Vec3& Pos, float MaxSpeed, float PanicDistance);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Arrive(
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	const Vec3& Target,		//–Ú•W
-		//	const Vec3& Pos,			//Œ»İ‚ÌˆÊ’u
-		//	float MaxSpeed				//Å‚‘¬“x
-		//	float Decl					//Œ¸‘¬’li1.0‚©‚ç3.0‚ÌŠÔ’ö“xj
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	const Vec3& Target,		//ç›®æ¨™
+		//	const Vec3& Pos,			//ç¾åœ¨ã®ä½ç½®
+		//	float MaxSpeed				//æœ€é«˜é€Ÿåº¦
+		//	float Decl					//æ¸›é€Ÿå€¤ï¼ˆ1.0ã‹ã‚‰3.0ã®é–“ç¨‹åº¦ï¼‰
 		//	);
-		//	—p“r: “’…s“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: åˆ°ç€è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Arrive(const Vec3& Velocity, const Vec3& Target,
 						   const Vec3& Pos, float MaxSpeed, float Decl);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Pursuit(
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	const Vec3& Pos,			//Œ»İ‚ÌˆÊ’u
-		//	const Vec3& Rot,			//Œ»İ‚ÌŒü‚«
-		//	float MaxSpeed,				//Å‚‘¬“x
-		//	const Vec3& TargetVelocity,	//–Ú•W‚ÌŒ»İ‚Ì‘¬“x
-		//	const Vec3& Target,		//–Ú•W
-		//	const Vec3& TargetRot	//–Ú•W‚ÌŒü‚«
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	const Vec3& Pos,			//ç¾åœ¨ã®ä½ç½®
+		//	const Vec3& Rot,			//ç¾åœ¨ã®å‘ã
+		//	float MaxSpeed,				//æœ€é«˜é€Ÿåº¦
+		//	const Vec3& TargetVelocity,	//ç›®æ¨™ã®ç¾åœ¨ã®é€Ÿåº¦
+		//	const Vec3& Target,		//ç›®æ¨™
+		//	const Vec3& TargetRot	//ç›®æ¨™ã®å‘ã
 		//	);
-		//	—p“r: ’ÇÕs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: è¿½è·¡è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Pursuit(const Vec3& Velocity, const Vec3& Pos, const Vec3& Rot, float MaxSpeed,
 							const Vec3& TargetVelocity, const Vec3& Target, const Vec3& TargetRot);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Wander(
-		//	const Mat4x4 Matrix,		//Œ»İ‚Ìs—ñ
-		//	float WanderRadius,	//œpœj‚·‚é”¼Œa
-		//	float WanderDistance,	//œpœj‚·‚é”¼Œa‚Ü‚Å‚Ì‹——£
-		//	float WanderJitter,	//ƒ‰ƒ“ƒ_ƒ€•ÏˆÙ‚ÌÅ‘å’l
-		//	Vec3& WanderTarget	//œpœj‚Ìƒ^[ƒQƒbƒg•Ï”i‰ñ“]’lj
+		//	const Mat4x4 Matrix,		//ç¾åœ¨ã®è¡Œåˆ—
+		//	float WanderRadius,	//å¾˜å¾Šã™ã‚‹åŠå¾„
+		//	float WanderDistance,	//å¾˜å¾Šã™ã‚‹åŠå¾„ã¾ã§ã®è·é›¢
+		//	float WanderJitter,	//ãƒ©ãƒ³ãƒ€ãƒ å¤‰ç•°ã®æœ€å¤§å€¤
+		//	Vec3& WanderTarget	//å¾˜å¾Šã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆå¤‰æ•°ï¼ˆå›è»¢å€¤ï¼‰
 		//	);
-		//	—p“r: œpœjs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: å¾˜å¾Šè¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Wander(const Mat4x4 Matrix,
 						   float WanderRadius, float WanderDistance, float WanderJitter, Vec3& WanderTarget);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 ObstacleAvoidance(
-		//	const Mat4x4 Matrix,		//Œ»İ‚Ìs—ñ
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	float MaxSpeed,				//Å‚‘¬“x
-		//	float Width,				//‰ñ”ğ‚·‚é“¹•
-		//	float Height,				//‰ñ”ğ‚·‚é‚‚³
-		//	const vector<SPHERE>& SphereVec	//‰ñ”ğ‚·‚×‚«‹…‘Ì‚Ì”z—ñ
+		//	const Mat4x4 Matrix,		//ç¾åœ¨ã®è¡Œåˆ—
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	float MaxSpeed,				//æœ€é«˜é€Ÿåº¦
+		//	float Width,				//å›é¿ã™ã‚‹é“å¹…
+		//	float Height,				//å›é¿ã™ã‚‹é«˜ã•
+		//	const vector<SPHERE>& SphereVec	//å›é¿ã™ã¹ãçƒä½“ã®é…åˆ—
 		//	);
-		//	—p“r: áŠQ•¨‰ñ”ğs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: éšœå®³ç‰©å›é¿è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 ObstacleAvoidance(const Mat4x4 Matrix,
 									  const Vec3& Velocity, float MaxSpeed, float Width, float Height,
 									  const std::vector<SPHERE>& SphereVec);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 WallAvoidance(
-		//	const Mat4x4 Matrix,		//Œ»İ‚Ìs—ñ
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	float MaxSpeed,				//Å‚‘¬“x
-		//	const vector<PLANE>& PlaneVec	//‰ñ”ğ‚·‚×‚«‹…‘Ì‚Ì”z—ñ
+		//	const Mat4x4 Matrix,		//ç¾åœ¨ã®è¡Œåˆ—
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	float MaxSpeed,				//æœ€é«˜é€Ÿåº¦
+		//	const vector<PLANE>& PlaneVec	//å›é¿ã™ã¹ãçƒä½“ã®é…åˆ—
 		//	);
-		//	—p“r: •Ç‰ñ”ğs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: å£å›é¿è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 WallAvoidance(const Mat4x4 Matrix,
 								  const Vec3& Velocity, float MaxSpeed, const std::vector<PLANE>& PlaneVec);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 FollowPath(
-		//	Path& rPath,				//ƒpƒX
-		//	float WaypointSeekDist,		//SeekŠJn‚Ü‚Å‚Ì‹——£
-		//	const Vec3& Pos,			//Œ»İ‚ÌˆÊ’u
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	float MaxSpeed,				//Å‚‘¬“x
-		//	float Decl					//Œ¸‘¬’li1.0‚©‚ç3.0‚ÌŠÔ’ö“xj
+		//	Path& rPath,				//ãƒ‘ã‚¹
+		//	float WaypointSeekDist,		//Seeké–‹å§‹ã¾ã§ã®è·é›¢
+		//	const Vec3& Pos,			//ç¾åœ¨ã®ä½ç½®
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	float MaxSpeed,				//æœ€é«˜é€Ÿåº¦
+		//	float Decl					//æ¸›é€Ÿå€¤ï¼ˆ1.0ã‹ã‚‰3.0ã®é–“ç¨‹åº¦ï¼‰
 		//	);
-		//	—p“r: Œo˜Hs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: çµŒè·¯è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 FollowPath(Path& rPath,
 							   float WaypointSeekDist,
@@ -252,31 +252,31 @@ namespace shooting {
 							   float MaxSpeed, float Decl);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Separation(
-		//	const shared_ptr<GameObjectGroup>& Group,	//İ’è‚·‚éƒOƒ‹[ƒv‚Ì”z—ñ
-		//	const shared_ptr<GameObject>& MyObj				//©•ª©g
+		//	const shared_ptr<GameObjectGroup>& Group,	//è¨­å®šã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã®é…åˆ—
+		//	const shared_ptr<GameObject>& MyObj				//è‡ªåˆ†è‡ªèº«
 		//	);
-		//	—p“r: •ª—£s“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: åˆ†é›¢è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Separation(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Alignment(
-		//	const shared_ptr<GameObjectGroup>& Group,	//İ’è‚·‚éƒOƒ‹[ƒv‚Ì”z—ñ
-		//	const shared_ptr<GameObject>& MyObj				//©•ª©g
+		//	const shared_ptr<GameObjectGroup>& Group,	//è¨­å®šã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã®é…åˆ—
+		//	const shared_ptr<GameObject>& MyObj				//è‡ªåˆ†è‡ªèº«
 		//	);
-		//	—p“r: ®—ñs“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: æ•´åˆ—è¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Alignment(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj);
 		//--------------------------------------------------------------------------------------
 		//	static Vec3 Cohesion(
-		//	const shared_ptr<GameObjectGroup>& Group,	//İ’è‚·‚éƒOƒ‹[ƒv‚Ì”z—ñ
-		//	const shared_ptr<GameObject>& MyObj			//©•ª©g
-		//	const Vec3& Velocity,	//Œ»İ‚Ì‘¬“x
-		//	float MaxSpeed				//Å‚‘¬“x
+		//	const shared_ptr<GameObjectGroup>& Group,	//è¨­å®šã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã®é…åˆ—
+		//	const shared_ptr<GameObject>& MyObj			//è‡ªåˆ†è‡ªèº«
+		//	const Vec3& Velocity,	//ç¾åœ¨ã®é€Ÿåº¦
+		//	float MaxSpeed				//æœ€é«˜é€Ÿåº¦
 		//	);
-		//	—p“r: Œ‹‡s“®
-		//	–ß‚è’l: ƒtƒH[ƒX
+		//	ç”¨é€”: çµåˆè¡Œå‹•
+		//	æˆ»ã‚Šå€¤: ãƒ•ã‚©ãƒ¼ã‚¹
 		//--------------------------------------------------------------------------------------
 		static Vec3 Cohesion(const std::shared_ptr<GameObjectGroup>& Group, const std::shared_ptr<GameObject>& MyObj,
 							 const Vec3& Velocity, float MaxSpeed);

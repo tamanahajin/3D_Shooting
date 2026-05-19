@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Character.h
-@brief ”z’uƒIƒuƒWƒFƒNƒg
+@brief é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 */
 
 
@@ -28,7 +28,7 @@ namespace shooting {
 		float damageNumberOffsetY = 0.35f;
 	};
 	//--------------------------------------------------------------------------------------
-	// ƒtƒƒAƒIƒuƒWƒFƒNƒgiŒ©‚½–Úê—pj
+	// ãƒ•ãƒ­ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆè¦‹ãŸç›®å°‚ç”¨ï¼‰
 	//--------------------------------------------------------------------------------------
 	class Floor : public GameObject {
 	private:
@@ -83,15 +83,15 @@ namespace shooting {
 		std::wstring m_MeshKey;
 		std::wstring m_MaterialPrefix;
 		std::vector<Mat4x4> m_InstanceWorlds;
-		// ’Êí•`‰æ—p‚Æ‚Í•Ê‚ÉAshadow pass ‚Å•`‚­”ÍˆÍ“àƒCƒ“ƒXƒ^ƒ“ƒX‚¾‚¯‚ğ•Û‚·‚éB
+		// é€šå¸¸æç”»ç”¨ã¨ã¯åˆ¥ã«ã€shadow pass ã§æãç¯„å›²å†…ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã ã‘ã‚’ä¿æŒã™ã‚‹ã€‚
 		std::vector<Mat4x4> m_ShadowInstanceWorlds;
-		// shadow —pƒCƒ“ƒXƒ^ƒ“ƒX buffer ‚ğXV‚·‚é‚½‚ßAì¬‚µ‚½•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ•Û‚·‚éB
+		// shadow ç”¨ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ buffer ã‚’æ›´æ–°ã™ã‚‹ãŸã‚ã€ä½œæˆã—ãŸæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ä¿æŒã™ã‚‹ã€‚
 		std::shared_ptr<InstancedStaticDraw> m_Draw;
-		// ƒJƒƒ‰’‹“_‚ª‘å‚«‚­“®‚¢‚½‚Æ‚«‚¾‚¯ shadow —p”z—ñ‚ğÄ\’z‚·‚é‚½‚ß‚Ìó‘ÔB
+		// ã‚«ãƒ¡ãƒ©æ³¨è¦–ç‚¹ãŒå¤§ããå‹•ã„ãŸã¨ãã ã‘ shadow ç”¨é…åˆ—ã‚’å†æ§‹ç¯‰ã™ã‚‹ãŸã‚ã®çŠ¶æ…‹ã€‚
 		Vec3 m_LastShadowCullAt;
 		bool m_ShadowCullInitialized = false;
 
-		// shadow map ”ÍˆÍ“à‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚¾‚¯‚Éi‚èA•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö”½‰f‚·‚éB
+		// shadow map ç¯„å›²å†…ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã ã‘ã«çµã‚Šã€æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸åæ˜ ã™ã‚‹ã€‚
 		void RefreshShadowInstances(bool force);
 
 	public:
@@ -276,7 +276,7 @@ namespace shooting {
 		void FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const;
 	};
 	//--------------------------------------------------------------------------------------
-	// ƒtƒƒAƒRƒŠƒWƒ‡ƒ“ƒIƒuƒWƒFƒNƒgi“–‚½‚è”»’èê—pj
+	// ãƒ•ãƒ­ã‚¢ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆå½“ãŸã‚Šåˆ¤å®šå°‚ç”¨ï¼‰
 	//--------------------------------------------------------------------------------------
 	class FloorCollision : public GameObject {
 	private:
@@ -294,20 +294,20 @@ namespace shooting {
 	};
 
 	//--------------------------------------------------------------------------------------
-	// ƒ{ƒbƒNƒXƒIƒuƒWƒFƒNƒg
+	// ãƒœãƒƒã‚¯ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	class FixedBox : public GameObject {
 	public:
 		FixedBox(const std::shared_ptr<Stage>& stage, const TransParam& param);
 		virtual ~FixedBox();
-		//\’z
+		//æ§‹ç¯‰æ™‚
 		virtual void OnCreate()override;
-		//XV
+		//æ›´æ–°æ™‚
 		virtual void OnUpdate(double elapsedTime)override {}
 	};
 
 	//--------------------------------------------------------------------------------------
-	// lŠp‚ÌƒIƒuƒWƒFƒNƒg
+	// å››è§’ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	class WallBox : public  GameObject {
 		double m_totalTime;
@@ -320,19 +320,19 @@ namespace shooting {
 	};
 
 	//--------------------------------------------------------------------------------------
-	//	’Ç‚¢‚©‚¯‚é”z’uƒIƒuƒWƒFƒNƒg
+	//	è¿½ã„ã‹ã‘ã‚‹é…ç½®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	//--------------------------------------------------------------------------------------
 	class SeekObject : public GameObject {
 		std::shared_ptr<BaseMesh> m_baseMesh;
 		double m_totalTime;
 
-		//ƒXƒe[ƒgƒ}ƒV[ƒ“
+		//ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ¼ãƒ³
 		std::unique_ptr< StateMachine<SeekObject> >  m_StateMachine;
 		Vec3 m_StartPos;
 		float m_StateChangeSize;
-		//ƒtƒH[ƒX
+		//ãƒ•ã‚©ãƒ¼ã‚¹
 		Vec3 m_Force;
-		//‘¬“x
+		//é€Ÿåº¦
 		Vec3 m_Velocity;
 		double m_SteeringUpdateTimer = 0.0;
 		double m_SteeringUpdateInterval = 0.05;
@@ -346,12 +346,12 @@ namespace shooting {
 		void ShowDamageNumber(const DamageInfo& info);
 		Vec3 GetDamageNumberPosition();
 	public:
-		//\’z‚Æ”jŠü
+		//æ§‹ç¯‰ã¨ç ´æ£„
 		SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos);
 		virtual ~SeekObject();
-		//‰Šú‰»
+		//åˆæœŸåŒ–
 		virtual void OnCreate() override;
-		//ƒAƒNƒZƒT
+		//ã‚¢ã‚¯ã‚»ã‚µ
 		const std::unique_ptr<StateMachine<SeekObject>>& GetStateMachine()
 		{
 			return m_StateMachine;
@@ -388,7 +388,7 @@ namespace shooting {
 		Vec3 GetTargetPos()const;
 		void StartDamageFlash(double duration = 0.2);
 		float GetDamageFlashValue() const;
-		//‘€ì
+		//æ“ä½œ
 		virtual void OnUpdate(double elapsedTime) override;
 		virtual void OnCollisionEnter(const CollisionPair& pair) override;
 		virtual void OnCollisionExecute(const CollisionPair& pair) override;
@@ -396,7 +396,7 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class SeekFarState : public ObjState<SeekObject>;
-	//	—p“r: ƒvƒŒƒCƒ„[‚©‚ç‰“‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ç”¨é€”: ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰é ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	class SeekFarState : public ObjState<SeekObject>
 	{
@@ -410,7 +410,7 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	class SeekNearState : public ObjState<SeekObject>;
-	//	—p“r: ƒvƒŒƒCƒ„[‚©‚ç‹ß‚¢‚Æ‚«‚ÌˆÚ“®
+	//	ç”¨é€”: ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰è¿‘ã„ã¨ãã®ç§»å‹•
 	//--------------------------------------------------------------------------------------
 	class SeekNearState : public ObjState<SeekObject>
 	{

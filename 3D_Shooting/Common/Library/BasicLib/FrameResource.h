@@ -1,4 +1,4 @@
-//*********************************************************
+Ôªø//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file FrameResource.h
-@brief ÉtÉåÅ[ÉÄÉNÉâÉX
+@brief „Éï„É¨„Éº„É†„ÇØ„É©„Çπ
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -37,7 +37,7 @@ namespace shooting {
 		ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 		ComPtr<ID3D12CommandAllocator> m_contextCommandAllocator;
 
-		//BaseCrossóp
+		//BaseCrossÁî®
 		std::vector<BaseConstantBufferSet> m_baseConstantBufferSetVec;
 
 	public:

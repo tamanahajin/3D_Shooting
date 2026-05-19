@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -255,7 +255,7 @@ namespace shooting {
 		baseConstant.activeFlg.x = m_LightingEnabled ? 3 : 0;
 		baseConstant.activeFlg.z = m_OwnShadowActive ? 1 : 0;
 
-		// ƒCƒ“ƒXƒ^ƒ“ƒX‘¤‚Å world ‚ðŽ‚Â‚Ì‚ÅA‚±‚±‚Í identity
+		// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹å´ã§ world ã‚’æŒã¤ã®ã§ã€ã“ã“ã¯ identity
 		auto world = XMMatrixIdentity();
 		auto view = (XMMATRIX)((Mat4x4)myCamera->GetViewMatrix());
 		auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
@@ -518,7 +518,7 @@ namespace shooting {
 		const std::vector<std::shared_ptr<BaseMesh>>* meshes = nullptr;
 		if (!m_ShadowMeshKey.empty())
 		{
-			// ‚‘ä‚ââ‚È‚Çd‚¢ƒ‚ƒfƒ‹‚ÍAshadow pass ‚¾‚¯Œy—Ê proxy mesh ‚Å•`‚­B
+			// é«˜å°ã‚„å‚ãªã©é‡ã„ãƒ¢ãƒ‡ãƒ«ã¯ã€shadow pass ã ã‘è»½é‡ proxy mesh ã§æãã€‚
 			shadowProxyMeshes.push_back(BaseScene::Get()->GetMesh(m_ShadowMeshKey));
 			meshes = &shadowProxyMeshes;
 		}

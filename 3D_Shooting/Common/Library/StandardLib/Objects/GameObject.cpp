@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 namespace shooting {
 
@@ -14,7 +14,7 @@ namespace shooting {
 			if (exceptionActive)
 			{
 				throw BaseException(
-					L"Š‘®ƒXƒe[ƒW‚ªnull‚Å‚·B",
+					L"æ‰€å±ã‚¹ãƒ†ãƒ¼ã‚¸ãŒnullã§ã™ã€‚",
 					L"if (!shptr)",
 					L"GameObject::GetStage()const"
 				);
@@ -39,7 +39,7 @@ namespace shooting {
 
 	void GameObject::OnPreCreate()
 	{
-		//Transform•K{
+		//Transformå¿…é ˆ
 		AddComponent<Transform>(m_transParam);
 	}
 
@@ -53,7 +53,7 @@ namespace shooting {
 	{
 		auto transPtr = GetComponent<Transform>();
 
-		// ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄUpdate
+		// ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦Update
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -61,7 +61,7 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				// w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				// æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				if (it2->second->IsUpdateActive() && (it2->second != transPtr))
 				{
 					it2->second->OnUpdate(Scene::GetElapsedTime());
@@ -96,7 +96,7 @@ namespace shooting {
 	void GameObject::ComponentDestroy()
 	{
 		auto transptr = GetComponent<Transform>();
-		//ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄUpdate
+		//ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦Update
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -104,7 +104,7 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				if (it2->second != transptr)
 				{
 					it2->second->OnDestroy();
@@ -112,13 +112,13 @@ namespace shooting {
 			}
 			it++;
 		}
-		//Transform‚ÌOnDestroy
+		//Transformã®OnDestroy
 		transptr->OnDestroy();
 	}
 
 	void GameObject::OnUpdateConstantBuffers()
 	{
-		//ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄOnUpdateConstantBuffers
+		//ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦OnUpdateConstantBuffers
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -126,7 +126,7 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				it2->second->OnUpdateConstantBuffers();
 			}
 			it++;
@@ -135,7 +135,7 @@ namespace shooting {
 
 	void GameObject::OnCommitConstantBuffers()
 	{
-		//ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄOnCommitConstantBuffers
+		//ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦OnCommitConstantBuffers
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -143,7 +143,7 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				it2->second->OnCommitConstantBuffers();
 			}
 			it++;
@@ -152,7 +152,7 @@ namespace shooting {
 
 	void GameObject::OnShadowDraw(ID3D12GraphicsCommandList* pCommandList)
 	{
-		//ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄOnUpdateConstantBuffers
+		//ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦OnUpdateConstantBuffers
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -160,14 +160,14 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				// ‰e‚Ì•`‰æƒtƒ‰ƒOƒ`ƒFƒbƒN
+				// å½±ã®æç”»ãƒ•ãƒ©ã‚°ãƒã‚§ãƒƒã‚¯
 				if (!this->IsShadowActive())
 				{
 					++it;
 					continue;
 				}
 
-				//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				it2->second->OnShadowDraw(pCommandList);
 			}
 			it++;
@@ -176,7 +176,7 @@ namespace shooting {
 
 	void GameObject::OnSceneDraw(ID3D12GraphicsCommandList* pCommandList)
 	{
-		//ƒ}ƒbƒv‚ğŒŸØ‚µ‚ÄOnUpdateConstantBuffers
+		//ãƒãƒƒãƒ—ã‚’æ¤œè¨¼ã—ã¦OnUpdateConstantBuffers
 		std::list<std::type_index>::iterator it = m_componentOrder.begin();
 		while (it != m_componentOrder.end())
 		{
@@ -184,14 +184,14 @@ namespace shooting {
 			it2 = m_componentMap.find(*it);
 			if (it2 != m_componentMap.end())
 			{
-				// •`‰æƒtƒ‰ƒOƒ`ƒFƒbƒN
+				// æç”»ãƒ•ãƒ©ã‚°ãƒã‚§ãƒƒã‚¯
 				if (!this->IsDrawActive())
 				{
 					++it;
 					continue;
 				}
 
-				//w’è‚ÌŒ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½
+				//æŒ‡å®šã®å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸ
 				it2->second->OnSceneDraw(pCommandList);
 			}
 			it++;
@@ -205,7 +205,7 @@ namespace shooting {
 	{
 	}
 	GameObjectGroup::~GameObjectGroup() {}
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	const std::vector< std::weak_ptr<GameObject> >& GameObjectGroup::GetGroupVector() const
 	{
 		return m_Group;
@@ -218,7 +218,7 @@ namespace shooting {
 			msg += L" >= ";
 			msg += Util::SizeTToWStr(m_Group.size());
 			throw BaseException(
-				L"ƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+				L"ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 				msg,
 				L"GameObjectGroup::at()"
 			);
@@ -227,7 +227,7 @@ namespace shooting {
 		{
 			std::wstring msg = Util::SizeTToWStr(index);
 			throw BaseException(
-				L"‚»‚ÌƒCƒ“ƒfƒbƒNƒX‚ÌƒIƒuƒWƒFƒNƒg‚Í–³Œø‚Å‚·B",
+				L"ãã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ç„¡åŠ¹ã§ã™ã€‚",
 				msg,
 				L"GameObjectGroup::at()"
 			);
@@ -238,7 +238,7 @@ namespace shooting {
 	{
 		return m_Group.size();
 	}
-	//‘€ì
+	//æ“ä½œ
 	void GameObjectGroup::IntoGroup(const std::shared_ptr<GameObject>& Obj)
 	{
 		m_Group.push_back(Obj);

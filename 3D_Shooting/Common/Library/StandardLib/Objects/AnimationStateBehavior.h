@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -110,7 +110,7 @@ namespace shooting {
 
 			draw->SetAnimationIndex(static_cast<unsigned int>(state));
 
-			// Ø‘Ö’¼Œã‚Ìp¨‚ğ1‰ñ”½‰f
+			// åˆ‡æ›¿ç›´å¾Œã®å§¿å‹¢ã‚’1å›åæ˜ 
 			draw->UpdateAnimation(0.0);
 		}
 
@@ -158,7 +158,7 @@ namespace shooting {
 			}
 			const double duration = static_cast<double>(draw->GetCurrentAnimationDurationSeconds());
 
-			// ’·‚³‚ªæ‚ê‚È‚¢ê‡‚Í]—ˆ’Ê‚è
+			// é•·ã•ãŒå–ã‚Œãªã„å ´åˆã¯å¾“æ¥é€šã‚Š
 			if (duration <= 0.0)
 			{
 				m_Time += elapsedTime;
@@ -178,7 +178,7 @@ namespace shooting {
 
 						if (IsHoldLastFrameState(m_Current))
 						{
-							// ÅIƒtƒŒ[ƒ€’¼‘O‚ÅŒÅ’è
+							// æœ€çµ‚ãƒ•ãƒ¬ãƒ¼ãƒ ç›´å‰ã§å›ºå®š
 							const double holdTime = GetHoldTimeSeconds(duration);
 							m_Time = holdTime;
 						}

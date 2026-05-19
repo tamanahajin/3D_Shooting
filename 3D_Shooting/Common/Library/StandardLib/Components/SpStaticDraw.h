@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file SpStaticDraw.h
-@brief SimpleƒXƒ^ƒeƒBƒbƒN•`‰æƒRƒ“ƒ|[ƒlƒ“ƒgŒQ
+@brief Simpleã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆç¾¤
 */
 
 
@@ -10,21 +10,21 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	SpStatic•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg(e)
+	///	SpStaticæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ(è¦ª)
 	//--------------------------------------------------------------------------------------
 	class SpStaticDraw : public Component {
-		/// ƒGƒ~ƒbƒVƒuF
+		/// ã‚¨ãƒŸãƒƒã‚·ãƒ–è‰²
 		Col4 m_emissive;
-		/// ƒfƒtƒ…[ƒYF
+		/// ãƒ‡ãƒ•ãƒ¥ãƒ¼ã‚ºè‰²
 		Col4 m_diffuse;
-		/// ƒXƒyƒLƒ…ƒ‰[
+		/// ã‚¹ãƒšã‚­ãƒ¥ãƒ©ãƒ¼
 		Col4 m_specular;
-		//©•ª©g‚É‰e‚ğ•`‰æ‚·‚é‚©‚Ç‚¤‚©
+		//è‡ªåˆ†è‡ªèº«ã«å½±ã‚’æç”»ã™ã‚‹ã‹ã©ã†ã‹
 		bool m_OwnShadowActive;
 	protected:
 		SimpleConstant m_simpleConstant;
 		size_t m_constantIndex;
-		//ƒIƒŠƒWƒiƒ‹ƒƒbƒVƒ…
+		//ã‚ªãƒªã‚¸ãƒŠãƒ«ãƒ¡ãƒƒã‚·ãƒ¥
 		std::shared_ptr<BaseMesh> m_mesh;
 		explicit SpStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
 			Component(gameObjectPtr),
@@ -75,7 +75,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	///	SpPNTStatic•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	SpPNTStaticæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 
 	DECLARE_DX12SHADER(SpVSPNTStatic)
@@ -91,7 +91,7 @@ namespace shooting {
 		SpPNTStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr,
 						std::vector<VertexPositionNormalTexture>& vertices, std::vector<uint32_t>& indices);
 		virtual ~SpPNTStaticDraw() {}
-		//‘€ì
+		//æ“ä½œ
 		virtual void OnUpdate(double elapsedTime)override {}
 		virtual void OnUpdateConstantBuffers()override;
 		virtual void OnCommitConstantBuffers()override;

@@ -1,6 +1,6 @@
 /*!
 @file BcPSPNTPL.hlsli
-@brief PNTピクセルライティングピクセルシェーダー
+@brief PNT繝斐け繧ｻ繝ｫ繝ｩ繧､繝�繧｣繝ｳ繧ｰ繝斐け繧ｻ繝ｫ繧ｷ繧ｧ繝ｼ繝繝ｼ
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

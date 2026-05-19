@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file ProjectUtil.h
-@brief ƒvƒƒWƒFƒN’è‹`‚Ìƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+@brief ãƒ—ãƒ­ã‚¸ã‚§ã‚¯å®šç¾©ã®ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
 */
 
 #pragma once
@@ -11,22 +11,22 @@ namespace shooting {
 	constexpr float kFallDeathY = -10.0f;
 
 	//--------------------------------------------------------------------------------------
-	///	ƒRƒ“ƒgƒ[ƒ‰‚Ìƒ{ƒ^ƒ“‚Ìƒnƒ“ƒhƒ‰
+	///	ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã®ãƒœã‚¿ãƒ³ã®ãƒãƒ³ãƒ‰ãƒ©
 	//--------------------------------------------------------------------------------------
 	template<typename T>
 	struct InputHandler {
 		void PushHandle(const std::shared_ptr<T>& Obj)
 		{
-			////ƒRƒ“ƒgƒ[ƒ‰‚Ìæ“¾
+			////ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã®å–å¾—
 			//auto cntlVec = App::GetInputDevice().GetControlerVec();
 			//if (cntlVec[0].bConnected)
 			//{
-			//	//Aƒ{ƒ^ƒ“
+			//	//Aãƒœã‚¿ãƒ³
 			//	if (cntlVec[0].wPressedButtons & XINPUT_GAMEPAD_A)
 			//	{
 			//		Obj->OnPushA();
 			//	}
-			//	//Bƒ{ƒ^ƒ“
+			//	//Bãƒœã‚¿ãƒ³
 			//	if (cntlVec[0].wPressedButtons & XINPUT_GAMEPAD_B)
 			//	{
 			//		Obj->OnPushB();

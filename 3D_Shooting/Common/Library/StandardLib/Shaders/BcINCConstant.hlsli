@@ -1,6 +1,6 @@
 /*!
 @file BcINCConstant.hlsli
-@brief Basicコンスタントバッファ
+@brief Basic繧ｳ繝ｳ繧ｹ繧ｿ繝ｳ繝医ヰ繝�繝輔ぃ
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -29,7 +29,7 @@ cbuffer Parameters : register(b0)
     float3x3 WorldInverseTranspose  : packoffset(c19);
     float4x4 WorldViewProj          : packoffset(c22);
 
-	uint4 Activeflags              : packoffset(c26);			//フラグ
+	uint4 Activeflags              : packoffset(c26);			//繝輔Λ繧ｰ
 
 	float4 LightPos                 : packoffset(c27);
 	float4 EyePos                   : packoffset(c28);

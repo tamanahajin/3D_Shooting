@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file CollisionManager.h
-@brief Õ“Ë”»’èƒ}ƒl[ƒWƒƒƒNƒ‰ƒX
+@brief è¡çªåˆ¤å®šãƒãƒãƒ¼ã‚¸ãƒ£ã‚¯ãƒ©ã‚¹
 */
 
 
@@ -9,7 +9,7 @@
 namespace shooting {
 
 	/// <summary>
-	/// ‹óŠÔ•ªŠ„‚É‚æ‚éÕ“Ë”»’è‚ÌÅ“K‰»‚Ì‚½‚ß‚Ég—p‚³‚ê‚éA4•ª–Ø\‘¢‚Ìƒm[ƒh‚ğ•\‚·\‘¢‘Ì
+	/// ç©ºé–“åˆ†å‰²ã«ã‚ˆã‚‹è¡çªåˆ¤å®šã®æœ€é©åŒ–ã®ãŸã‚ã«ä½¿ç”¨ã•ã‚Œã‚‹ã€4åˆ†æœ¨æ§‹é€ ã®ãƒãƒ¼ãƒ‰ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct CollisionPiece {
 		CollisionPiece* m_Children[4];
@@ -78,7 +78,7 @@ namespace shooting {
 			{
 				if (tgt.m_Children[0])
 				{
-					//q‹Ÿƒs[ƒX‚ª‚ ‚Á‚½‚ç
+					//å­ä¾›ãƒ”ãƒ¼ã‚¹ãŒã‚ã£ãŸã‚‰
 					for (int i = 0; i < 4; i++)
 					{
 						SetCollisionBlockSub(*tgt.m_Children[i], Obj);
@@ -86,8 +86,8 @@ namespace shooting {
 				}
 				else
 				{
-					//q‹Ÿƒs[ƒX‚ª‚È‚©‚Á‚½
-					//AABB‚ª¬‚³‚¢ê‡‚Í‚±‚êˆÈã‘‚â‚³‚È‚¢
+					//å­ä¾›ãƒ”ãƒ¼ã‚¹ãŒãªã‹ã£ãŸ
+					//AABBãŒå°ã•ã„å ´åˆã¯ã“ã‚Œä»¥ä¸Šå¢—ã‚„ã•ãªã„
 					if (tgt.m_AABB.GetWidth() < 0.125f)
 					{
 						tgt.m_ObjVec.push_back(Obj);
@@ -96,13 +96,13 @@ namespace shooting {
 					{
 						if (tgt.m_ObjVec.size() < 5)
 						{
-							//AABB‚Ì•‚ª’è”–¢–‚©
-							//‚ ‚é‚¢‚Í‚Ü‚¾—]—T‚ª‚ ‚é
+							//AABBã®å¹…ãŒå®šæ•°æœªæº€ã‹
+							//ã‚ã‚‹ã„ã¯ã¾ã ä½™è£•ãŒã‚ã‚‹
 							tgt.m_ObjVec.push_back(Obj);
 						}
 						else
 						{
-							//—]—T‚ª‚È‚¢q‹ŸƒuƒƒbƒN‚Ìì¬
+							//ä½™è£•ãŒãªã„å­ä¾›ãƒ–ãƒ­ãƒƒã‚¯ã®ä½œæˆ
 							for (int i = 0; i < 4; i++)
 							{
 								tgt.m_Children[i] = &m_PiecePool[m_NextPoolIndex];
@@ -111,7 +111,7 @@ namespace shooting {
 								if (m_NextPoolIndex >= MAX_PIECE_COUNT)
 								{
 									throw BaseException(
-										L"‚±‚êˆÈãÕ“Ë”»’è‚Ís‚¦‚Ü‚¹‚ñB",
+										L"ã“ã‚Œä»¥ä¸Šè¡çªåˆ¤å®šã¯è¡Œãˆã¾ã›ã‚“ã€‚",
 										L"if (m_NextPoolIndex >= MAX_PIECE_COUNT)",
 										L"CollisionBlocks::SetCollisionBlock2Sub()"
 									);
@@ -138,8 +138,8 @@ namespace shooting {
 								}
 								tgt.m_Children[i]->SetAABB(childAABB);
 							}
-							//q‹Ÿì¬I—¹
-							//ƒIƒuƒWƒFƒNƒg‚ğq‹Ÿ‚ÉU‚è•ª‚¯‚é
+							//å­ä¾›ä½œæˆçµ‚äº†
+							//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å­ä¾›ã«æŒ¯ã‚Šåˆ†ã‘ã‚‹
 							for (auto& v : tgt.m_ObjVec)
 							{
 								auto objCol = v->GetComponent<Collision>();
@@ -152,9 +152,9 @@ namespace shooting {
 									}
 								}
 							}
-							//U‚è•ª‚¯‚ªI‚í‚Á‚½‚Ì‚Å”z—ñ‚ÍƒNƒŠƒA
+							//æŒ¯ã‚Šåˆ†ã‘ãŒçµ‚ã‚ã£ãŸã®ã§é…åˆ—ã¯ã‚¯ãƒªã‚¢
 							tgt.m_ObjVec.clear();
-							//q‹Ÿƒs[ƒX‚ª‚Å‚«‚½‚Ì‚ÅA‚»‚±‚É’²¸
+							//å­ä¾›ãƒ”ãƒ¼ã‚¹ãŒã§ããŸã®ã§ã€ãã“ã«èª¿æŸ»
 							for (int i = 0; i < 4; i++)
 							{
 								SetCollisionBlockSub(*tgt.m_Children[i], Obj);
@@ -191,8 +191,8 @@ namespace shooting {
 					auto DestColl = v->GetComponent<Collision>();
 					if (!manager->IsInPair(SrcColl, DestColl, true) && !manager->IsInPair(SrcColl, DestColl, false))
 					{
-						//ƒL[ƒv‚³‚ê‚Ä‚¢‚é’†‚É‚È‚©‚Á‚½‚ç
-						//Collision‚É‚æ‚éÕ“Ë”»’è
+						//ã‚­ãƒ¼ãƒ—ã•ã‚Œã¦ã„ã‚‹ä¸­ã«ãªã‹ã£ãŸã‚‰
+						//Collisionã«ã‚ˆã‚‹è¡çªåˆ¤å®š
 						m_CollisionCountOfTern++;
 						DestColl->CollisionCall(SrcColl);
 					}
@@ -269,7 +269,7 @@ namespace shooting {
 				{
 					continue;
 				}
-				// ‚‘¬ˆÚ“®‚âƒWƒƒƒ“ƒv‚ÅŒÅ’è•¨‚ğ‚Ü‚½‚®ƒP[ƒX‚ğE‚¤‚½‚ßAˆÚ“®‘OŒã‚ğŠÜ‚ŞAABB‚Å–â‚¢‡‚í‚¹‚éB
+				// é«˜é€Ÿç§»å‹•ã‚„ã‚¸ãƒ£ãƒ³ãƒ—ã§å›ºå®šç‰©ã‚’ã¾ãŸãã‚±ãƒ¼ã‚¹ã‚’æ‹¾ã†ãŸã‚ã€ç§»å‹•å‰å¾Œã‚’å«ã‚€AABBã§å•ã„åˆã‚ã›ã‚‹ã€‚
 				SetNewCollisionAgainstSub(src, srcColl->GetEnclosingAABB(), m_RootPiece, manager);
 			}
 		}
@@ -284,14 +284,14 @@ namespace shooting {
 
 	//--------------------------------------------------------------------------------------
 	//	struct CollisionManager::Impl;
-	//	—p“r: ImplƒCƒfƒBƒIƒ€
+	//	ç”¨é€”: Implã‚¤ãƒ‡ã‚£ã‚ªãƒ 
 	//--------------------------------------------------------------------------------------
 	struct CollisionManager::Impl {
-		//Õ“Ë”»’èƒ}ƒl[ƒWƒƒ‚Ì“à•”ˆ——pƒpƒtƒH[ƒ}ƒ“ƒX
+		//è¡çªåˆ¤å®šãƒãƒãƒ¼ã‚¸ãƒ£ã®å†…éƒ¨å‡¦ç†ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹
 		PerformanceCounter m_MiscPerformance;
-		//–ˆƒtƒŒ[ƒ€XV‚·‚é“®“IƒRƒŠƒWƒ‡ƒ“—pƒuƒƒbƒN
+		//æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°ã™ã‚‹å‹•çš„ã‚³ãƒªã‚¸ãƒ§ãƒ³ç”¨ãƒ–ãƒ­ãƒƒã‚¯
 		CollisionBlocks m_CollisionBlocks;
-		//ƒXƒe[ƒWŒÅ’è•¨‚¾‚¯‚ğ“o˜^‚µ‚ÄÄ—˜—p‚·‚éÃ“IƒRƒŠƒWƒ‡ƒ“—pƒuƒƒbƒN
+		//ã‚¹ãƒ†ãƒ¼ã‚¸å›ºå®šç‰©ã ã‘ã‚’ç™»éŒ²ã—ã¦å†åˆ©ç”¨ã™ã‚‹é™çš„ã‚³ãƒªã‚¸ãƒ§ãƒ³ç”¨ãƒ–ãƒ­ãƒƒã‚¯
 		CollisionBlocks m_StaticCollisionBlocks;
 		std::vector<const GameObject*> m_StaticCollisionObjectKeys;
 		bool m_StaticCollisionBlocksDirty;
@@ -304,7 +304,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	//	Õ“Ë”»’èŠÇ—Ò
+	//	è¡çªåˆ¤å®šç®¡ç†è€…
 	//--------------------------------------------------------------------------------------
 	CollisionManager::CollisionManager(const std::shared_ptr<Stage>& StagePtr) :
 		GameObject(StagePtr),
@@ -466,13 +466,13 @@ namespace shooting {
 			pImpl->m_StaticCollisionBlocksDirty = false;
 		}
 
-		// ƒRƒŠƒWƒ‡ƒ“ƒuƒƒbƒN‚ÌƒNƒŠƒA
+		// ã‚³ãƒªã‚¸ãƒ§ãƒ³ãƒ–ãƒ­ãƒƒã‚¯ã®ã‚¯ãƒªã‚¢
 		pImpl->m_CollisionBlocks.AllClear();
 
 		std::vector<std::shared_ptr<GameObject>> dynamicSources;
 		dynamicSources.reserve(ObjVec.size());
 
-		// •s—v‚ÈƒIƒuƒWƒFƒNƒg‚ğ‘ŠúƒXƒLƒbƒv
+		// ä¸è¦ãªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ—©æœŸã‚¹ã‚­ãƒƒãƒ—
 		for (auto& v : ObjVec)
 		{
 			if (!v->IsUpdateActive()) continue;
@@ -480,7 +480,7 @@ namespace shooting {
 			auto col = v->GetComponent<Collision>(false);
 			if (!col) continue;
 			if (!col->IsUpdateActive()) continue;
-			if (col->IsSleep()) continue;  // ƒXƒŠ[ƒv’†‚ÍƒXƒLƒbƒv
+			if (col->IsSleep()) continue;  // ã‚¹ãƒªãƒ¼ãƒ—ä¸­ã¯ã‚¹ã‚­ãƒƒãƒ—
 
 			const bool isStaticStageCollision =
 				col->IsFixed() &&
@@ -498,9 +498,9 @@ namespace shooting {
 			}
 		}
 
-		// “®“I“¯mE“®“I‘ÎƒAƒCƒeƒ€‚È‚ÇA–ˆƒtƒŒ[ƒ€•Ï‚í‚é‚à‚Ì‚Í]—ˆ’Ê‚è”»’è‚·‚éB
+		// å‹•çš„åŒå£«ãƒ»å‹•çš„å¯¾ã‚¢ã‚¤ãƒ†ãƒ ãªã©ã€æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å¤‰ã‚ã‚‹ã‚‚ã®ã¯å¾“æ¥é€šã‚Šåˆ¤å®šã™ã‚‹ã€‚
 		pImpl->m_CollisionBlocks.SetNewCollision(GetThis<CollisionManager>());
-		// ƒXƒe[ƒWŒÅ’è•¨‚ÍÄ—˜—pÏ‚İ‚ÌÃ“IƒuƒƒbƒN‚É‘Î‚µ‚ÄA“®‚­‘¤‚¾‚¯‚ğ–â‚¢‡‚í‚¹‚éB
+		// ã‚¹ãƒ†ãƒ¼ã‚¸å›ºå®šç‰©ã¯å†åˆ©ç”¨æ¸ˆã¿ã®é™çš„ãƒ–ãƒ­ãƒƒã‚¯ã«å¯¾ã—ã¦ã€å‹•ãå´ã ã‘ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚
 		pImpl->m_StaticCollisionBlocks.SetNewCollisionAgainst(dynamicSources, GetThis<CollisionManager>());
 		pImpl->m_CollisionBlocks.m_CollisionCountOfTern += pImpl->m_StaticCollisionBlocks.m_CollisionCountOfTern;
 		pImpl->m_MiscPerformance.End();
@@ -526,29 +526,29 @@ namespace shooting {
 		float SrcV = bsmUtil::dot(SrcLocalVec, Pair.m_SrcHitNormal);
 		if (SrcV < 0.0f)
 		{
-			//‚Ü‚¾Õ“Ë‚µ‚Ä‚¢‚½‚ç
+			//ã¾ã è¡çªã—ã¦ã„ãŸã‚‰
 			float EscapeLen = abs(SrcV);
 			if (!ShDest->IsFixed())
 			{
 				EscapeLen *= 0.5f;
 			}
-			//Src‚ÌƒGƒXƒP[ƒv
+			//Srcã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 			SrcCenter += Pair.m_SrcHitNormal * EscapeLen;
 			if (!ShDest->IsFixed())
 			{
-				//Dest‚ÌƒGƒXƒP[ƒv
+				//Destã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 				DestCenter += -Pair.m_SrcHitNormal * EscapeLen;
 			}
 			SrcCenter.floor(GetEscapeFloor());
 			auto PtrSrcTransform = ShSrc->GetGameObject()->GetComponent<Transform>();
-			//Src‚ÌƒGƒXƒP[ƒv
+			//Srcã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 			PtrSrcTransform->SetWorldPosition(SrcCenter);
 			if (!ShDest->IsFixed())
 			{
 				DestCenter.floor(GetEscapeFloor());
 				ShDest->WakeUp();
 				auto PtrDestTransform = ShDest->GetGameObject()->GetComponent<Transform>();
-				//Dest‚ÌƒGƒXƒP[ƒv
+				//Destã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 				PtrDestTransform->SetWorldPosition(DestCenter);
 			}
 		}
@@ -581,10 +581,10 @@ namespace shooting {
 		Vec3 nDir = dir;
 		nDir.normalize();
 
-		// ƒŒƒC‚ğu’´¬‚³‚¢‹…‚ÌƒXƒC[ƒvv‚Æ‚µ‚Äˆµ‚¤iƒ[ƒ”¼Œa‚¾‚Æ”’l“I‚É•sˆÀ’è‚ÈÀ‘•‚à‚ ‚é‚Ì‚Å”÷¬’lj
+		// ãƒ¬ã‚¤ã‚’ã€Œè¶…å°ã•ã„çƒã®ã‚¹ã‚¤ãƒ¼ãƒ—ã€ã¨ã—ã¦æ‰±ã†ï¼ˆã‚¼ãƒ­åŠå¾„ã ã¨æ•°å€¤çš„ã«ä¸å®‰å®šãªå®Ÿè£…ã‚‚ã‚ã‚‹ã®ã§å¾®å°å€¤ï¼‰
 		const float kRayRadius = 0.001f;
 
-		// elapsedTime=1.0 ‚Æ‚µ‚ÄAvelocity ‚ğu‚±‚Ì1•b‚Å maxDist i‚Ş‘¬“xv‚É‚·‚é
+		// elapsedTime=1.0 ã¨ã—ã¦ã€velocity ã‚’ã€Œã“ã®1ç§’ã§ maxDist é€²ã‚€é€Ÿåº¦ã€ã«ã™ã‚‹
 		const float kElapsed = 1.0f;
 		const Vec3  rayVel = nDir * maxDist;
 
@@ -654,7 +654,7 @@ namespace shooting {
 				{
 					Vec3 p = origin + rayVel * hitTime;
 
-					// Šù‘¶‚ÌÅ‹ßÚ“_ŒvZ‚ğ—¬—pi“_p‚ÌÅ‹ßÚ“_ret‚ªu“–‚½‚è“_vˆµ‚¢j
+					// æ—¢å­˜ã®æœ€è¿‘æ¥ç‚¹è¨ˆç®—ã‚’æµç”¨ï¼ˆç‚¹pã®æœ€è¿‘æ¥ç‚¹retãŒã€Œå½“ãŸã‚Šç‚¹ã€æ‰±ã„ï¼‰
 					SPHERE chk(p, kRayRadius);
 					Vec3 ret;
 					HitTest::SPHERE_CAPSULE(chk, target, ret);
@@ -934,14 +934,14 @@ namespace shooting {
 
 	void CollisionManager::OnUpdate(double elapsedTime)
 	{
-		// 1.ƒL[ƒv‚³‚ê‚Ä‚¢‚éƒyƒA‚ğƒ`ƒFƒbƒN
+		// 1.ã‚­ãƒ¼ãƒ—ã•ã‚Œã¦ã„ã‚‹ãƒšã‚¢ã‚’ãƒã‚§ãƒƒã‚¯
 		m_TempKeepVec.clear();
 		m_TempExitVec.clear();
 		for (auto& v : m_CollisionPairVec[m_KeepIndex])
 		{
 			if (SimpleCollisionPair(v))
 			{
-				//‚Ü‚¾Õ“Ë‚µ‚Ä‚¢‚é
+				//ã¾ã è¡çªã—ã¦ã„ã‚‹
 				m_TempKeepVec.push_back(v);
 			}
 			else
@@ -949,10 +949,10 @@ namespace shooting {
 				m_TempExitVec.push_back(v);
 			}
 		}
-		//ƒeƒ“ƒ|ƒ‰ƒŠ‚Ì“à—e‚ğkeepƒyƒA‚ÉƒRƒs[
+		//ãƒ†ãƒ³ãƒãƒ©ãƒªã®å†…å®¹ã‚’keepãƒšã‚¢ã«ã‚³ãƒ”ãƒ¼
 		m_CollisionPairVec[m_KeepIndex].resize(m_TempKeepVec.size());
 		m_CollisionPairVec[m_KeepIndex] = m_TempKeepVec;
-		//ƒL[ƒv‚³‚ê‚Ä‚¢‚éƒyƒA‚ÌSrc‚É‚à‚µGravity‚ªƒZƒbƒg‚³‚ê‚Ä‚¢‚½‚ç0‚É‚·‚é
+		//ã‚­ãƒ¼ãƒ—ã•ã‚Œã¦ã„ã‚‹ãƒšã‚¢ã®Srcã«ã‚‚ã—GravityãŒã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ãŸã‚‰0ã«ã™ã‚‹
 		for (auto& v : m_CollisionPairVec[m_KeepIndex])
 		{
 			auto ShSrc = v.m_Src.lock();
@@ -971,14 +971,14 @@ namespace shooting {
 				}
 			}
 		}
-		//V‹K‚ÌƒyƒA”z—ñ‚ÌƒNƒŠƒA
+		//æ–°è¦ã®ãƒšã‚¢é…åˆ—ã®ã‚¯ãƒªã‚¢
 		m_CollisionPairVec[m_NewIndex].clear();
-		//V‹K‚ÌÕ“Ë”»’è
+		//æ–°è¦ã®è¡çªåˆ¤å®š
 		SetNewCollision();
-		//’Ç‰Á‚³‚ê‚½ƒyƒA‚ğƒL[ƒv‚É’Ç‰Á
+		//è¿½åŠ ã•ã‚ŒãŸãƒšã‚¢ã‚’ã‚­ãƒ¼ãƒ—ã«è¿½åŠ 
 		for (auto& v : m_CollisionPairVec[m_NewIndex])
 		{
-			//’Ç‰ÁƒyƒA‚ÌSrc‚É‚à‚µGravity‚ªƒZƒbƒg‚³‚ê‚Ä‚¢‚½‚ç0‚É‚·‚é
+			//è¿½åŠ ãƒšã‚¢ã®Srcã«ã‚‚ã—GravityãŒã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ãŸã‚‰0ã«ã™ã‚‹
 			auto ShSrc = v.m_Src.lock();
 			if (ShSrc)
 			{
@@ -996,7 +996,7 @@ namespace shooting {
 		}
 
 		//--------------------------------------------------------
-		//ƒL[ƒv”z—ñ‚Ìƒ\[ƒg(IsPriorityUnderEscapeY())‚Ìê‡Y‚ª¬‚³‚¢—Dæ
+		//ã‚­ãƒ¼ãƒ—é…åˆ—ã®ã‚½ãƒ¼ãƒˆ(IsPriorityUnderEscapeY())ã®å ´åˆYãŒå°ã•ã„å„ªå…ˆ
 		//--------------------------------------------------------
 		auto func = [&](CollisionPair& Left, CollisionPair& Right)->bool {
 			if (IsPriorityUnderEscapeY())
@@ -1015,9 +1015,9 @@ namespace shooting {
 			}
 			return false;
 			};
-		//Õ“Ë“_‚Åƒ\[ƒg
+		//è¡çªç‚¹ã§ã‚½ãƒ¼ãƒˆ
 		std::sort(m_CollisionPairVec[m_KeepIndex].begin(), m_CollisionPairVec[m_KeepIndex].end(), func);
-		//ƒGƒXƒP[ƒv
+		//ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 		for (auto& v : m_CollisionPairVec[m_KeepIndex])
 		{
 			auto SrcSh = v.m_Src.lock();
@@ -1030,7 +1030,7 @@ namespace shooting {
 				}
 			}
 		}
-		//Õ“ËƒƒbƒZ[ƒW‚Ì‘—M
+		//è¡çªãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®é€ä¿¡
 		//Exit
 		for (auto& v : m_TempExitVec)
 		{
@@ -1047,7 +1047,7 @@ namespace shooting {
 				}
 			}
 		}
-		//ƒL[ƒv
+		//ã‚­ãƒ¼ãƒ—
 		for (auto& v : m_TempKeepVec)
 		{
 			auto ShSrc = v.m_Src.lock();
@@ -1063,7 +1063,7 @@ namespace shooting {
 				}
 			}
 		}
-		//V‹K
+		//æ–°è¦
 		for (auto& v : m_CollisionPairVec[m_NewIndex])
 		{
 			auto ShSrc = v.m_Src.lock();

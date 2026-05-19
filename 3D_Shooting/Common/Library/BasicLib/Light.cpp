@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Light.cpp
-@brief ƒ‰ƒCƒgƒNƒ‰ƒX
+@brief ãƒ©ã‚¤ãƒˆã‚¯ãƒ©ã‚¹
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -19,7 +19,7 @@ namespace shooting {
 	Light LightSet::GetLight(size_t index)const {
 		if (index >= m_lights.size()) {
 			throw BaseException(
-				L"ƒ‰ƒCƒg‚ÌƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+				L"ãƒ©ã‚¤ãƒˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 				Util::SizeTToWStr(index),
 				L"LightSet::GetLight()"
 			);
@@ -29,7 +29,7 @@ namespace shooting {
 	void LightSet::SetLight(size_t index, const Light& light) {
 		if (index >= m_lights.size()) {
 			throw BaseException(
-				L"ƒ‰ƒCƒg‚ÌƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+				L"ãƒ©ã‚¤ãƒˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 				Util::SizeTToWStr(index),
 				L"LightSet::SetLight()"
 			);
@@ -40,7 +40,7 @@ namespace shooting {
 	void LightSet::AddLight(const Light& light) {
 		if (m_lights.size() >= m_maxLights) {
 			throw BaseException(
-				L"‚±‚êˆÈãƒ‰ƒCƒg‚Í‘‚â‚¹‚Ü‚¹‚ñ",
+				L"ã“ã‚Œä»¥ä¸Šãƒ©ã‚¤ãƒˆã¯å¢—ã‚„ã›ã¾ã›ã‚“",
 				L"LightSet::AddLight()"
 			);
 		}
@@ -48,7 +48,7 @@ namespace shooting {
 	}
 
 	void LightSet::OnCreate() {
-		//ƒfƒtƒHƒ‹ƒg‚Ìƒ‰ƒCƒg‚ğì¬‚·‚é
+		//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒ©ã‚¤ãƒˆã‚’ä½œæˆã™ã‚‹
 		const Vec3 defaultDirections[3] =
 		{
 			{ -0.5265408f, -0.5735765f, -0.6275069f },

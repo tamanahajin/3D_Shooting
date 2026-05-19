@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -19,8 +19,8 @@ namespace shooting {
 	class Scene;
 
 	/// <summary>
-	/// ƒfƒoƒCƒX‚ÌŠî–{ƒNƒ‰ƒX‚ğ•\‚µ‚Ü‚·B
-	/// DirectX12‚È‚Ç‚ÌƒOƒ‰ƒtƒBƒbƒNƒXAPI‚ÉˆË‘¶‚·‚é‹ï‘Ì“I‚ÈƒfƒoƒCƒXÀ‘•‚ÌŠî’êƒNƒ‰ƒX‚Æ‚µ‚Ä‹@”\
+	/// ãƒ‡ãƒã‚¤ã‚¹ã®åŸºæœ¬ã‚¯ãƒ©ã‚¹ã‚’è¡¨ã—ã¾ã™ã€‚
+	/// DirectX12ãªã©ã®ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹APIã«ä¾å­˜ã™ã‚‹å…·ä½“çš„ãªãƒ‡ãƒã‚¤ã‚¹å®Ÿè£…ã®åŸºåº•ã‚¯ãƒ©ã‚¹ã¨ã—ã¦æ©Ÿèƒ½
 	/// </summary>
 	class BaseDevice : public PrimDevice
 	{
@@ -31,14 +31,14 @@ namespace shooting {
 		static const UINT FrameCount = 3;
 
 		/// <summary>
-		/// ƒXƒƒbƒvƒ`ƒF[ƒ“‚ğæ“¾
+		/// ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ãƒ¼ãƒ³ã‚’å–å¾—
 		/// </summary>
 		/// <returns></returns>
 		virtual IDXGISwapChain* GetSwapchain() { return m_swapChain.Get(); }
 		virtual ID3D12Device* GetD3D12Device() { return m_device.Get(); }
 		virtual ComPtr<ID3D12Device> GetID3D12Device() { return m_device; }
 		/// <summary>
-		/// ƒV[ƒ“ieƒNƒ‰ƒXj‚ğæ“¾
+		/// ã‚·ãƒ¼ãƒ³ï¼ˆè¦ªã‚¯ãƒ©ã‚¹ï¼‰ã‚’å–å¾—
 		/// </summary>
 		/// <returns></returns>
 		static std::unique_ptr<BaseScene>& GetScene()
@@ -50,7 +50,7 @@ namespace shooting {
 			return s_app;
 		}
 		/// <summary>
-		/// 1•b‚É1‰ñXV‚³‚ê‚éˆÀ’è‚µ‚½FPS’l‚ğæ“¾
+		/// 1ç§’ã«1å›æ›´æ–°ã•ã‚Œã‚‹å®‰å®šã—ãŸFPSå€¤ã‚’å–å¾—
 		/// </summary>
 		/// <returns></returns>
 		float GetStableFps() const
@@ -58,7 +58,7 @@ namespace shooting {
 			return m_fps;
 		}
 		/// <summary>
-		/// 1•b‚É1‰ñXV‚³‚ê‚éˆÀ’è‚µ‚½Œo‰ßŠÔ‚ğæ“¾
+		/// 1ç§’ã«1å›æ›´æ–°ã•ã‚Œã‚‹å®‰å®šã—ãŸçµŒéæ™‚é–“ã‚’å–å¾—
 		/// </summary>
 		/// <returns></returns>
 		double GetStableElapsedTime() const
@@ -89,7 +89,7 @@ namespace shooting {
 		std::vector<DxgiAdapterInfo> m_gpuAdapterDescs;
 		bool m_manualAdapterSelection;
 		HANDLE m_adapterChangeEvent;
-		// ƒAƒ_ƒvƒ^“o˜^‚É•Ô‚Á‚Ä‚­‚éID
+		// ã‚¢ãƒ€ãƒ—ã‚¿ç™»éŒ²æ™‚ã«è¿”ã£ã¦ãã‚‹ID
 		DWORD m_adapterChangeRegistrationCookie;
 
 		// D3D objects.
@@ -132,20 +132,20 @@ namespace shooting {
 		void LoadPipeline();
 		void LoadAssets();
 		/// <summary>
-		/// ‰æ–ÊƒTƒCƒY‚ÉˆË‘¶‚·‚éƒŠƒ\[ƒX‚ğ—pˆÓ‚µ’¼‚·
+		/// ç”»é¢ã‚µã‚¤ã‚ºã«ä¾å­˜ã™ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã‚’ç”¨æ„ã—ç›´ã™
 		/// </summary>
 		void LoadSizeDependentResources();
 		/// <summary>
-		/// ‰æ–ÊƒTƒCƒY‚ÉˆË‘¶‚·‚éƒŠƒ\[ƒX‚ğ‰ğ•ú
+		/// ç”»é¢ã‚µã‚¤ã‚ºã«ä¾å­˜ã™ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã‚’è§£æ”¾
 		/// </summary>
 		void ReleaseSizeDependentResources();
 		void UpdateUI();
 		/// <summary>
-		/// Direct3D/DXGIƒŠƒ\[ƒX‚ğÄì¬
+		/// Direct3D/DXGIãƒªã‚½ãƒ¼ã‚¹ã‚’å†ä½œæˆ
 		/// </summary>
 		void RecreateD3Dresources();
 		/// <summary>
-		/// Direct3D/DXGIƒŠƒ\[ƒX‚ğ‰ğ•ú
+		/// Direct3D/DXGIãƒªã‚½ãƒ¼ã‚¹ã‚’è§£æ”¾
 		/// </summary>
 		void ReleaseD3DObjects();
 		void EnumerateGPUadapters();

@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file BaseCommon.h
-@brief \‘¢‘ÌéŒ¾“™
+@brief æ§‹é€ ä½“å®£è¨€ç­‰
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file ObjectInterface.cpp
-@brief GameObject“™‚ÌeƒNƒ‰ƒX@À‘Ì
+@brief GameObjectç­‰ã®è¦ªã‚¯ãƒ©ã‚¹ã€€å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

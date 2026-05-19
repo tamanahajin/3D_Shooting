@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file FrameResource.cpp
-@brief ƒtƒŒ[ƒ€ƒNƒ‰ƒX@À‘Ì
+@brief ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¯ãƒ©ã‚¹ã€€å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

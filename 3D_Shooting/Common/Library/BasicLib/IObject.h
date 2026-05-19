@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file IObject.h
-@brief GameObject“™‚ÌeƒNƒ‰ƒX
+@brief GameObjectç­‰ã®è¦ªã‚¯ãƒ©ã‚¹
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -18,7 +18,7 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	///	ObjectƒCƒ“ƒ^[ƒtƒFƒCƒX
+	///	Objectã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹
 	//--------------------------------------------------------------------------------------
 	class IObject : public std::enable_shared_from_this<IObject> {
 		friend class ObjectFactory;
@@ -26,8 +26,8 @@ namespace shooting {
 		IObject() {}
 		virtual ~IObject() {}
 	public:
-		//ƒNƒŠƒGƒCƒgÏ‚İ‚©‚Ç‚¤‚©
-		//CreateŠÖ”‚ªŒÄ‚Ño‚µŒã‚Étrue‚É‚È‚é
+		//ã‚¯ãƒªã‚¨ã‚¤ãƒˆæ¸ˆã¿ã‹ã©ã†ã‹
+		//Createé–¢æ•°ãŒå‘¼ã³å‡ºã—å¾Œã«trueã«ãªã‚‹
 		bool m_created{ false };
 		void SetCreated(bool b)
 		{
@@ -36,9 +36,9 @@ namespace shooting {
 
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief thisƒ|ƒCƒ“ƒ^ishared_ptrj‚Ìæ“¾
-		@tparam T	ƒ|ƒCƒ“ƒ^‚ÌŒ^
-		@return@ƒIƒuƒWƒFƒNƒg‚Ìshared_ptr
+		@brief thisãƒã‚¤ãƒ³ã‚¿ï¼ˆshared_ptrï¼‰ã®å–å¾—
+		@tparam T	ãƒã‚¤ãƒ³ã‚¿ã®å‹
+		@returnã€€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T>
@@ -51,9 +51,9 @@ namespace shooting {
 			}
 			else
 			{
-				std::wstring str(L"this‚ğ");
+				std::wstring str(L"thisã‚’");
 				str += Util::GetWSTypeName<T>();
-				str += L"Œ^‚ÉƒLƒƒƒXƒg‚Å‚«‚Ü‚¹‚ñ";
+				str += L"å‹ã«ã‚­ãƒ£ã‚¹ãƒˆã§ãã¾ã›ã‚“";
 				throw BaseException(
 					str,
 					L"if( ! dynamic_pointer_cast<T>(shared_from_this()) )",
@@ -64,104 +64,104 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ƒNƒŠƒGƒCƒgÏ‚İ‚©‚ğæ“¾
-		@return@ƒNƒŠƒGƒCƒgÏ‚İ‚È‚çtrue
+		@brief ã‚¯ãƒªã‚¨ã‚¤ãƒˆæ¸ˆã¿ã‹ã‚’å–å¾—
+		@returnã€€ã‚¯ãƒªã‚¨ã‚¤ãƒˆæ¸ˆã¿ãªã‚‰true
 		*/
 		//--------------------------------------------------------------------------------------
 		bool IsCreated()const
 		{
 			return m_created;
 		}
-		//‰¼‘zŠÖ”ŒQ
+		//ä»®æƒ³é–¢æ•°ç¾¤
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	‰Šú‰»‘Oˆ—
-		@return	‚È‚µ
+		@brief	åˆæœŸåŒ–å‰å‡¦ç†
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnPreCreate() {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	‰Šú‰»ˆ—
-		@param[in]	pCommandList ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@return	‚È‚µ
+		@brief	åˆæœŸåŒ–å‡¦ç†
+		@param[in]	pCommandList ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnCreate() = 0;
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	XVˆ—
-		@param[in]	elapsedTime ‘O‚Ìƒ^[ƒ“‚©‚ç‚ÌŠÔ
-		@return	‚È‚µ
+		@brief	æ›´æ–°å‡¦ç†
+		@param[in]	elapsedTime å‰ã®ã‚¿ãƒ¼ãƒ³ã‹ã‚‰ã®æ™‚é–“
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnUpdate(double elapsedTime) = 0;
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	XVˆ—‚Q
-		@return	‚È‚µ
+		@brief	æ›´æ–°å‡¦ç†ï¼’
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnUpdate2(double elapsedTime) {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	•`‰æˆ—
-		@param[in]	pCommandList ƒRƒ}ƒ“ƒhƒŠƒXƒg
-		@return	‚È‚µ
+		@brief	æç”»å‡¦ç†
+		@param[in]	pCommandList ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnShadowDraw(ID3D12GraphicsCommandList* pCommandList) {}
 		virtual void OnSceneDraw(ID3D12GraphicsCommandList* pCommandList) {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	”jŠüˆ—
-		@return	‚È‚µ
+		@brief	ç ´æ£„æ™‚å‡¦ç†
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnDestroy() {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒL[ƒ{[ƒh‰Ÿ‚³‚ê‚½ˆ—
-		@return	‚È‚µ
+		@brief	ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰æŠ¼ã•ã‚ŒãŸå‡¦ç†
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnKeyDown(UINT8 /*key*/) {}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒL[ƒ{[ƒh—£‚³‚ê‚½ˆ—
-		@return	‚È‚µ
+		@brief	ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰é›¢ã•ã‚ŒãŸå‡¦ç†
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnKeyUp(UINT8 /*key*/) {}
 	private:
-		//ƒRƒs[‹Ö~
+		//ã‚³ãƒ”ãƒ¼ç¦æ­¢
 		IObject(const IObject&) = delete;
 		IObject& operator=(const IObject&) = delete;
-		//ƒ€[ƒu‹Ö~
+		//ãƒ ãƒ¼ãƒ–ç¦æ­¢
 		IObject(const IObject&&) = delete;
 		IObject& operator=(const IObject&&) = delete;
 	};
 
 
 	//--------------------------------------------------------------------------------------
-	///	Object‚ğ\’z‚·‚é
+	///	Objectã‚’æ§‹ç¯‰ã™ã‚‹
 	//--------------------------------------------------------------------------------------
 	class ObjectFactory {
 	public:
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ƒIƒuƒWƒFƒNƒgì¬istaticŠÖ”j
-		@tparam T	ì¬‚·‚éŒ^
-		@tparam Ts...	‰Â•Ï’·ƒpƒ‰ƒ[ƒ^Œ^
-		@param[in]	params	‰Â•Ï’·ƒpƒ‰ƒ[ƒ^
-		@return@ì¬‚µ‚½ƒIƒuƒWƒFƒNƒg‚Ìshared_ptr
+		@brief ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆä½œæˆï¼ˆstaticé–¢æ•°ï¼‰
+		@tparam T	ä½œæˆã™ã‚‹å‹
+		@tparam Ts...	å¯å¤‰é•·ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å‹
+		@param[in]	params	å¯å¤‰é•·ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+		@returnã€€ä½œæˆã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T, typename... Ts>
 		static std::shared_ptr<T> Create(Ts&&... params)
 		{
 			std::shared_ptr<T> ptr = std::shared_ptr<T>(new T(params...));
-			//‰Šú‰»ŠÖ”ŒÄ‚Ño‚µ
+			//åˆæœŸåŒ–é–¢æ•°å‘¼ã³å‡ºã—
 			ptr->OnPreCreate();
 			ptr->OnCreate();
 			ptr->SetCreated(true);
@@ -171,18 +171,18 @@ namespace shooting {
 
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief ƒIƒuƒWƒFƒNƒgì¬istaticŠÖ”jBƒpƒ‰ƒ[ƒ^‚ÍOnInit‚É“n‚³‚ê‚é
-		@tparam T	ì¬‚·‚éŒ^
-		@tparam Ts...	‰Â•Ï’·ƒpƒ‰ƒ[ƒ^Œ^
-		@param[in]	params	‰Â•Ï’·ƒpƒ‰ƒ[ƒ^
-		@return@ì¬‚µ‚½ƒIƒuƒWƒFƒNƒg‚Ìshared_ptr
+		@brief ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆä½œæˆï¼ˆstaticé–¢æ•°ï¼‰ã€‚ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯OnInitã«æ¸¡ã•ã‚Œã‚‹
+		@tparam T	ä½œæˆã™ã‚‹å‹
+		@tparam Ts...	å¯å¤‰é•·ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å‹
+		@param[in]	params	å¯å¤‰é•·ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+		@returnã€€ä½œæˆã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®shared_ptr
 		*/
 		//--------------------------------------------------------------------------------------
 		template<typename T, typename... Ts>
 		static std::shared_ptr<T> CreateInitParam(Ts&&... params)
 		{
 			std::shared_ptr<T> ptr = std::shared_ptr<T>(new T());
-			//‰Šú‰»ŠÖ”ŒÄ‚Ño‚µ
+			//åˆæœŸåŒ–é–¢æ•°å‘¼ã³å‡ºã—
 			ptr->OnCreate(params...);
 			ptr->SetCreated(true);
 			return ptr;

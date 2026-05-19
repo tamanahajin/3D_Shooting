@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BcStaticDraw.cpp
-@brief ƒxƒCƒVƒbƒNƒXƒ^ƒeƒBƒbƒN•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg@À‘Ì
+@brief ãƒ™ã‚¤ã‚·ãƒƒã‚¯ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -34,13 +34,13 @@ namespace shooting {
 		auto pBaseScene = BaseScene::Get();
 		auto& frameResources = pBaseScene->GetFrameResources();
 		auto pBaseDevice = BaseDevice::GetBaseDevice();
-		//ƒxƒCƒVƒbƒNƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+		//ãƒ™ã‚¤ã‚·ãƒƒã‚¯ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
 		{
 			m_ConstantBufferIndex =
 				frameResources[i]->AddBaseConstantBufferSet<BasicConstant>(pBaseDevice->GetD3D12Device());
 		}
-		// ƒV[ƒ“ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		// ã‚·ãƒ¼ãƒ³ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
 		{
 
 			ComPtr<ID3D12PipelineState> defaultPipelineState
@@ -54,7 +54,7 @@ namespace shooting {
 
 
 			CD3DX12_RASTERIZER_DESC rasterizerStateDesc(D3D12_DEFAULT);
-			//ƒJƒŠƒ“ƒO
+			//ã‚«ãƒªãƒ³ã‚°
 			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_BACK;
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -80,14 +80,14 @@ namespace shooting {
 			psoDesc.NumRenderTargets = 1;
 			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 			psoDesc.SampleDesc.Count = 1;
-			//ƒfƒtƒHƒ‹ƒg‰e–³‚µ
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ç„¡ã—
 			if (!defaultPipelineState)
 			{
 				ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&defaultPipelineState)));
 				NAME_D3D12_OBJECT(defaultPipelineState);
 				PipelineStatePool::AddPipelineState(L"BcPNTStatic", defaultPipelineState);
 			}
-			//ƒAƒ‹ƒtƒ@‰e‚È‚µ
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ãªã—
 			psoDesc.BlendState = BlendState::GetAlphaBlendEx();
 			if (!alphaPipelineState)
 			{
@@ -95,7 +95,7 @@ namespace shooting {
 				NAME_D3D12_OBJECT(alphaPipelineState);
 				PipelineStatePool::AddPipelineState(L"BcPNTStaticAlpha", alphaPipelineState);
 			}
-			//ƒfƒtƒHƒ‹ƒg‰e‚ ‚è
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ã‚ã‚Š
 			psoDesc.BlendState = BlendState::GetOpaqueBlend();
 			psoDesc.VS =
 			{
@@ -114,7 +114,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"BcPNTStaticShadow", defaultShadowPipelineState);
 			}
 			psoDesc.BlendState = BlendState::GetAlphaBlendEx();
-			//ƒAƒ‹ƒtƒ@‰e‚ ‚è
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ã‚ã‚Š
 			if (!alphaShadowPipelineState)
 			{
 				ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&alphaShadowPipelineState)));
@@ -144,10 +144,10 @@ namespace shooting {
 			myCamera = std::dynamic_pointer_cast<PerspecCamera>(gameObject->GetCamera());
 			myLightSet = gameObject->GetLightSet();
 
-			//TransformƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ‚èo‚·
+			//Transformã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–ã‚Šå‡ºã™
 			auto ptrTrans = gameObject->GetComponent<Transform>();
 			auto& param = ptrTrans->GetTransParam();
-			//ƒV[ƒ“‚ÌƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+			//ã‚·ãƒ¼ãƒ³ã®ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 			{
 				//if (GetBaseMaterialCount() > 0)
 				//{
@@ -162,7 +162,7 @@ namespace shooting {
 				m_ConstantBuffer.activeFlg.y = GetDrawTexture(0) ? 1 : 0;
 				m_ConstantBuffer.activeFlg.x = m_LightingEnabled ? 3 : 0;
 
-				//ƒ[ƒ‹ƒhs—ñ‚Ìİ’è
+				//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®è¨­å®š
 				auto world = XMMatrixAffineTransformation(
 					param.scale,
 					param.rotateOrigin,
@@ -173,7 +173,7 @@ namespace shooting {
 				auto proj = (XMMATRIX)((Mat4x4)myCamera->GetProjMatrix());
 				auto worldView = world * view;
 				m_ConstantBuffer.worldViewProj = Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
-				//ƒtƒHƒO‚Ìİ’è
+				//ãƒ•ã‚©ã‚°ã®è¨­å®š
 				if (m_FogEnabled)
 				{
 					auto start = m_FogStart;
@@ -200,14 +200,14 @@ namespace shooting {
 					m_ConstantBuffer.fogVector = Vec4(g_XMZero);
 					m_ConstantBuffer.fogColor = Vec4(g_XMZero);
 				}
-				//ƒ‰ƒCƒg‚ÌŒˆ’è
+				//ãƒ©ã‚¤ãƒˆã®æ±ºå®š
 				for (int i = 0; i < myLightSet->GetNumLights(); i++)
 				{
 					m_ConstantBuffer.lightDirection[i] = (Vec4)myLightSet->GetLight(i).m_directional;
 					m_ConstantBuffer.lightDiffuseColor[i] = (Vec4)myLightSet->GetLight(i).m_diffuseColor;
 					m_ConstantBuffer.lightSpecularColor[i] = (Vec4)myLightSet->GetLight(i).m_specularColor;
 				}
-				//ƒ[ƒ‹ƒhs—ñ
+				//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
 				m_ConstantBuffer.world = Mat4x4(world);
 				m_ConstantBuffer.world.transpose();
 
@@ -224,7 +224,7 @@ namespace shooting {
 				Col4 emissiveColor = Col4(0.0f);
 				Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
 
-				// emissive ‚Æ ambient‚Æƒ‰ƒCƒg‚ğƒ}[ƒW‚·‚é
+				// emissive ã¨ ambientã¨ãƒ©ã‚¤ãƒˆã‚’ãƒãƒ¼ã‚¸ã™ã‚‹
 				m_ConstantBuffer.emissiveColor = (emissiveColor + (ambientLightColor * diffuse)) * alphaVector;
 				m_ConstantBuffer.specularColorAndPower = Col4(0, 0, 0, 1);
 
@@ -246,7 +246,7 @@ namespace shooting {
 				Vec4 eyePos4 = Vec4((Vec3)myCamera->GetEye(), 1.0f);
 				m_ConstantBuffer.eyePos = eyePos4;
 				XMMATRIX LightView, LightProj;
-				//ƒ‰ƒCƒg‚Ìƒrƒ…[‚ÆË‰e‚ğŒvZ
+				//ãƒ©ã‚¤ãƒˆã®ãƒ“ãƒ¥ãƒ¼ã¨å°„å½±ã‚’è¨ˆç®—
 				LightView = XMMatrixLookAtLH(
 					Vec3(lightEye),
 					Vec3(lightAt),
@@ -266,7 +266,7 @@ namespace shooting {
 	{
 		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
 		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
-		//ƒV[ƒ“
+		//ã‚·ãƒ¼ãƒ³
 		memcpy(pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex].m_pBaseConstantBufferWO,
 			   &m_ConstantBuffer, sizeof(m_ConstantBuffer));
 	}
@@ -385,13 +385,13 @@ namespace shooting {
 				);
 			}
 
-			// ’Êí•`‰æ
+			// é€šå¸¸æç”»
 			pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
 			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 		}
 
-		// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg‚ª‚ ‚ê‚Î•`‰æ
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆãŒã‚ã‚Œã°æç”»
 		if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
 		{
 			dmg->OnDraw(pCommandList);
@@ -400,7 +400,7 @@ namespace shooting {
 
 	std::shared_ptr<BaseTexture> BcPNTStaticDraw::GetDrawTexture(size_t index)
 	{
-		// 1. material —Dæ
+		// 1. material å„ªå…ˆ
 		if (index < GetBaseMaterialCount())
 		{
 			auto material = GetBaseMaterial(index);
@@ -414,7 +414,7 @@ namespace shooting {
 			}
 		}
 
-		// 2. ]—ˆ‚Ì texture
+		// 2. å¾“æ¥ã® texture
 		if (index < GetBaseTextureCount())
 		{
 			auto tex = GetBaseTexture(index);
@@ -424,7 +424,7 @@ namespace shooting {
 			}
 		}
 
-		// 3. ÅŒã‚Ì•ÛŒ¯: 0”Ô texture
+		// 3. æœ€å¾Œã®ä¿é™º: 0ç•ª texture
 		if (GetBaseTextureCount() > 0)
 		{
 			return GetBaseTexture(0);

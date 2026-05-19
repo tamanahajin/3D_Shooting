@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 namespace shooting {
 
@@ -296,7 +296,7 @@ namespace shooting {
 		}
 		else
 		{
-			//nullptr‚ª“n‚³‚ê‚½
+			//nullptrãŒæ¸¡ã•ã‚ŒãŸ
 			ClearParent();
 		}
 	}
@@ -313,15 +313,15 @@ namespace shooting {
 	}
 
 	/// <summary>
-	/// Œ»İ‚Ì‘¬“xƒxƒNƒgƒ‹‚ğæ“¾
+	/// ç¾åœ¨ã®é€Ÿåº¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—
 	/// </summary>
-	/// <returns>‘O‰ñ‚ÌƒtƒŒ[ƒ€‚©‚ç‚ÌˆÊ’u•Ï‰»‚ÉŠî‚Ã‚¢‚ÄŒvZ‚³‚ê‚½‘¬“xƒxƒNƒgƒ‹</returns>
+	/// <returns>å‰å›ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®ä½ç½®å¤‰åŒ–ã«åŸºã¥ã„ã¦è¨ˆç®—ã•ã‚ŒãŸé€Ÿåº¦ãƒ™ã‚¯ãƒˆãƒ«</returns>
 	Vec3 Transform::GetVelocity() const
 	{
-		// 1. ‘O‰ñ‚ÌƒtƒŒ[ƒ€‚©‚ç‚ÌŒo‰ßŠÔ‚ğæ“¾
+		// 1. å‰å›ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®çµŒéæ™‚é–“ã‚’å–å¾—
 		const float dt = bsmUtil::Max(1e-4f, (float)Scene::GetElapsedTime());
 		
-		// 2. ˆÊ’u‚Ì•Ï‰»—Ê‚ğŒvZ
+		// 2. ä½ç½®ã®å¤‰åŒ–é‡ã‚’è¨ˆç®—
 		Vec3 v = (m_param.position - m_beforeParam.position) / dt;
 		
 		if (v.isNaN() || v.isInfinite())

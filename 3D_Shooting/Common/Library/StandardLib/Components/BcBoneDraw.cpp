@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BcStaticDraw.cpp
-@brief ƒxƒCƒVƒbƒNƒXƒ^ƒeƒBƒbƒN•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg@À‘Ì
+@brief ãƒ™ã‚¤ã‚·ãƒƒã‚¯ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
@@ -33,13 +33,13 @@ namespace shooting {
 		auto pBaseScene = BaseScene::Get();
 		auto& frameResources = pBaseScene->GetFrameResources();
 		auto pBaseDevice = BaseDevice::GetBaseDevice();
-		//ƒxƒCƒVƒbƒNƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+		//ãƒ™ã‚¤ã‚·ãƒƒã‚¯ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡
 		for (size_t i = 0; i < BaseDevice::FrameCount; i++)
 		{
 			m_ConstantBufferIndex =
 				frameResources[i]->AddBaseConstantBufferSet<BasicConstant>(pBaseDevice->GetD3D12Device());
 		}
-		// ƒV[ƒ“ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		// ã‚·ãƒ¼ãƒ³ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
 		{
 
 			ComPtr<ID3D12PipelineState> defaultPipelineState
@@ -53,7 +53,7 @@ namespace shooting {
 
 
 			CD3DX12_RASTERIZER_DESC rasterizerStateDesc(D3D12_DEFAULT);
-			//ƒJƒŠƒ“ƒO
+			//ã‚«ãƒªãƒ³ã‚°
 			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_NONE;
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -81,14 +81,14 @@ namespace shooting {
 			psoDesc.NumRenderTargets = 1;
 			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 			psoDesc.SampleDesc.Count = 1;
-			//ƒfƒtƒHƒ‹ƒg‰e–³‚µ
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ç„¡ã—
 			if (!defaultPipelineState)
 			{
 				ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&defaultPipelineState)));
 				NAME_D3D12_OBJECT(defaultPipelineState);
 				PipelineStatePool::AddPipelineState(L"BcPNTBone", defaultPipelineState);
 			}
-			//ƒAƒ‹ƒtƒ@‰e‚È‚µ
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ãªã—
 			psoDesc.BlendState = BlendState::GetAlphaBlendEx();
 			if (!alphaPipelineState)
 			{
@@ -96,7 +96,7 @@ namespace shooting {
 				NAME_D3D12_OBJECT(alphaPipelineState);
 				PipelineStatePool::AddPipelineState(L"BcPNTBoneAlpha", alphaPipelineState);
 			}
-			//ƒfƒtƒHƒ‹ƒg‰e‚ ‚è
+			//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå½±ã‚ã‚Š
 			psoDesc.BlendState = BlendState::GetOpaqueBlend();
 			psoDesc.VS =
 			{
@@ -115,7 +115,7 @@ namespace shooting {
 				PipelineStatePool::AddPipelineState(L"BcPNTBoneShadow", defaultShadowPipelineState);
 			}
 			psoDesc.BlendState = BlendState::GetAlphaBlendEx();
-			//ƒAƒ‹ƒtƒ@‰e‚ ‚è
+			//ã‚¢ãƒ«ãƒ•ã‚¡å½±ã‚ã‚Š
 			if (!alphaShadowPipelineState)
 			{
 				ThrowIfFailed(App::GetID3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&alphaShadowPipelineState)));
@@ -295,7 +295,7 @@ namespace shooting {
 	{
 		auto scene = dynamic_cast<Scene*>(BaseScene::Get());
 		auto pCurrentFrameResource = scene->GetCurrentFrameResource();
-		//ƒV[ƒ“
+		//ã‚·ãƒ¼ãƒ³
 		memcpy(pCurrentFrameResource->m_baseConstantBufferSetVec[m_ConstantBufferIndex].m_pBaseConstantBufferWO,
 			   &m_ConstantBuffer, sizeof(m_ConstantBuffer));
 	}
@@ -364,7 +364,7 @@ namespace shooting {
 			if (index == UINT_MAX)
 			{
 				throw BaseException(
-					L"LinearClampƒTƒ“ƒvƒ‰[‚ª“Á’è‚Å‚«‚Ü‚¹‚ñB",
+					L"LinearClampã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãŒç‰¹å®šã§ãã¾ã›ã‚“ã€‚",
 					L"Scene::ScenePass()"
 				);
 			}
@@ -379,7 +379,7 @@ namespace shooting {
 			if (index == UINT_MAX)
 			{
 				throw BaseException(
-					L"ComparisonLinearƒTƒ“ƒvƒ‰[‚ª“Á’è‚Å‚«‚Ü‚¹‚ñB",
+					L"ComparisonLinearã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãŒç‰¹å®šã§ãã¾ã›ã‚“ã€‚",
 					L"Scene::ScenePass()"
 				);
 			}
@@ -389,7 +389,7 @@ namespace shooting {
 				pBaseScene->GetSamplerDescriptorHandleIncrementSize()
 			);
 			pCommandList->SetGraphicsRootDescriptorTable(pBaseScene->GetGpuSlotID(L"s1"), samplerHandle2);
-			//ƒVƒF[ƒ_ƒŠƒ\[ƒXiƒeƒNƒXƒ`ƒƒj‚Ìƒnƒ“ƒhƒ‹‚Ìİ’è
+			//ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ï¼‰ã®ãƒãƒ³ãƒ‰ãƒ«ã®è¨­å®š
 			if (texture)
 			{
 				CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(
@@ -416,7 +416,7 @@ namespace shooting {
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
 			pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 
-			// ƒ_ƒ[ƒWƒGƒtƒFƒNƒg
+			// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
 			if (auto dmg = GetGameObject()->GetComponent<DamageEffect>(false))
 			{
 				dmg->OnDraw(pCommandList);
@@ -427,7 +427,7 @@ namespace shooting {
 
 	std::shared_ptr<BaseTexture> BcPNTBoneDraw::GetDrawTexture(size_t index)
 	{
-		// 1. material —Dæ
+		// 1. material å„ªå…ˆ
 		if (index < GetBaseMaterialCount())
 		{
 			auto material = GetBaseMaterial(index);
@@ -441,7 +441,7 @@ namespace shooting {
 			}
 		}
 
-		// 2. ]—ˆ‚Ì texture
+		// 2. å¾“æ¥ã® texture
 		if (index < GetBaseTextureCount())
 		{
 			auto tex = GetBaseTexture(index);
@@ -451,7 +451,7 @@ namespace shooting {
 			}
 		}
 
-		// 3. ÅŒã‚Ì•ÛŒ¯: 0”Ô texture
+		// 3. æœ€å¾Œã®ä¿é™º: 0ç•ª texture
 		if (GetBaseTextureCount() > 0)
 		{
 			return GetBaseTexture(0);

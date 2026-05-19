@@ -1,13 +1,13 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
 
 	/// <summary>
-	/// �e�I�u�W�F�N�g�̋��ʃC���^�[�t�F�C�X
+	/// 弾オブジェクトの共通インターフェイス
 	///
-	/// BulletPool ���e���ė��p���邽�߂ɕK�v�ȍŏ�API�������`����B
-	/// ����ɂ�� BulletPool �� DefaultBullet ���̋�̌^�Ɉˑ����Ȃ��B
+	/// BulletPool が弾を再利用するために必要な最小APIだけを定義する。
+	/// これにより BulletPool は DefaultBullet 等の具体型に依存しない。
 	/// </summary>
 	class IBullet : public GameObject
 	{
@@ -19,27 +19,27 @@ namespace shooting {
 		virtual ~IBullet() = default;
 
 		/// <summary>
-		/// �u�v�[������g�p�����H�v�̔���B
-		/// �e�������؂�/�����ȂǂŏI�������� false �ɂ���B
+		/// 「プールから使用中か？」の判定。
+		/// 弾が寿命切れ/命中などで終了したら false にする。
 		/// </summary>
 		virtual bool IsActive() const noexcept = 0;
 
 		/// <summary>
-		/// �A�N�e�B�u��Ԃ̐ݒ�B
-		/// Pool����������� false ����ꂽ��ASpawn���� true ����ꂽ�肷��B
+		/// アクティブ状態の設定。
+		/// Pool側が回収時に false を入れたり、Spawn時に true を入れたりする。
 		/// </summary>
 		virtual void SetActive(bool active) noexcept = 0;
 
 		/// <summary>
-		/// �v�[������Ďg�p����Ƃ��ɁA������Ԃ�����������B
-		/// ��F�����^�C�}�[�A�����t���O�A�q�b�g�����A���o��ԂȂ�
+		/// プールから再使用するときに、内部状態を初期化する。
+		/// 例：寿命タイマー、爆発フラグ、ヒット履歴、演出状態など
 		/// </summary>
 		virtual void ResetForSpawn() noexcept = 0;
 
 		/// <summary>
-		/// �i�C�Ӂj������ɌĂ΂��t�b�N�B
-		/// ��F�X�P�[����߂��AVFX���~�߂铙
-		/// �g��Ȃ��e�͉������Ȃ���OK�B
+		/// （任意）回収時に呼ばれるフック。
+		/// 例：スケールを戻す、VFXを止める等
+		/// 使わない弾は何もしなくてOK。
 		/// </summary>
 		virtual void OnReturnToPool() noexcept {}
 	};

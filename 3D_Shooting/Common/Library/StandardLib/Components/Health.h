@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "DamageInfo.h"
 
@@ -20,13 +20,13 @@ namespace shooting {
 		int  GetMaxHP() const { return m_MaxHP; }
 		bool IsDead() const { return m_Hp <= 0; }
 
-		// ƒ_ƒ[ƒW“K—pi–ß‚è’lFŽ€–S‚µ‚½‚©j
+		// ãƒ€ãƒ¡ãƒ¼ã‚¸é©ç”¨ï¼ˆæˆ»ã‚Šå€¤ï¼šæ­»äº¡ã—ãŸã‹ï¼‰
 		bool ApplyDamage(const DamageInfo& info);
 		bool Heal(int amount);
 
 		void SetInvincible(bool b) { m_Invincible = b; }
 
-		// ƒCƒxƒ“ƒg
+		// ã‚¤ãƒ™ãƒ³ãƒˆ
 		std::function<void(const DamageInfo&)> m_OnDamaged;
 		std::function<void(const DamageInfo&)> m_OnDeath;
 	};

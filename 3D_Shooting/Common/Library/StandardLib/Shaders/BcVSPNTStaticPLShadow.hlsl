@@ -1,6 +1,6 @@
 /*!
 @file BcVSPNTStaticPLShadow.hlsli
-@brief PNTƒXƒ^ƒeƒBƒbƒNƒsƒNƒZƒ‹ƒ‰ƒCƒeƒBƒ“ƒO‰e•t‚«’¸“_ƒVƒF[ƒ_[
+@brief PNTã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãƒ”ã‚¯ã‚»ãƒ«ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°å½±ä»˜ãé ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -22,11 +22,11 @@ VSOutputPixelLightingTxShadow main(VSInputNmTx vin)
 	vout.Diffuse = float4(1, 1, 1, DiffuseColor.a);
 	vout.TexCoord = vin.TexCoord;
 
-	//‰e—p
+	//å½±ç”¨
 	vout.norm = mul(vin.Normal, (float3x3)World);
 	vout.norm = normalize(vout.norm);
 	float4 LightModelPos = float4(vin.Position.xyz, 1.0f);
-	//ƒ[ƒ‹ƒh•ÏŠ·
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›
 	LightModelPos = mul(LightModelPos, World);
 	float4 LightSpacePos = mul(LightModelPos, LightView);
 	LightSpacePos = mul(LightSpacePos, LightProjection);

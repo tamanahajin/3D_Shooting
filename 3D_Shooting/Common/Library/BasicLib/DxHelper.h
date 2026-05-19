@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -28,7 +28,7 @@ inline std::string HrToString(HRESULT hr)
 }
 
 //--------------------------------------------------------------------------------------
-///	—áŠOƒNƒ‰ƒX
+///	ä¾‹å¤–ã‚¯ãƒ©ã‚¹
 //--------------------------------------------------------------------------------------
 class HrException : public std::runtime_error
 {
@@ -211,10 +211,10 @@ inline void SetNameIndexed(ID3D12Object*, LPCWSTR, UINT)
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.
 // The indexed variant will include the index in the name of the object.
-// “ú–{ŒêF ComPtr<T> ‚ÌƒfƒoƒbƒO—p‚Ì–¼‘O‚ğ‚Â‚¯‚é‚½‚ß‚Ìƒwƒ‹ƒp[ƒ}ƒNƒ
-// •Ï”‚Ì–¼‘O‚ğƒIƒuƒWƒFƒNƒg‚Ì–¼‘O‚Æ‚µ‚ÄŠ„‚è“–‚Ä‚Ü‚·B
-// —áFNAME_D3D12_OBJECT(m_vertexBuffer);@¨@SetName(m_vertexBuffer.Get(), L"m_vertexBuffer");
-// PIX / RenderDoc / VS Graphics Diagnostics ‚È‚Ç‚Ìƒc[ƒ‹‚ÅƒIƒuƒWƒFƒNƒg–¼‚ª•\¦‚³‚ê‚é‚æ‚¤‚É‚È‚èAƒfƒoƒbƒO‚ªŠy‚É‚È‚é
+// æ—¥æœ¬èªï¼š ComPtr<T> ã®ãƒ‡ãƒãƒƒã‚°ç”¨ã®åå‰ã‚’ã¤ã‘ã‚‹ãŸã‚ã®ãƒ˜ãƒ«ãƒ‘ãƒ¼ãƒã‚¯ãƒ­
+// å¤‰æ•°ã®åå‰ã‚’ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åå‰ã¨ã—ã¦å‰²ã‚Šå½“ã¦ã¾ã™ã€‚
+// ä¾‹ï¼šNAME_D3D12_OBJECT(m_vertexBuffer);ã€€â†’ã€€SetName(m_vertexBuffer.Get(), L"m_vertexBuffer");
+// PIX / RenderDoc / VS Graphics Diagnostics ãªã©ã®ãƒ„ãƒ¼ãƒ«ã§ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆåãŒè¡¨ç¤ºã•ã‚Œã‚‹ã‚ˆã†ã«ãªã‚Šã€ãƒ‡ãƒãƒƒã‚°ãŒæ¥½ã«ãªã‚‹
 #define NAME_D3D12_OBJECT(x) SetName((x).Get(), L#x)
 #define NAME_D3D12_OBJECT_INDEXED(x, n) SetNameIndexed((x)[n].Get(), L#x, n)
 

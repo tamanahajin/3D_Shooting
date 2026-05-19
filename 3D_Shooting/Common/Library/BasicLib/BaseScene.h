@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -40,11 +40,11 @@ namespace shooting {
 		{
 			if (!m_activeStage)
 			{
-				//ƒAƒNƒeƒBƒu‚ÈƒXƒe[ƒW‚ª–³Œø‚È‚ç
+				//ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¹ãƒ†ãƒ¼ã‚¸ãŒç„¡åŠ¹ãªã‚‰
 				if (ExceptionActive)
 				{
 					throw BaseException(
-						L"ƒAƒNƒeƒBƒu‚ÈƒXƒe[ƒW‚ª‚ ‚è‚Ü‚¹‚ñ",
+						L"ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¹ãƒ†ãƒ¼ã‚¸ãŒã‚ã‚Šã¾ã›ã‚“",
 						L"if(!m_activeStage)",
 						L"BaseScene::GetActiveStage()"
 					);
@@ -71,42 +71,42 @@ namespace shooting {
 		{
 			return m_pCurrentFrameResource;
 		}
-		//RtvƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚Ìæ“¾
+		//Rtvãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®å–å¾—
 		ComPtr<ID3D12DescriptorHeap> GetRtvDescriptorHeap() const
 		{
 			return m_rtvHeap;
 		}
-		//DsvƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚Ìæ“¾
+		//Dsvãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®å–å¾—
 		ComPtr<ID3D12DescriptorHeap> GetDsvDescriptorHeap() const
 		{
 			return m_dsvHeap;
 		}
-		//CbvSrvUavƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚Ìæ“¾
+		//CbvSrvUavãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®å–å¾—
 		ComPtr<ID3D12DescriptorHeap> GetCbvSrvUavDescriptorHeap() const
 		{
 			return m_cbvSrvHeap;
 		}
-		//ƒTƒ“ƒvƒ‰[ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚Ìæ“¾
+		//ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®å–å¾—
 		ComPtr<ID3D12DescriptorHeap> GetSamplerDescriptorHeap() const
 		{
 			return m_samplerHeap;
 		}
-		//RtvƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌƒCƒ“ƒNƒŠƒƒ“ƒgƒTƒCƒY‚Ìæ“¾
+		//Rtvãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚µã‚¤ã‚ºã®å–å¾—
 		UINT GetRtvDescriptorHandleIncrementSize() const
 		{
 			return m_rtvDescriptorSize;
 		}
-		//DsvƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌƒCƒ“ƒNƒŠƒƒ“ƒgƒTƒCƒY‚Ìæ“¾
+		//Dsvãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚µã‚¤ã‚ºã®å–å¾—
 		UINT GetDsvDescriptorHandleIncrementSize() const
 		{
 			return m_dsvDescriptorSize;
 		}
-		//CbvSrvUavƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌƒCƒ“ƒNƒŠƒƒ“ƒgƒTƒCƒY‚Ìæ“¾
+		//CbvSrvUavãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚µã‚¤ã‚ºã®å–å¾—
 		UINT GetCbvSrvUavDescriptorHandleIncrementSize() const
 		{
 			return m_cbvSrvDescriptorSize;
 		}
-		//ƒTƒ“ƒvƒ‰[ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌƒCƒ“ƒNƒŠƒƒ“ƒgƒTƒCƒY‚Ìæ“¾
+		//ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚µã‚¤ã‚ºã®å–å¾—
 		UINT GetSamplerDescriptorHandleIncrementSize() const
 		{
 			return m_samplerDescriptorSize;
@@ -116,45 +116,45 @@ namespace shooting {
 			return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 		}
 
-		//Srv(ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[)‚ÌŸ‚ÌƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+		//Srv(ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼)ã®æ¬¡ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 		UINT GetSrvNextIndex();
-		//Cbv(ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@ƒrƒ…[)‚ÌŸ‚ÌƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+		//Cbv(ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼)ã®æ¬¡ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 		UINT GetCbvUavNextIndex();
-		//ƒTƒ“ƒvƒ‰[‚ÌŸ‚ÌƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+		//ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã®æ¬¡ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 		UINT GetSamplerNextIndex();
-		//w’è‚µ‚½ƒTƒ“ƒvƒ‰[‚ÌƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+		//æŒ‡å®šã—ãŸã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 		UINT GetSamplerIndex(const std::wstring& key);
-		//ƒrƒ…[ƒ|[ƒg‚Ìæ“¾
+		//ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã®å–å¾—
 		const CD3DX12_VIEWPORT& GetViewport()const
 		{
 			return m_viewport;
 		}
-		//ƒVƒU[ƒŒƒNƒg‚Ìæ“¾
+		//ã‚·ã‚¶ãƒ¼ãƒ¬ã‚¯ãƒˆã®å–å¾—
 		const CD3DX12_RECT& GetScissorRect()
 		{
 			return m_scissorRect;
 		}
-		//CPU‘¤ƒfƒvƒXƒnƒ“ƒhƒ‹‚Ìæ“¾
+		//CPUå´ãƒ‡ãƒ—ã‚¹ãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 		D3D12_CPU_DESCRIPTOR_HANDLE* GetDepthDsvs()
 		{
 			return m_depthDsvs;
 		}
-		//CPU‘¤ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒfƒvƒXƒnƒ“ƒhƒ‹‚Ìæ“¾
+		//CPUå´ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ‡ãƒ—ã‚¹ãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 		D3D12_CPU_DESCRIPTOR_HANDLE* GetDepthSrvCpuHandles()
 		{
 			return m_depthSrvCpuHandles;
 		}
-		//GPU‘¤ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒfƒvƒXƒnƒ“ƒhƒ‹‚Ìæ“¾
+		//GPUå´ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ‡ãƒ—ã‚¹ãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 		D3D12_GPU_DESCRIPTOR_HANDLE* GetDepthSrvGpuHandles()
 		{
 			return m_depthSrvGpuHandles;
 		}
-		//GPU‚ÌƒXƒƒbƒgID‚Ìİ’è
+		//GPUã®ã‚¹ãƒ­ãƒƒãƒˆIDã®è¨­å®š
 		void SetGpuSlot(const std::wstring& key, UINT val)
 		{
 			m_gpuSlotMap[key] = val;
 		}
-		//GPU‚ÌƒXƒƒbƒgID‚Ìæ“¾
+		//GPUã®ã‚¹ãƒ­ãƒƒãƒˆIDã®å–å¾—
 		UINT GetGpuSlotID(const std::wstring& key)
 		{
 			auto it = m_gpuSlotMap.begin();
@@ -167,7 +167,7 @@ namespace shooting {
 				it++;
 			}
 			throw BaseException(
-				L"‚»‚ÌƒL[‚ÍGPUƒXƒƒbƒg‚É‚ ‚è‚Ü‚¹‚ñ",
+				L"ãã®ã‚­ãƒ¼ã¯GPUã‚¹ãƒ­ãƒƒãƒˆã«ã‚ã‚Šã¾ã›ã‚“",
 				key,
 				L"BaseDevice::GetGpuSlotID()"
 			);
@@ -180,7 +180,7 @@ namespace shooting {
 			auto actStagePtr = GetActiveStage(false);
 			if (actStagePtr)
 			{
-				//”jŠü‚ğ“`‚¦‚é
+				//ç ´æ£„ã‚’ä¼ãˆã‚‹
 				actStagePtr->OnDestroy();
 				actStagePtr = nullptr;
 			}
@@ -189,7 +189,7 @@ namespace shooting {
 			if (!stagePtr)
 			{
 				throw BaseException(
-					L"ˆÈ‰º‚ÍStage‚ÉŒ^ƒLƒƒƒXƒg‚Å‚«‚Ü‚¹‚ñB",
+					L"ä»¥ä¸‹ã¯Stageã«å‹ã‚­ãƒ£ã‚¹ãƒˆã§ãã¾ã›ã‚“ã€‚",
 					Util::GetWSTypeName<T>(),
 					L"Scene::ResetActiveStage<T>()"
 				);
@@ -199,100 +199,100 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒƒbƒVƒ…‚ğƒŠƒ\[ƒX“o˜^‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@param[in]	mesh	ƒƒbƒVƒ…
-		@param[in]	keyCheck	ƒL[‚Ìd•¡ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-		@return	‚È‚µ
+		@brief	ãƒ¡ãƒƒã‚·ãƒ¥ã‚’ãƒªã‚½ãƒ¼ã‚¹ç™»éŒ²ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@param[in]	mesh	ãƒ¡ãƒƒã‚·ãƒ¥
+		@param[in]	keyCheck	ã‚­ãƒ¼ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		void RegisterMesh(const std::wstring& key, const std::shared_ptr<BaseMesh>& mesh, bool keyCheck = false);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	“o˜^‚³‚ê‚Ä‚¢‚éƒƒbƒVƒ…‚ğæ“¾‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@return	ƒƒbƒVƒ…
+		@brief	ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥ã‚’å–å¾—ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@return	ãƒ¡ãƒƒã‚·ãƒ¥
 		*/
 		//--------------------------------------------------------------------------------------
 		std::shared_ptr<BaseMesh> GetMesh(const std::wstring& key);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ğƒŠƒ\[ƒX“o˜^‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@param[in]	meshes	ƒ‚ƒfƒ‹ƒƒbƒVƒ…
-		@param[in]	keyCheck	ƒL[‚Ìd•¡ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-		@return	‚È‚µ
+		@brief	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã‚’ãƒªã‚½ãƒ¼ã‚¹ç™»éŒ²ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@param[in]	meshes	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥
+		@param[in]	keyCheck	ã‚­ãƒ¼ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		void RegisterModelMesh(const std::wstring& key, const std::vector<std::shared_ptr<BaseMesh>>& meshes, bool keyCheck = true);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	“o˜^‚³‚ê‚Ä‚¢‚éƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ğæ“¾‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@return	ƒ‚ƒfƒ‹ƒƒbƒVƒ…
+		@brief	ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã‚’å–å¾—ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@return	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥
 		*/
 		//--------------------------------------------------------------------------------------
 		const std::vector<std::shared_ptr<BaseMesh>>& GetModelMesh(const std::wstring& key) const;
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ğƒŠƒ\[ƒX“o˜^‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@param[in]	meshes	ƒ‚ƒfƒ‹ƒƒbƒVƒ…
-		@param[in]	keyCheck	ƒL[‚Ìd•¡ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-		@return	‚È‚µ
+		@brief	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã‚’ãƒªã‚½ãƒ¼ã‚¹ç™»éŒ²ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@param[in]	meshes	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥
+		@param[in]	keyCheck	ã‚­ãƒ¼ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		void RegisterModelMeshWithMaterial(const std::wstring& key, const std::vector<std::shared_ptr<ModelMaterialPart>>& meshes, bool keyCheck = true);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	“o˜^‚³‚ê‚Ä‚¢‚éƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ğæ“¾‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@return	ƒ‚ƒfƒ‹ƒƒbƒVƒ…
+		@brief	ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã‚’å–å¾—ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@return	ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥
 		*/
 		//--------------------------------------------------------------------------------------
 		const std::vector<std::shared_ptr<ModelMaterialPart>>& GetModelMeshWithMaterial(const std::wstring& key) const;
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒeƒNƒXƒ`ƒƒ‚ğƒŠƒ\[ƒX“o˜^‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@param[in]	texture	ƒeƒNƒXƒ`ƒƒ
-		@param[in]	keyCheck	ƒL[‚Ìd•¡ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-		@return	‚È‚µ
+		@brief	ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ãƒªã‚½ãƒ¼ã‚¹ç™»éŒ²ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@param[in]	texture	ãƒ†ã‚¯ã‚¹ãƒãƒ£
+		@param[in]	keyCheck	ã‚­ãƒ¼ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		void RegisterTexture(const std::wstring& key, const std::shared_ptr<BaseTexture>& texture, bool keyCheck = false);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	“o˜^‚³‚ê‚Ä‚¢‚éƒeƒNƒXƒ`ƒƒ‚ğæ“¾‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@return	ƒeƒNƒXƒ`ƒƒ
+		@brief	ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@return	ãƒ†ã‚¯ã‚¹ãƒãƒ£
 		*/
 		//--------------------------------------------------------------------------------------
 		std::shared_ptr<BaseTexture> GetTexture(const std::wstring& key);
 
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	ƒ}ƒeƒŠƒAƒ‹‚ğƒŠƒ\[ƒX“o˜^‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@param[in]	material	ƒ}ƒeƒŠƒAƒ‹
-		@param[in]	keyCheck	ƒL[‚Ìd•¡ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-		@return	‚È‚µ
+		@brief	ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’ãƒªã‚½ãƒ¼ã‚¹ç™»éŒ²ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@param[in]	material	ãƒãƒ†ãƒªã‚¢ãƒ«
+		@param[in]	keyCheck	ã‚­ãƒ¼ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+		@return	ãªã—
 		*/
 		//--------------------------------------------------------------------------------------
 		void RegisterMaterial(const std::wstring& key, const std::shared_ptr<BaseMaterial>& material, bool keyCheck = true);
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	“o˜^‚³‚ê‚Ä‚¢‚éƒ}ƒeƒŠƒAƒ‹‚ğæ“¾‚·‚é
-		@param[in]	key	ƒŠƒ\[ƒX‚ÌƒL[
-		@return	ƒ}ƒeƒŠƒAƒ‹
+		@brief	ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’å–å¾—ã™ã‚‹
+		@param[in]	key	ãƒªã‚½ãƒ¼ã‚¹ã®ã‚­ãƒ¼
+		@return	ãƒãƒ†ãƒªã‚¢ãƒ«
 		*/
 		//--------------------------------------------------------------------------------------
 		std::shared_ptr<BaseMaterial> GetMaterial(const std::wstring& key);
 
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	PhysXƒIƒuƒWƒFƒNƒg‚ğ“¾‚é
-		@return	PhysXƒIƒuƒWƒFƒNƒg‚Ìƒ|ƒCƒ“ƒ^
+		@brief	PhysXã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å¾—ã‚‹
+		@return	PhysXã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		physx::PxPhysics* GetPxPhysics()
@@ -301,8 +301,8 @@ namespace shooting {
 		}
 		//--------------------------------------------------------------------------------------
 		/*!
-		@brief	PhysXƒV[ƒ“‚ğ“¾‚é
-		@return	PhysXƒV[ƒ“‚Ìƒ|ƒCƒ“ƒ^
+		@brief	PhysXã‚·ãƒ¼ãƒ³ã‚’å¾—ã‚‹
+		@return	PhysXã‚·ãƒ¼ãƒ³ã®ãƒã‚¤ãƒ³ã‚¿
 		*/
 		//--------------------------------------------------------------------------------------
 		physx::PxScene* GetPxScene()
@@ -370,30 +370,30 @@ namespace shooting {
 		bool m_windowVisible;
 		bool m_windowedMode;
 
-		//cbvSrvUavŠÇ——p
-		//CbvSrvUav‚ÌÅ‘å’l
+		//cbvSrvUavç®¡ç†ç”¨
+		//CbvSrvUavã®æœ€å¤§å€¤
 		const UINT m_cbvSrvUavMax = 4096;
-		//Srv‚ÌŠJnƒCƒ“ƒfƒbƒNƒX(NullSrv—p‚ÆdepthSrv—p‚ğ‘O‚É’u‚­)
+		//Srvã®é–‹å§‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(NullSrvç”¨ã¨depthSrvç”¨ã‚’å‰ã«ç½®ã)
 		//NullSrv==2
 		//_countof(m_depthSrvCpuHandles)==2
 		// NumNullSrvs + _countof(m_depthSrvCpuHandles)
 		const UINT m_srvStartIndex = NumNullSrvs + _countof(m_depthSrvCpuHandles);
-		//Srv‚ÌÅ‘å’l
+		//Srvã®æœ€å¤§å€¤
 		const UINT m_srvMax = 1024;
-		//Srv‚Ì”­sƒCƒ“ƒfƒbƒNƒX
+		//Srvã®ç™ºè¡Œã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 		UINT m_srvSendIndex;
-		//CbvUav‚ÌŠJnƒCƒ“ƒfƒbƒNƒX
+		//CbvUavã®é–‹å§‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 		const UINT m_cbvUavStartIndex = 1024;
-		//CbvUav‚ÌÅ‘å’l
+		//CbvUavã®æœ€å¤§å€¤
 		const UINT m_cbvUavMax = 2048;
-		//CbvUav‚Ì”­sƒCƒ“ƒfƒbƒNƒX
+		//CbvUavã®ç™ºè¡Œã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 		UINT m_cbvUavSendIndex;
-		//samplerŠÇ——p
+		//samplerç®¡ç†ç”¨
 		std::map<std::wstring, UINT> m_samplerMap;
 		const UINT m_samplerMax = 128;
 		UINT m_samplerSendIndex;
 
-		//ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Åİ’è‚³‚ê‚éGPUƒXƒƒbƒg‚Ìƒ}ƒbƒv
+		//ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã§è¨­å®šã•ã‚Œã‚‹GPUã‚¹ãƒ­ãƒƒãƒˆã®ãƒãƒƒãƒ—
 		std::map<std::wstring, UINT> m_gpuSlotMap;
 
 		HANDLE m_workerBeginRenderFrame;
@@ -405,18 +405,18 @@ namespace shooting {
 		//elapsedTime
 		static double s_elapsedTime;
 
-		//ˆÈ‰ºAPhysXŠÖ˜A
-		// PhysX“à‚Å—˜—p‚·‚éƒAƒƒP[ƒ^[
+		//ä»¥ä¸‹ã€PhysXé–¢é€£
+		// PhysXå†…ã§åˆ©ç”¨ã™ã‚‹ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ãƒ¼
 		physx::PxDefaultAllocator m_defaultAllocator;
-		// ƒGƒ‰[—p‚ÌƒR[ƒ‹ƒoƒbƒN‚ÅƒGƒ‰[“à—e‚ª“ü‚Á‚Ä‚é
+		// ã‚¨ãƒ©ãƒ¼æ™‚ç”¨ã®ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ã§ã‚¨ãƒ©ãƒ¼å†…å®¹ãŒå…¥ã£ã¦ã‚‹
 		physx::PxDefaultErrorCallback m_defaultErrorCallback;
-		// ãˆÊƒŒƒxƒ‹‚ÌSDK(PxPhysics‚È‚Ç)‚ğƒCƒ“ƒXƒ^ƒ“ƒX‰»‚·‚éÛ‚É•K—v
+		// ä¸Šä½ãƒ¬ãƒ™ãƒ«ã®SDK(PxPhysicsãªã©)ã‚’ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹åŒ–ã™ã‚‹éš›ã«å¿…è¦
 		physx::PxFoundation* m_pFoundation = nullptr;
-		// ÀÛ‚É•¨—‰‰Z‚ğs‚¤
+		// å®Ÿéš›ã«ç‰©ç†æ¼”ç®—ã‚’è¡Œã†
 		physx::PxPhysics* m_pPhysics = nullptr;
-		// ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğ‚Ç‚¤ˆ—‚·‚é‚©‚Ìİ’è‚Åƒ}ƒ‹ƒ`ƒXƒŒƒbƒh‚Ìİ’è‚à‚Å‚«‚é
+		// ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ã©ã†å‡¦ç†ã™ã‚‹ã‹ã®è¨­å®šã§ãƒãƒ«ãƒã‚¹ãƒ¬ãƒƒãƒ‰ã®è¨­å®šã‚‚ã§ãã‚‹
 		physx::PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
-		// ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚·‚é‹óŠÔ‚Ì’PˆÊ‚ÅActor‚Ì’Ç‰Á‚È‚Ç‚à‚±‚±‚Ås‚¤
+		// ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã™ã‚‹ç©ºé–“ã®å˜ä½ã§Actorã®è¿½åŠ ãªã©ã‚‚ã“ã“ã§è¡Œã†
 		physx::PxScene* m_pScene = nullptr;
 
 		// Updates the shadow copies of the constant buffers.

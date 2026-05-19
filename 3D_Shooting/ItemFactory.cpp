@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -31,7 +31,7 @@ namespace shooting {
 		itemParam.quaternion = desc.rotation;
 		itemParam.scale = desc.scale;
 
-		// ƒAƒCƒeƒ€Ží—Þ
+		// ã‚¢ã‚¤ãƒ†ãƒ ç¨®é¡ž
 		switch (desc.kind)
 		{
 		case ItemKind::Bomb:

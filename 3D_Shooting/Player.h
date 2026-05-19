@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "Project.h"
 
@@ -30,30 +30,30 @@ namespace shooting {
 	{
 	private:
 		double m_totalTime;
-		//ƒvƒŒƒCƒ„[‚ªg—p‚·‚éƒRƒ“ƒgƒ[ƒ‰‚ÆƒL[ƒ{[ƒh‚Ì“ü—Í
+		//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒä½¿ç”¨ã™ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã®å…¥åŠ›
 		Vec2 GetInputState() const;
 		Vec2 GetInputKey() const;
-		// •ûŒüƒxƒNƒgƒ‹‚ğ“¾‚é
+		// æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’å¾—ã‚‹
 		Vec3 GetMoveVector() const;
-		//ƒvƒŒƒCƒ„[‚ÌˆÚ“®
+		//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç§»å‹•
 		void MovePlayer();
-		//“ü—Íƒnƒ“ƒhƒ‰[
+		//å…¥åŠ›ãƒãƒ³ãƒ‰ãƒ©ãƒ¼
 		InputHandler<Player> m_InputHandler;
-		//ƒXƒs[ƒh
+		//ã‚¹ãƒ”ãƒ¼ãƒ‰
 		float m_Speed;
-		// ’n–Ê‚É‚¢‚é‚©‚Ç‚¤‚©
+		// åœ°é¢ã«ã„ã‚‹ã‹ã©ã†ã‹
 		bool m_IsGround;
-		// ’e”­ËŠÔŠu
+		// å¼¾ç™ºå°„é–“éš”
 		double m_ShotCool = 0.0;
 		std::shared_ptr<MainCamera> m_MainCamera;
 		std::shared_ptr<CollisionManager> m_CollisionManager;
 		std::shared_ptr<BulletManager> m_BulletManager;
 
-		// ’n–ÊÕ“Ë”»’è‚Ì‹¤’Êˆ—
+		// åœ°é¢è¡çªåˆ¤å®šã®å…±é€šå‡¦ç†
 		void CheckGroundCollision(const CollisionPair& pair);
 		void CheckItemPickup(const CollisionPair& pair);
 		void ResolveSlopeCollision();
-		// Œ»İ‚Ì’eƒ^ƒCƒv
+		// ç¾åœ¨ã®å¼¾ã‚¿ã‚¤ãƒ—
 		BulletType m_CurrentBullet = BulletType::Default;
 		int m_BombAmmo = 0;
 
@@ -64,18 +64,18 @@ namespace shooting {
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}
-		//\’zˆ—
+		//æ§‹ç¯‰æ™‚å‡¦ç†
 		virtual void OnCreate()override;
-		//XVˆ—
+		//æ›´æ–°æ™‚å‡¦ç†
 		virtual void OnUpdate(double elapsedTime);
 		virtual void OnUpdate2(double elapsedTime) override;
-		//Õ“ËŠJnˆ—
+		//è¡çªé–‹å§‹æ™‚å‡¦ç†
 		virtual void OnCollisionEnter(const CollisionPair& pair)override;
-		//Õ“ËŒp‘±ˆ—
+		//è¡çªç¶™ç¶šæ™‚å‡¦ç†
 		virtual void OnCollisionExecute(const CollisionPair& pair)override;
-		//Aƒ{ƒ^ƒ“
+		//Aãƒœã‚¿ãƒ³
 		void OnPushA();
-		//Bƒ{ƒ^ƒ“
+		//Bãƒœã‚¿ãƒ³
 		void OnPushB() {}
 
 		void AddBombAmmo(int amount);

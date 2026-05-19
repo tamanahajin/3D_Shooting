@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "IObject.h"
 #include <vector>
 #include <stdexcept>
@@ -31,11 +31,11 @@ namespace shooting {
 			if (!ptr)
 			{
 				/*throw BaseException(
-					L"GameObject‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ",
+					L"GameObjectã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“",
 					L"if (!shptr)",
 					L"Component::GetGameObject()const"
 				);*/
-				throw std::runtime_error("GameObject‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ");
+				throw std::runtime_error("GameObjectã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“");
 			}
 			else
 			{
@@ -61,7 +61,7 @@ namespace shooting {
 			if (index >= m_meshVec.size())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+					L"æŒ‡å®šã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 					Util::SizeTToWStr(index),
 					L"BaseScene::GetBaseMesh()"
 				);
@@ -76,7 +76,7 @@ namespace shooting {
 				else
 				{
 					throw BaseException(
-						L"w’è‚ÌƒƒbƒVƒ…‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ",
+						L"æŒ‡å®šã®ãƒ¡ãƒƒã‚·ãƒ¥ã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“",
 						Util::SizeTToWStr(index),
 						L"BaseScene::GetMesh()"
 					);
@@ -101,7 +101,7 @@ namespace shooting {
 			if (index >= m_meshVec.size())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+					L"æŒ‡å®šã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 					Util::SizeTToWStr(index),
 					L"BaseScene::GetBaseModelMesh()"
 				);
@@ -116,7 +116,7 @@ namespace shooting {
 				else
 				{
 					throw BaseException(
-						L"w’è‚ÌƒƒbƒVƒ…‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ",
+						L"æŒ‡å®šã®ãƒ¡ãƒƒã‚·ãƒ¥ã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“",
 						Util::SizeTToWStr(index),
 						L"BaseScene::GetMesh()"
 					);
@@ -143,7 +143,7 @@ namespace shooting {
 			{
 				return nullptr;
 				//throw BaseException(
-				//	L"w’è‚ÌƒCƒ“ƒfƒbƒNƒX‚ª”ÍˆÍŠO‚Å‚·",
+				//	L"æŒ‡å®šã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç¯„å›²å¤–ã§ã™",
 				//	Util::SizeTToWStr(index),
 				//	L"BaseScene::GetBaseTexture()"
 				//);
@@ -159,7 +159,7 @@ namespace shooting {
 				{
 					return nullptr;
 					//throw BaseException(
-					//	L"w’è‚ÌƒeƒNƒXƒ`ƒƒ‚Í—LŒø‚Å‚Í‚ ‚è‚Ü‚¹‚ñ",
+					//	L"æŒ‡å®šã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¯æœ‰åŠ¹ã§ã¯ã‚ã‚Šã¾ã›ã‚“",
 					//	Util::SizeTToWStr(index),
 					//	L"BaseScene::GetBaseTexture()"
 					//);

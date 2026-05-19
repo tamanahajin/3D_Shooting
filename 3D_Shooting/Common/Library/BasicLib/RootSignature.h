@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file RootSignature.h
-@brief ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ü‚Æ‚ß
+@brief ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã¾ã¨ã‚
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -12,10 +12,10 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	ƒ‹[ƒgƒVƒOƒlƒ`ƒƒƒNƒ‰ƒX(staticŒÄ‚Ño‚µ‚ğ‚·‚é)
+	///	ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚¯ãƒ©ã‚¹(staticå‘¼ã³å‡ºã—ã‚’ã™ã‚‹)
 	//--------------------------------------------------------------------------------------
 	class RootSignaturePool {
-		//ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ìmap
+		//ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®map
 		static std::map<std::wstring, ComPtr<ID3D12RootSignature>> m_rootSignatureMap;
 	public:
 		static ComPtr<ID3D12RootSignature> GetRootSignature(const std::wstring& key, bool ExceptionActive = false);

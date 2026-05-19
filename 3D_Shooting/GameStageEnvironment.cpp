@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file GameStageEnvironment.cpp
-@brief GameStage‚ÌƒXƒe[ƒW¶¬ˆ—
+@brief GameStageã®ã‚¹ãƒ†ãƒ¼ã‚¸ç”Ÿæˆå‡¦ç†
 */
 
 #include "stdafx.h"
@@ -13,7 +13,7 @@ namespace shooting {
 
 	namespace
 	{
-		// ”z’uÏ‚İƒIƒuƒWƒFƒNƒg‚Ìè—L”ÍˆÍBXZ•½–Ê‚Ì‰~‚Æ‚µ‚Äˆµ‚¢Aƒ‰ƒ“ƒ_ƒ€”z’u‚ÌŠÑ’Ê‰ñ”ğ‚Ég‚¤B
+		// é…ç½®æ¸ˆã¿ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å æœ‰ç¯„å›²ã€‚XZå¹³é¢ã®å††ã¨ã—ã¦æ‰±ã„ã€ãƒ©ãƒ³ãƒ€ãƒ é…ç½®ã®è²«é€šå›é¿ã«ä½¿ã†ã€‚
 		struct PlacementCircle
 		{
 			Vec3 position;
@@ -21,7 +21,7 @@ namespace shooting {
 		};
 
 
-		// “¯‚¶ƒƒbƒVƒ…‚Ì”z’u‚ğ‚Ü‚Æ‚ß‚é‚½‚ß‚Ìˆêƒf[ƒ^BÅŒã‚ÉInstancedStaticDraw‚Ö“n‚µ‚Ä•`‰æ•‰‰×‚ğ‰º‚°‚éB
+		// åŒã˜ãƒ¡ãƒƒã‚·ãƒ¥ã®é…ç½®ã‚’ã¾ã¨ã‚ã‚‹ãŸã‚ã®ä¸€æ™‚ãƒ‡ãƒ¼ã‚¿ã€‚æœ€å¾Œã«InstancedStaticDrawã¸æ¸¡ã—ã¦æç”»è² è·ã‚’ä¸‹ã’ã‚‹ã€‚
 		struct StageObjectBatch
 		{
 			std::wstring meshKey;
@@ -100,7 +100,7 @@ namespace shooting {
 
 		const bool kDrawSlopeCollisionDebug = false;
 
-		// ©‘R•¨‚ÌŠâ/Î‚¾‚¯‚ğˆê’â~‚·‚é‚½‚ß‚Ìƒtƒ‰ƒOB–ß‚·ê‡‚Ítrue‚É‚·‚éB
+		// è‡ªç„¶ç‰©ã®å²©/çŸ³ã ã‘ã‚’ä¸€æ™‚åœæ­¢ã™ã‚‹ãŸã‚ã®ãƒ•ãƒ©ã‚°ã€‚æˆ»ã™å ´åˆã¯trueã«ã™ã‚‹ã€‚
 		const bool kEnableScatteredRockObjects = false;
 		const float kSlopeCollisionStartCenterZOffset = -2.5f;
 		const int kRecoveryItemTargetCount = 3;
@@ -114,7 +114,7 @@ namespace shooting {
 		const int kBombItemGrantCount = 5;
 		const float kBombItemScale = 0.018f;
 
-		// FBX‚²‚Æ‚ÌŠî€ƒXƒP[ƒ‹‚É”z’u”{—¦‚ğŠ|‚¯AƒXƒP[ƒ‹¨‰ñ“]¨ˆÚ“®‚Ì‡‚Åƒ[ƒ‹ƒhs—ñ‚ğì‚éB
+		// FBXã”ã¨ã®åŸºæº–ã‚¹ã‚±ãƒ¼ãƒ«ã«é…ç½®å€ç‡ã‚’æ›ã‘ã€ã‚¹ã‚±ãƒ¼ãƒ«â†’å›è»¢â†’ç§»å‹•ã®é †ã§ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’ä½œã‚‹ã€‚
 		Mat4x4 MakeStageObjectWorld(
 			const StageObjectDef& def,
 			const Vec3& position,
@@ -158,7 +158,7 @@ namespace shooting {
 		}
 
 
-		// 1ŒÂ‚¸‚ÂGameObject‰»‚¹‚¸A“¯‚¶ƒ‚ƒfƒ‹–¼‚Ì”z’us—ñ‚¾‚¯‚ğ’~Ï‚·‚éB
+		// 1å€‹ãšã¤GameObjectåŒ–ã›ãšã€åŒã˜ãƒ¢ãƒ‡ãƒ«åã®é…ç½®è¡Œåˆ—ã ã‘ã‚’è“„ç©ã™ã‚‹ã€‚
 		void AddStageObjectInstance(
 			std::map<std::wstring, StageObjectBatch>& batches,
 			const StageObjectDef& def,
@@ -173,7 +173,7 @@ namespace shooting {
 		}
 
 
-		// ’~Ï‚µ‚½”z’us—ñ‚ğƒ‚ƒfƒ‹’PˆÊ‚ÌƒCƒ“ƒXƒ^ƒ“ƒVƒ“ƒO•`‰æƒIƒuƒWƒFƒNƒg‚Æ‚µ‚ÄÀ‘Ì‰»‚·‚éB
+		// è“„ç©ã—ãŸé…ç½®è¡Œåˆ—ã‚’ãƒ¢ãƒ‡ãƒ«å˜ä½ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚·ãƒ³ã‚°æç”»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã—ã¦å®Ÿä½“åŒ–ã™ã‚‹ã€‚
 		void FlushStageObjectBatches(GameStage& stage, const std::map<std::wstring, StageObjectBatch>& batches)
 		{
 			for (const auto& entry : batches)
@@ -229,7 +229,7 @@ namespace shooting {
 		}
 
 
-		// âƒRƒŠƒWƒ‡ƒ“‚Ì’²®—p•\¦BÕ“Ë”»’è‚Í‚½‚¸Aâ‚Æ“¯‚¶Šp“x‚Ì”–‚¢”Â‚¾‚¯‚ğ•`‚­B
+		// å‚ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®èª¿æ•´ç”¨è¡¨ç¤ºã€‚è¡çªåˆ¤å®šã¯æŒãŸãšã€å‚ã¨åŒã˜è§’åº¦ã®è–„ã„æ¿ã ã‘ã‚’æãã€‚
 		void AddSlopeCollisionDebugBox(
 			GameStage& stage,
 			const Vec3& startCenter,
@@ -481,7 +481,7 @@ namespace shooting {
 
 		float DirectionToYRotation(int rowDelta, int columnDelta)
 		{
-			// CSV‚Ì—ñ‚Í‰E‚Öi‚Ş‚Ù‚Çƒ[ƒ‹ƒhX‚ª¬‚³‚­‚È‚é‚½‚ßA¶‰E•ûŒü‚¾‚¯•„†‚ğ”½“]‚·‚éB
+			// CSVã®åˆ—ã¯å³ã¸é€²ã‚€ã»ã©ãƒ¯ãƒ¼ãƒ«ãƒ‰XãŒå°ã•ããªã‚‹ãŸã‚ã€å·¦å³æ–¹å‘ã ã‘ç¬¦å·ã‚’åè»¢ã™ã‚‹ã€‚
 			const float x = -static_cast<float>(columnDelta);
 			const float z = static_cast<float>(rowDelta);
 			return std::atan2(x, -z);
@@ -704,7 +704,7 @@ namespace shooting {
 		}
 
 
-		// âƒRƒŠƒWƒ‡ƒ“‚ÍƒXƒ[ƒvƒ‚ƒfƒ‹‚Ì”z’u‚ğŠî€‚É“o˜^‚·‚éB¶‰E‚É‚Í”–‚¢•Ç‚ğ’Ç‰Á‚µ‚Ä‰¡”²‚¯‚ğ–h‚®B
+		// å‚ã‚³ãƒªã‚¸ãƒ§ãƒ³ã¯ã‚¹ãƒ­ãƒ¼ãƒ—ãƒ¢ãƒ‡ãƒ«ã®é…ç½®ã‚’åŸºæº–ã«ç™»éŒ²ã™ã‚‹ã€‚å·¦å³ã«ã¯è–„ã„å£ã‚’è¿½åŠ ã—ã¦æ¨ªæŠœã‘ã‚’é˜²ãã€‚
 		void AddHeightVariationCollisionGroup(
 			GameStage& stage,
 			const FixedStageObjectPlacement& placement)
@@ -738,7 +738,7 @@ namespace shooting {
 			const auto placements = BuildHeightVariationPlacements();
 			for (const auto& placement : placements)
 			{
-				// ‚‘ä‚Ì“V–Ê‚É‚Í©‘R•¨‚ğ’u‚«‚½‚¢‚Ì‚ÅAâ‚¾‚¯‚ğ—\–ñ‚µ‚ÄÎ–Êã‚Ì”z’u‚ğ”ğ‚¯‚éB
+				// é«˜å°ã®å¤©é¢ã«ã¯è‡ªç„¶ç‰©ã‚’ç½®ããŸã„ã®ã§ã€å‚ã ã‘ã‚’äºˆç´„ã—ã¦æ–œé¢ä¸Šã®é…ç½®ã‚’é¿ã‘ã‚‹ã€‚
 				if (!IsSlopePlacement(placement))
 				{
 					continue;
@@ -752,7 +752,7 @@ namespace shooting {
 			const auto placements = BuildHeightVariationPlacements();
 			for (const auto& placement : placements)
 			{
-				// ƒAƒCƒeƒ€‚Í‚‘ä‚Ìã‚É‚Í’u‚¯‚é‚æ‚¤‚É‚µAÎ–Êã‚¾‚¯‚ğ”ğ‚¯‚éB
+				// ã‚¢ã‚¤ãƒ†ãƒ ã¯é«˜å°ã®ä¸Šã«ã¯ç½®ã‘ã‚‹ã‚ˆã†ã«ã—ã€æ–œé¢ä¸Šã ã‘ã‚’é¿ã‘ã‚‹ã€‚
 				if (!IsSlopePlacement(placement))
 				{
 					continue;
@@ -804,7 +804,7 @@ namespace shooting {
 		}
 
 
-		// ‚‚³‚ÍŒ©‚¸‚ÉXZ•½–Ê‚¾‚¯‚Å‹——£‚ğ‘ª‚éB©‘R•¨“¯m‚Ì‚´‚Á‚­‚è‚µ‚½ŠÑ’Ê‰ñ”ğ—pB
+		// é«˜ã•ã¯è¦‹ãšã«XZå¹³é¢ã ã‘ã§è·é›¢ã‚’æ¸¬ã‚‹ã€‚è‡ªç„¶ç‰©åŒå£«ã®ã–ã£ãã‚Šã—ãŸè²«é€šå›é¿ç”¨ã€‚
 		bool IsPlacementFree(
 			const Vec3& position,
 			float radius,
@@ -824,7 +824,7 @@ namespace shooting {
 		}
 
 
-		// w’èƒJƒeƒSƒŠ‚Ìƒ‚ƒfƒ‹‚ğƒ‰ƒ“ƒ_ƒ€”z’u‚·‚éB¸”s‰ñ”‚ÉãŒÀ‚ğ’u‚«A¬‚İ‚·‚¬‚½‚Ì–³ŒÀƒ‹[ƒv‚ğ”ğ‚¯‚éB
+		// æŒ‡å®šã‚«ãƒ†ã‚´ãƒªã®ãƒ¢ãƒ‡ãƒ«ã‚’ãƒ©ãƒ³ãƒ€ãƒ é…ç½®ã™ã‚‹ã€‚å¤±æ•—å›æ•°ã«ä¸Šé™ã‚’ç½®ãã€æ··ã¿ã™ããŸæ™‚ã®ç„¡é™ãƒ«ãƒ¼ãƒ—ã‚’é¿ã‘ã‚‹ã€‚
 		void PlaceScatteredObjects(
 			GameStage& stage,
 			std::map<std::wstring, StageObjectBatch>& batches,
@@ -877,7 +877,7 @@ namespace shooting {
 		}
 
 
-		// ŠOü—pƒtƒHƒ‹ƒ_‚ğ—Dæ‚µA–³‚¯‚ê‚Î‹ŒCliffƒJƒeƒSƒŠ‚©‚ç‹ß‚¢ƒ‚ƒfƒ‹‚ğ‘I‚ÔŒİŠ·—p‚Ì’TõB
+		// å¤–å‘¨ç”¨ãƒ•ã‚©ãƒ«ãƒ€ã‚’å„ªå…ˆã—ã€ç„¡ã‘ã‚Œã°æ—§Cliffã‚«ãƒ†ã‚´ãƒªã‹ã‚‰è¿‘ã„ãƒ¢ãƒ‡ãƒ«ã‚’é¸ã¶äº’æ›ç”¨ã®æ¢ç´¢ã€‚
 		const StageObjectDef* FindOuterCliffDef()
 		{
 			auto outsideWalls = StageObjectCatalog::GetByCategory(StageObjectCategory::OutSideWall);
@@ -1056,7 +1056,7 @@ namespace shooting {
 
 		AddGroundLookupRange(minX, maxX, minZ, maxZ, index, false);
 	}
-	// â‚ğOBB‚Æ‚µ‚Ä‰ğ‚©‚¸AŠJnˆÊ’uE•ûŒüE•E’·‚³E‚‚³‚¾‚¯‚ÌŒy—Êƒf[ƒ^‚Æ‚µ‚Ä•Û‚·‚éB
+	// å‚ã‚’OBBã¨ã—ã¦è§£ã‹ãšã€é–‹å§‹ä½ç½®ãƒ»æ–¹å‘ãƒ»å¹…ãƒ»é•·ã•ãƒ»é«˜ã•ã ã‘ã®è»½é‡ãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦ä¿æŒã™ã‚‹ã€‚
 	void GameStage::AddSlopeCollision(
 		const Vec3& startCenter,
 		const Vec3& direction,
@@ -1111,7 +1111,7 @@ namespace shooting {
 	}
 
 
-	// ˆÊ’u‚ğâ‚Ìƒ[ƒJƒ‹²‚ÖË‰e‚µAâ”ÍˆÍ“à‚È‚çis—¦‚©‚ç’n–ÊY‚ğüŒ`•âŠÔ‚·‚éB
+	// ä½ç½®ã‚’å‚ã®ãƒ­ãƒ¼ã‚«ãƒ«è»¸ã¸å°„å½±ã—ã€å‚ç¯„å›²å†…ãªã‚‰é€²è¡Œç‡ã‹ã‚‰åœ°é¢Yã‚’ç·šå½¢è£œé–“ã™ã‚‹ã€‚
 	bool GameStage::TryGetSlopeGroundHeight(const Vec3& position, float& outHeight) const
 	{
 		bool found = false;
@@ -1125,7 +1125,7 @@ namespace shooting {
 			}
 
 			const auto& slope = m_slopeCollisions[slopeIndex];
-			// direction•ûŒü‚ªâ‚Ì‘OŒãAright•ûŒü‚ªâ‚Ì‰¡•B“àÏ‚Åâ“à‚Ì‘Š‘ÎˆÊ’u‚ğ‹‚ß‚éB
+			// directionæ–¹å‘ãŒå‚ã®å‰å¾Œã€rightæ–¹å‘ãŒå‚ã®æ¨ªå¹…ã€‚å†…ç©ã§å‚å†…ã®ç›¸å¯¾ä½ç½®ã‚’æ±‚ã‚ã‚‹ã€‚
 			const Vec3 right(slope.direction.z, 0.0f, -slope.direction.x);
 			const Vec3 toPosition(
 				position.x - slope.startCenter.x,
@@ -1149,7 +1149,7 @@ namespace shooting {
 			if (t < 0.0f) t = 0.0f;
 			if (t > 1.0f) t = 1.0f;
 
-			// â’[‚Ì”»’è—]”’“à‚Å‚àAÀÛ‚ÌÚ’n‚‚³‚Íâ‚Ì’[‚Å~‚ß‚éB
+			// å‚ç«¯ã®åˆ¤å®šä½™ç™½å†…ã§ã‚‚ã€å®Ÿéš›ã®æ¥åœ°é«˜ã•ã¯å‚ã®ç«¯ã§æ­¢ã‚ã‚‹ã€‚
 			float height = slope.startCenter.y + (slope.height * t);
 			if (height < 0.0f) height = 0.0f;
 			if (!found || height > bestHeight)
@@ -1159,7 +1159,7 @@ namespace shooting {
 			}
 		};
 
-		// â’[‚Å‚Í‚‘ä‚Ì“V–Ê‚Æ”»’è”ÍˆÍ‚ªd‚È‚é‚½‚ßA‚±‚±‚Å•Ô‚³‚¸‚‚¢–Ê‚ğÅŒã‚É‘I‚ÔB
+		// å‚ç«¯ã§ã¯é«˜å°ã®å¤©é¢ã¨åˆ¤å®šç¯„å›²ãŒé‡ãªã‚‹ãŸã‚ã€ã“ã“ã§è¿”ã•ãšé«˜ã„é¢ã‚’æœ€å¾Œã«é¸ã¶ã€‚
 		auto evaluatePlatform = [&](size_t surfaceIndex)
 		{
 			if (surfaceIndex >= m_platformSurfaces.size())
@@ -1377,11 +1377,11 @@ namespace shooting {
 		return true;
 	}
 	//--------------------------------------------------------------------------------------
-	// ƒQ[ƒ€ƒXƒe[ƒW
+	// ã‚²ãƒ¼ãƒ ã‚¹ãƒ†ãƒ¼ã‚¸
 	//--------------------------------------------------------------------------------------
 
 
-	// floor.fbx‚ğ1–‡‚¾‚¯•~‚«AXZ•ûŒü‚ÉŠg‘å‚µ‚ÄƒXƒe[ƒW‘S‘Ì‚ğ•¢‚¤B
+	// floor.fbxã‚’1æšã ã‘æ•·ãã€XZæ–¹å‘ã«æ‹¡å¤§ã—ã¦ã‚¹ãƒ†ãƒ¼ã‚¸å…¨ä½“ã‚’è¦†ã†ã€‚
 	void GameStage::CreateGround()
 	{
 		const int half = 32;
@@ -1416,7 +1416,7 @@ namespace shooting {
 	}
 
 
-	// ŠOü‚ÍŒ©‚½–Ú‚ÌŠRƒ‚ƒfƒ‹‚ÆAƒQ[ƒ€ƒvƒŒƒC—p‚Ì‘å‚«‚¢“§–¾ƒRƒŠƒWƒ‡ƒ“‚ğ•ÊX‚Éì‚éB
+	// å¤–å‘¨ã¯è¦‹ãŸç›®ã®å´–ãƒ¢ãƒ‡ãƒ«ã¨ã€ã‚²ãƒ¼ãƒ ãƒ—ãƒ¬ã‚¤ç”¨ã®å¤§ãã„é€æ˜ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚’åˆ¥ã€…ã«ä½œã‚‹ã€‚
 	void GameStage::CreateWalls()
 	{
 		const auto* cliff = FindOuterCliffDef();
@@ -1436,7 +1436,7 @@ namespace shooting {
 		batch.meshKey = cliff->key;
 		batch.materialPrefix = cliff->materialPrefix;
 
-		// ŠOüŠR‚Í4•Ó‚»‚ê‚¼‚ê1–‡‚Ì’·‚¢ƒCƒ“ƒXƒ^ƒ“ƒX‚É‚·‚éB
+		// å¤–å‘¨å´–ã¯4è¾ºãã‚Œãã‚Œ1æšã®é•·ã„ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã«ã™ã‚‹ã€‚
 		const Vec3 sideScale(outerSideLength, outerCliffScale, outerCliffScale);
 		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, -edge), 0.0f, sideScale));
 		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, edge), XM_PI, sideScale));
@@ -1469,7 +1469,7 @@ namespace shooting {
 	}
 
 
-	// ‚’á·ƒIƒuƒWƒFƒNƒg‚ÍAŒ©‚½–Ú‚ÌƒCƒ“ƒXƒ^ƒ“ƒX”z’u‚ÆâƒRƒŠƒWƒ‡ƒ““o˜^‚ğ•ª‚¯‚ÄŠÇ—‚·‚éB
+	// é«˜ä½å·®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€è¦‹ãŸç›®ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹é…ç½®ã¨å‚ã‚³ãƒªã‚¸ãƒ§ãƒ³ç™»éŒ²ã‚’åˆ†ã‘ã¦ç®¡ç†ã™ã‚‹ã€‚
 	void GameStage::CreateHeightVariationObjects()
 	{
 		m_slopeCollisions.clear();
@@ -1513,7 +1513,7 @@ namespace shooting {
 	}
 
 
-	// –ØEŠâ‚È‚Ç‚Ì©‘R•¨‚ğ‚Ü‚Î‚ç‚É”z’u‚·‚éBŒÅ’èseed‚È‚Ì‚Å–ˆ‰ñ“¯‚¶ƒXƒe[ƒW‚É‚È‚éB
+	// æœ¨ãƒ»å²©ãªã©ã®è‡ªç„¶ç‰©ã‚’ã¾ã°ã‚‰ã«é…ç½®ã™ã‚‹ã€‚å›ºå®šseedãªã®ã§æ¯å›åŒã˜ã‚¹ãƒ†ãƒ¼ã‚¸ã«ãªã‚‹ã€‚
 	void GameStage::CreateCoverObjects()
 	{
 		std::map<std::wstring, StageObjectBatch> batches;
@@ -1523,7 +1523,7 @@ namespace shooting {
 		AddItemSpawnBlocker(Vec3(0.0f, 0.0f, 0.0f), 5.0f);
 		AddHeightVariationItemSpawnBlockers(*this);
 
-		// ƒvƒŒƒCƒ„[‰ŠúˆÊ’uAƒAƒCƒeƒ€Aâü•Ó‚ğæ‚É—\–ñ‚µA©‘R•¨‚ªd‚È‚ç‚È‚¢‚æ‚¤‚É‚·‚éB
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼åˆæœŸä½ç½®ã€ã‚¢ã‚¤ãƒ†ãƒ ã€å‚å‘¨è¾ºã‚’å…ˆã«äºˆç´„ã—ã€è‡ªç„¶ç‰©ãŒé‡ãªã‚‰ãªã„ã‚ˆã†ã«ã™ã‚‹ã€‚
 		occupied.push_back({ Vec3(0.0f, 0.0f, 0.0f), 5.0f });
 		occupied.push_back({ Vec3(2.5f, 0.0f, 2.0f), 1.7f });
 		occupied.push_back({ Vec3(-4.0f, 0.0f, 3.5f), 1.7f });

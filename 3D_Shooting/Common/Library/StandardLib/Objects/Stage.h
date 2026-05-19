@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -8,21 +8,21 @@ namespace shooting {
 		bool m_updateActive;
 		void PushBackGameObject(const std::shared_ptr<GameObject>& ptr);
 		void RemoveBackGameObject(const std::shared_ptr<GameObject>& ptr);
-		//’Ç‰ÁEíœ‚Ü‚¿ƒIƒuƒWƒFƒNƒg‚Ì’Ç‰Á‚Æíœ
+		//è¿½åŠ ãƒ»å‰Šé™¤ã¾ã¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¿½åŠ ã¨å‰Šé™¤
 		void RemoveTargetGameObject(const std::shared_ptr<GameObject>& targetobj);
 		void SetWaitToObjectVec();
-		//ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Ì”z—ñ
+		//ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é…åˆ—
 		std::vector<std::shared_ptr<GameObject>> m_gameObjectVec;
-		//’Ç‰Á‘Ò‚¿‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg
+		//è¿½åŠ å¾…ã¡ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 		std::vector<std::shared_ptr<GameObject>> m_waitAddObjectVec;
-		//íœ‘Ò‚¿‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg
+		//å‰Šé™¤å¾…ã¡ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 		std::vector<std::shared_ptr<GameObject>> m_waitRemoveObjectVec;
-		//ƒVƒFƒAƒIƒuƒWƒFƒNƒgƒ|ƒCƒ“ƒ^‚Ìƒ}ƒbƒv
+		//ã‚·ã‚§ã‚¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒã‚¤ãƒ³ã‚¿ã®ãƒãƒƒãƒ—
 		std::map<const std::wstring, std::weak_ptr<GameObject> > m_SharedMap;
-		//ƒVƒFƒAƒOƒ‹[ƒv‚Ìƒ|ƒCƒ“ƒ^‚Ìƒ}ƒbƒv
+		//ã‚·ã‚§ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—ã®ãƒã‚¤ãƒ³ã‚¿ã®ãƒãƒƒãƒ—
 		std::map<const std::wstring, std::shared_ptr<GameObjectGroup> >  m_SharedGroupMap;
 
-		// ƒRƒŠƒWƒ‡ƒ“ŠÇ—Ò
+		// ã‚³ãƒªã‚¸ãƒ§ãƒ³ç®¡ç†è€…
 		std::shared_ptr<CollisionManager> m_collisionManager;
 
 		//std::shared_ptr<BulletManager> m_BulletManager;
@@ -53,7 +53,7 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// ƒpƒ‰ƒ[ƒ^‚ğOnCreateWithParam‚É“n‚·ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğ’Ç‰Á‚·‚é
+		/// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’OnCreateWithParamã«æ¸¡ã™ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <typeparam name="...Ts"></typeparam>
@@ -74,7 +74,7 @@ namespace shooting {
 			}
 		}
 
-		// ƒAƒNƒZƒT
+		// ã‚¢ã‚¯ã‚»ã‚µ
 		std::shared_ptr<Camera> GetCamera() const
 		{
 			return m_camera;
@@ -110,12 +110,12 @@ namespace shooting {
 		void RemoveGameObject(const std::shared_ptr<GameObject>& Obj);
 		
 		/// <summary>
-		/// ‹¤—L‚³‚ê‚Ä‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚é
+		/// å…±æœ‰ã•ã‚Œã¦ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="key"></param>
-		/// <param name="exceptionActive">Œ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É—áŠO‚ğ”­s‚·‚é‚©‚Ç‚¤‚©</param>
-		/// <returns>‹¤—L‚³‚ê‚Ä‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒg</returns>
+		/// <param name="exceptionActive">è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ä¾‹å¤–ã‚’ç™ºè¡Œã™ã‚‹ã‹ã©ã†ã‹</param>
+		/// <returns>å…±æœ‰ã•ã‚Œã¦ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 		template<typename T>
 		std::shared_ptr<T> GetSharedGameObjectEx(const std::wstring& key, bool exceptionActive = true) const
 		{
@@ -128,11 +128,11 @@ namespace shooting {
 			{
 				if (exceptionActive)
 				{
-					// —áŠO”­¶
+					// ä¾‹å¤–ç™ºç”Ÿ
 					std::wstring keyerr = key;
-					std::wstring str = L"ƒIƒuƒWƒFƒNƒg‚ğ";
+					std::wstring str = L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’";
 					str += Util::GetWSTypeName<T>();
-					str += L"Œ^‚ÉƒLƒƒƒXƒg‚Å‚«‚Ü‚¹‚ñ";
+					str += L"å‹ã«ã‚­ãƒ£ã‚¹ãƒˆã§ãã¾ã›ã‚“";
 					throw BaseException(
 						str,
 						keyerr,
@@ -143,13 +143,13 @@ namespace shooting {
 			return nullptr;
 		}
 		std::shared_ptr<GameObject> GetSharedGameObject(const std::wstring& key, bool exceptionActive = true) const;
-		// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğ‹¤—L‚·‚é
+		// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å…±æœ‰ã™ã‚‹
 		void SetSharedGameObject(const std::wstring& key, const std::shared_ptr<GameObject>& ptr);
-		// ‹¤—L‚·‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒgƒOƒ‹[ƒv‚ğì¬‚·‚é
+		// å…±æœ‰ã™ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã™ã‚‹
 		std::shared_ptr<GameObjectGroup> CreateSharedObjectGroup(const std::wstring& key);
-		// ‹¤—L‚³‚ê‚Ä‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒgƒOƒ‹[ƒv‚ğæ“¾‚·‚é
+		// å…±æœ‰ã•ã‚Œã¦ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚°ãƒ«ãƒ¼ãƒ—ã‚’å–å¾—ã™ã‚‹
 		std::shared_ptr<GameObjectGroup> GetSharedObjectGroup(const std::wstring& key, bool exceptionActive = true) const;
-		// ‹¤—L‚³‚ê‚Ä‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒgƒOƒ‹[ƒv‚ğæ“¾iƒOƒ‹[ƒv”h¶ƒNƒ‰ƒX‚ğì‚Á‚½ê‡—pj
+		// å…±æœ‰ã•ã‚Œã¦ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚°ãƒ«ãƒ¼ãƒ—ã‚’å–å¾—ï¼ˆã‚°ãƒ«ãƒ¼ãƒ—æ´¾ç”Ÿã‚¯ãƒ©ã‚¹ã‚’ä½œã£ãŸå ´åˆç”¨ï¼‰
 		template<typename T>
 		std::shared_ptr<T> GetSharedObjectGroup(const std::wstring& key, bool exceptionActive = true) const
 		{
@@ -162,10 +162,10 @@ namespace shooting {
 			{
 				if (exceptionActive)
 				{
-					//—áŠO”­¶
+					//ä¾‹å¤–ç™ºç”Ÿ
 					std::wstring keyerr = key;
 					throw BaseException(
-						L"w’è‚ÌƒL[‚ÌƒOƒ‹[ƒv‚ÍTŒ^‚É•ÏŠ·‚Å‚«‚Ü‚¹‚ñ",
+						L"æŒ‡å®šã®ã‚­ãƒ¼ã®ã‚°ãƒ«ãƒ¼ãƒ—ã¯Tå‹ã«å¤‰æ›ã§ãã¾ã›ã‚“",
 						keyerr,
 						L"Stage::GetSharedObjectGroup<T>()"
 					);
@@ -173,9 +173,9 @@ namespace shooting {
 			}
 			return nullptr;
 		}
-		// ‹¤—L‚·‚éƒQ[ƒ€ƒIƒuƒWƒFƒNƒgƒOƒ‹[ƒv‚ğİ’è‚·‚éiƒOƒ‹[ƒv”h¶ƒNƒ‰ƒX‚ğì‚Á‚½ê‡—pj
+		// å…±æœ‰ã™ã‚‹ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚°ãƒ«ãƒ¼ãƒ—ã‚’è¨­å®šã™ã‚‹ï¼ˆã‚°ãƒ«ãƒ¼ãƒ—æ´¾ç”Ÿã‚¯ãƒ©ã‚¹ã‚’ä½œã£ãŸå ´åˆç”¨ï¼‰
 		void SetSharedObjectGroup(const std::wstring& key, const std::shared_ptr<GameObjectGroup>& newPtr);
-		// w’è‚Ìƒ^ƒO‚ğ‚ÂƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Ì”z—ñ‚ğæ“¾‚·‚é
+		// æŒ‡å®šã®ã‚¿ã‚°ã‚’æŒã¤ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é…åˆ—ã‚’å–å¾—ã™ã‚‹
 		void GetUsedTagObjectVec(const std::wstring& tag, std::vector<std::shared_ptr<GameObject>>& objVec) const
 		{
 			for (const auto& v : GetGameObjectVec())
@@ -186,7 +186,7 @@ namespace shooting {
 				}
 			}
 		}
-		// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Åw’è‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚Ìe‚©q‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ‚Âê‡A‚»‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì”z—ñ‚ğæ“¾‚·‚é
+		// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§æŒ‡å®šã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¦ªã‹å­ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æŒã¤å ´åˆã€ãã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®é…åˆ—ã‚’å–å¾—ã™ã‚‹
 		template<typename T>
 		void GetUsedDynamicComponentVec(std::vector<std::shared_ptr<T>>& compVec) const
 		{
@@ -199,7 +199,7 @@ namespace shooting {
 				}
 			}
 		}
-		// w’è‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚Ìe‚©q‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ‚ÂƒIƒuƒWƒFƒNƒg‚Ì”z—ñ‚ğİ’è‚·‚é
+		// æŒ‡å®šã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¦ªã‹å­ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æŒã¤ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é…åˆ—ã‚’è¨­å®šã™ã‚‹
 		template<typename T>
 		void GetUsedDynamicComponentObjectVec(std::vector<std::shared_ptr<GameObject>>& objVec) const
 		{
@@ -213,9 +213,9 @@ namespace shooting {
 			}
 		}
 
-		// ƒXƒe[ƒW‚ÌXViƒV[ƒ“‚©‚çŒÄ‚Î‚ê‚éj
+		// ã‚¹ãƒ†ãƒ¼ã‚¸ã®æ›´æ–°ï¼ˆã‚·ãƒ¼ãƒ³ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ï¼‰
 		virtual void UpdateStage();
-		// Õ“Ë”»’è‚ÌXViƒXƒe[ƒW‚©‚çŒÄ‚Ôj
+		// è¡çªåˆ¤å®šã®æ›´æ–°ï¼ˆã‚¹ãƒ†ãƒ¼ã‚¸ã‹ã‚‰å‘¼ã¶ï¼‰
 		virtual void UpdateCollision();
 
 		virtual void OnUpdateConstantBuffers();

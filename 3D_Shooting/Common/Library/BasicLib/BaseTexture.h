@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BaseTexture.h
-@brief ƒeƒNƒXƒ`ƒƒƒNƒ‰ƒX
+@brief ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¯ãƒ©ã‚¹
 @copyright Copyright (c) 2022 WiZ Tamura Hiroki,Yamanoi Yasushi.
  MIT License URL: https://opensource.org/license/mit
 */
@@ -11,44 +11,44 @@
 namespace shooting {
 
 	//--------------------------------------------------------------------------------------
-	///	ƒeƒNƒXƒ`ƒƒ
+	///	ãƒ†ã‚¯ã‚¹ãƒãƒ£
 	//--------------------------------------------------------------------------------------
 	class BaseTexture {
-		ComPtr<ID3D12Resource> m_texture; //ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
-		ComPtr<ID3D12Resource> m_textureUploadHeap; //ƒeƒNƒXƒ`ƒƒ‚ÌƒAƒbƒvƒ[ƒhƒq[ƒv
-		DirectX::ScratchImage m_image; //ƒCƒ[ƒW
-		std::vector<D3D12_SUBRESOURCE_DATA> m_subresources; //ƒTƒuƒŠƒ\[ƒX
-		CD3DX12_CPU_DESCRIPTOR_HANDLE m_maphandle; //ƒ}ƒbƒvƒnƒ“ƒhƒ‹
-		UINT m_srvIndex; //ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[‚ÌƒCƒ“ƒfƒbƒNƒX
+		ComPtr<ID3D12Resource> m_texture; //ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹
+		ComPtr<ID3D12Resource> m_textureUploadHeap; //ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—
+		DirectX::ScratchImage m_image; //ã‚¤ãƒ¡ãƒ¼ã‚¸
+		std::vector<D3D12_SUBRESOURCE_DATA> m_subresources; //ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹
+		CD3DX12_CPU_DESCRIPTOR_HANDLE m_maphandle; //ãƒãƒƒãƒ—ãƒãƒ³ãƒ‰ãƒ«
+		UINT m_srvIndex; //ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 		BaseTexture() {}
-		//ƒtƒ@ƒCƒ‹‚©‚çƒeƒXƒNƒ`ƒƒì¬(SRV‚àì¬‚·‚é)
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ†ã‚¹ã‚¯ãƒãƒ£ä½œæˆ(SRVã‚‚ä½œæˆã™ã‚‹)
 		static std::shared_ptr<BaseTexture>
 			CreateBaseTextureFromFilePrim(ID3D12GraphicsCommandList* pCommandList, const std::wstring& fileName, const CD3DX12_CPU_DESCRIPTOR_HANDLE& mapHandle);
 	public:
 		~BaseTexture() {}
-		//ƒeƒNƒXƒ`ƒƒ‚Ìæ“¾
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å–å¾—
 		ComPtr<ID3D12Resource> GetTexture() const {
 			return m_texture;
 		}
-		//ƒeƒNƒXƒ`ƒƒ‚ÌƒAƒbƒvƒ[ƒhƒq[ƒv‚Ìæ“¾
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ãƒ’ãƒ¼ãƒ—ã®å–å¾—
 		ComPtr<ID3D12Resource> GetTextureUploadHeap() const {
 			return m_textureUploadHeap;
 		}
-		//ƒ}ƒbƒvƒnƒ“ƒhƒ‹‚Ìæ“¾
+		//ãƒãƒƒãƒ—ãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 		CD3DX12_CPU_DESCRIPTOR_HANDLE GetMapHandle() const {
 			return m_maphandle;
 		}
-		//ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[ƒCƒ“ƒfƒbƒNƒX‚Ìİ’è
+		//ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®è¨­å®š
 		void SetSrvIndex(UINT srvIndex) {
 			m_srvIndex = srvIndex;
 		}
-		//ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[ƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+		//ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 		UINT GetSrvIndex() const {
 			return m_srvIndex;
 		}
-		//ƒTƒuƒŠƒ\[ƒX‚ÌƒAƒbƒvƒf[ƒg‚ÆƒVƒF[ƒ_ƒŠƒ\[ƒXƒrƒ…[‚Ìì¬
+		//ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ã®ã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆã¨ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã®ä½œæˆ
 		void UpdateSRAndCreateSRV(ID3D12GraphicsCommandList* pCommandList);
-		//ƒtƒ@ƒCƒ‹‚©‚çƒeƒXƒNƒ`ƒƒì¬(SRV‚àì¬‚·‚é)
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ†ã‚¹ã‚¯ãƒãƒ£ä½œæˆ(SRVã‚‚ä½œæˆã™ã‚‹)
 		static std::shared_ptr<BaseTexture> CreateTextureFlomFile(ID3D12GraphicsCommandList* pCommandList, const std::wstring& falsename);
 	};
 }

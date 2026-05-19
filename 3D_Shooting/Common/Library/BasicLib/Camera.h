@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include "BaseMath.h"
 
@@ -10,14 +10,14 @@ namespace shooting {
 	class Camera : public IObject
 	{
 	protected:
-		Vec3 m_eye; // ƒJƒƒ‰ˆÊ’u
-		Vec3 m_at; // ’–Ú“_
-		Vec3 m_up; // ƒJƒƒ‰‚ÌŒX‚«iƒAƒbƒvj
+		Vec3 m_eye; // ã‚«ãƒ¡ãƒ©ä½ç½®
+		Vec3 m_at; // æ³¨ç›®ç‚¹
+		Vec3 m_up; // ã‚«ãƒ¡ãƒ©ã®å‚¾ãï¼ˆã‚¢ãƒƒãƒ—ï¼‰
 
-		float m_near; // è‘O‚ÌÅ¬‹——£
-		float m_far; // ‰œ‚ÌÅ‘å‹——£
-		Mat4x4 m_viewMatrix; // ƒrƒ…[s—ñ
-		Mat4x4 m_projectionMatrix; // Ë‰es—ñ
+		float m_near; // æ‰‹å‰ã®æœ€å°è·é›¢
+		float m_far; // å¥¥ã®æœ€å¤§è·é›¢
+		Mat4x4 m_viewMatrix; // ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—
+		Mat4x4 m_projectionMatrix; // å°„å½±è¡Œåˆ—
 		Camera();
 		virtual ~Camera() {}
 
@@ -46,10 +46,10 @@ namespace shooting {
 
 	};
 
-	// ‰“‹ß–@ƒJƒƒ‰
+	// é è¿‘æ³•ã‚«ãƒ¡ãƒ©
 	class PerspecCamera : public Camera {
-		float m_fovY;   //Ë‰eŠp“x
-		float m_aspect;	//ƒAƒXƒyƒNƒg”ä
+		float m_fovY;   //å°„å½±è§’åº¦
+		float m_aspect;	//ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”
 	public:
 		PerspecCamera();
 		virtual ~PerspecCamera() {}
@@ -60,10 +60,10 @@ namespace shooting {
 		virtual void CalculateMatrix()override;
 	};
 
-	// ³Ë‰eƒJƒƒ‰
+	// æ­£å°„å½±ã‚«ãƒ¡ãƒ©
 	class OrthoCamera : public Camera {
-		float m_width;	//‰“‹ß–@‚ğg‚í‚È‚¢ê‡i³Ë‰ej‚Ì•
-		float m_height;	//‰“‹ß–@‚ğg‚í‚È‚¢ê‡i³Ë‰ej‚Ì‚‚³
+		float m_width;	//é è¿‘æ³•ã‚’ä½¿ã‚ãªã„å ´åˆï¼ˆæ­£å°„å½±ï¼‰ã®å¹…
+		float m_height;	//é è¿‘æ³•ã‚’ä½¿ã‚ãªã„å ´åˆï¼ˆæ­£å°„å½±ï¼‰ã®é«˜ã•
 	public:
 		OrthoCamera();
 		virtual ~OrthoCamera() {}

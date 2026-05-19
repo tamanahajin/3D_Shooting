@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include <type_traits>
 #include <utility>
 
 namespace shooting {
 
-	// ’eƒnƒ“ƒhƒ‹iƒCƒ“ƒfƒbƒNƒXj
+	// å¼¾ãƒãƒ³ãƒ‰ãƒ«ï¼ˆã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ï¼‰
 	struct BulletHandle
 	{
 		uint32_t index;
@@ -23,7 +23,7 @@ namespace shooting {
 		struct BulletSlot
 		{
 			std::shared_ptr<BulletType> bullet;
-			bool active = false; // uƒv[ƒ‹“I‚Ég—p’†‚©v
+			bool active = false; // ã€Œãƒ—ãƒ¼ãƒ«çš„ã«ä½¿ç”¨ä¸­ã‹ã€
 		};
 
 		std::vector<BulletSlot> m_BulletSlots;
@@ -52,10 +52,10 @@ namespace shooting {
 				initParam.scale = Vec3(1.0f, 1.0f, 1.0f);
 				initParam.quaternion = Quat();
 
-				// Stage‚É’eƒIƒuƒWƒFƒNƒg‚ğ–‘O¶¬
+				// Stageã«å¼¾ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’äº‹å‰ç”Ÿæˆ
 				auto bullet = stagePtr->AddGameObject<BulletType>(initParam);
 
-				// ƒv[ƒ‹‘Ò‹@ó‘Ô‚É‚·‚é
+				// ãƒ—ãƒ¼ãƒ«å¾…æ©ŸçŠ¶æ…‹ã«ã™ã‚‹
 				bullet->SetActive(false);
 				bullet->SetUpdateActive(false);
 
@@ -69,8 +69,8 @@ namespace shooting {
 		}
 
 		/// <summary>
-		/// d—vF’e‚ÌuXViˆÚ“®Eõ–½jv‚Í Stage ‚ªs‚¤B
-		/// BulletPool ‚Íu”ñƒAƒNƒeƒBƒu‚É‚È‚Á‚½’e‚ğ‰ñû‚µ‚Ä Free ‚É–ß‚·v‚¾‚¯’S“–B
+		/// é‡è¦ï¼šå¼¾ã®ã€Œæ›´æ–°ï¼ˆç§»å‹•ãƒ»å¯¿å‘½ï¼‰ã€ã¯ Stage ãŒè¡Œã†ã€‚
+		/// BulletPool ã¯ã€Œéã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸå¼¾ã‚’å›åã—ã¦ Free ã«æˆ»ã™ã€ã ã‘æ‹…å½“ã€‚
 		/// </summary>
 		void OnUpdate(double /*elapsedTime*/) override
 		{
@@ -79,7 +79,7 @@ namespace shooting {
 				auto& slot = m_BulletSlots[i];
 				if (!slot.active || !slot.bullet) continue;
 
-				// ’e‚ªI—¹‚µ‚Ä‚¢‚ê‚Î‰ñû
+				// å¼¾ãŒçµ‚äº†ã—ã¦ã„ã‚Œã°å›å
 				if (!slot.bullet->IsActive())
 				{
 					slot.active = false;
@@ -124,13 +124,13 @@ namespace shooting {
 			}
 		}
 
-		// 3ˆø””ÅiŠù‘¶ŒİŠ·j
+		// 3å¼•æ•°ç‰ˆï¼ˆæ—¢å­˜äº’æ›ï¼‰
 		void Spawn(const Vec3& pos, const Quat& rot, const Vec3& scale)
 		{
 			Spawn(pos, rot, scale, [](BulletType&) {});
 		}
 
-		// 4ˆø””Åisetup‚Åƒ^[ƒQƒbƒg“™‚ğ’“üj
+		// 4å¼•æ•°ç‰ˆï¼ˆsetupã§ã‚¿ãƒ¼ã‚²ãƒƒãƒˆç­‰ã‚’æ³¨å…¥ï¼‰
 		template<class SetupFn>
 		void Spawn(const Vec3& pos, const Quat& rot, const Vec3& scale, SetupFn&& setup)
 		{
@@ -152,17 +152,17 @@ namespace shooting {
 					trans->SetScale(scale);
 				}
 
-				// ResetForSpawn ‚Ì‘O‚ÉAƒ^[ƒQƒbƒg“™‚ğƒZƒbƒg
+				// ResetForSpawn ã®å‰ã«ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆç­‰ã‚’ã‚»ãƒƒãƒˆ
 				std::forward<SetupFn>(setup)(*slot.bullet);
 
-				// ‚±‚±‚Å’e“¹ŒvZ‚È‚Ç‚ª‘–‚é
+				// ã“ã“ã§å¼¾é“è¨ˆç®—ãªã©ãŒèµ°ã‚‹
 				slot.bullet->ResetForSpawn();
 
 				slot.bullet->SetUpdateActive(true);
 				return;
 			}
 
-			// ‘«‚è‚È‚¯‚ê‚Î’Ç‰Á¶¬
+			// è¶³ã‚Šãªã‘ã‚Œã°è¿½åŠ ç”Ÿæˆ
 			TransParam tp;
 			tp.position = pos;
 			tp.quaternion = rot;

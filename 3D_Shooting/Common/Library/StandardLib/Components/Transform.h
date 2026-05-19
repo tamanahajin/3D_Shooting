@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -8,7 +8,7 @@ namespace shooting {
 		TransParam m_beforeParam;
 		TransParam m_param;
 		Mat4x4 m_worldMatrix;
-		//eƒIƒuƒWƒFƒNƒg
+		//è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 		std::weak_ptr<GameObject> m_parent;
 	public:
 		Transform(const std::shared_ptr<GameObject>& gameObjectPtr, const TransParam& param);

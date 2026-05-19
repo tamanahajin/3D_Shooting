@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
-// Standard Application Framework Extensions‚Ì—ª
-// ƒvƒŠƒRƒ“ƒpƒCƒ‹Ï‚İƒwƒbƒ_[
+// Standard Application Framework Extensionsã®ç•¥
+// ãƒ—ãƒªã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ¸ˆã¿ãƒ˜ãƒƒãƒ€ãƒ¼
 
-//ƒ‰ƒCƒuƒ‰ƒŠ‘¤
+//ãƒ©ã‚¤ãƒ–ãƒ©ãƒªå´
 #include "BasicInclude.h"
-//ˆÈ‰º‚ÌƒCƒ“ƒNƒ‹[ƒh‚Í•K—v
+//ä»¥ä¸‹ã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ã¯å¿…è¦
 #include "Scene.h"
-//ƒŠƒ\[ƒX
+//ãƒªã‚½ãƒ¼ã‚¹
 #include "resource.h"

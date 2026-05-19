@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BaseCamera.cpp
-@brief ƒJƒƒ‰ƒNƒ‰ƒX
+@brief ã‚«ãƒ¡ãƒ©ã‚¯ãƒ©ã‚¹
 */
 
 
@@ -13,7 +13,7 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 
 	Camera::Camera() :
-		m_eye(0, 10.0f, -20.0f),	//ƒfƒtƒHƒ‹ƒg‚ÍŒã•û
+		m_eye(0, 10.0f, -20.0f),	//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯å¾Œæ–¹
 		m_at(0, 0, 0),
 		m_up(0, 1.0f, 0),
 		m_near(0.5f),
@@ -23,7 +23,7 @@ namespace shooting {
 	{
 	}
 
-	//ƒAƒNƒZƒT
+	//ã‚¢ã‚¯ã‚»ã‚µ
 	const Vec3& Camera::GetEye() const { return m_eye; }
 	void Camera::SetEye(const Vec3& eye)
 	{

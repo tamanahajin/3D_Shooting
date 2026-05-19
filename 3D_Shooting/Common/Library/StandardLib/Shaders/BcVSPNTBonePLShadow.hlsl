@@ -18,11 +18,11 @@ VSOutputPixelLightingTxShadow main(VSInputNmTxWeights vin)
 	vout.Diffuse = float4(1, 1, 1, DiffuseColor.a);
 	vout.TexCoord = vin.TexCoord;
 
-	//‰e—p
+	//å½±ç”¨
 	vout.norm = mul(vin.Normal, (float3x3)World);
 	vout.norm = normalize(vout.norm);
 	float4 LightModelPos = float4(vin.Position.xyz, 1.0f);
-	//ƒ[ƒ‹ƒh•ÏŠ·
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›
 	LightModelPos = mul(LightModelPos, World);
 	float4 LightSpacePos = mul(LightModelPos, LightView);
 	LightSpacePos = mul(LightSpacePos, LightProjection);

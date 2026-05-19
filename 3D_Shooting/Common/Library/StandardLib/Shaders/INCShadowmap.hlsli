@@ -1,6 +1,6 @@
 /*!
 @file INCShadowmap.hlsli
-@brief ƒVƒƒƒhƒEƒ}ƒbƒvƒCƒ“ƒNƒ‹[ƒh
+@brief ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

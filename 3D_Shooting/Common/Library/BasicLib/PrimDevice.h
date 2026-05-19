@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file PrimDevice.h
-@brief ƒfƒoƒCƒXeƒNƒ‰ƒX
+@brief ãƒ‡ãƒã‚¤ã‚¹è¦ªã‚¯ãƒ©ã‚¹
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -23,8 +23,8 @@ namespace shooting {
 
 
 	/// <summary>
-	/// ƒvƒŠƒ~ƒeƒBƒu‚ÈƒfƒoƒCƒXƒNƒ‰ƒX
-	/// PrimDevice‚ÍÅ¬ŒÀ‚ÌÓ–±‚ğ‚¿ADirectXŒÅ—L‚Ì•¡G‚³‚ğBaseDevice‚ÉˆÏ÷‚·‚é‚±‚Æ‚ÅA‘aŒ‹‡‚ÅÄ—˜—p‰Â”\‚ÈİŒv‚ğÀŒ»
+	/// ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ãªãƒ‡ãƒã‚¤ã‚¹ã‚¯ãƒ©ã‚¹
+	/// PrimDeviceã¯æœ€å°é™ã®è²¬å‹™ã‚’æŒã¡ã€DirectXå›ºæœ‰ã®è¤‡é›‘ã•ã‚’BaseDeviceã«å§”è­²ã™ã‚‹ã“ã¨ã§ã€ç–çµåˆã§å†åˆ©ç”¨å¯èƒ½ãªè¨­è¨ˆã‚’å®Ÿç¾
 	/// </summary>
 	class PrimDevice
 	{
@@ -41,7 +41,7 @@ namespace shooting {
 		virtual void OnDestroy() = 0;
 
 		// Samples override the event handlers to handle specific messages.
-		// “ú–{ŒêF ƒTƒ“ƒvƒ‹‚ÍƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚ğƒI[ƒo[ƒ‰ƒCƒh‚µ‚ÄA“Á’è‚ÌƒƒbƒZ[ƒW‚ğˆ—‚µ‚Ü‚·B
+		// æ—¥æœ¬èªï¼š ã‚µãƒ³ãƒ—ãƒ«ã¯ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã—ã¦ã€ç‰¹å®šã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‡¦ç†ã—ã¾ã™ã€‚
 		virtual void OnKeyDown(UINT8 /*key*/) {}
 		virtual void OnKeyUp(UINT8 /*key*/) {}
 		virtual void OnWindowMoved(int /*x*/, int /*y*/) {}
@@ -49,7 +49,7 @@ namespace shooting {
 		virtual void OnLeftButtonDown(UINT /*x*/, UINT /*y*/) {}
 		virtual void OnLeftButtonUp(UINT /*x*/, UINT /*y*/) {}
 		virtual void OnDisplayChanged() {}
-		// ƒAƒNƒZƒT
+		// ã‚¢ã‚¯ã‚»ã‚µ
 		UINT GetWidth() const { return m_width; }
 		UINT GetHeight() const { return m_height; }
 		const WCHAR* GetTitle() const { return m_title.c_str(); }
@@ -66,21 +66,21 @@ namespace shooting {
 		void SetWindowBounds(int left, int top, int right, int bottom);
 		std::wstring GetAssetFullPath(LPCWSTR assetName);
 
-		// ƒtƒŒ[ƒ€Šm’èŒã‚ÉQÆ‚·‚éƒ}ƒEƒXó‘Ô
+		// ãƒ•ãƒ¬ãƒ¼ãƒ ç¢ºå®šå¾Œã«å‚ç…§ã™ã‚‹ãƒã‚¦ã‚¹çŠ¶æ…‹
 		struct MouseFrameState
 		{
-			int x = 0;          // Œ»İÀ•W
+			int x = 0;          // ç¾åœ¨åº§æ¨™
 			int y = 0;
-			int deltaX = 0;     // ‚±‚ÌƒtƒŒ[ƒ€‚ÌˆÚ“®—Êi—İÏŠm’èj
+			int deltaX = 0;     // ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ç§»å‹•é‡ï¼ˆç´¯ç©ç¢ºå®šï¼‰
 			int deltaY = 0;
-			int wheelDelta = 0; // ‚±‚ÌƒtƒŒ[ƒ€‚ÌƒzƒC[ƒ‹—Êi}120‚Ì—İÏj
+			int wheelDelta = 0; // ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ›ã‚¤ãƒ¼ãƒ«é‡ï¼ˆÂ±120ã®ç´¯ç©ï¼‰
 			bool hasPos = false;
 		};
 
-		// WindowProc ‚©‚çŒÄ‚Ô
+		// WindowProc ã‹ã‚‰å‘¼ã¶
 		virtual void OnMouseWheel(int wheelDelta);
 
-		// ƒQ[ƒ€‘¤iƒJƒƒ‰‚È‚Çj‚©‚çQÆ‚·‚é
+		// ã‚²ãƒ¼ãƒ å´ï¼ˆã‚«ãƒ¡ãƒ©ãªã©ï¼‰ã‹ã‚‰å‚ç…§ã™ã‚‹
 		const MouseFrameState& GetMouseFrameState() const { return m_mouseFrame; }
 
 	protected:
@@ -97,7 +97,7 @@ namespace shooting {
 		UINT m_height;
 		float m_aspectRatio;
 
-		//ESCƒL[‚ÅI—¹‚³‚¹‚é‚©‚Ç‚¤‚©
+		//ESCã‚­ãƒ¼ã§çµ‚äº†ã•ã›ã‚‹ã‹ã©ã†ã‹
 		bool m_quiteEscapeKey;
 
 
@@ -113,7 +113,7 @@ namespace shooting {
 		// Override to be able to start without Dx11on12 UI for PIX. PIX doesn't support 11 on 12. 
 		bool m_enableUI;
 
-		// 1ƒtƒŒ[ƒ€•ª‚Ì“ü—Í‚ğŠm’è‚³‚¹‚éiOnUpdateDraw‚Ìæ“ª‚ÅŒÄ‚Ôj
+		// 1ãƒ•ãƒ¬ãƒ¼ãƒ åˆ†ã®å…¥åŠ›ã‚’ç¢ºå®šã•ã›ã‚‹ï¼ˆOnUpdateDrawã®å…ˆé ­ã§å‘¼ã¶ï¼‰
 		void FlushMouseInputForFrame();
 	private:
 		// Root assets path.
@@ -122,20 +122,20 @@ namespace shooting {
 		// Window title.
 		std::wstring m_title;
 
-		// ---- ƒƒbƒZ[ƒW‚Å“Í‚­“ü—Í‚ğ‚±‚±‚É—İÏiƒtƒŒ[ƒ€ŠJn‚ÉŠm’è¨ƒNƒŠƒAj ----
+		// ---- ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§å±Šãå…¥åŠ›ã‚’ã“ã“ã«ç´¯ç©ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹æ™‚ã«ç¢ºå®šâ†’ã‚¯ãƒªã‚¢ï¼‰ ----
 		int  m_mouseAccumDX = 0;
 		int  m_mouseAccumDY = 0;
 		int  m_wheelAccum = 0;
 
-		// ---- ÅV‚Ìâ‘ÎÀ•W ----
+		// ---- æœ€æ–°ã®çµ¶å¯¾åº§æ¨™ ----
 		int  m_mouseX = 0;
 		int  m_mouseY = 0;
 		bool m_mouseHasPos = false;
 
-		// ---- ƒtƒŒ[ƒ€Šm’è’l ----
+		// ---- ãƒ•ãƒ¬ãƒ¼ãƒ ç¢ºå®šå€¤ ----
 		MouseFrameState m_mouseFrame;
 
-		// ---- 60FPSãŒÀ—p ----
+		// ---- 60FPSä¸Šé™ç”¨ ----
 		void LimitFrameRate();
 		bool m_frameLimiterInitialized = false;
 		bool m_timerPeriodRaised = false;

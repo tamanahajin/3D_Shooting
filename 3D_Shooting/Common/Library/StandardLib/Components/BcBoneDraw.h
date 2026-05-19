@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file BcBoneDraw.h
-@brief ƒxƒCƒVƒbƒN•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg
+@brief ãƒ™ã‚¤ã‚·ãƒƒã‚¯æç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 */
 
 
@@ -15,23 +15,23 @@ namespace shooting {
 
 
 	//--------------------------------------------------------------------------------------
-	///	BcPNTBoneDrawƒRƒ“ƒ|[ƒlƒ“ƒg
+	///	BcPNTBoneDrawã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	//--------------------------------------------------------------------------------------
 	class BcPNTBoneDraw : public Component {
 	protected:
 		BasicConstant m_ConstantBuffer;
 		size_t m_ConstantBufferIndex;
-		//©•ª©g‚É‰e‚ğ•`‰æ‚·‚é‚©‚Ç‚¤‚©
+		//è‡ªåˆ†è‡ªèº«ã«å½±ã‚’æç”»ã™ã‚‹ã‹ã©ã†ã‹
 		bool m_OwnShadowActive;
-		//ƒtƒHƒO‚ª—LŒø‚©‚Ç‚¤‚©
+		//ãƒ•ã‚©ã‚°ãŒæœ‰åŠ¹ã‹ã©ã†ã‹
 		bool m_FogEnabled = true;
-		//ƒtƒHƒO‚ÌŠJnˆÊ’u
+		//ãƒ•ã‚©ã‚°ã®é–‹å§‹ä½ç½®
 		float m_FogStart = -10.0f;
-		//ƒtƒHƒO‚ÌI—¹ˆÊ’u
+		//ãƒ•ã‚©ã‚°ã®çµ‚äº†ä½ç½®
 		float m_FogEnd = -40.0f;
-		//ƒtƒHƒOF
+		//ãƒ•ã‚©ã‚°è‰²
 		XMFLOAT4 m_FogColor;
-		//ƒtƒHƒOƒxƒNƒgƒ‹
+		//ãƒ•ã‚©ã‚°ãƒ™ã‚¯ãƒˆãƒ«
 		XMFLOAT3 m_FogVector;
 
 		std::vector<Mat4x4>  m_BoneTransforms;

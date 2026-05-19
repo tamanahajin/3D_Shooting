@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <array>
 #include <vector>
 #include <wrl.h>
@@ -7,21 +7,21 @@
 namespace shooting {
 
 	/// <summary>
-	/// ƒL[ƒ{[ƒh‚ÌƒXƒe[ƒ^ƒX
-	/// now : Œ»İ‚ÌƒtƒŒ[ƒ€‚Ìó‘Ô
-	/// pre : ’¼‘O‚ÌƒtƒŒ[ƒ€‚Ìó‘Ô
-	/// pressed : ‰Ÿ‚³‚ê‚½uŠÔ
-	/// released : —£‚³‚ê‚½uŠÔ
+	/// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
+	/// now : ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®çŠ¶æ…‹
+	/// pre : ç›´å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®çŠ¶æ…‹
+	/// pressed : æŠ¼ã•ã‚ŒãŸç¬é–“
+	/// released : é›¢ã•ã‚ŒãŸç¬é–“
 	/// </summary>
 	struct KEYBOARD_STATE
 	{
-		std::array<BYTE, 256> now{}; // Œ»İ‚ÌƒtƒŒ[ƒ€‚Ìó‘Ô
-		std::array<BYTE, 256> pre{}; // ’¼‘O‚ÌƒtƒŒ[ƒ€‚Ìó‘Ô
-		std::array<BYTE, 256> pressed{}; // ‰Ÿ‚³‚ê‚½uŠÔ
-		std::array<BYTE, 256> released{}; // —£‚³‚ê‚½uŠÔ
-		// floatW W‚Ìfloat•ÏŠ·
+		std::array<BYTE, 256> now{}; // ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®çŠ¶æ…‹
+		std::array<BYTE, 256> pre{}; // ç›´å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®çŠ¶æ…‹
+		std::array<BYTE, 256> pressed{}; // æŠ¼ã•ã‚ŒãŸç¬é–“
+		std::array<BYTE, 256> released{}; // é›¢ã•ã‚ŒãŸç¬é–“
+		// floatW Wã®floatå¤‰æ›
 		float fNowW;
-		bool connected = true; // Ú‘±ó‘Ô
+		bool connected = true; // æ¥ç¶šçŠ¶æ…‹
 	};
 
 	struct MOUSE_STATE
@@ -35,18 +35,18 @@ namespace shooting {
 		std::array<BYTE, 3> btnPressed{};
 		std::array<BYTE, 3> btnReleased{};
 
-		int wheelDeltaFrame = 0; // ‚»‚ÌƒtƒŒ[ƒ€•ªi120’PˆÊ‚ª‘½‚¢j
+		int wheelDeltaFrame = 0; // ãã®ãƒ•ãƒ¬ãƒ¼ãƒ åˆ†ï¼ˆ120å˜ä½ãŒå¤šã„ï¼‰
 	};
 
 	class InputDevice
 	{
 	private:
 		KEYBOARD_STATE keyboardState;
-		static constexpr BYTE kDownMask = 0x80; // ƒL[‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©‚Ìƒ}ƒXƒN
+		static constexpr BYTE kDownMask = 0x80; // ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹ã®ãƒã‚¹ã‚¯
 
 		HWND m_hwnd = nullptr;
 		MOUSE_STATE m_mouse;
-		int m_wheelAccum = 0; // WM_MOUSEWHEEL ‚ÅÏ‚ŞiŸ‚ÌUpdate‚Åframe‚É”½‰fj
+		int m_wheelAccum = 0; // WM_MOUSEWHEEL ã§ç©ã‚€ï¼ˆæ¬¡ã®Updateã§frameã«åæ˜ ï¼‰
 	public:
 		InputDevice()
 		{
@@ -64,7 +64,7 @@ namespace shooting {
 		{
 			m_hwnd = hwnd;
 
-			// ‰‰ñdelta–\‚ê–h~Fnow/pre ‚ğŒ»İˆÊ’u‚Å‘µ‚¦‚é
+			// åˆå›deltaæš´ã‚Œé˜²æ­¢ï¼šnow/pre ã‚’ç¾åœ¨ä½ç½®ã§æƒãˆã‚‹
 			POINT p{};
 			if (::GetCursorPos(&p))
 			{
@@ -75,7 +75,7 @@ namespace shooting {
 			}
 		}
 
-		// clientÀ•W‚Åw’è‚µ‚ÄAƒJ[ƒ\ƒ‹‚ğ‚»‚±‚Öƒ[ƒv + now/pre/delta ‚ğ“¯Šú
+		// clientåº§æ¨™ã§æŒ‡å®šã—ã¦ã€ã‚«ãƒ¼ã‚½ãƒ«ã‚’ãã“ã¸ãƒ¯ãƒ¼ãƒ— + now/pre/delta ã‚’åŒæœŸ
 		void WarpCursorToClientPos(const POINT& clientPos)
 		{
 			if (m_hwnd)
@@ -86,11 +86,11 @@ namespace shooting {
 			}
 			else
 			{
-				// hwnd–¢İ’è‚È‚ç clientPos ‚ğ screen ‚Æ‚İ‚È‚·i•ÛŒ¯j
+				// hwndæœªè¨­å®šãªã‚‰ clientPos ã‚’ screen ã¨ã¿ãªã™ï¼ˆä¿é™ºï¼‰
 				::SetCursorPos(clientPos.x, clientPos.y);
 			}
 
-			// šd—vFƒ[ƒv‚µ‚½‚Ì‚Å InputDevice ‚Ìó‘Ô‚à‡‚í‚¹‚é
+			// â˜…é‡è¦ï¼šãƒ¯ãƒ¼ãƒ—ã—ãŸã®ã§ InputDevice ã®çŠ¶æ…‹ã‚‚åˆã‚ã›ã‚‹
 			m_mouse.now = clientPos;
 			m_mouse.pre = clientPos;
 			m_mouse.delta = POINT{ 0,0 };
@@ -106,8 +106,8 @@ namespace shooting {
 		{
 			keyboardState.pre = keyboardState.now;
 
-			// GetKeyboardState ‚ÍƒtƒH[ƒJƒX‚Ì‚İƒƒbƒZ[ƒWˆ—‚Ì‚½‚Ñ‚Éó‘Ô‚ğ•Ô‚·‚Ì‚ÅA
-			// ¸”s‚É‚Í GetAsyncKeyState ‚ÅƒtƒH[ƒ‹ƒoƒbƒN‚µ‚Ü‚·B
+			// GetKeyboardState ã¯ãƒ•ã‚©ãƒ¼ã‚«ã‚¹æ™‚ã®ã¿ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å‡¦ç†ã®ãŸã³ã«çŠ¶æ…‹ã‚’è¿”ã™ã®ã§ã€
+			// å¤±æ•—æ™‚ã«ã¯ GetAsyncKeyState ã§ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ã—ã¾ã™ã€‚
 			if (!::GetKeyboardState(keyboardState.now.data()))
 			{
 				for (int vk = 0; vk < 256; ++vk)
@@ -132,7 +132,7 @@ namespace shooting {
 			return keyboardState;
 		}
 
-		// •â•ŠÖ” : ƒL[‚Ìó‘Ô‚ğèŒy‚Éƒ`ƒFƒbƒN‚·‚é‚½‚ß‚ÌŠÖ”
+		// è£œåŠ©é–¢æ•° : ã‚­ãƒ¼ã®çŠ¶æ…‹ã‚’æ‰‹è»½ã«ãƒã‚§ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®é–¢æ•°
 		bool KeyDown(int vk) const
 		{
 			return (keyboardState.now[vk & 0xFF] & kDownMask) != 0;
@@ -148,11 +148,11 @@ namespace shooting {
 
 		void ResetMouseState()
 		{
-			// ƒzƒC[ƒ‹F‚±‚ÌƒtƒŒ[ƒ€•ª‚ğŠm’è‚µ‚Ä‚©‚çA’~Ï‚ğƒNƒŠƒA
+			// ãƒ›ã‚¤ãƒ¼ãƒ«ï¼šã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ åˆ†ã‚’ç¢ºå®šã—ã¦ã‹ã‚‰ã€è“„ç©ã‚’ã‚¯ãƒªã‚¢
 			m_mouse.wheelDeltaFrame = m_wheelAccum;
 			m_wheelAccum = 0;
 
-			// ˆÊ’u
+			// ä½ç½®
 			m_mouse.pre = m_mouse.now;
 
 			POINT p;
@@ -168,7 +168,7 @@ namespace shooting {
 			m_mouse.delta.x = m_mouse.now.x - m_mouse.pre.x;
 			m_mouse.delta.y = m_mouse.now.y - m_mouse.pre.y;
 
-			// ƒ{ƒ^ƒ“
+			// ãƒœã‚¿ãƒ³
 			m_mouse.btnPre = m_mouse.btnNow;
 
 			auto poll = [&](int vk)->BYTE {
@@ -190,7 +190,7 @@ namespace shooting {
 			}
 		}
 
-		// WM_MOUSEWHEEL‚©‚çŒÄ‚Ô
+		// WM_MOUSEWHEELã‹ã‚‰å‘¼ã¶
 		void AddWheelDelta(int delta) { m_wheelAccum += delta; }
 
 		const MOUSE_STATE& GetMouseState() const { return m_mouse; }
@@ -201,7 +201,7 @@ namespace shooting {
 
 		bool MouseDown(int vk) const
 		{
-			// vk ‚Í VK_LBUTTON / VK_RBUTTON / VK_MBUTTON
+			// vk ã¯ VK_LBUTTON / VK_RBUTTON / VK_MBUTTON
 			int idx = (vk == VK_LBUTTON) ? 0 : (vk == VK_RBUTTON) ? 1 : 2;
 			return (m_mouse.btnNow[idx] & kDownMask) != 0;
 		}

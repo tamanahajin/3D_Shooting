@@ -1,6 +1,6 @@
 /*!
 @file VSShadowmap.hlsli
-@brief シャドウマップ頂点シェーダー
+@brief 繧ｷ繝｣繝峨え繝槭ャ繝鈴らせ繧ｷ繧ｧ繝ｼ繝繝ｼ
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */

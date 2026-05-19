@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file RootSignature.cpp
-@brief ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ü‚Æ‚ß@À‘Ì
+@brief ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã¾ã¨ã‚ã€€å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -21,7 +21,7 @@ namespace shooting {
 		}
 		if (ExceptionActive) {
 			throw BaseException(
-				L"w’è‚Ìƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+				L"æŒ‡å®šã®ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 				key,
 				L"RootSignaturePool::GetRootSignature()"
 			);

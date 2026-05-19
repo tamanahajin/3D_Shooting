@@ -1,4 +1,4 @@
-//*********************************************************
+ï»¿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -11,7 +11,7 @@
 
 /*!
 @file BaseScene.cpp
-@brief ƒV[ƒ“eƒNƒ‰ƒX@À‘Ì
+@brief ã‚·ãƒ¼ãƒ³è¦ªã‚¯ãƒ©ã‚¹ã€€å®Ÿä½“
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -64,7 +64,7 @@ namespace shooting {
 		if (m_srvSendIndex >= m_srvMax)
 		{
 			throw BaseException(
-				L"‚±‚êˆÈãƒVƒF[ƒ_ƒŠƒ\[ƒX‚Í‘‚â‚¹‚Ü‚¹‚ñB\n",
+				L"ã“ã‚Œä»¥ä¸Šã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ã¯å¢—ã‚„ã›ã¾ã›ã‚“ã€‚\n",
 				L"Scene::GetSrvNextIndex()"
 			);
 		}
@@ -76,7 +76,7 @@ namespace shooting {
 		if (m_cbvUavSendIndex >= m_cbvUavMax)
 		{
 			throw BaseException(
-				L"‚±‚êˆÈãƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@‚ÆUAV‚Í‘‚â‚¹‚Ü‚¹‚ñB\n",
+				L"ã“ã‚Œä»¥ä¸Šã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡ã¨UAVã¯å¢—ã‚„ã›ã¾ã›ã‚“ã€‚\n",
 				L"Scene::GetCbvUavNextIndex()"
 			);
 		}
@@ -88,7 +88,7 @@ namespace shooting {
 		if (m_samplerSendIndex >= m_samplerMax)
 		{
 			throw BaseException(
-				L"‚±‚êˆÈãƒTƒ“ƒvƒ‰[‚Í‘‚â‚¹‚Ü‚¹‚ñB",
+				L"ã“ã‚Œä»¥ä¸Šã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã¯å¢—ã‚„ã›ã¾ã›ã‚“ã€‚",
 				L"BaseScene::GetSamplerNextIndex()"
 			);
 		}
@@ -103,7 +103,7 @@ namespace shooting {
 			return it->second;
 		}
 		throw BaseException(
-			L"w’è‚ÌƒTƒ“ƒvƒ‰[‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñB",
+			L"æŒ‡å®šã®ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã¯è¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚",
 			key,
 			L"BaseScene::GetSamplerNextIndex()"
 		);
@@ -165,7 +165,7 @@ namespace shooting {
 		ThrowIfFailed(pDevice->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&m_samplerHeap)));
 		NAME_D3D12_OBJECT(m_samplerHeap);
 
-		//ƒCƒ“ƒNƒŠƒƒ“ƒgƒTƒCƒY‚Ìæ“¾
+		//ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã‚µã‚¤ã‚ºã®å–å¾—
 		m_rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		m_dsvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 		m_cbvSrvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -234,7 +234,7 @@ namespace shooting {
 			SetGpuSlot(L"b1", 5);
 
 			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-			//HULL_SHADER‚ÆDOMAIN_SHADER‚ÆGEOMETRY_SHADER‚ğƒAƒNƒZƒX‚Å‚«‚È‚¢İ’è
+			//HULL_SHADERã¨DOMAIN_SHADERã¨GEOMETRY_SHADERã‚’ã‚¢ã‚¯ã‚»ã‚¹ã§ããªã„è¨­å®š
 			D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
 				D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 				D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
@@ -251,7 +251,7 @@ namespace shooting {
 			ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
 			ThrowIfFailed(pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 			NAME_D3D12_OBJECT(rootSignature);
-			//ƒv[ƒ‹‚É“o˜^
+			//ãƒ—ãƒ¼ãƒ«ã«ç™»éŒ²
 			RootSignaturePool::AddRootSignature(L"BaseCrossDefault", rootSignature);
 
 		}
@@ -283,7 +283,7 @@ namespace shooting {
 			ThrowIfFailed(pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 			NAME_D3D12_OBJECT(rootSignature);
 
-			//ƒv[ƒ‹‚É“o˜^
+			//ãƒ—ãƒ¼ãƒ«ã«ç™»éŒ²
 			RootSignaturePool::AddRootSignature(L"PostProcess", rootSignature);
 		}
 
@@ -293,7 +293,7 @@ namespace shooting {
 	void BaseScene::CreateSamplers(ID3D12Device* pDevice)
 	{
 		//LinearWrap
-		// ’Êí•`‰æƒŠƒjƒAƒ‰ƒbƒvƒTƒ“ƒvƒ‰[
+		// é€šå¸¸æç”»ãƒªãƒ‹ã‚¢ãƒ©ãƒƒãƒ—ã‚µãƒ³ãƒ—ãƒ©ãƒ¼
 		UINT index = GetSamplerNextIndex();
 		D3D12_SAMPLER_DESC base_wrapSamplerDesc = {};
 		base_wrapSamplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -346,7 +346,7 @@ namespace shooting {
 
 
 		//LinearClamp
-		// ’Êí•`‰æƒŠƒjƒAƒNƒ‰ƒ“ƒvƒTƒ“ƒvƒ‰[
+		// é€šå¸¸æç”»ãƒªãƒ‹ã‚¢ã‚¯ãƒ©ãƒ³ãƒ—ã‚µãƒ³ãƒ—ãƒ©ãƒ¼
 		index = GetSamplerNextIndex();
 		D3D12_SAMPLER_DESC linearClampSamplerDesc = {};
 		linearClampSamplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -371,7 +371,7 @@ namespace shooting {
 		pDevice->CreateSampler(&linearClampSamplerDesc, handle2);
 		m_samplerMap[L"LinearClamp"] = index;
 		//ComparisonLinear
-		//‰e•`‰æ—pƒRƒ“ƒp[ƒWƒ‡ƒ“ƒŠƒjƒA
+		//å½±æç”»ç”¨ã‚³ãƒ³ãƒ‘ãƒ¼ã‚¸ãƒ§ãƒ³ãƒªãƒ‹ã‚¢
 		index = GetSamplerNextIndex();
 		D3D12_SAMPLER_DESC ComparisonLinearSamplerDesc = {};
 		ComparisonLinearSamplerDesc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
@@ -470,7 +470,7 @@ namespace shooting {
 	void BaseScene::CreateDefaultResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 	{
 		m_pTgtCommandList = pCommandList;
-		//PhysXŠÖ˜A
+		//PhysXé–¢é€£
 		m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_defaultAllocator, m_defaultErrorCallback);
 		if (!m_pFoundation)
 		{
@@ -672,7 +672,7 @@ namespace shooting {
 			if (it != m_meshMap.end())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒL[‚ÌƒƒbƒVƒ…‚ª‚·‚Å‚É‘¶İ‚µ‚Ü‚·",
+					L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ¡ãƒƒã‚·ãƒ¥ãŒã™ã§ã«å­˜åœ¨ã—ã¾ã™",
 					key,
 					L"BaseScene::RegisterMesh()"
 				);
@@ -691,7 +691,7 @@ namespace shooting {
 		else
 		{
 			throw BaseException(
-				L"w’è‚ÌƒL[‚ÌƒƒbƒVƒ…‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+				L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ¡ãƒƒã‚·ãƒ¥ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 				key,
 				L"BaseScene::GetMesh()"
 			);
@@ -710,7 +710,7 @@ namespace shooting {
 			if (it != m_modelMeshMap.end())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒL[‚Ìƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ª‚·‚Å‚É‘¶İ‚µ‚Ü‚·",
+					L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ãŒã™ã§ã«å­˜åœ¨ã—ã¾ã™",
 					key,
 					L"BaseScene::RegisterModelMesh()"
 				);
@@ -730,7 +730,7 @@ namespace shooting {
 		}
 
 		throw BaseException(
-			L"w’è‚ÌƒL[‚Ìƒ‚ƒfƒ‹ƒƒbƒVƒ…‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+			L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 			key,
 			L"BaseScene::GetModelMesh()"
 		);
@@ -744,14 +744,14 @@ namespace shooting {
 			if (it != m_textureMap.end())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒL[‚ÌƒeƒNƒXƒ`ƒƒ‚ª‚·‚Å‚É‘¶İ‚µ‚Ü‚·",
+					L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒã™ã§ã«å­˜åœ¨ã—ã¾ã™",
 					key,
 					L"BaseScene::AddTexture()"
 				);
 			}
 		}
 		m_textureMap[key] = texture;
-		//texture‚É–¼‘O‚ğ•t‚¯‚é
+		//textureã«åå‰ã‚’ä»˜ã‘ã‚‹
 		auto texRes = texture->GetTexture();
 		texRes->SetName(key.c_str());
 	}
@@ -766,7 +766,7 @@ namespace shooting {
 		else
 		{
 			throw BaseException(
-				L"w’è‚ÌƒL[‚ÌƒeƒNƒXƒ`ƒƒ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+				L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 				key,
 				L"BaseScene::GetTexture()"
 			);
@@ -785,7 +785,7 @@ namespace shooting {
 			if (it != m_materialMap.end())
 			{
 				throw BaseException(
-					L"w’è‚ÌƒL[‚Ìƒ}ƒeƒŠƒAƒ‹‚ª‚·‚Å‚É‘¶İ‚µ‚Ü‚·",
+					L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒãƒ†ãƒªã‚¢ãƒ«ãŒã™ã§ã«å­˜åœ¨ã—ã¾ã™",
 					key,
 					L"BaseScene::RegisterMaterial()"
 				);
@@ -804,7 +804,7 @@ namespace shooting {
 		}
 
 		throw BaseException(
-			L"w’è‚ÌƒL[‚Ìƒ}ƒeƒŠƒAƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ",
+			L"æŒ‡å®šã®ã‚­ãƒ¼ã®ãƒãƒ†ãƒªã‚¢ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“",
 			key,
 			L"BaseScene::GetMaterial()"
 		);

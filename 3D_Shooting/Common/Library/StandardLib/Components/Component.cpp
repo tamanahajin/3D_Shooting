@@ -1,6 +1,6 @@
-/*!
+ï»¿/*!
 @file Component.cpp
-@brief ƒRƒ“ƒ|[ƒlƒ“ƒge@À‘Ì
+@brief ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¦ªã€€å®Ÿä½“
 */
 
 #include "stdafx.h"
