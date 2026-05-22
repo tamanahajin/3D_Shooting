@@ -241,6 +241,11 @@ namespace shooting {
 			groundState.gravityVelocity = gravity->GetGravityVelocity();
 		}
 
+		bool terrainBlockedX = false;
+		bool terrainBlockedZ = false;
+		// 空中で坂や高台の内部へ入り込む前に、移動軸を戻してすり抜けを防ぐ。
+		TrySlideAgainstGeneratedTerrainStep(*gameStage, groundState, 0.75f, terrainBlockedX, terrainBlockedZ);
+
 		if (!TryResolveStageGround(*gameStage, groundState))
 		{
 			const float baseFloorHalf = 32.5f;

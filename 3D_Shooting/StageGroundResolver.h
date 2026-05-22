@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -19,5 +19,11 @@ namespace shooting {
 
 	bool TryResolveGroundHeight(float groundY, StageGroundResolveState& state);
 	bool TryResolveStageGround(const GameStage& stage, StageGroundResolveState& state);
+	bool TrySlideAgainstGeneratedTerrainStep(
+		const GameStage& stage,
+		StageGroundResolveState& state,
+		float maxStepUp,
+		bool& outBlockedX,
+		bool& outBlockedZ);
 	bool TryApplyGroundCollision(const CollisionPair& pair, Vec3& gravityVelocity, bool& isGrounded);
 }

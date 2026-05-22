@@ -508,54 +508,20 @@ namespace shooting {
 		groundState.wasGrounded = enemy.isGround;
 		groundState.elapsedTime = static_cast<float>(elapsedTime);
 
-		const float maxEnemyStepUp = 0.75f;
-		auto isBlockedByTerrainHeight = [&](const Vec3& candidatePosition)
+		bool terrainBlockedX = false;
+		bool terrainBlockedZ = false;
+		if (TrySlideAgainstGeneratedTerrainStep(gameStage, groundState, 0.75f, terrainBlockedX, terrainBlockedZ))
 		{
-			float targetGroundY = 0.0f;
-			if (!gameStage.TryGetSlopeGroundHeight(candidatePosition, targetGroundY))
+			if (terrainBlockedX)
 			{
-				return false;
-			}
-
-			float previousGroundY = 0.0f;
-			gameStage.TryGetSlopeGroundHeight(groundState.previousPosition, previousGroundY);
-
-			const float previousFeetY = groundState.previousPosition.y - groundState.footOffset;
-			const float candidateFeetY = candidatePosition.y - groundState.footOffset;
-			const bool comingFromLowerGround = targetGroundY > previousGroundY + maxEnemyStepUp;
-			const bool feetAreBelowTarget = previousFeetY < targetGroundY - maxEnemyStepUp &&
-				candidateFeetY < targetGroundY - maxEnemyStepUp;
-			return comingFromLowerGround && feetAreBelowTarget;
-		};
-
-		if (isBlockedByTerrainHeight(groundState.position))
-		{
-			Vec3 slideX = groundState.position;
-			slideX.z = groundState.previousPosition.z;
-			Vec3 slideZ = groundState.position;
-			slideZ.x = groundState.previousPosition.x;
-
-			if (!isBlockedByTerrainHeight(slideX))
-			{
-				groundState.position = slideX;
-				enemy.velocity.z = 0.0f;
-				enemy.knockbackVelocity.z = 0.0f;
-			}
-			else if (!isBlockedByTerrainHeight(slideZ))
-			{
-				groundState.position = slideZ;
 				enemy.velocity.x = 0.0f;
-				enemy.knockbackVelocity.x = 0.0f;
-			}
-			else
-			{
-				groundState.position.x = groundState.previousPosition.x;
-				groundState.position.z = groundState.previousPosition.z;
-				enemy.velocity.x = 0.0f;
-				enemy.velocity.z = 0.0f;
 				enemy.force.x = 0.0f;
-				enemy.force.z = 0.0f;
 				enemy.knockbackVelocity.x = 0.0f;
+			}
+			if (terrainBlockedZ)
+			{
+				enemy.velocity.z = 0.0f;
+				enemy.force.z = 0.0f;
 				enemy.knockbackVelocity.z = 0.0f;
 			}
 		}
