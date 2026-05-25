@@ -571,22 +571,59 @@ namespace shooting {
 		float targetArm = desiredArm;
 		bool hitNow = false;
 
-		if (auto cm = m_CollisionManager.lock())
+		auto cm = m_CollisionManager.lock();
+		auto isCameraPathBlocked = [&](const Vec3& candidateEye, RaycastHit* outHit) -> bool
+			{
+				if (!cm)
+				{
+					return false;
+				}
+
+				Vec3 probeVec = candidateEye - newAt;
+				const float probeLen = bsmUtil::length(probeVec);
+				if (probeLen <= 1e-4f)
+				{
+					return false;
+				}
+				probeVec.normalize();
+
+				// プレイヤーのすぐ近くから太いSphereCastを始めると、壁や木に密着しただけで
+				// 「カメラが塞がれた」と判定されるため、少し離した位置から遮蔽を調べる。
+				const float probeStartOffset = bsmUtil::Clamp(
+					m_CameraColProbeStartOffset,
+					0.0f,
+					bsmUtil::Max(0.0f, probeLen - 0.01f));
+				const float probeDistance = probeLen - probeStartOffset;
+				if (probeDistance <= 1e-4f)
+				{
+					return false;
+				}
+
+				RaycastHit hit{};
+				const bool blocked = cm->SphereCast(
+					newAt + probeVec * probeStartOffset,
+					probeVec,
+					probeDistance,
+					m_CameraColRadius,
+					hit,
+					ptrTarget,
+					{ L"Bullet", L"Bomb", L"Enemy", L"EnemyProxy", L"Item", L"HpRecoveryItem", L"BombItem" });
+				if (blocked && outHit)
+				{
+					*outHit = hit;
+				}
+				return blocked;
+		};
+
+		if (cm)
 		{
 			RaycastHit hit{};
-			// 注視点(newAt)からカメラ方向(armVec)へ SphereCast
-			if (cm->SphereCast(newAt, armVec, desiredArm, m_CameraColRadius, hit, ptrTarget))
+			const Vec3 centerEye = newAt + armVec * desiredArm;
+			if (isCameraPathBlocked(centerEye, &hit))
 			{
-				// 壁の少し手前まで縮める
-				//targetArm = hit.m_Distance - m_CameraColMargin;
-				//targetArm = bsmUtil::Clamp(targetArm, m_MinArm, desiredArm);
-
-				// 壁表面点 + 法線 * (半径+マージン) で「カメラ中心の安全位置」
+				// カメラ経路が塞がれている場合は、壁の少し手前まで距離を縮める。
 				const Vec3 safeEye = hit.m_Point + hit.m_Normal * (m_CameraColRadius + m_CameraColMargin);
-
-				// 注視点からarmVec方向の距離に変換
 				float safeArm = bsmUtil::dot(safeEye - newAt, armVec);
-
 				targetArm = bsmUtil::Clamp(safeArm, m_MinArm, desiredArm);
 				hitNow = true;
 			}

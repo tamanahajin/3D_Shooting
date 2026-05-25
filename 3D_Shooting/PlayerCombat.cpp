@@ -9,6 +9,10 @@ namespace shooting {
 		const float kNormalShotRange = 60.0f;
 		// 通常射撃が1発で与えるダメージ量。
 		const int kNormalShotDamage = 1;
+		// カメラが壁に近い時、その壁を通常射撃の照準対象にしないため、銃口より少し手前からカメラレイを始める。
+		const float kNormalShotCameraAimBacktrack = 0.25f;
+		// 銃口から狙い点までの再チェックで、ほぼ同じ位置のヒットを安定して扱うための余白。
+		const float kNormalShotMuzzleBlockMargin = 0.03f;
 		// 通常射撃の発射間隔。小さいほど連射が速くなる。
 		const double kNormalShotCooldown = 0.12;
 		// Scene.cppで登録しているプレイヤー銃モデルのキー。
@@ -1033,9 +1037,26 @@ namespace shooting {
 			// ----------------------------
 			if (traceNormalShot)
 			{
-				aimPointShot = rayOrigin + rayDir * kNormalShotRange;
+				Vec3 shotAimOrigin = rayOrigin;
+				float shotAimRange = kNormalShotRange;
 
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, kNormalShotRange, shotHit, GetThis<GameObject>(), { L"Bullet" }))
+				// カメラが壁や木に密接している時、その手前の障害物を照準ヒットにすると
+				// プレイヤーの銃口からは見えている敵ではなく、カメラ横の壁を撃ってしまう。
+				// そのため通常射撃の照準レイだけは、銃口の奥行き付近まで進めた位置から始める。
+				const float muzzleDepth = bsmUtil::dot(muzzle - rayOrigin, rayDir);
+				if (std::isfinite(muzzleDepth) && muzzleDepth > kNormalShotCameraAimBacktrack)
+				{
+					const float startOffset = bsmUtil::Clamp(
+						muzzleDepth - kNormalShotCameraAimBacktrack,
+						0.0f,
+						kNormalShotRange - 0.1f);
+					shotAimOrigin = rayOrigin + rayDir * startOffset;
+					shotAimRange = kNormalShotRange - startOffset;
+				}
+
+				aimPointShot = shotAimOrigin + rayDir * shotAimRange;
+
+				if (m_CollisionManager->Raycast(shotAimOrigin, rayDir, shotAimRange, shotHit, GetThis<GameObject>(), { L"Bullet" }))
 				{
 					hasHitShot = true;
 					aimPointShot = shotHit.m_Point;
@@ -1046,7 +1067,7 @@ namespace shooting {
 					Vec3 generatedPoint(0.0f, 0.0f, 0.0f);
 					Vec3 generatedNormal(0.0f, 1.0f, 0.0f);
 					float generatedDistance = 0.0f;
-					if (gameStage->TryRaycastGeneratedGround(rayOrigin, rayDir, kNormalShotRange, generatedPoint, generatedNormal, generatedDistance))
+					if (gameStage->TryRaycastGeneratedGround(shotAimOrigin, rayDir, shotAimRange, generatedPoint, generatedNormal, generatedDistance))
 					{
 						// 坂や高台の床は軽量な生成地形として管理しているため、通常のCollisionManagerだけでは拾えない場合がある。
 						// 物理Raycastのヒットが手前にある場合は敵や壁を優先し、生成床面が手前なら着弾点として使う。
@@ -1060,6 +1081,29 @@ namespace shooting {
 							shotHit.m_Normal = generatedNormal;
 							shotHit.m_Distance = generatedDistance;
 						}
+					}
+				}
+
+				// 照準決定ではカメラ近くの障害物を無視したが、実際の弾は銃口から出る。
+				// 銃口と狙い点の間に壁がある場合は、そこで止めることで壁越し射撃を防ぐ。
+				Vec3 muzzleRay = aimPointShot - muzzle;
+				const float muzzleRayLength = muzzleRay.length();
+				if (muzzleRayLength > 1e-4f)
+				{
+					muzzleRay.normalize();
+
+					RaycastHit muzzleHit;
+					if (m_CollisionManager->Raycast(
+						muzzle,
+						muzzleRay,
+						muzzleRayLength + kNormalShotMuzzleBlockMargin,
+						muzzleHit,
+						GetThis<GameObject>(),
+						{ L"Bullet" }))
+					{
+						hasHitShot = true;
+						shotHit = muzzleHit;
+						aimPointShot = muzzleHit.m_Point;
 					}
 				}
 			}

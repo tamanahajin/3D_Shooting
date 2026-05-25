@@ -50,6 +50,7 @@ namespace shooting {
 		float m_PushInRate = 0.40f;          // 壁に当たった時の追従（大きいほど速い）
 		float m_ReturnRate = 0.15f;          // 壁が無い時の戻り（小さいほどゆっくり）
 		float m_ArmLenCurrent = 5.0f;      // 実際に使う距離（壁で縮む）
+		float m_CameraColProbeStartOffset = 0.85f; // 注視点直近の接触でカメラが不要にズームしないよう、少し離れた位置から判定を始める
 		float m_CamRadius = 0.45f;         // カメラの太さ（SphereCast半径）
 		float m_CamSkin = 0.08f;           // めり込み防止の余白
 		float m_PushInRatio = 0.35f;       // 壁に当たった時（寄る）割合
