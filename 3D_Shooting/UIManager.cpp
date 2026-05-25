@@ -9,6 +9,7 @@ namespace shooting {
 		m_bars.clear();
 		m_images.clear();
 		m_buttons.clear();
+		m_overlays.clear();
 	}
 
 	void UIManager::AddText(
@@ -63,6 +64,13 @@ namespace shooting {
 		cmd.offset = offset;
 		cmd.size = size;
 		m_bars.push_back(cmd);
+	}
+
+	void UIManager::AddFullscreenOverlay(const D2D1_COLOR_F& color)
+	{
+		OverlayCommand cmd;
+		cmd.color = color;
+		m_overlays.push_back(cmd);
 	}
 
 	bool UIManager::IsPointInRect(float x, float y, const D2D1_RECT_F& rect)
@@ -239,6 +247,13 @@ namespace shooting {
 				alignment,
 				text.color,
 				text.fontSize);
+		}
+
+		for (const auto& overlay : m_overlays)
+		{
+			layer.AddOverlayBlock(
+				D2D1::RectF(0.0f, 0.0f, screenW, screenH),
+				overlay.color);
 		}
 	}
 

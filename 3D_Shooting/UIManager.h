@@ -75,6 +75,8 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size);
 
+		void AddFullscreenOverlay(const D2D1_COLOR_F& color);
+
 		UIButtonResult AddButton(
 			const std::wstring& text,
 			UIAnchor anchor,
@@ -118,6 +120,11 @@ namespace shooting {
 			float opacity = 1.0f;
 		};
 
+		struct OverlayCommand
+		{
+			D2D1_COLOR_F color;
+		};
+
 		static D2D1_RECT_F ResolveRect(
 			float screenW,
 			float screenH,
@@ -143,6 +150,7 @@ namespace shooting {
 		std::vector<ProgressBarCommand> m_bars;
 		std::vector<ImageCommand> m_images;
 		std::vector<ButtonCommand> m_buttons;
+		std::vector<OverlayCommand> m_overlays;
 	};
 
 }

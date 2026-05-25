@@ -45,6 +45,10 @@ namespace shooting {
 			const D2D1_COLOR_F& textColor,
 			bool hovered);
 
+		void AddOverlayBlock(
+			const D2D1_RECT_F& rect,
+			const D2D1_COLOR_F& color);
+
 		void Render(UINT frameIndex);
 		void ReleaseResources();
 		void Resize(Microsoft::WRL::ComPtr<ID3D12Resource>* ppRenderTargets, UINT width, UINT height);
@@ -106,6 +110,12 @@ namespace shooting {
 			bool hovered = false;
 		};
 
+		struct OverlayBlock
+		{
+			D2D1_RECT_F layout;
+			D2D1_COLOR_F color;
+		};
+
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_d3d11DeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11On12Device> m_d3d11On12Device;
 		Microsoft::WRL::ComPtr<IDWriteFactory> m_dwriteFactory;
@@ -126,6 +136,7 @@ namespace shooting {
 		std::vector<ProgressBarBlock> m_progressBars;
 		std::vector<ImageBlock> m_imageBlocks;
 		std::vector<ButtonBlock> m_buttons;
+		std::vector<OverlayBlock> m_overlays;
 		std::map<std::wstring, Microsoft::WRL::ComPtr<ID2D1Bitmap1>> m_bitmapCache;
 
 		CrosshairDesc m_crosshair;

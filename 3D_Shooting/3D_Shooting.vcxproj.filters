@@ -214,6 +214,9 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="ScreenTransition.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="SeekObject.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -250,6 +253,9 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenTransition.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageObjectCatalog.h">

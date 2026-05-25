@@ -5,6 +5,9 @@ namespace shooting {
 
 	namespace
 	{
+		const float kSceneTransitionFadeOutSeconds = 0.35f;
+		const float kSceneTransitionFadeInSeconds = 0.45f;
+
 		std::shared_ptr<BaseMesh> CreateBombPreviewDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
 		{
 			if (segments < 64) segments = 64;
@@ -525,8 +528,45 @@ namespace shooting {
 		ResetActiveStage<GameStage>(App::GetD3D12Device());
 	}
 
+	void Scene::RequestStartGame()
+	{
+		if (m_GameState != GameState::Title || m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		m_ScreenTransition.Start(
+			kSceneTransitionFadeOutSeconds,
+			kSceneTransitionFadeInSeconds,
+			[this]()
+			{
+				StartGame();
+			});
+	}
+
+	void Scene::RequestStartTitle()
+	{
+		if (m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		m_ScreenTransition.Start(
+			kSceneTransitionFadeOutSeconds,
+			kSceneTransitionFadeInSeconds,
+			[this]()
+			{
+				StartTitle();
+			});
+	}
+
 	void Scene::UpdateTitleInput()
 	{
+		if (m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
 		const auto& input = App::GetInputDevice();
 
 		if (input.KeyPressed(VK_UP) || input.KeyPressed('W'))
@@ -542,7 +582,7 @@ namespace shooting {
 		{
 			if (m_TitleMenuIndex == 0)
 			{
-				StartGame();
+				RequestStartGame();
 			}
 			else
 			{
@@ -554,6 +594,16 @@ namespace shooting {
 		{
 			::PostQuitMessage(0);
 		}
+	}
+
+	void Scene::RenderUIWithTransition(UILayer& uiLayer)
+	{
+		if (m_ScreenTransition.GetAlpha() > 0.0f)
+		{
+			m_uiManager.AddFullscreenOverlay(m_ScreenTransition.GetOverlayColor());
+		}
+
+		m_uiManager.Render(uiLayer);
 	}
 
 	void Scene::UpdateConstantBuffers()
@@ -584,6 +634,7 @@ namespace shooting {
 
 		if (m_GameState == GameState::Title)
 		{
+			const bool inputBlocked = m_ScreenTransition.IsInputBlocked();
 			const float titleBob = std::sin(static_cast<float>(m_TitleTime) * 1.8f) * 10.0f;
 			const D2D1_COLOR_F selectedColor = D2D1::ColorF(1.0f, 0.86f, 0.12f, 1.0f);
 			const D2D1_COLOR_F normalColor = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.92f);
@@ -604,11 +655,11 @@ namespace shooting {
 			const D2D1_RECT_F exitRect = makeCenterRect({ 0.0f, 158.0f });
 
 			// テキストメニューだけを表示しつつ、マウスホバーでも選択中の黄色表示を切り替える。
-			if (IsMouseInRect(startRect))
+			if (!inputBlocked && IsMouseInRect(startRect))
 			{
 				m_TitleMenuIndex = 0;
 			}
-			else if (IsMouseInRect(exitRect))
+			else if (!inputBlocked && IsMouseInRect(exitRect))
 			{
 				m_TitleMenuIndex = 1;
 			}
@@ -637,17 +688,17 @@ namespace shooting {
 				buttonHoverColor,
 				m_TitleMenuIndex == 1 ? selectedColor : normalColor);
 
-			if (startButton.clicked)
+			if (!inputBlocked && startButton.clicked)
 			{
-				StartGame();
+				RequestStartGame();
 			}
-			if (exitButton.clicked)
+			if (!inputBlocked && exitButton.clicked)
 			{
 				::PostQuitMessage(0);
 			}
 
 			uiLayer->SetCrosshairEnabled(false);
-			m_uiManager.Render(*uiLayer);
+			RenderUIWithTransition(*uiLayer);
 			return;
 		}
 
@@ -675,20 +726,27 @@ namespace shooting {
 				D2D1::ColorF(0.65f, 0.20f, 0.20f, 0.95f),
 				D2D1::ColorF(D2D1::ColorF::White));
 
-			if (titleButton.clicked)
+			if (!m_ScreenTransition.IsInputBlocked() && titleButton.clicked)
 			{
-				StartTitle();
+				RequestStartTitle();
 			}
 
 			uiLayer->SetCrosshairEnabled(false);
-			m_uiManager.Render(*uiLayer);
+			RenderUIWithTransition(*uiLayer);
 			return;
 		}
 
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
 		if (!gameStage)
 		{
-			uiLayer->ClearDrawCommands();
+			if (m_ScreenTransition.GetAlpha() > 0.0f)
+			{
+				RenderUIWithTransition(*uiLayer);
+			}
+			else
+			{
+				uiLayer->ClearDrawCommands();
+			}
 			return;
 		}
 
@@ -805,13 +863,14 @@ namespace shooting {
 			}
 		}
 		uiLayer->SetCrosshairEnabled(true);
-		m_uiManager.Render(*uiLayer);
+		RenderUIWithTransition(*uiLayer);
 	}
 
 	void Scene::Update(double elapsedTime)
 	{
 		s_elapsedTime = elapsedTime;
 		m_TitleTime += elapsedTime;
+		m_ScreenTransition.Update(elapsedTime);
 
 		if (m_GameState == GameState::Title)
 		{

@@ -63,6 +63,7 @@ namespace shooting {
 		m_progressBars.clear();
 		m_imageBlocks.clear();
 		m_buttons.clear();
+		m_overlays.clear();
 	}
 
 	IDWriteTextFormat* UILayer::ResolveTextFormat(DWRITE_TEXT_ALIGNMENT align) const
@@ -211,6 +212,16 @@ namespace shooting {
 		m_buttons.push_back(block);
 	}
 
+	void UILayer::AddOverlayBlock(
+		const D2D1_RECT_F& rect,
+		const D2D1_COLOR_F& color)
+	{
+		OverlayBlock block;
+		block.layout = rect;
+		block.color = color;
+		m_overlays.push_back(block);
+	}
+
 	void UILayer::Render(UINT frameIndex)
 	{
 		ID3D11Resource* ppResources[] = { m_wrappedRenderTargets[frameIndex].Get() };
@@ -343,6 +354,17 @@ namespace shooting {
 				m_textBrush.Get(), t);
 		}
 
+		for (const auto& overlay : m_overlays)
+		{
+			if (overlay.color.a <= 0.0f)
+			{
+				continue;
+			}
+
+			m_textBrush->SetColor(overlay.color);
+			m_d2dDeviceContext->FillRectangle(overlay.layout, m_textBrush.Get());
+		}
+
 		m_d2dDeviceContext->EndDraw();
 
 		m_d3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
@@ -369,6 +391,7 @@ namespace shooting {
 		m_textBlocks.clear();
 		m_progressBars.clear();
 		m_imageBlocks.clear();
+		m_overlays.clear();
 		m_bitmapCache.clear();
 
 		m_textBrush.Reset();
