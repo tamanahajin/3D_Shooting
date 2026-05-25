@@ -220,6 +220,9 @@
     <ClCompile Include="StageGroundResolver.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="TitleStage.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="StageObjectCatalog.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -253,6 +256,9 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageGroundResolver.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleStage.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Project.h">

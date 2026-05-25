@@ -803,7 +803,6 @@ namespace shooting {
 			return result;
 		}
 
-
 		// 高さは見ずにXZ平面だけで距離を測る。自然物同士のざっくりした貫通回避用。
 		bool IsPlacementFree(
 			const Vec3& position,

@@ -7,6 +7,7 @@ namespace shooting {
 	{
 		m_texts.clear();
 		m_bars.clear();
+		m_images.clear();
 		m_buttons.clear();
 	}
 
@@ -16,7 +17,8 @@ namespace shooting {
 		const UIPointF& offset,
 		const UISizeF& size,
 		UITextAlign align,
-		D2D1_COLOR_F color)
+		D2D1_COLOR_F color,
+		float fontSize)
 	{
 		TextCommand cmd;
 		cmd.text = text;
@@ -25,7 +27,24 @@ namespace shooting {
 		cmd.size = size;
 		cmd.align = align;
 		cmd.color = color;
+		cmd.fontSize = fontSize;
 		m_texts.push_back(cmd);
+	}
+
+	void UIManager::AddImage(
+		const std::wstring& path,
+		UIAnchor anchor,
+		const UIPointF& offset,
+		const UISizeF& size,
+		float opacity)
+	{
+		ImageCommand cmd;
+		cmd.path = path;
+		cmd.anchor = anchor;
+		cmd.offset = offset;
+		cmd.size = size;
+		cmd.opacity = opacity;
+		m_images.push_back(cmd);
 	}
 
 	void UIManager::AddProgressBar(
@@ -166,6 +185,14 @@ namespace shooting {
 				bar.label);
 		}
 
+		for (const auto& image : m_images)
+		{
+			layer.AddImageBlock(
+				image.path,
+				ResolveRect(screenW, screenH, image.anchor, image.offset, image.size),
+				image.opacity);
+		}
+
 		for (const auto& button : m_buttons)
 		{
 			D2D1_RECT_F rect = ResolveRect(
@@ -210,7 +237,8 @@ namespace shooting {
 				text.text,
 				ResolveRect(screenW, screenH, text.anchor, text.offset, text.size),
 				alignment,
-				text.color);
+				text.color,
+				text.fontSize);
 		}
 	}
 

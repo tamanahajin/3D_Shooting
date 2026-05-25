@@ -76,6 +76,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="StageObjectCatalog.cpp" />
     <ClCompile Include="StageGroundResolver.cpp" />
+    <ClCompile Include="TitleStage.cpp" />
     <ClCompile Include="SeekObject.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -163,6 +164,7 @@
     <ClInclude Include="StageObjectCatalog.h" />
     <ClInclude Include="StageGroundResolver.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TitleStage.h" />
     <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>

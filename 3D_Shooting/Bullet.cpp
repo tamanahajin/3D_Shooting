@@ -355,6 +355,7 @@ namespace shooting {
 		}
 		info.m_Damage = dmg;
 		info.m_Instigator = GetThis<GameObject>();
+		info.m_DelayDeathUntilLanding = true;
 
 		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(target))
 		{
@@ -373,19 +374,24 @@ namespace shooting {
 				Vec3 knockbackDir = targetPos - explosionCenter;
 				knockbackDir.y = 0.0f;
 				float distance = knockbackDir.length();
-				if (distance > 0.01f)
+				if (distance <= 0.01f)
 				{
-					knockbackDir.normalize();
-					float maxKnockbackDist = m_ExplosionScale * 0.5f;
-					float strength = 1.15f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
-					strength = bsmUtil::Max(strength, 0.45f);
-					Vec3 knockbackVelocity = knockbackDir * (10.0f * strength);
-					knockbackVelocity.y = 18.0f * strength;
-					enemyProxy->AddKnockback(knockbackVelocity);
+					knockbackDir = Vec3(0.0f, 0.0f, 1.0f);
+					distance = 0.0f;
 				}
+
+				knockbackDir.normalize();
+				float maxKnockbackDist = m_ExplosionScale * 0.5f;
+				float strength = 1.15f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
+				strength = bsmUtil::Max(strength, 0.45f);
+				Vec3 knockbackVelocity = knockbackDir * (10.0f * strength);
+				knockbackVelocity.y = 18.0f * strength;
+				enemyProxy->AddKnockback(knockbackVelocity);
 			}
 			return;
 		}
+
+		info.m_DelayDeathUntilLanding = false;
 
 		// ダメージ適用
 		if (auto hp = target->GetComponent<Health>(false))

@@ -15,6 +15,7 @@
 #include <D3Dcompiler.h>
 #include <dwrite.h>
 #include <d3d11on12.h>
+#include <wincodec.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
@@ -117,6 +118,7 @@ using namespace shooting::bsm;
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "d2d1.lib" )
 #pragma comment( lib, "dwrite.lib" )
+#pragma comment( lib, "windowscodecs.lib" )
 
 #pragma comment(lib, "PhysX_64.lib")
 #pragma comment(lib, "PhysXCommon_64.lib")

@@ -11,5 +11,6 @@ namespace shooting
 		std::weak_ptr<GameObject> m_Instigator;
 		Vec3 m_HitPoint{};
 		Vec3 m_HitNormal{};
+		bool m_DelayDeathUntilLanding = false;
 	};
 }

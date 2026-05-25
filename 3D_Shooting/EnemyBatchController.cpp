@@ -434,9 +434,9 @@ namespace shooting {
 		enemy.damageFlashTimer = duration;
 	}
 
-	void EnemyBatchController::KillByFall(EnemyState& enemy)
+	void EnemyBatchController::KillEnemy(EnemyState& enemy)
 	{
-		if (enemy.isDead || enemy.position.y >= kFallDeathY)
+		if (enemy.isDead)
 		{
 			return;
 		}
@@ -444,11 +444,24 @@ namespace shooting {
 		enemy.hp = 0;
 		enemy.isDead = true;
 		enemy.deathAnimFinished = false;
+		enemy.delayDeathUntilLanding = false;
+		enemy.delayedDeathWasAirborne = false;
+		enemy.delayedDeathMinTimer = 0.0;
 		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackControlTimer = 0.0;
 		ChangeAnimation(enemy, AnimState::Dead, true);
+	}
+
+	void EnemyBatchController::KillByFall(EnemyState& enemy)
+	{
+		if (enemy.position.y >= kFallDeathY)
+		{
+			return;
+		}
+
+		KillEnemy(enemy);
 	}
 
 	void EnemyBatchController::ShowDamageNumber(size_t index, const DamageInfo& info)
@@ -647,6 +660,15 @@ namespace shooting {
 				}
 			}
 
+			if (enemy.delayedDeathMinTimer > 0.0)
+			{
+				enemy.delayedDeathMinTimer -= elapsedTime;
+				if (enemy.delayedDeathMinTimer < 0.0)
+				{
+					enemy.delayedDeathMinTimer = 0.0;
+				}
+			}
+
 			const bool knockbackActive = enemy.knockbackControlTimer > 0.0
 				|| (bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
 
@@ -738,6 +760,22 @@ namespace shooting {
 				? ResolveGeneratedGround(*gameStage, enemy, elapsedTime)
 				: false;
 
+			if (enemy.delayDeathUntilLanding)
+			{
+				if (!resolvedGeneratedGround)
+				{
+					enemy.delayedDeathWasAirborne = true;
+				}
+				else if (enemy.delayedDeathWasAirborne && enemy.delayedDeathMinTimer <= 0.0)
+				{
+					// 爆弾で致死ダメージを受けた敵は、吹っ飛びが見えるよう着地してから死亡させる。
+					KillEnemy(enemy);
+					UpdateAnimation(enemy, elapsedTime);
+					SyncProxyTransform(i);
+					continue;
+				}
+			}
+
 			UpdateAnimation(enemy, elapsedTime);
 			RotateToVelocity(enemy, 0.35f);
 			SyncProxyTransform(i);
@@ -791,10 +829,17 @@ namespace shooting {
 		enemy.hp -= bsmUtil::Clamp(info.m_Damage, 0, info.m_Damage);
 		if (enemy.hp <= 0)
 		{
-			enemy.hp = 0;
-			enemy.isDead = true;
-			enemy.deathAnimFinished = false;
-			ChangeAnimation(enemy, AnimState::Dead, true);
+			if (info.m_DelayDeathUntilLanding)
+			{
+				// 爆弾の致死ダメージは即死亡にせず、吹っ飛び後の接地で死亡させる。
+				enemy.hp = 1;
+				enemy.delayDeathUntilLanding = true;
+				enemy.delayedDeathWasAirborne = false;
+				enemy.delayedDeathMinTimer = 0.12;
+				return false;
+			}
+
+			KillEnemy(enemy);
 			return true;
 		}
 

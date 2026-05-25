@@ -29,6 +29,8 @@ namespace shooting {
 
 		GameState m_GameState = GameState::Title;
 		int m_LastScore = 0;
+		int m_TitleMenuIndex = 0;
+		double m_TitleTime = 0.0;
 
 	public:
 		Scene(UINT frameCount, PrimDevice* pPrimDevice);
@@ -37,6 +39,8 @@ namespace shooting {
 	protected:
 		bool IsMouseInRect(const D2D1_RECT_F& rect) const;
 		void StartGame();
+		void StartTitle();
+		void UpdateTitleInput();
 		void SetMouseCursorVisible(bool visible);
 
 		virtual void CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) override;

@@ -48,6 +48,12 @@ namespace shooting {
 		};
 
 
+	protected:
+		void CreateGround();
+		void CreateWalls();
+		void CreateHeightVariationObjects();
+		void CreateCoverObjects();
+
 	private:
 		struct GroundLookupCell
 		{
@@ -71,8 +77,6 @@ namespace shooting {
 		std::vector<ItemSpawnBlocker> m_itemSpawnBlockers;
 		std::mt19937 m_itemSpawnRandom = std::mt19937(20260513);
 
-		void CreateGround();
-		void CreateWalls();
 		void CreateItems();
 		void MaintainRecoveryItems();
 		void MaintainBombItems();
@@ -80,8 +84,6 @@ namespace shooting {
 		bool TryFindItemSpawnPosition(Vec3& outPosition);
 		bool IsItemSpawnPositionFree(const Vec3& position, float radius) const;
 		void ClearItemSpawnBlockers();
-		void CreateHeightVariationObjects();
-		void CreateCoverObjects();
 		std::shared_ptr<EnemyBatchController> GetEnemyController() const;
 		Vec3 GetEnemySpawnCenter() const;
 		void ClearGroundLookup();

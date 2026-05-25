@@ -43,6 +43,12 @@ namespace shooting {
 			DWRITE_FACTORY_TYPE_SHARED,
 			__uuidof(IDWriteFactory),
 			&m_dwriteFactory));
+
+		ThrowIfFailed(CoCreateInstance(
+			CLSID_WICImagingFactory2,
+			nullptr,
+			CLSCTX_INPROC_SERVER,
+			IID_PPV_ARGS(&m_wicFactory)));
 	}
 
 	void UILayer::UpdateLabels(const std::wstring& uiText)
@@ -55,6 +61,7 @@ namespace shooting {
 	{
 		m_textBlocks.clear();
 		m_progressBars.clear();
+		m_imageBlocks.clear();
 		m_buttons.clear();
 	}
 
@@ -72,18 +79,104 @@ namespace shooting {
 		}
 	}
 
+	ComPtr<IDWriteTextFormat> UILayer::CreateTextFormat(float fontSize, DWRITE_TEXT_ALIGNMENT align) const
+	{
+		ComPtr<IDWriteTextFormat> format;
+		ThrowIfFailed(m_dwriteFactory->CreateTextFormat(
+			L"Arial",
+			nullptr,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			fontSize,
+			L"ja-jp",
+			&format));
+
+		ThrowIfFailed(format->SetTextAlignment(align));
+		ThrowIfFailed(format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+		return format;
+	}
+
 	void UILayer::AddTextBlock(
 		const std::wstring& text,
 		const D2D1_RECT_F& rect,
 		DWRITE_TEXT_ALIGNMENT align,
-		D2D1_COLOR_F color)
+		D2D1_COLOR_F color,
+		float fontSize)
 	{
 		TextBlock block;
 		block.text = text;
 		block.layout = rect;
 		block.color = color;
-		block.pFormat = ResolveTextFormat(align);
+		if (fontSize > 0.0f)
+		{
+			// タイトルなど一部の文字だけ大きくしたい場合に、通常HUD用フォントとは別サイズを使う。
+			block.customFormat = CreateTextFormat(fontSize, align);
+			block.pFormat = block.customFormat.Get();
+		}
+		else
+		{
+			block.pFormat = ResolveTextFormat(align);
+		}
 		m_textBlocks.push_back(block);
+	}
+
+	ComPtr<ID2D1Bitmap1> UILayer::LoadBitmapFromFile(const std::wstring& path) const
+	{
+		ComPtr<IWICBitmapDecoder> decoder;
+		ThrowIfFailed(m_wicFactory->CreateDecoderFromFilename(
+			path.c_str(),
+			nullptr,
+			GENERIC_READ,
+			WICDecodeMetadataCacheOnLoad,
+			&decoder));
+
+		ComPtr<IWICBitmapFrameDecode> frame;
+		ThrowIfFailed(decoder->GetFrame(0, &frame));
+
+		ComPtr<IWICFormatConverter> converter;
+		ThrowIfFailed(m_wicFactory->CreateFormatConverter(&converter));
+		ThrowIfFailed(converter->Initialize(
+			frame.Get(),
+			GUID_WICPixelFormat32bppPBGRA,
+			WICBitmapDitherTypeNone,
+			nullptr,
+			0.0f,
+			WICBitmapPaletteTypeMedianCut));
+
+		ComPtr<ID2D1Bitmap1> bitmap;
+		ThrowIfFailed(m_d2dDeviceContext->CreateBitmapFromWicBitmap(
+			converter.Get(),
+			nullptr,
+			&bitmap));
+		return bitmap;
+	}
+
+	ComPtr<ID2D1Bitmap1> UILayer::GetOrLoadBitmap(const std::wstring& path)
+	{
+		auto it = m_bitmapCache.find(path);
+		if (it != m_bitmapCache.end())
+		{
+			return it->second;
+		}
+
+		// UI画像は描画コマンドが毎フレーム積まれるため、一度読み込んだBitmapを再利用する。
+		auto bitmap = LoadBitmapFromFile(path);
+		m_bitmapCache.emplace(path, bitmap);
+		return bitmap;
+	}
+
+	void UILayer::AddImageBlock(
+		const std::wstring& path,
+		const D2D1_RECT_F& rect,
+		float opacity)
+	{
+		ImageBlock block;
+		block.path = path;
+		block.layout = rect;
+		block.opacity = opacity;
+		block.bitmap = GetOrLoadBitmap(path);
+		m_imageBlocks.push_back(block);
 	}
 
 	void UILayer::AddProgressBar(
@@ -162,6 +255,20 @@ namespace shooting {
 					r,
 					m_textBrush.Get());
 			}
+		}
+
+		for (const auto& image : m_imageBlocks)
+		{
+			if (!image.bitmap)
+			{
+				continue;
+			}
+
+			m_d2dDeviceContext->DrawBitmap(
+				image.bitmap.Get(),
+				&image.layout,
+				image.opacity,
+				D2D1_INTERPOLATION_MODE_LINEAR);
 		}
 
 		// テキスト
@@ -261,11 +368,14 @@ namespace shooting {
 
 		m_textBlocks.clear();
 		m_progressBars.clear();
+		m_imageBlocks.clear();
+		m_bitmapCache.clear();
 
 		m_textBrush.Reset();
 		m_textFormatLeft.Reset();
 		m_textFormatCenter.Reset();
 		m_textFormatRight.Reset();
+		m_wicFactory.Reset();
 		m_d2dDeviceContext.Reset();
 		m_dwriteFactory.Reset();
 		m_d2dDevice.Reset();
@@ -307,7 +417,7 @@ namespace shooting {
 			D2D1::ColorF(D2D1::ColorF::White),
 			&m_textBrush));
 
-		const float fontSize = bsmUtil::Max(18.0f, m_height / 34.0f);
+		m_baseFontSize = bsmUtil::Max(18.0f, m_height / 34.0f);
 
 		auto CreateFormat = [&](Microsoft::WRL::ComPtr<IDWriteTextFormat>& outFormat, DWRITE_TEXT_ALIGNMENT align)
 			{
@@ -317,7 +427,7 @@ namespace shooting {
 					DWRITE_FONT_WEIGHT_NORMAL,
 					DWRITE_FONT_STYLE_NORMAL,
 					DWRITE_FONT_STRETCH_NORMAL,
-					fontSize,
+					m_baseFontSize,
 					L"ja-jp",
 					&outFormat));
 

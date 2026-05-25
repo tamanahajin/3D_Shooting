@@ -315,6 +315,14 @@ namespace shooting {
 	{
 	}
 
+	bool Scene::IsMouseInRect(const D2D1_RECT_F& rect) const
+	{
+		const auto& mouse = App::GetInputDevice().GetMouseState();
+		const float x = static_cast<float>(mouse.now.x);
+		const float y = static_cast<float>(mouse.now.y);
+		return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+	}
+
 	void Scene::SetMouseCursorVisible(bool visible)
 	{
 		if (m_CursorVisible == visible)
@@ -491,6 +499,20 @@ namespace shooting {
 		}
 		// StageObjects
 		StageObjectCatalog::RegisterAssets(*this, pCommandList);
+
+		m_pTgtCommandList = pCommandList;
+		StartTitle();
+	}
+
+	void Scene::StartTitle()
+	{
+		m_GameState = GameState::Title;
+		m_TitleMenuIndex = 0;
+		m_TitleTime = 0.0;
+
+		SetMouseCursorVisible(true);
+
+		ResetActiveStage<TitleStage>(App::GetD3D12Device());
 	}
 
 	void Scene::StartGame()
@@ -501,6 +523,37 @@ namespace shooting {
 		SetMouseCursorVisible(false);
 
 		ResetActiveStage<GameStage>(App::GetD3D12Device());
+	}
+
+	void Scene::UpdateTitleInput()
+	{
+		const auto& input = App::GetInputDevice();
+
+		if (input.KeyPressed(VK_UP) || input.KeyPressed('W'))
+		{
+			m_TitleMenuIndex = 0;
+		}
+		if (input.KeyPressed(VK_DOWN) || input.KeyPressed('S'))
+		{
+			m_TitleMenuIndex = 1;
+		}
+
+		if (input.KeyPressed(VK_RETURN) || input.KeyPressed(VK_SPACE) || input.KeyPressed('J'))
+		{
+			if (m_TitleMenuIndex == 0)
+			{
+				StartGame();
+			}
+			else
+			{
+				::PostQuitMessage(0);
+			}
+		}
+
+		if (input.KeyPressed(VK_ESCAPE))
+		{
+			::PostQuitMessage(0);
+		}
 	}
 
 	void Scene::UpdateConstantBuffers()
@@ -531,25 +584,66 @@ namespace shooting {
 
 		if (m_GameState == GameState::Title)
 		{
-			m_uiManager.AddText(
-				L"3D SHOOTING",
+			const float titleBob = std::sin(static_cast<float>(m_TitleTime) * 1.8f) * 10.0f;
+			const D2D1_COLOR_F selectedColor = D2D1::ColorF(1.0f, 0.86f, 0.12f, 1.0f);
+			const D2D1_COLOR_F normalColor = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.92f);
+			const D2D1_COLOR_F buttonBaseColor = D2D1::ColorF(0.04f, 0.05f, 0.06f, 0.74f);
+			const D2D1_COLOR_F buttonHoverColor = D2D1::ColorF(0.14f, 0.16f, 0.18f, 0.88f);
+			const float screenW = uiLayer->GetWidth();
+			const float screenH = uiLayer->GetHeight();
+			const UISizeF menuSize = { 260.0f, 38.0f };
+			const float logoWidth = bsmUtil::Min(780.0f, screenW * 0.74f);
+			const float logoHeight = logoWidth * (173.0f / 1365.0f);
+			auto makeCenterRect = [&](const UIPointF& offset)
+			{
+				const float left = (screenW - menuSize.w) * 0.5f + offset.x;
+				const float top = (screenH - menuSize.h) * 0.5f + offset.y;
+				return D2D1::RectF(left, top, left + menuSize.w, top + menuSize.h);
+			};
+			const D2D1_RECT_F startRect = makeCenterRect({ 0.0f, 110.0f });
+			const D2D1_RECT_F exitRect = makeCenterRect({ 0.0f, 158.0f });
+
+			// テキストメニューだけを表示しつつ、マウスホバーでも選択中の黄色表示を切り替える。
+			if (IsMouseInRect(startRect))
+			{
+				m_TitleMenuIndex = 0;
+			}
+			else if (IsMouseInRect(exitRect))
+			{
+				m_TitleMenuIndex = 1;
+			}
+
+			m_uiManager.AddImage(
+				App::GetRelativeAssetsDir() + L"Textures/TitleLogo.png",
 				UIAnchor::Center,
-				{ 0.0f, -160.0f },
-				{ 600.0f, 80.0f },
-				UITextAlign::Center);
+				{ 0.0f, -220.0f + titleBob },
+				{ logoWidth, logoHeight });
 
 			auto startButton = m_uiManager.AddButton(
 				L"START",
 				UIAnchor::Center,
-				{ 0.0f, 0.0f },
-				{ 260.0f, 64.0f },
-				D2D1::ColorF(0.10f, 0.35f, 0.20f, 0.95f),
-				D2D1::ColorF(0.20f, 0.60f, 0.35f, 0.95f),
-				D2D1::ColorF(D2D1::ColorF::White));
+				{ 0.0f, 110.0f },
+				menuSize,
+				buttonBaseColor,
+				buttonHoverColor,
+				m_TitleMenuIndex == 0 ? selectedColor : normalColor);
+
+			auto exitButton = m_uiManager.AddButton(
+				L"EXIT",
+				UIAnchor::Center,
+				{ 0.0f, 158.0f },
+				menuSize,
+				buttonBaseColor,
+				buttonHoverColor,
+				m_TitleMenuIndex == 1 ? selectedColor : normalColor);
 
 			if (startButton.clicked)
 			{
 				StartGame();
+			}
+			if (exitButton.clicked)
+			{
+				::PostQuitMessage(0);
 			}
 
 			uiLayer->SetCrosshairEnabled(false);
@@ -583,14 +677,7 @@ namespace shooting {
 
 			if (titleButton.clicked)
 			{
-				if (m_activeStage)
-				{
-					m_activeStage->OnDestroy();
-					m_activeStage = nullptr;
-				}
-
-				m_GameState = GameState::Title;
-				SetMouseCursorVisible(true);
+				StartTitle();
 			}
 
 			uiLayer->SetCrosshairEnabled(false);
@@ -724,6 +811,34 @@ namespace shooting {
 	void Scene::Update(double elapsedTime)
 	{
 		s_elapsedTime = elapsedTime;
+		m_TitleTime += elapsedTime;
+
+		if (m_GameState == GameState::Title)
+		{
+			if (!m_activeStage)
+			{
+				StartTitle();
+			}
+
+			UpdateTitleInput();
+			if (m_GameState != GameState::Title)
+			{
+				if (m_activeStage)
+				{
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+				}
+				return;
+			}
+
+			if (m_GameState == GameState::Title && m_activeStage)
+			{
+				m_activeStage->UpdateStage();
+				UpdateConstantBuffers();
+				CommitConstantBuffers();
+			}
+			return;
+		}
 
 		if (m_GameState == GameState::Playing)
 		{

@@ -225,6 +225,9 @@ namespace shooting {
 			bool isGround = false;
 			bool isDead = false;
 			bool deathAnimFinished = false;
+			bool delayDeathUntilLanding = false;
+			bool delayedDeathWasAirborne = false;
+			double delayedDeathMinTimer = 0.0;
 			EnemyStatus status;
 			int hp = 20;
 			int maxHp = 20;
@@ -252,6 +255,7 @@ namespace shooting {
 		float GetDamageFlashValue(const EnemyState& enemy) const;
 		void ShowDamageNumber(size_t index, const DamageInfo& info);
 		void StartDamageFlash(EnemyState& enemy, double duration = 0.2);
+		void KillEnemy(EnemyState& enemy);
 		void KillByFall(EnemyState& enemy);
 		void RotateToVelocity(EnemyState& enemy, float lerpFact);
 		bool ResolveGeneratedGround(const GameStage& gameStage, EnemyState& enemy, double elapsedTime);

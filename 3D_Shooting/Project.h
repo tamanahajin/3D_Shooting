@@ -27,5 +27,6 @@
 #include "ItemFactory.h"
 #include "Player.h"
 #include "GameStage.h"
+#include "TitleStage.h"
 #include "StageGroundResolver.h"
 #include "DamageInfo.h"

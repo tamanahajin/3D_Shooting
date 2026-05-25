@@ -57,7 +57,15 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size,
 			UITextAlign align = UITextAlign::Left,
-			D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::White));
+			D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::White),
+			float fontSize = 0.0f);
+
+		void AddImage(
+			const std::wstring& path,
+			UIAnchor anchor,
+			const UIPointF& offset,
+			const UISizeF& size,
+			float opacity = 1.0f);
 
 		void AddProgressBar(
 			const std::wstring& label,
@@ -88,6 +96,7 @@ namespace shooting {
 			UISizeF size;
 			UITextAlign align;
 			D2D1_COLOR_F color;
+			float fontSize = 0.0f;
 		};
 
 		struct ProgressBarCommand
@@ -98,6 +107,15 @@ namespace shooting {
 			UIAnchor anchor;
 			UIPointF offset;
 			UISizeF size;
+		};
+
+		struct ImageCommand
+		{
+			std::wstring path;
+			UIAnchor anchor;
+			UIPointF offset;
+			UISizeF size;
+			float opacity = 1.0f;
 		};
 
 		static D2D1_RECT_F ResolveRect(
@@ -123,6 +141,7 @@ namespace shooting {
 
 		std::vector<TextCommand> m_texts;
 		std::vector<ProgressBarCommand> m_bars;
+		std::vector<ImageCommand> m_images;
 		std::vector<ButtonCommand> m_buttons;
 	};
 
