@@ -13,6 +13,9 @@ namespace shooting {
 		const float kNormalShotCameraAimBacktrack = 0.25f;
 		// 銃口から狙い点までの再チェックで、ほぼ同じ位置のヒットを安定して扱うための余白。
 		const float kNormalShotMuzzleBlockMargin = 0.03f;
+		// 銃口のすぐ近くに当たった場合は、トレーサーや着弾スパークを出さない。
+		// 近すぎるエフェクトは極端な回転・スケールになりやすく、D3D12のdevice removed要因になるため。
+		const float kNormalShotMinVisualEffectDistance = 0.12f;
 		// 通常射撃の発射間隔。小さいほど連射が速くなる。
 		const double kNormalShotCooldown = 0.12;
 		// Scene.cppで登録しているプレイヤー銃モデルのキー。
@@ -663,6 +666,16 @@ namespace shooting {
 			{
 				return;
 			}
+			if (!bsmUtil::IsFiniteVec3(start) || !bsmUtil::IsFiniteVec3(end))
+			{
+				return;
+			}
+
+			const Vec3 delta = end - start;
+			if (!bsmUtil::IsFiniteVec3(delta) || delta.length() < kNormalShotMinVisualEffectDistance)
+			{
+				return;
+			}
 
 			stage->AddGameObject<BulletTracerEffect>(start, end, fallbackForward);
 		}
@@ -760,10 +773,19 @@ namespace shooting {
 			{
 				return;
 			}
+			if (!bsmUtil::IsFiniteVec3(hit.m_Point))
+			{
+				return;
+			}
 
 			// Raycastの法線が取れない相手でも表示できるよう、弾の進行方向の逆を予備の法線にする。
 			const Vec3 fallbackNormal = NormalizeOrFallback(shotForward * -1.0f, Vec3(0.0f, 1.0f, 0.0f));
 			const Vec3 normal = NormalizeOrFallback(hit.m_Normal, fallbackNormal);
+			if (!bsmUtil::IsFiniteVec3(normal))
+			{
+				return;
+			}
+
 			stage->AddGameObject<BulletImpactSparkEffect>(hit.m_Point, normal);
 		}
 		void ApplyHitscanDamage(
@@ -1249,7 +1271,8 @@ namespace shooting {
 					flashForward = GetComponent<Transform>()->GetForward();
 				}
 				SpawnMuzzleFlash(GetThis<Player>(), muzzle, flashForward);
-				if (hasHitShot)
+				const float hitVisualDistance = hasHitShot ? (aimPointShot - muzzle).length() : kNormalShotRange;
+				if (hasHitShot && hitVisualDistance >= kNormalShotMinVisualEffectDistance)
 				{
 					// Raycastの着弾位置に小さいスパークを出す。弾道表示と同じくゲーム判定には影響しない。
 					SpawnBulletImpactSpark(GetStage(false), shotHit, flashForward);
