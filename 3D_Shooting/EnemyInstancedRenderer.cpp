@@ -1,8 +1,9 @@
 ﻿/*!
 @file EnemyInstancedRenderer.cpp
-@brief 謨ｵ縺ｮ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｷ繝ｳ繧ｰ謠冗判
+@brief 敵のインスタンシング描画
 
-EnemyBatchController縺御ｿ晄戟縺吶ｋ謨ｵ驟榊・縺九ｉ謠冗判逕ｨ繝・・繧ｿ縺縺代ｒ蜿励￠蜿悶ｊ縲！nstancedSkinnedDraw縺ｫ貂｡縺吶・*/
+EnemyBatchControllerが保持する敵配列から描画用データだけを受け取り、InstancedSkinnedDrawに渡す。
+*/
 
 #include "stdafx.h"
 #include "Project.h"

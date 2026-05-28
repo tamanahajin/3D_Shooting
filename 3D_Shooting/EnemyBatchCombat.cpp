@@ -1,7 +1,8 @@
 ﻿/*!
 @file EnemyBatchCombat.cpp
-@brief 謨ｵ繝舌ャ繝√・繝繝｡繝ｼ繧ｸ縲∵ｭｻ莠｡縲√ヮ繝・け繝舌ャ繧ｯ蜃ｦ逅・
-HP繧・｢ｫ蠑ｾ貍泌・縺ｮ迥ｶ諷九・EnemyState縺ｫ髮・ｴ・＠縲∫黄逅・・繝ｭ繧ｭ繧ｷ縺九ｉ縺ｯindex謖・ｮ壹〒縺薙％縺ｸ霆｢騾√☆繧九・*/
+@brief 敵バッチのダメージ、死亡、ノックバック処理
+HPや被弾演出の状態はEnemyStateに集約し、物理プロキシからはindex指定でここへ転送する。
+*/
 
 #include "stdafx.h"
 #include "Project.h"
@@ -75,7 +76,8 @@ namespace shooting {
 		{
 			if (info.m_DelayDeathUntilLanding)
 			{
-				// 辷・ｼｾ縺ｮ閾ｴ豁ｻ繝繝｡繝ｼ繧ｸ縺ｯ蜊ｳ豁ｻ莠｡縺ｫ縺帙★縲∝聖縺｣鬟帙・蠕後・謗･蝨ｰ縺ｧ豁ｻ莠｡縺輔○繧九・				enemy.hp = 1;
+				// 爆弾の致死ダメージは即死亡にせず、吹っ飛んだ後の接地で死亡させる。
+				enemy.hp = 1;
 				enemy.delayDeathUntilLanding = true;
 				enemy.delayedDeathWasAirborne = false;
 				enemy.delayedDeathMinTimer = 0.12;

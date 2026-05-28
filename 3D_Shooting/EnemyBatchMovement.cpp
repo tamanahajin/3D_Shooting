@@ -1,7 +1,9 @@
 ﻿/*!
 @file EnemyBatchMovement.cpp
-@brief 謨ｵ繝舌ャ繝√・遘ｻ蜍輔∝・髮｢縲∝慍蠖｢霑ｽ蠕・
-謨ｵ蜷悟｣ｫ縺ｮ邁｡譏灘・髮｢縺ｯ繧ｰ繝ｪ繝・ラ縺ｧ霑大ｍ縺縺代ｒ隕九※霆ｽ驥丞喧縺吶ｋ縲・縺薙・繝輔ぃ繧､繝ｫ縺ｧ縺ｯ霑ｽ霍｡縲・㍾蜉帙∝揩繧・ｫ伜床縺ｮ蝨ｰ蠖｢隗｣豎ｺ繧ゅ∪縺ｨ繧√※陦後≧縲・*/
+@brief 敵バッチの移動、分離、地形追従
+敵同士の簡易分離はグリッドで近傍だけを見て軽量化する。
+このファイルでは追跡、重力、坂や高台の地形解決もまとめて行う。
+*/
 
 #include "stdafx.h"
 #include "Project.h"
@@ -178,7 +180,8 @@ namespace shooting {
 			}
 		}
 
-		// 蛻・屬蜉帙・蜈ｨ謨ｵ縺ｮ迴ｾ蝨ｨ菴咲ｽｮ繧剃ｽｿ縺・◆繧√∝推謨ｵ譖ｴ譁ｰ縺ｫ蜈･繧句燕縺ｫ縺ｾ縺ｨ繧√※險育ｮ励＠縺ｦ縺翫￥縲・		m_SeparationForces.assign(m_Enemies.size(), Vec3(0.0f, 0.0f, 0.0f));
+		// 分離力は全敵の現在位置を使うため、各敵更新に入る前にまとめて計算しておく。
+		m_SeparationForces.assign(m_Enemies.size(), Vec3(0.0f, 0.0f, 0.0f));
 		BuildSpatialGrid();
 		for (size_t i = 0; i < m_Enemies.size(); ++i)
 		{
@@ -326,7 +329,8 @@ namespace shooting {
 				}
 				else if (enemy.delayedDeathWasAirborne && enemy.delayedDeathMinTimer <= 0.0)
 				{
-					// 辷・ｼｾ縺ｧ閾ｴ豁ｻ繝繝｡繝ｼ繧ｸ繧貞女縺代◆謨ｵ縺ｯ縲∝聖縺｣鬟帙・縺瑚ｦ九∴繧九ｈ縺・捩蝨ｰ縺励※縺九ｉ豁ｻ莠｡縺輔○繧九・					KillEnemy(enemy);
+					// 爆弾で致死ダメージを受けた敵は、吹っ飛びが見えるよう着地してから死亡させる。
+					KillEnemy(enemy);
 					UpdateAnimation(enemy, elapsedTime);
 					SyncProxyTransform(i);
 					continue;

@@ -1,8 +1,10 @@
 ﻿/*!
 @file EnemyCollisionProxy.cpp
-@brief 謨ｵ1菴薙・繧薙・霆ｽ驥上さ繝ｪ繧ｸ繝ｧ繝ｳ繝励Ο繧ｭ繧ｷ
+@brief 敵1体分の軽量コリジョンプロキシ
 
-謨ｵ縺ｮ譛ｬ菴鍋憾諷九・EnemyBatchController縺ｮ驟榊・縺ｧ謖√▽縲・縺薙％縺ｧ縺ｯ陦晉ｪ√う繝吶Φ繝医□縺代ｒ蜿励￠縺ｦ縲∝ｯｾ雎｡index縺ｮ謨ｵ縺ｸ繝繝｡繝ｼ繧ｸ繧・磁蝨ｰ諠・ｱ繧定ｻ｢騾√☆繧九・*/
+敵の本体状態はEnemyBatchControllerの配列で持つ。
+ここでは衝突イベントだけを受けて、対象indexの敵へダメージや接地情報を転送する。
+*/
 
 #include "stdafx.h"
 #include "Project.h"
