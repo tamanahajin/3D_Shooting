@@ -204,38 +204,60 @@ namespace shooting {
 	class EnemyBatchController : public GameObject
 	{
 	private:
+		// 1体の敵に必要な実行時状態。
+		// 描画、移動、HP、アニメーションを配列で持つことで、大量の敵をまとめて効率よく更新する。
 		struct EnemyState
 		{
+			// 移動・地形解決用。previousPositionは坂や高台との接触解決で使う。
 			Vec3 position = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 previousPosition = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 velocity = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 force = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 gravityVelocity = Vec3(0.0f, 0.0f, 0.0f);
+
+			// 爆弾などの吹っ飛び用。通常の追跡移動とは別に制御する。
 			Vec3 knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 			double knockbackControlTimer = 0.0;
+
+			// 描画用の向きと、一定間隔で追跡力を再計算するためのタイマー。
 			Quat rotation = Quat();
 			double steeringTimer = 0.0;
 			double steeringInterval = 0.05;
+
+			// 被弾時の赤フラッシュ。値は描画インスタンスへ渡す。
 			double damageFlashTimer = 0.0;
 			double damageFlashDuration = 0.2;
+
+			// スキンアニメーション用。死亡などの単発アニメーションはanimationFinishedで止める。
 			double animationTime = 0.0;
 			AnimState animationState = AnimState::Idle;
 			bool animationFinished = false;
+
+			// active=falseになると配列には残すが、更新・描画対象から外す。
 			bool active = true;
 			bool isGround = false;
 			bool isDead = false;
 			bool deathAnimFinished = false;
+
+			// 爆弾で致死ダメージを受けた場合、吹っ飛びが見えるよう着地まで死亡を遅らせる。
 			bool delayDeathUntilLanding = false;
 			bool delayedDeathWasAirborne = false;
 			double delayedDeathMinTimer = 0.0;
+
+			// 種類ごとの調整値と現在HP。
 			EnemyStatus status;
 			int hp = 20;
 			int maxHp = 20;
+
+			// CollisionManagerに参加するための軽量GameObject。描画やAI本体は持たない。
 			std::weak_ptr<EnemyCollisionProxy> proxy;
 		};
 
+		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
 		std::vector<EnemyState> m_Enemies;
+		// 各敵の分離力を一時保存する。全敵位置を使うため、OnUpdate冒頭でまとめて計算する。
 		std::vector<Vec3> m_SeparationForces;
+		// 敵同士の分離計算を軽くするための空間グリッド。
 		std::map<long long, std::vector<size_t>> m_CellMap;
 		float m_CellSize = 2.0f;
 		float m_SeparationRange = 2.0f;
@@ -428,3 +450,4 @@ namespace shooting {
 
 	
 }
+

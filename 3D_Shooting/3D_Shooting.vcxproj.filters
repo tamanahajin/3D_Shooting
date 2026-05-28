@@ -184,10 +184,25 @@
     <ClCompile Include="Character.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyBatchAnimation.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBatchCombat.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="EnemyBatchController.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyBatchMovement.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyCollisionProxy.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="EnemyFactory.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyInstancedRenderer.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
     <ClCompile Include="GameStage.cpp">
