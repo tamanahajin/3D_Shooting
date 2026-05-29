@@ -55,6 +55,40 @@ namespace shooting {
 		}
 	}
 
+	void EnemyBatchController::StartHitPush(EnemyState& enemy, const DamageInfo& info)
+	{
+		enemy.hitPushDuration = enemy.status.hitPushDuration;
+		enemy.hitPushDistance = enemy.status.hitPushDistance;
+		enemy.hitPushLeanAngle = enemy.status.hitPushLeanAngle;
+		enemy.hitPushTimer = enemy.hitPushDuration;
+
+		Vec3 direction(0.0f, 0.0f, 0.0f);
+		auto instigator = info.m_Instigator.lock();
+		if (instigator)
+		{
+			auto instigatorTransform = instigator->GetComponent<Transform>(false);
+			if (instigatorTransform)
+			{
+				direction = enemy.position - instigatorTransform->GetWorldPosition();
+			}
+		}
+
+		// 通常弾は撃った側から敵が軽く押される見た目にしたいので、攻撃者から敵への水平向きを使う。
+		direction.y = 0.0f;
+		if (!bsmUtil::IsFiniteVec3(direction) || bsmUtil::lengthSqr(direction) <= 1e-6f)
+		{
+			direction = info.m_HitNormal;
+			direction.y = 0.0f;
+		}
+		if (!bsmUtil::IsFiniteVec3(direction) || bsmUtil::lengthSqr(direction) <= 1e-6f)
+		{
+			direction = Vec3(1.0f, 0.0f, 0.0f);
+		}
+
+		direction.normalize();
+		enemy.hitPushDirection = direction;
+	}
+
 	bool EnemyBatchController::ApplyDamage(size_t index, const DamageInfo& info)
 	{
 		if (index >= m_Enemies.size())
@@ -70,6 +104,10 @@ namespace shooting {
 
 		ShowDamageNumber(index, info);
 		StartDamageFlash(enemy, enemy.status.damageFlashDuration);
+		if (!info.m_DelayDeathUntilLanding)
+		{
+			StartHitPush(enemy, info);
+		}
 
 		enemy.hp -= bsmUtil::Clamp(info.m_Damage, 0, info.m_Damage);
 		if (enemy.hp <= 0)

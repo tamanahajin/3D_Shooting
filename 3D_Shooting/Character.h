@@ -26,6 +26,9 @@ namespace shooting {
 		double steeringInterval = 0.05;
 		double damageFlashDuration = 0.2;
 		float damageNumberOffsetY = 0.35f;
+		double hitPushDuration = 0.30;
+		float hitPushDistance = 0.16f;
+		float hitPushLeanAngle = 0.36f;
 	};
 	//--------------------------------------------------------------------------------------
 	// フロアオブジェクト（見た目専用）
@@ -228,6 +231,13 @@ namespace shooting {
 			double damageFlashTimer = 0.0;
 			double damageFlashDuration = 0.2;
 
+			// 被弾時の押され演出。実座標は動かさず、描画用の行列だけに反映する。
+			double hitPushTimer = 0.0;
+			double hitPushDuration = 0.10;
+			float hitPushDistance = 0.16f;
+			float hitPushLeanAngle = 0.16f;
+			Vec3 hitPushDirection = Vec3(1.0f, 0.0f, 0.0f);
+
 			// スキンアニメーション用。死亡などの単発アニメーションはanimationFinishedで止める。
 			double animationTime = 0.0;
 			AnimState animationState = AnimState::Idle;
@@ -277,6 +287,7 @@ namespace shooting {
 		float GetDamageFlashValue(const EnemyState& enemy) const;
 		void ShowDamageNumber(size_t index, const DamageInfo& info);
 		void StartDamageFlash(EnemyState& enemy, double duration = 0.2);
+		void StartHitPush(EnemyState& enemy, const DamageInfo& info);
 		void KillEnemy(EnemyState& enemy);
 		void KillByFall(EnemyState& enemy);
 		void RotateToVelocity(EnemyState& enemy, float lerpFact);

@@ -212,6 +212,15 @@ namespace shooting {
 				}
 			}
 
+			if (enemy.hitPushTimer > 0.0)
+			{
+				enemy.hitPushTimer -= elapsedTime;
+				if (enemy.hitPushTimer < 0.0)
+				{
+					enemy.hitPushTimer = 0.0;
+				}
+			}
+
 			if (enemy.knockbackControlTimer > 0.0)
 			{
 				enemy.knockbackControlTimer -= elapsedTime;
