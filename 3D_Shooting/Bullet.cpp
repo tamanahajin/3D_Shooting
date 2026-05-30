@@ -58,6 +58,11 @@ namespace shooting {
 	{
 		if (!m_IsActive) return;
 
+		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+		{
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
+
 		// 寿命
 		m_ElapsedTime += elapsedTime;
 		if (m_ElapsedTime >= m_LifeTime)
@@ -186,6 +191,11 @@ namespace shooting {
 	void BombBullet::OnUpdate(double elapsedTime)
 	{
 		if (!IsActive()) return;
+
+		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+		{
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
 
 		if (!m_Exploding)
 		{
@@ -360,6 +370,14 @@ namespace shooting {
 		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(target))
 		{
 			enemyProxy->ApplyDamage(info);
+
+			// ヒットストップ
+			auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+			if (gameStage)
+			{
+				gameStage->RequestHitStop(0.1, 0.03);
+			}
+
 			if (!enemyProxy->IsAlive())
 			{
 				return;

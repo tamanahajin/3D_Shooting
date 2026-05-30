@@ -501,6 +501,9 @@
     <ClInclude Include="ItemFactory.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="HitStopController.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">

@@ -9,8 +9,6 @@
 
 namespace shooting {
 
-
-
 	// ダメージ表示は短命なUIデータだけを保持し、描画はUIManager側でまとめて行う。
 	void GameStage::SpawnDamageNumber(const Vec3& position, int damage)
 	{
@@ -55,8 +53,23 @@ namespace shooting {
 		}
 		return spawnCenter;
 	}
+
+	void GameStage::RequestHitStop(double duration, double timeScale)
+	{
+		m_HitStop.Request(duration, timeScale);
+	}
+
+	double GameStage::GetGameDeltaTime(double rawDeltaTime) const
+	{
+		return m_HitStop.Apply(rawDeltaTime);
+	}
+
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
+		// ヒットストップの残り時間はゲーム内時間ではなく実時間で減らす。
+		// ここで更新しておくと、敵・プレイヤー・弾は次フレームから GetGameDeltaTime() 経由で遅くなる。
+		m_HitStop.Update(elapsedTime);
+
 		m_waveController.Update(elapsedTime, GetEnemySpawnCenter());
 
 		const float dt = static_cast<float>(elapsedTime);

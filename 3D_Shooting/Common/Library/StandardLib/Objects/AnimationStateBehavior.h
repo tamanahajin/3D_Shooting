@@ -8,6 +8,7 @@ namespace shooting {
 	private:
 		AnimState m_Current = AnimState::Idle;
 		double m_Time = 0.0;
+		double m_PlaybackTimeScale = 1.0;
 		bool m_Finished = false;
 		std::wstring m_FallbackMeshKey;
 
@@ -116,6 +117,9 @@ namespace shooting {
 
 		void OnUpdate(double elapsedTime) override
 		{
+			// プレイヤーのヒットストップなど、必要なオブジェクトだけアニメーション時間を遅くする。
+			elapsedTime *= m_PlaybackTimeScale;
+
 			auto draw = GetGameObject()->GetComponent<BcPNTBoneDraw>(false);
 			if (!draw)
 			{
@@ -211,6 +215,11 @@ namespace shooting {
 		void SetFallbackMeshKey(const std::wstring& key)
 		{
 			m_FallbackMeshKey = key;
+		}
+
+		void SetPlaybackTimeScale(double timeScale)
+		{
+			m_PlaybackTimeScale = bsmUtil::Clamp(timeScale, 0.0, 1.0);
 		}
 
 		bool IsPlayingAttack() const

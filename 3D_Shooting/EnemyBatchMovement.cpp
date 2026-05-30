@@ -169,6 +169,10 @@ namespace shooting {
 		}
 
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		if (gameStage)
+		{
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
 		Vec3 targetPosition(0.0f, 0.0f, 0.0f);
 		auto player = GetStage()->GetSharedGameObject(L"Player", false);
 		if (player)

@@ -15,6 +15,7 @@
 #include "UIManager.h"
 #include "ScreenTransition.h"
 #include "MainCamera.h"
+#include "HitStopController.h"
 #include "IBullet.h"
 #include "Bullet.h"
 #include "IBulletPool.h"

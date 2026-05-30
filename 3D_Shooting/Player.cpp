@@ -96,9 +96,8 @@ namespace shooting {
 		return angle;
 	}
 
-	void Player::MovePlayer()
+	void Player::MovePlayer(float elapsedTime)
 	{
-		float elapsedTime = (float)Scene::GetElapsedTime();
 		auto angle = GetMoveVector();
 		if (angle.length() > 0.0f)
 		{
@@ -211,7 +210,7 @@ namespace shooting {
 		}
 	}
 
-	void Player::ResolveSlopeCollision()
+	void Player::ResolveSlopeCollision(double elapsedTime)
 	{
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 		if (!gameStage)
@@ -233,7 +232,7 @@ namespace shooting {
 			? capsule->GetMakedRadius() + (capsule->GetMakedHeight() * 0.5f)
 			: 0.35f;
 		groundState.wasGrounded = m_IsGround;
-		groundState.elapsedTime = static_cast<float>(Scene::GetElapsedTime());
+		groundState.elapsedTime = static_cast<float>(elapsedTime);
 
 		auto gravity = GetComponent<Gravity>(false);
 		if (gravity)
@@ -268,8 +267,11 @@ namespace shooting {
 
 	void Player::OnUpdate2(double elapsedTime)
 	{
-		UNREFERENCED_PARAMETER(elapsedTime);
-		ResolveSlopeCollision();
+		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+		{
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
+		ResolveSlopeCollision(elapsedTime);
 	}
 
 	void Player::OnCollisionEnter(const CollisionPair& pair)

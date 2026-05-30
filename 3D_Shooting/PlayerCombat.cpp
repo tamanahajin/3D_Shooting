@@ -942,7 +942,25 @@ namespace shooting {
 
 	void Player::OnUpdate(double elapsedTime)
 	{
+		const double rawElapsedTime = elapsedTime;
+		bool hitStopActive = false;
+		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+		{
+			hitStopActive = gameStage->IsHitStopActive();
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
+
 		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (anim)
+		{
+			// AnimationStateBehaviorは共通Behavior更新で生のelapsedTimeを受け取るため、
+			// プレイヤー側でゲーム内時間との比率を渡してヒットストップ対象にする。
+			const double animationTimeScale = rawElapsedTime > 1e-8
+				? elapsedTime / rawElapsedTime
+				: 1.0;
+			anim->SetPlaybackTimeScale(animationTimeScale);
+		}
+
 		if (m_IsDead)
 		{
 
@@ -990,11 +1008,11 @@ namespace shooting {
 		m_InputHandler.PushHandle(GetThis<Player>());
 
 		// 移動
-		MovePlayer();
-		ResolveSlopeCollision();
+		MovePlayer(static_cast<float>(elapsedTime));
+		ResolveSlopeCollision(elapsedTime);
 
 		// ジャンプ（地面にいるときのみ）
-		if (App::GetInputDevice().KeyDown(VK_SPACE))
+		if (!hitStopActive && App::GetInputDevice().KeyDown(VK_SPACE))
 		{
 			OnPushA();
 		}
@@ -1016,7 +1034,7 @@ namespace shooting {
 		}
 
 		const bool bombMode = IsBombMode();
-		const bool canFire = fireInput && m_ShotCool <= 0.0;
+		const bool canFire = !hitStopActive && fireInput && m_ShotCool <= 0.0;
 		const bool traceNormalShot = canFire && !bombMode;
 		const bool traceBombPreview = bombMode;
 

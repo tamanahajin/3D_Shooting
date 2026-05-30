@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <random>
 #include "WaveController.h"
+#include "HitStopController.h"
 
 namespace shooting {
 
@@ -76,6 +77,7 @@ namespace shooting {
 		float m_groundLookupCellSize = 5.0f;
 		std::vector<ItemSpawnBlocker> m_itemSpawnBlockers;
 		std::mt19937 m_itemSpawnRandom = std::mt19937(20260513);
+		HitStopController m_HitStop;
 
 		void CreateItems();
 		void MaintainRecoveryItems();
@@ -114,6 +116,9 @@ namespace shooting {
 
 		void SpawnDamageNumber(const Vec3& position, int damage);
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }
+		void RequestHitStop(double duration, double timeScale);
+		double GetGameDeltaTime(double rawDeltaTime) const;
+		bool IsHitStopActive() const { return m_HitStop.IsActive(); }
 
 		void AddSlopeCollision(
 			const Vec3& startCenter,
