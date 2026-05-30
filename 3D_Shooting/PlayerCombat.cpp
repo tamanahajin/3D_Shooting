@@ -1196,10 +1196,6 @@ namespace shooting {
 		// --- BombAimPreview 更新 ---
 		if (m_BombPreview)
 		{
-			const float kArcHeight = 1.5f;
-			const Vec3  kGravity(0, -20.0f, 0);
-			const float kExplosionRadius = 2.0f;
-
 			m_BombPreview->SetPreviewInput(
 				bombMode,
 				muzzle,
@@ -1212,10 +1208,6 @@ namespace shooting {
 		// --- 発射 ---
 		if (canFire)
 		{
-			const float kArcHeight = 1.5f;
-			const Vec3  kGravity(0, -20.0f, 0);
-			const float kExplosionRadius = 2.0f;
-
 			// ボム
 			if (bombMode)
 			{
