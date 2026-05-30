@@ -13,7 +13,6 @@ namespace shooting {
 	namespace {
 		float GetHitPushPower(double timer, double duration)
 		{
-			// タイマーか時間が無効なら、押され演出は発生させない。
 			if (timer <= 0.0 || duration <= 0.0)
 			{
 				return 0.0f;

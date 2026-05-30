@@ -86,20 +86,22 @@ namespace shooting {
 				duration = 0.6;
 			}
 
+			const bool holdLastFrame = IsHoldLastFrameState(enemy.animationState);
+			const double stopTime = holdLastFrame ? GetHoldTimeSeconds(duration) : duration;
+
 			if (!enemy.animationFinished)
 			{
 				enemy.animationTime += elapsedTime;
-				if (enemy.animationTime >= duration)
+
+				if (enemy.animationTime >= stopTime)
 				{
 					enemy.animationFinished = true;
-					enemy.animationTime = IsHoldLastFrameState(enemy.animationState)
-						? GetHoldTimeSeconds(duration)
-						: duration;
+					enemy.animationTime = stopTime;
 				}
 			}
-			else if (IsHoldLastFrameState(enemy.animationState))
+			else if (holdLastFrame)
 			{
-				enemy.animationTime = GetHoldTimeSeconds(duration);
+				enemy.animationTime = stopTime;
 			}
 
 			return;
