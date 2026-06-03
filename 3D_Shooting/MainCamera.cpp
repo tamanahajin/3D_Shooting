@@ -175,6 +175,50 @@ namespace shooting {
 
 	}
 
+	void MainCamera::SetSpawnIntroView(bool active, const Vec3& eye, const Vec3& at)
+	{
+		m_SpawnIntroViewActive = active;
+		m_SpawnIntroEye = eye;
+		m_SpawnIntroAt = at;
+
+		if (active)
+		{
+			PerspecCamera::SetAt(m_SpawnIntroAt);
+			PerspecCamera::SetEye(m_SpawnIntroEye);
+		}
+	}
+
+	void MainCamera::FinishSpawnIntroViewAndResumeFollow()
+	{
+		const Vec3 eye = m_SpawnIntroEye;
+		const Vec3 at = m_SpawnIntroAt;
+		Vec3 arm = eye - at;
+		const float armLen = bsmUtil::length(arm);
+
+		if (armLen > 0.0001f)
+		{
+			arm.normalize();
+
+			// 通常カメラは m_RadY / m_RadXZ / m_ArmLen から毎フレーム Eye を作り直す。
+			// そのため、固定解除前に登場カメラの Eye-At ベクトルを通常カメラの内部値へ逆算しておく。
+			m_ArmLen = bsmUtil::Clamp(armLen, m_MinArm, m_MaxArm);
+			m_ArmLenCurrent = m_ArmLen;
+			m_RadY = std::asin(bsmUtil::Clamp(arm.y, -1.0f, 1.0f));
+
+			// 通常カメラの水平基準は「-Z方向を yaw 回転した向き」なので、
+			// 現在の水平向きから yaw を逆算して、登場時の角度をそのまま引き継ぐ。
+			m_RadXZ = std::atan2(-arm.x, -arm.z);
+		}
+
+		PerspecCamera::SetAt(at);
+		PerspecCamera::SetEye(eye);
+		m_SpawnIntroViewActive = false;
+
+		// 演出中はマウス追従を止めていたため、復帰1フレーム目の大きなdeltaで
+		// カメラが跳ねないようにカーソル状態を同期する。
+		App::GetInputDevice().WarpCursorToClientPos(GetClientCenter(App::GetHwnd()));
+	}
+
 
 	void MainCamera::SetAt(const Vec3& At)
 	{
@@ -477,6 +521,16 @@ namespace shooting {
 
 	void MainCamera::OnUpdate(double elapsedTime)
 	{
+		if (m_SpawnIntroViewActive)
+		{
+			// 登場カメラ固定が有効な間は、通常のマウス追従カメラを止めて正面カメラ位置を維持する。
+			// 演出終了後も解除しなければ、この最終位置のままゲームを続けられる。
+			PerspecCamera::SetAt(m_SpawnIntroAt);
+			PerspecCamera::SetEye(m_SpawnIntroEye);
+			PerspecCamera::OnUpdate(elapsedTime);
+			return;
+		}
+
 		//前回のターンからの時間
 		Vec3 newEye = GetEye();
 		Vec3 newAt = GetAt();

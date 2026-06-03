@@ -172,6 +172,9 @@
     <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\StandardLib\Components\WaveEffectDraw.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="BombTuning.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
@@ -495,6 +498,9 @@
     <ClInclude Include="Common\Library\StandardLib\Components\InstancedStaticDraw.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\StandardLib\Components\WaveEffectDraw.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Item.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
@@ -537,6 +543,9 @@
       <Filter>Libs\StandardLib\Shaders</Filter>
     </None>
     <None Include="Shader\DamageEffect.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shader\WaveEffect.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
@@ -616,7 +625,13 @@
     <FxCompile Include="Shader\PSDamageEffect.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\PSWaveEffectDraw.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Shader\VSDamageEffect.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VSWaveEffectDraw.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shader\PSCollisionDebug.hlsl">

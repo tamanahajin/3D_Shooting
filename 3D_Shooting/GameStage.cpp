@@ -70,7 +70,14 @@ namespace shooting {
 		// ここで更新しておくと、敵・プレイヤー・弾は次フレームから GetGameDeltaTime() 経由で遅くなる。
 		m_HitStop.Update(elapsedTime);
 
-		m_waveController.Update(elapsedTime, GetEnemySpawnCenter());
+		if (m_WaitingInitialWaveUntilPlayerIntroEnds)
+		{
+			StartInitialWaveAfterPlayerIntro();
+		}
+		else
+		{
+			m_waveController.Update(elapsedTime, GetEnemySpawnCenter());
+		}
 
 		const float dt = static_cast<float>(elapsedTime);
 		for (auto& damageNumber : m_damageNumbers)
@@ -94,6 +101,22 @@ namespace shooting {
 
 		MaintainRecoveryItems();
 		MaintainBombItems();
+	}
+
+	void GameStage::StartInitialWaveAfterPlayerIntro()
+	{
+		auto playerObject = GetSharedGameObject(L"Player", false);
+		auto player = std::dynamic_pointer_cast<Player>(playerObject);
+
+		// 登場演出中は敵を出さない。プレイヤーが取得できない場合は、
+		// 進行不能を避けるため初回ウェーブを開始する。
+		if (player && player->IsSpawnIntroActive())
+		{
+			return;
+		}
+
+		m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		m_waveController.StartNextWave(GetEnemySpawnCenter());
 	}
 
 	//追いかけるオブジェクトの作成
@@ -165,7 +188,9 @@ namespace shooting {
 		auto enemyController = AddGameObject<EnemyBatchController>();
 		m_waveController.SetController(enemyController);
 		AddGameObject<EnemyInstancedRenderer>();
-		m_waveController.StartNextWave(GetEnemySpawnCenter());
+		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
+		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。
+		m_WaitingInitialWaveUntilPlayerIntroEnds = true;
 
 		// 弾管理
 		AddGameObject<BulletManager>();

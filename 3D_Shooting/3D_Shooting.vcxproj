@@ -61,6 +61,7 @@
     <ClCompile Include="Common\Library\StandardLib\Components\Gravity.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\WaveEffectDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Common\Library\StandardLib\Components\Gravity.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\InstancedStaticDraw.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\WaveEffectDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h" />
@@ -187,6 +189,7 @@
     <None Include="Common\Library\StandardLib\Shaders\SpINCPixel.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\SpINCStructs.hlsli" />
     <None Include="Shader\DamageEffect.hlsli" />
+    <None Include="Shader\WaveEffect.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Common\Library\StandardLib\Shaders\BcPSPNTPL.hlsl">
@@ -431,6 +434,14 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="Shader\PSWaveEffectDraw.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="Shader\VSDamageEffect.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -452,6 +463,14 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shader\VSShadowmapSkinning.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)media\Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shader\VSWaveEffectDraw.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

@@ -47,6 +47,13 @@ namespace shooting {
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
 
+		std::shared_ptr<BaseMesh> CreatePlayerSpawnPortalDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
+		{
+			// ワープホール用の薄い黒円。形状は単純な円盤にして、揺れ方は頂点シェーダー側で足す。
+			// メッシュとシェーダーの責務を分けると、後から別の円盤や別演出にも同じWaveEffectを使いやすい。
+			return CreateBombPreviewDiscMesh(pCommandList, segments);
+		}
+
 		std::shared_ptr<BaseMesh> CreateBombPreviewLineMesh(ID3D12GraphicsCommandList* pCommandList)
 		{
 			std::vector<VertexPositionNormalTexture> vertices;
@@ -72,6 +79,62 @@ namespace shooting {
 			indices.push_back(0);
 			indices.push_back(2);
 			indices.push_back(3);
+
+			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
+		}
+
+		std::shared_ptr<BaseMesh> CreatePlayerSpawnPortalRingMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
+		{
+			if (segments < 64) segments = 64;
+
+			std::vector<VertexPositionNormalTexture> vertices;
+			std::vector<uint32_t> indices;
+			vertices.reserve(segments * 2);
+			indices.reserve(segments * 12);
+
+			const float outerRadius = 1.0f;
+			const float innerRadius = 0.62f;
+			const XMFLOAT3 normal(0.0f, 1.0f, 0.0f);
+
+			for (size_t i = 0; i < segments; ++i)
+			{
+				const float angle = XM_2PI * static_cast<float>(i) / static_cast<float>(segments);
+				const float c = std::cos(angle);
+				const float s = std::sin(angle);
+
+				// ローカルXZ平面に穴あき円を作る。Player側で縦向きに回転してワープホールとして使う。
+				vertices.push_back(VertexPositionNormalTexture(
+					XMFLOAT3(c * outerRadius, 0.0f, s * outerRadius),
+					normal,
+					XMFLOAT2(0.5f + c * 0.5f, 0.5f - s * 0.5f)));
+				vertices.push_back(VertexPositionNormalTexture(
+					XMFLOAT3(c * innerRadius, 0.0f, s * innerRadius),
+					normal,
+					XMFLOAT2(0.5f + c * innerRadius * 0.5f, 0.5f - s * innerRadius * 0.5f)));
+			}
+
+			for (size_t i = 0; i < segments; ++i)
+			{
+				const uint32_t outer0 = static_cast<uint32_t>(i * 2);
+				const uint32_t inner0 = outer0 + 1;
+				const uint32_t outer1 = static_cast<uint32_t>(((i + 1) % segments) * 2);
+				const uint32_t inner1 = outer1 + 1;
+
+				indices.push_back(outer0);
+				indices.push_back(outer1);
+				indices.push_back(inner1);
+				indices.push_back(outer0);
+				indices.push_back(inner1);
+				indices.push_back(inner0);
+
+				// 裏面から見ても消えないように、逆巻きの面も入れておく。
+				indices.push_back(outer0);
+				indices.push_back(inner1);
+				indices.push_back(outer1);
+				indices.push_back(outer0);
+				indices.push_back(inner0);
+				indices.push_back(inner1);
+			}
 
 			return BaseMesh::CreateBaseMesh<VertexPositionNormalTexture>(pCommandList, vertices, indices);
 		}
@@ -374,6 +437,8 @@ namespace shooting {
 
 		RegisterMesh(L"BOMB_PREVIEW_DISC", CreateBombPreviewDiscMesh(pCommandList, 96));
 		RegisterMesh(L"BOMB_PREVIEW_LINE", CreateBombPreviewLineMesh(pCommandList));
+		RegisterMesh(L"PLAYER_SPAWN_PORTAL_DISC", CreatePlayerSpawnPortalDiscMesh(pCommandList, 96));
+		RegisterMesh(L"PLAYER_SPAWN_PORTAL_RING", CreatePlayerSpawnPortalRingMesh(pCommandList, 96));
 		RegisterMesh(L"STAGEOBJ_SHADOW_SLOPE_PROXY", CreateStageSlopeShadowProxyMesh(pCommandList));
 		// 通常射撃の着弾位置に出す、小さい火花用のコード生成メッシュ。
 		RegisterMesh(L"BULLET_IMPACT_SPARK_MESH", CreateBulletImpactSparkMesh(pCommandList));

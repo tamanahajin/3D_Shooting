@@ -37,6 +37,9 @@ namespace shooting {
 		Vec3 GetMoveVector() const;
 		//プレイヤーの移動
 		void MovePlayer(float elapsedTime);
+		void BeginSpawnIntro();
+		bool UpdateSpawnIntro(double elapsedTime);
+		void UpdateSpawnIntroCamera(const Vec3& playerPosition);
 		//入力ハンドラー
 		InputHandler<Player> m_InputHandler;
 		//スピード
@@ -61,6 +64,10 @@ namespace shooting {
 
 		bool m_IsDead = false;
 		bool m_DeathAnimFinished = false;
+		bool m_SpawnIntroActive = false;
+		double m_SpawnIntroTimer = 0.0;
+		Vec3 m_SpawnIntroStartPosition = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_SpawnIntroEndPosition = Vec3(0.0f, 0.0f, 0.0f);
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}
@@ -84,6 +91,7 @@ namespace shooting {
 
 		bool IsDead() const { return m_IsDead; }
 		bool IsDeathAnimationFinished() const { return m_DeathAnimFinished; }
+		bool IsSpawnIntroActive() const { return m_SpawnIntroActive; }
 	};
 
 }

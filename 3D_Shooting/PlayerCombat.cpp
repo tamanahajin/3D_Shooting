@@ -989,6 +989,23 @@ namespace shooting {
 			return;
 		}
 
+		if (m_SpawnIntroActive)
+		{
+			// 登場演出中は移動・射撃入力を受けず、ワープホールから歩いて出る動きだけを見せる。
+			anim->ChangeAnimation(AnimState::Sprint);
+			UpdateSpawnIntro(elapsedTime);
+			if (m_BombPreview)
+			{
+				m_BombPreview->SetPreviewInput(
+					false,
+					Vec3(0.0f, 0.0f, 0.0f),
+					Vec3(0.0f, 0.0f, 0.0f),
+					Vec3(0.0f, 1.0f, 0.0f),
+					false);
+			}
+			return;
+		}
+
 		if (!anim->IsPlayingAttack() || anim->IsFinished())
 		{
 			if (!m_IsGround)

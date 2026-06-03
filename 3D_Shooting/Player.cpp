@@ -3,6 +3,77 @@
 
 namespace shooting {
 
+	namespace
+	{
+		const Vec3 kSpawnIntroWalkDirection(0.0f, 0.0f, 1.0f);
+		const float kSpawnIntroWalkDistance = 2.4f;
+		const double kSpawnIntroDuration = 1.05;
+		const float kSpawnIntroPortalBackOffset = 0.25f;
+		const float kSpawnIntroPortalHeight = 0.85f;
+		const float kSpawnIntroPortalScale = 1.15f;
+		const float kSpawnIntroCameraDistance = 4.2f;
+		const float kSpawnIntroCameraHeight = 1.35f;
+		const float kSpawnIntroCameraLookHeight = 1.0f;
+
+		float SmoothStep(float t)
+		{
+			t = bsmUtil::Clamp(t, 0.0f, 1.0f);
+			return t * t * (3.0f - 2.0f * t);
+		}
+
+		class PlayerSpawnPortal : public GameObject
+		{
+		private:
+			float m_Elapsed = 0.0f;
+			float m_LifeTime = 1.35f;
+
+		public:
+			PlayerSpawnPortal(const std::shared_ptr<Stage>& stage, const TransParam& param)
+				: GameObject(stage)
+			{
+				m_transParam = param;
+			}
+
+			void OnCreate() override
+			{
+				AddTag(L"PlayerSpawnPortal");
+				SetAlphaActive(true);
+				SetShadowActive(false);
+
+				auto draw = AddComponent<WaveEffectDraw>();
+				draw->AddBaseMesh(L"PLAYER_SPAWN_PORTAL_DISC");
+				draw->SetColor(Col4(0.015f, 0.018f, 0.03f, 0.72f));
+				draw->SetWave(0.355f, 14.0f, 5.8f);
+				draw->SetWaveDirection(Vec2(1.0f, 0.45f));
+				draw->SetEdgeMask(0.12f, 1.0f);
+				draw->SetShakeAxis(Vec3(0.0f, 1.0f, 0.0f));
+			}
+
+			void OnUpdate(double elapsedTime) override
+			{
+				m_Elapsed += static_cast<float>(elapsedTime);
+				const float t = m_LifeTime > 0.0f ? bsmUtil::Clamp(m_Elapsed / m_LifeTime, 0.0f, 1.0f) : 1.0f;
+				const float fadeIn = bsmUtil::Clamp(t / 0.15f, 0.0f, 1.0f);
+				const float fadeOut = 1.0f - bsmUtil::Clamp((t - 0.72f) / 0.28f, 0.0f, 1.0f);
+				const float alpha = 0.72f * fadeIn * fadeOut;
+
+				if (auto draw = GetComponent<WaveEffectDraw>(false))
+				{
+					draw->SetColor(Col4(0.015f, 0.018f, 0.03f, alpha));
+					draw->SetWaveTime(m_Elapsed);
+				}
+
+				if (m_Elapsed >= m_LifeTime)
+				{
+					if (auto stage = GetStage(false))
+					{
+						stage->RemoveGameObject(GetThis<GameObject>());
+					}
+				}
+			}
+		};
+	}
+
 	Player::Player(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
 		m_Speed(6.0f),
@@ -135,7 +206,7 @@ namespace shooting {
 		ptrColl->SetMakedRadius(radius);
 		ptrColl->SetMakedHeight(segmentHeight);
 		//重力をつける
-		auto ptrGra = AddComponent<Gravity>();
+		AddComponent<Gravity>();
 
 		// 描画
 		auto ptrDraw = AddComponent<BcPNTBoneDraw>();
@@ -198,6 +269,117 @@ namespace shooting {
 		m_BombPreview = AddComponent<BombAimPreview>();
 		m_BombPreview->SetTuning(GetBombTuning());
 		m_BombPreview->SetMaxRange(20.0f); // 最大到達距離を設定
+
+		BeginSpawnIntro();
+	}
+
+	void Player::BeginSpawnIntro()
+	{
+		auto transform = GetComponent<Transform>(false);
+		if (!transform)
+		{
+			return;
+		}
+
+		m_SpawnIntroActive = true;
+		m_SpawnIntroTimer = 0.0;
+		m_SpawnIntroEndPosition = transform->GetPosition();
+		m_SpawnIntroStartPosition = m_SpawnIntroEndPosition - (kSpawnIntroWalkDirection * kSpawnIntroWalkDistance);
+		m_SpawnIntroStartPosition.y = m_SpawnIntroEndPosition.y;
+		transform->SetPosition(m_SpawnIntroStartPosition);
+
+		if (auto util = GetBehavior<UtilBehavior>())
+		{
+			util->RotToHead(kSpawnIntroWalkDirection, 1.0f);
+		}
+		UpdateSpawnIntroCamera(m_SpawnIntroStartPosition);
+
+		TransParam portalParam;
+		portalParam.position = m_SpawnIntroStartPosition - (kSpawnIntroWalkDirection * kSpawnIntroPortalBackOffset)
+			+ Vec3(0.0f, kSpawnIntroPortalHeight, 0.0f);
+		portalParam.scale = Vec3(kSpawnIntroPortalScale, kSpawnIntroPortalScale, kSpawnIntroPortalScale);
+		portalParam.quaternion.rotationRollPitchYawFromVector(Vec3(XM_PIDIV2, 0.0f, 0.0f));
+		GetStage()->AddGameObject<PlayerSpawnPortal>(portalParam);
+
+		// 演出中は歩いて出てくる位置を手動で決めるため、通常の重力更新を止める。
+		if (auto gravity = GetComponent<Gravity>(false))
+		{
+			gravity->SetGravityVelocityZero();
+			gravity->SetUpdateActive(false);
+		}
+	}
+
+	bool Player::UpdateSpawnIntro(double elapsedTime)
+	{
+		if (!m_SpawnIntroActive)
+		{
+			return false;
+		}
+
+		m_SpawnIntroTimer += elapsedTime;
+		const float rawT = static_cast<float>(m_SpawnIntroTimer / kSpawnIntroDuration);
+		const float t = SmoothStep(rawT);
+
+		auto transform = GetComponent<Transform>(false);
+		if (transform)
+		{
+			const Vec3 position = m_SpawnIntroStartPosition + (m_SpawnIntroEndPosition - m_SpawnIntroStartPosition) * t;
+			transform->SetPosition(position);
+			UpdateSpawnIntroCamera(position);
+		}
+
+		if (auto util = GetBehavior<UtilBehavior>())
+		{
+			util->RotToHead(kSpawnIntroWalkDirection, 1.0f);
+		}
+
+		if (rawT < 1.0f)
+		{
+			return true;
+		}
+
+		m_SpawnIntroActive = false;
+		m_IsGround = true;
+
+		if (transform)
+		{
+			transform->SetPosition(m_SpawnIntroEndPosition);
+		}
+
+		if (auto gravity = GetComponent<Gravity>(false))
+		{
+			gravity->SetGravityVelocityZero();
+			gravity->SetUpdateActive(true);
+		}
+
+		if (auto anim = GetBehavior<AnimationStateBehavior>())
+		{
+			anim->ChangeAnimation(AnimState::Idle);
+		}
+
+		if (m_MainCamera)
+		{
+			// 登場カメラの位置・角度を通常追従カメラへ引き継いでから解除する。
+			// 単純に SetSpawnIntroView(false) だけ行うと、通常カメラが持っていた古い角度に戻ってしまう。
+			m_MainCamera->FinishSpawnIntroViewAndResumeFollow();
+		}
+
+		return false;
+	}
+
+	void Player::UpdateSpawnIntroCamera(const Vec3& playerPosition)
+	{
+		if (!m_MainCamera)
+		{
+			return;
+		}
+
+		// プレイヤーは+Z方向へ歩くので、カメラも+Z側に置くとキャラの正面が見える。
+		const Vec3 at = playerPosition + Vec3(0.0f, kSpawnIntroCameraLookHeight, 0.0f);
+		const Vec3 eye = playerPosition
+			+ (kSpawnIntroWalkDirection * kSpawnIntroCameraDistance)
+			+ Vec3(0.0f, kSpawnIntroCameraHeight, 0.0f);
+		m_MainCamera->SetSpawnIntroView(true, eye, at);
 	}
 
 	void Player::OnPushA()
@@ -267,6 +449,11 @@ namespace shooting {
 
 	void Player::OnUpdate2(double elapsedTime)
 	{
+		if (m_SpawnIntroActive)
+		{
+			return;
+		}
+
 		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
 		{
 			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);

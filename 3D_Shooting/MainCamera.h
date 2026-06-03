@@ -55,6 +55,9 @@ namespace shooting {
 		float m_CamSkin = 0.08f;           // めり込み防止の余白
 		float m_PushInRatio = 0.35f;       // 壁に当たった時（寄る）割合
 		float m_PullOutRatio = 0.15f;      // 壁から離れる時（戻る）割合
+		bool m_SpawnIntroViewActive = false;
+		Vec3 m_SpawnIntroEye = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_SpawnIntroAt = Vec3(0.0f, 0.0f, 0.0f);
 
 		std::weak_ptr<CollisionManager> m_CollisionManager;
 	public:
@@ -271,6 +274,9 @@ namespace shooting {
 
 		void BeginMouseLook();
 		void EndMouseLook();
+
+		void SetSpawnIntroView(bool active, const Vec3& eye, const Vec3& at);
+		void FinishSpawnIntroViewAndResumeFollow();
 
 		Vec3 ResolveCameraEyeBySweep(
 			const std::shared_ptr<Stage>& stage,

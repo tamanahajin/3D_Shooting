@@ -78,10 +78,14 @@ namespace shooting {
 		std::vector<ItemSpawnBlocker> m_itemSpawnBlockers;
 		std::mt19937 m_itemSpawnRandom = std::mt19937(20260513);
 		HitStopController m_HitStop;
+		// 初回ウェーブだけ、プレイヤー登場演出の完了を待ってから開始する。
+		bool m_WaitingInitialWaveUntilPlayerIntroEnds = false;
 
 		void CreateItems();
 		void MaintainRecoveryItems();
 		void MaintainBombItems();
+		// 初回ウェーブ開始待ち中に呼び、登場演出が終わっていればウェーブ1を開始する。
+		void StartInitialWaveAfterPlayerIntro();
 		void EnsureItemFactory();
 		bool TryFindItemSpawnPosition(Vec3& outPosition);
 		bool IsItemSpawnPositionFree(const Vec3& position, float radius) const;
