@@ -27,7 +27,10 @@ namespace shooting {
 	class WaveController
 	{
 	public:
-		WaveController();
+		WaveController()
+		{
+			m_statusByKind[EnemyKind::Default] = EnemyStatus();
+		}
 		explicit WaveController(const std::shared_ptr<EnemyBatchController>& controller);
 
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
@@ -49,8 +52,28 @@ namespace shooting {
 		WaveSettings& GetSettings() { return m_settings; }
 		const WaveSettings& GetSettings() const { return m_settings; }
 
-		int GetEnemyCountForWave(int wave) const;
-		float GetEnemySpeedMultiplierForWave(int wave) const;
+		int GetEnemyCountForWave(int wave) const
+		{
+			if (wave <= 0)
+			{
+				return 0;
+			}
+
+			const int enemyCount = m_settings.firstWaveEnemyCount +
+				((wave - 1) * m_settings.addEnemyCountPerWave);
+			return enemyCount > 0 ? enemyCount : 0;
+		}
+
+		float GetEnemySpeedMultiplierForWave(int wave) const
+		{
+			if (wave <= 0 || m_settings.speedUpEveryWaves <= 0)
+			{
+				return 1.0f;
+			}
+
+			const int speedStep = wave / m_settings.speedUpEveryWaves;
+			return 1.0f + (static_cast<float>(speedStep) * m_settings.speedMultiplierAddPerStep);
+		}
 
 	private:
 		WaveSettings m_settings;

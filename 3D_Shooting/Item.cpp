@@ -87,6 +87,8 @@ namespace shooting {
 			return false;
 		}
 
+		GameAudio::Instance().PlaySound(GameSoundId::ItemPickup);
+
 		Consume();
 		return true;
 	}

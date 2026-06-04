@@ -379,6 +379,7 @@ namespace shooting {
 
 	Scene::~Scene()
 	{
+		GameAudio::Instance().Shutdown();
 	}
 
 	bool Scene::IsMouseInRect(const D2D1_RECT_F& rect) const
@@ -410,6 +411,11 @@ namespace shooting {
 
 	void Scene::CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 	{
+		// 音声はD3Dリソースではないが、シーンで使う共通アセットなのでここでまとめて初期化する。
+		// WAVが未配置でもLoadDefaultSounds側で無視するため、音素材を後から追加しやすい。
+		GameAudio::Instance().Initialize();
+		GameAudio::Instance().LoadDefaultSounds();
+
 		// テクスチャ
 		auto texFile = App::GetRelativeAssetsDir() + L"Textures/wall.png";
 		auto texture = BaseTexture::CreateTextureFlomFile(pCommandList, texFile);
@@ -936,6 +942,7 @@ namespace shooting {
 		s_elapsedTime = elapsedTime;
 		m_TitleTime += elapsedTime;
 		m_ScreenTransition.Update(elapsedTime);
+		GameAudio::Instance().Update();
 
 		if (m_GameState == GameState::Title)
 		{

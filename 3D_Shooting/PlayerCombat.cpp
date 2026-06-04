@@ -1240,6 +1240,7 @@ namespace shooting {
 										b.SetAimFromPreview(aimPointPreview, m_BombPreview->GetTuning(), hitNormalPreview, hasHitPreview);
 									});
 				}
+				GameAudio::Instance().PlaySound(GameSoundId::BombThrow);
 
 				m_ShotCool = 1.0;
 				if (m_BombAmmo > 0)
@@ -1270,6 +1271,8 @@ namespace shooting {
 			// 通常弾
 			else
 			{
+				GameAudio::Instance().PlaySound(GameSoundId::PlayerShot);
+
 				if (hasHitShot)
 				{
 					ApplyHitscanDamage(GetThis<GameObject>(), shotHit, kNormalShotDamage);

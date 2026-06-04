@@ -306,6 +306,8 @@ namespace shooting {
 	{
 		if (m_Exploding) return;
 
+		GameAudio::Instance().PlaySound(GameSoundId::BombExplode);
+
 		m_Exploding = true;
 		m_ExplosionTimer = m_ExplosionDuration;
 		m_Velocity = Vec3(0, 0, 0);

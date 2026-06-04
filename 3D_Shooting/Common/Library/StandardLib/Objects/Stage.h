@@ -43,7 +43,9 @@ namespace shooting {
 			try
 			{
 				auto ptr = ObjectFactory::Create<T>(GetThis<Stage>(), params...);
-				m_gameObjectVec.push_back(ptr);
+				// ステージ更新中にm_gameObjectVecへ直接pushすると、走査中のvectorが再確保されて
+				// 描画側の不定動作やD3D device removedにつながる。追加は既存の待機キュー経由に統一する。
+				PushBackGameObject(ptr);
 				return ptr;
 			}
 			catch (...)

@@ -14,6 +14,7 @@
 #include "ProjectUtil.h"
 #include "UIManager.h"
 #include "ScreenTransition.h"
+#include "Scripts/Audio/GameAudio.h"
 #include "MainCamera.h"
 #include "HitStopController.h"
 #include "IBullet.h"

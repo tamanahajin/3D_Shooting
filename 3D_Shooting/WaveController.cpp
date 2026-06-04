@@ -1,13 +1,8 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WaveController.h"
 #include "Character.h"
 
 namespace shooting {
-
-	WaveController::WaveController()
-	{
-		m_statusByKind[EnemyKind::Default] = EnemyStatus();
-	}
 
 	WaveController::WaveController(const std::shared_ptr<EnemyBatchController>& controller) :
 		WaveController()
@@ -123,29 +118,6 @@ namespace shooting {
 		const int createdCount = m_enemyFactory->CreateEnemiesAround(spawnDesc);
 		m_totalEnemyCount += createdCount;
 		return createdCount;
-	}
-
-	int WaveController::GetEnemyCountForWave(int wave) const
-	{
-		if (wave <= 0)
-		{
-			return 0;
-		}
-
-		const int enemyCount = m_settings.firstWaveEnemyCount +
-			((wave - 1) * m_settings.addEnemyCountPerWave);
-		return enemyCount > 0 ? enemyCount : 0;
-	}
-
-	float WaveController::GetEnemySpeedMultiplierForWave(int wave) const
-	{
-		if (wave <= 0 || m_settings.speedUpEveryWaves <= 0)
-		{
-			return 1.0f;
-		}
-
-		const int speedStep = wave / m_settings.speedUpEveryWaves;
-		return 1.0f + (static_cast<float>(speedStep) * m_settings.speedMultiplierAddPerStep);
 	}
 
 	std::shared_ptr<EnemyBatchController> WaveController::GetController() const

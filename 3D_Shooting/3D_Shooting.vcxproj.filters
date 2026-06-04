@@ -13,6 +13,15 @@
     <Filter Include="Libs\BasicLib\Sources">
       <UniqueIdentifier>{9a046d17-844d-45fb-aa3a-70094f61190e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Libs\Audio">
+      <UniqueIdentifier>{a361ac58-b264-4083-8acc-e4f3508aa151}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\Audio\Headers">
+      <UniqueIdentifier>{a0bcaabe-e72b-4004-b780-2502fffcacf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\Audio\Sources">
+      <UniqueIdentifier>{4dc13fc3-ac1b-487c-a8b4-221bff933d34}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Libs\StandardLib">
       <UniqueIdentifier>{d5f70c2d-2905-44ea-942b-caa3863eb6c6}</UniqueIdentifier>
     </Filter>
@@ -50,14 +59,23 @@
     <Filter Include="Scripts\Headers\Bullet">
       <UniqueIdentifier>{f05ee6fa-cae5-4167-8df6-785171611ce2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts\Headers\Audio">
+      <UniqueIdentifier>{c61e7f2a-ac1e-4268-9752-a55b0c5a62bc}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Scripts\Sources">
       <UniqueIdentifier>{42c831f3-7806-4539-bdc0-d97a54eda409}</UniqueIdentifier>
     </Filter>
     <Filter Include="Scripts\Sources\Bullet">
       <UniqueIdentifier>{fbb0f114-b3ef-474c-a7f1-95a34fc58433}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts\Sources\Audio">
+      <UniqueIdentifier>{5922de59-466b-4aea-be02-d4c43703d714}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\Library\Audio\AudioEngine.cpp">
+      <Filter>Libs\Audio\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\BaseDevice.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
     </ClCompile>
@@ -214,6 +232,9 @@
     <ClCompile Include="GameStageEnvironment.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Audio\GameAudio.cpp">
+      <Filter>Scripts\Sources\Audio</Filter>
+    </ClCompile>
     <ClCompile Include="Item.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -264,6 +285,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Audio\GameAudio.h">
+      <Filter>Scripts\Headers\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\Audio\AudioEngine.h">
+      <Filter>Libs\Audio\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="MainCamera.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
