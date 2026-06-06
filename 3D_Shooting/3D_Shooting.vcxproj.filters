@@ -22,6 +22,15 @@
     <Filter Include="Libs\Audio\Sources">
       <UniqueIdentifier>{4dc13fc3-ac1b-487c-a8b4-221bff933d34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Libs\ImGui">
+      <UniqueIdentifier>{f9b69b4b-b062-4a0c-a4a0-77c92df95f4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\ImGui\Headers">
+      <UniqueIdentifier>{b2c94b10-22e2-4b31-a809-1f068f80645a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs\ImGui\Sources">
+      <UniqueIdentifier>{33a8261b-ccaa-424d-95c8-d52ea913ecdf}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Libs\StandardLib">
       <UniqueIdentifier>{d5f70c2d-2905-44ea-942b-caa3863eb6c6}</UniqueIdentifier>
     </Filter>
@@ -91,6 +100,9 @@
     <ClCompile Include="Common\Library\BasicLib\FrameResource.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\ImGuiLayer.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\Light.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
     </ClCompile>
@@ -108,6 +120,27 @@
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_demo.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_draw.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_tables.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_widgets.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\backends\imgui_impl_dx12.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Libs\ImGui\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\BaseMesh.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
@@ -345,6 +378,9 @@
     <ClInclude Include="Common\Library\BasicLib\FrameResource.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\ImGuiLayer.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\MeshHelper.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
@@ -356,6 +392,30 @@
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\UILayer.h">
       <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imconfig.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imgui.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imgui_internal.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imstb_rectpack.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imstb_textedit.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\imstb_truetype.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\backends\imgui_impl_dx12.h">
+      <Filter>Libs\ImGui\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui\backends\imgui_impl_win32.h">
+      <Filter>Libs\ImGui\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BlendState.h">
       <Filter>Libs\BasicLib\Headers</Filter>

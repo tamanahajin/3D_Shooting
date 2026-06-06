@@ -15,6 +15,7 @@
 namespace shooting {
 
 	class UILayer;
+	class ImGuiLayer;
 	class BaseScene;
 	class Scene;
 
@@ -111,6 +112,9 @@ namespace shooting {
 
 		// UILayer
 		std::unique_ptr<UILayer> m_uiLayer;
+#if defined(_DEBUG)
+		std::unique_ptr<ImGuiLayer> m_imguiLayer;
+#endif
 		bool m_bCtrlKeyIsPressed;
 		float m_fps;
 		double m_elapsedTime;

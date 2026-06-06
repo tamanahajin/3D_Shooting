@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include <d3d12sdklayers.h>
+#include "ImGuiLayer.h"
 
 namespace shooting {
 
@@ -269,6 +270,17 @@ namespace shooting {
 			}
 			m_uiLayer->Resize(m_renderTargets, m_width, m_height);
 		}
+
+#if defined(_DEBUG)
+		if (!m_imguiLayer)
+		{
+			m_imguiLayer = std::make_unique<ImGuiLayer>(
+				FrameCount,
+				m_device.Get(),
+				m_commandQueue.Get(),
+				DXGI_FORMAT_R8G8B8A8_UNORM);
+		}
+#endif
 	}
 
 	void BaseDevice::ReleaseSizeDependentResources()
@@ -292,6 +304,9 @@ namespace shooting {
 
 	void BaseDevice::ReleaseD3DObjects()
 	{
+#if defined(_DEBUG)
+		m_imguiLayer.reset();
+#endif
 		// シーン側のGPUリソースを先に解放
 		m_scene->ReleaseD3DObjects();
 		if (m_enableUI)
@@ -457,14 +472,34 @@ namespace shooting {
 					ThrowIfFailed(ValidateActiveAdapter());
 				}
 
-				// UILayer will transition backbuffer to a present state.
-				bool bSetBackbufferReadyForPresent = !m_enableUI;
+				// 最後に描くレイヤーがバックバッファをPresent状態へ戻す。
+#if defined(_DEBUG)
+				const bool hasImGuiLayer = (m_imguiLayer != nullptr);
+#else
+				constexpr bool hasImGuiLayer = false;
+#endif
+				const bool uiWillRender = (m_enableUI && m_uiLayer);
+				bool bSetBackbufferReadyForPresent = !uiWillRender && !hasImGuiLayer;
 				m_scene->Render(m_commandQueue.Get(), bSetBackbufferReadyForPresent);
 
-				if (m_enableUI)
+				if (uiWillRender)
 				{
 					m_uiLayer->Render(m_frameIndex);
 				}
+
+#if defined(_DEBUG)
+				if (m_imguiLayer)
+				{
+					m_imguiLayer->BeginFrame(m_fps, m_elapsedTime);
+					m_imguiLayer->Render(
+						m_frameIndex,
+						m_commandQueue.Get(),
+						m_renderTargets[m_frameIndex].Get(),
+						m_scene->GetCurrentBackBufferRtvCpuHandle(),
+						uiWillRender,
+						true);
+				}
+#endif
 
 				// Present and update the frame index for the next frame.
 				// When using sync interval 0, it is recommended to always pass the tearing flag when it is supported.
@@ -516,6 +551,9 @@ namespace shooting {
 		{
 			m_scene->Destroy();
 			WaitForGpu(m_commandQueue.Get());
+#if defined(_DEBUG)
+			m_imguiLayer.reset();
+#endif
 		}
 		catch (HrException&)
 		{

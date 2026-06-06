@@ -42,6 +42,7 @@
     <ClCompile Include="Common\Library\BasicLib\BlendState.cpp" />
     <ClCompile Include="Common\Library\BasicLib\Camera.cpp" />
     <ClCompile Include="Common\Library\BasicLib\FrameResource.cpp" />
+    <ClCompile Include="Common\Library\BasicLib\ImGuiLayer.cpp" />
     <ClCompile Include="Common\Library\BasicLib\IObject.cpp" />
     <ClCompile Include="Common\Library\BasicLib\Light.cpp" />
     <ClCompile Include="Common\Library\BasicLib\MeshHelper.cpp" />
@@ -52,6 +53,27 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\VertexHelper.cpp" />
+    <ClCompile Include="Common\imgui\imgui.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_demo.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_draw.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_tables.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\imgui_widgets.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\backends\imgui_impl_dx12.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\imgui\backends\imgui_impl_win32.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\BcBoneDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BcStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp" />
@@ -123,6 +145,7 @@
     <ClInclude Include="Common\Library\BasicLib\d3dx12.h" />
     <ClInclude Include="Common\Library\BasicLib\DxHelper.h" />
     <ClInclude Include="Common\Library\BasicLib\FrameResource.h" />
+    <ClInclude Include="Common\Library\BasicLib\ImGuiLayer.h" />
     <ClInclude Include="Common\Library\BasicLib\InputDevice.h" />
     <ClInclude Include="Common\Library\BasicLib\IObject.h" />
     <ClInclude Include="Common\Library\BasicLib\Light.h" />
@@ -135,6 +158,14 @@
     <ClInclude Include="Common\Library\BasicLib\TransHelper.h" />
     <ClInclude Include="Common\Library\BasicLib\UILayer.h" />
     <ClInclude Include="Common\Library\BasicLib\VertexHelper.h" />
+    <ClInclude Include="Common\imgui\imconfig.h" />
+    <ClInclude Include="Common\imgui\imgui.h" />
+    <ClInclude Include="Common\imgui\imgui_internal.h" />
+    <ClInclude Include="Common\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Common\imgui\imstb_textedit.h" />
+    <ClInclude Include="Common\imgui\imstb_truetype.h" />
+    <ClInclude Include="Common\imgui\backends\imgui_impl_dx12.h" />
+    <ClInclude Include="Common\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BcBoneDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BcStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h" />

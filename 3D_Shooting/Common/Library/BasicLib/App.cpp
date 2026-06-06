@@ -1,6 +1,34 @@
 ﻿#include "stdafx.h"
 
+#if defined(_DEBUG)
+#include "ImGuiLayer.h"
+#endif
+
 namespace shooting {
+
+#if defined(_DEBUG)
+	namespace
+	{
+		bool IsKeyboardInputMessage(UINT message)
+		{
+			return message == WM_KEYDOWN ||
+				message == WM_KEYUP ||
+				message == WM_SYSKEYDOWN ||
+				message == WM_SYSKEYUP ||
+				message == WM_CHAR;
+		}
+
+		bool IsMouseInputMessage(UINT message)
+		{
+			return message == WM_MOUSEMOVE ||
+				message == WM_MOUSEWHEEL ||
+				message == WM_LBUTTONDOWN ||
+				message == WM_LBUTTONUP ||
+				message == WM_RBUTTONDOWN ||
+				message == WM_RBUTTONUP;
+		}
+	}
+#endif
 
 	HWND App::m_hwnd = nullptr;
 	bool App::m_fullscreenMode = false;
@@ -381,6 +409,18 @@ namespace shooting {
 	LRESULT CALLBACK App::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PrimDevice* pPrimDevice = reinterpret_cast<PrimDevice*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+#if defined(_DEBUG)
+		ImGuiLayer::HandleWndProc(hWnd, message, wParam, lParam);
+		if (IsKeyboardInputMessage(message) && ImGuiLayer::WantsKeyboardCapture())
+		{
+			return 0;
+		}
+		if (IsMouseInputMessage(message) && ImGuiLayer::WantsMouseCapture())
+		{
+			return 0;
+		}
+#endif
 
 		switch (message)
 		{
