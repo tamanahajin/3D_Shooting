@@ -116,7 +116,7 @@ namespace shooting {
 		}
 
 		AudioPlayDesc desc;
-		desc.volume = Clamp01(m_seVolume * volumeScale);
+		desc.volume = Clamp01(m_seVolume * GetSoundDefaultVolume(id) * volumeScale);
 		desc.pitch = pitch;
 		desc.loop = false;
 		return m_engine.Play(it->second, desc);
@@ -138,7 +138,7 @@ namespace shooting {
 		StopBgm();
 
 		AudioPlayDesc desc;
-		desc.volume = Clamp01(m_bgmVolume * volumeScale);
+		desc.volume = Clamp01(m_bgmVolume * GetBgmDefaultVolume(id) * volumeScale);
 		desc.pitch = 1.0f;
 		desc.loop = true;
 		m_currentBgm = m_engine.Play(it->second, desc);
@@ -181,6 +181,53 @@ namespace shooting {
 		if (value < 0.0f) return 0.0f;
 		if (value > 1.0f) return 1.0f;
 		return value;
+	}
+
+	float GameAudio::GetSoundDefaultVolume(GameSoundId id) const
+	{
+		// 呼び出し側は「何の音か」だけを指定し、聞こえ方の基準音量はここでまとめて調整する。
+		switch (id)
+		{
+		case GameSoundId::Wormhole:
+			return 0.50f;
+		case GameSoundId::PlayerShot:
+			return 0.55f;
+		case GameSoundId::BombThrow:
+			return 0.60f;
+		case GameSoundId::BombExplode:
+			return 0.90f;
+		case GameSoundId::ItemPickup:
+			return 0.65f;
+		case GameSoundId::Heal:
+			return 0.75f;
+		case GameSoundId::PlayerDamage:
+			return 0.85f;
+		case GameSoundId::EnemyDamage:
+			return 0.55f;
+		case GameSoundId::WaveStart:
+			return 0.75f;
+		case GameSoundId::CursorMove:
+			return 0.45f;
+		case GameSoundId::Decide:
+			return 0.65f;
+		case GameSoundId::Cancel:
+			return 0.60f;
+		default:
+			return 1.0f;
+		}
+	}
+
+	float GameAudio::GetBgmDefaultVolume(GameBgmId id) const
+	{
+		switch (id)
+		{
+		case GameBgmId::Title:
+			return 1.0f;
+		case GameBgmId::InGame:
+			return 0.55f;
+		default:
+			return 1.0f;
+		}
 	}
 
 	std::wstring GameAudio::ResolveAudioPath(const wchar_t* category, const wchar_t* fileName) const
