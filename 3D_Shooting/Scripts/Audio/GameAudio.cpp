@@ -50,10 +50,12 @@ namespace shooting {
 
 		// ゲーム内の呼び出し側にはファイル名を持たせず、ここに「どのイベントでどの音を鳴らすか」を集約する。
 		// WAVがまだ無い場合は登録をスキップするので、音素材を段階的に追加しても起動エラーにならない。
+		RegisterSoundIfExists(GameSoundId::Wormhole, L"SE", L"wormhole.wav");
 		RegisterSoundIfExists(GameSoundId::PlayerShot, L"SE", L"player_shot.wav");
 		RegisterSoundIfExists(GameSoundId::BombThrow, L"SE", L"bomb_throw.wav");
 		RegisterSoundIfExists(GameSoundId::BombExplode, L"SE", L"bomb_explode.wav");
 		RegisterSoundIfExists(GameSoundId::ItemPickup, L"SE", L"item_pickup.wav");
+		RegisterSoundIfExists(GameSoundId::Heal, L"SE", L"heal.wav");
 		RegisterSoundIfExists(GameSoundId::PlayerDamage, L"SE", L"player_damage.wav");
 		RegisterSoundIfExists(GameSoundId::EnemyDamage, L"SE", L"enemy_damage.wav");
 		RegisterSoundIfExists(GameSoundId::WaveStart, L"SE", L"wave_start.wav");

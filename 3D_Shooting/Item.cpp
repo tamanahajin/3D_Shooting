@@ -183,7 +183,12 @@ namespace shooting {
 			healAmount = 1;
 		}
 
-		return health->Heal(healAmount);
+		const bool healed = health->Heal(healAmount);
+		if (healed)
+		{
+			GameAudio::Instance().PlaySound(GameSoundId::Heal);
+		}
+		return healed;
 	}
 
 	BombItem::BombItem(

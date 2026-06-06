@@ -30,6 +30,7 @@ namespace shooting {
 		GameState m_GameState = GameState::Title;
 		int m_LastScore = 0;
 		int m_TitleMenuIndex = 0;
+		int m_TitleHoveredMenuIndex = -1;
 		double m_TitleTime = 0.0;
 		ScreenTransition m_ScreenTransition;
 
@@ -43,6 +44,10 @@ namespace shooting {
 		void StartTitle();
 		void RequestStartGame();
 		void RequestStartTitle();
+		void RequestExitGame();
+		void PlayButtonDecideSound();
+		void ConfirmTitleMenuSelection();
+		void SetTitleMenuIndex(int index, bool playCursorMoveSound);
 		void UpdateTitleInput();
 		void RenderUIWithTransition(UILayer& uiLayer);
 		void SetMouseCursorVisible(bool visible);

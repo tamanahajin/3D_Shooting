@@ -7,7 +7,9 @@ namespace shooting {
 	{
 		const Vec3 kSpawnIntroWalkDirection(0.0f, 0.0f, 1.0f);
 		const float kSpawnIntroWalkDistance = 2.4f;
+		const double kSpawnIntroPortalOnlyDuration = 1.0;
 		const double kSpawnIntroDuration = 1.05;
+		const double kSpawnIntroPortalExtraLife = 0.25;
 		const float kSpawnIntroPortalBackOffset = 0.25f;
 		const float kSpawnIntroPortalHeight = 0.85f;
 		const float kSpawnIntroPortalScale = 1.15f;
@@ -25,7 +27,7 @@ namespace shooting {
 		{
 		private:
 			float m_Elapsed = 0.0f;
-			float m_LifeTime = 1.35f;
+			float m_LifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration + kSpawnIntroPortalExtraLife);
 
 		public:
 			PlayerSpawnPortal(const std::shared_ptr<Stage>& stage, const TransParam& param)
@@ -37,12 +39,13 @@ namespace shooting {
 			void OnCreate() override
 			{
 				AddTag(L"PlayerSpawnPortal");
-				SetAlphaActive(true);
+				// 登場待機中の主役になるため、半透明扱いではなく不透明の黒い円として描画する。
+				SetAlphaActive(false);
 				SetShadowActive(false);
 
 				auto draw = AddComponent<WaveEffectDraw>();
 				draw->AddBaseMesh(L"PLAYER_SPAWN_PORTAL_DISC");
-				draw->SetColor(Col4(0.015f, 0.018f, 0.03f, 0.72f));
+				draw->SetColor(Col4(0.015f, 0.018f, 0.03f, 1.0f));
 				draw->SetWave(0.355f, 14.0f, 5.8f);
 				draw->SetWaveDirection(Vec2(1.0f, 0.45f));
 				draw->SetEdgeMask(0.12f, 1.0f);
@@ -52,14 +55,9 @@ namespace shooting {
 			void OnUpdate(double elapsedTime) override
 			{
 				m_Elapsed += static_cast<float>(elapsedTime);
-				const float t = m_LifeTime > 0.0f ? bsmUtil::Clamp(m_Elapsed / m_LifeTime, 0.0f, 1.0f) : 1.0f;
-				const float fadeIn = bsmUtil::Clamp(t / 0.15f, 0.0f, 1.0f);
-				const float fadeOut = 1.0f - bsmUtil::Clamp((t - 0.72f) / 0.28f, 0.0f, 1.0f);
-				const float alpha = 0.72f * fadeIn * fadeOut;
 
 				if (auto draw = GetComponent<WaveEffectDraw>(false))
 				{
-					draw->SetColor(Col4(0.015f, 0.018f, 0.03f, alpha));
 					draw->SetWaveTime(m_Elapsed);
 				}
 
@@ -246,6 +244,8 @@ namespace shooting {
 
 		hp->m_OnDamaged = [self = GetThis<Player>()](const DamageInfo& info)
 		{
+			GameAudio::Instance().PlaySound(GameSoundId::PlayerDamage);
+
 			// ダメージエフェクトを開始
 			auto effect = self->GetComponent<DamageEffect>();
 			if (effect)
@@ -256,6 +256,8 @@ namespace shooting {
 
 		hp->m_OnDeath = [self = GetThis<Player>()](const DamageInfo& info)
 		{
+			GameAudio::Instance().PlaySound(GameSoundId::PlayerDamage);
+
 			self->m_IsDead = true;
 			self->m_DeathAnimFinished = false;
 
@@ -273,6 +275,13 @@ namespace shooting {
 		BeginSpawnIntro();
 	}
 
+	void Player::SetSpawnIntroCharacterVisible(bool visible)
+	{
+		m_SpawnIntroCharacterVisible = visible;
+		SetDrawActive(visible);
+		SetShadowActive(visible);
+	}
+
 	void Player::BeginSpawnIntro()
 	{
 		auto transform = GetComponent<Transform>(false);
@@ -282,11 +291,14 @@ namespace shooting {
 		}
 
 		m_SpawnIntroActive = true;
+		m_SpawnIntroSePlayed = false;
 		m_SpawnIntroTimer = 0.0;
 		m_SpawnIntroEndPosition = transform->GetPosition();
 		m_SpawnIntroStartPosition = m_SpawnIntroEndPosition - (kSpawnIntroWalkDirection * kSpawnIntroWalkDistance);
 		m_SpawnIntroStartPosition.y = m_SpawnIntroEndPosition.y;
 		transform->SetPosition(m_SpawnIntroStartPosition);
+
+		SetSpawnIntroCharacterVisible(false);
 
 		if (auto util = GetBehavior<UtilBehavior>())
 		{
@@ -317,7 +329,34 @@ namespace shooting {
 		}
 
 		m_SpawnIntroTimer += elapsedTime;
-		const float rawT = static_cast<float>(m_SpawnIntroTimer / kSpawnIntroDuration);
+		const double walkTimer = m_SpawnIntroTimer - kSpawnIntroPortalOnlyDuration;
+
+		if (walkTimer < 0.0)
+		{
+			SetSpawnIntroCharacterVisible(false);
+			UpdateSpawnIntroCamera(m_SpawnIntroStartPosition);
+			return true;
+		}
+
+		if (!m_SpawnIntroCharacterVisible)
+		{
+			if (!m_SpawnIntroSePlayed)
+			{
+				// BeginSpawnIntro()は画面遷移中にも呼ばれるため、SEは実際にキャラが出始める瞬間まで遅らせる。
+				GameAudio::Instance().PlaySound(GameSoundId::Wormhole);
+				m_SpawnIntroSePlayed = true;
+			}
+
+			SetSpawnIntroCharacterVisible(true);
+
+			if (auto anim = GetBehavior<AnimationStateBehavior>())
+			{
+				// 表示開始時に歩きモーションを頭から再生し、ワープホールから出る瞬間を分かりやすくする。
+				anim->ChangeAnimation(AnimState::Sprint, true);
+			}
+		}
+
+		const float rawT = static_cast<float>(walkTimer / kSpawnIntroDuration);
 		const float t = SmoothStep(rawT);
 
 		auto transform = GetComponent<Transform>(false);
@@ -339,6 +378,7 @@ namespace shooting {
 		}
 
 		m_SpawnIntroActive = false;
+		SetSpawnIntroCharacterVisible(true);
 		m_IsGround = true;
 
 		if (transform)

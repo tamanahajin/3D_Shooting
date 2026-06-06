@@ -582,6 +582,7 @@ namespace shooting {
 	{
 		m_GameState = GameState::Title;
 		m_TitleMenuIndex = 0;
+		m_TitleHoveredMenuIndex = -1;
 		m_TitleTime = 0.0;
 
 		SetMouseCursorVisible(true);
@@ -595,6 +596,8 @@ namespace shooting {
 		m_GameState = GameState::Playing;
 
 		SetMouseCursorVisible(false);
+		// インゲームBGMはGameStage側でプレイヤー登場演出が終わった後に開始する。
+		GameAudio::Instance().StopBgm();
 
 		ResetActiveStage<GameStage>(App::GetD3D12Device());
 	}
@@ -631,6 +634,57 @@ namespace shooting {
 			});
 	}
 
+	void Scene::RequestExitGame()
+	{
+		if (m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		// EXIT直後に終了すると決定音が聞こえる前にアプリが閉じるため、フェードアウト後に終了する。
+		m_ScreenTransition.Start(
+			kSceneTransitionFadeOutSeconds,
+			kSceneTransitionFadeInSeconds,
+			[]()
+			{
+				::PostQuitMessage(0);
+			});
+	}
+
+	void Scene::PlayButtonDecideSound()
+	{
+		GameAudio::Instance().PlaySound(GameSoundId::Decide);
+	}
+
+	void Scene::ConfirmTitleMenuSelection()
+	{
+		PlayButtonDecideSound();
+
+		if (m_TitleMenuIndex == 0)
+		{
+			RequestStartGame();
+		}
+		else
+		{
+			RequestExitGame();
+		}
+	}
+
+	void Scene::SetTitleMenuIndex(int index, bool playCursorMoveSound)
+	{
+		index = bsmUtil::Clamp(index, 0, 1);
+		if (m_TitleMenuIndex == index)
+		{
+			return;
+		}
+
+		m_TitleMenuIndex = index;
+		if (playCursorMoveSound)
+		{
+			GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
+		}
+	}
+
 	void Scene::UpdateTitleInput()
 	{
 		if (m_ScreenTransition.IsInputBlocked())
@@ -642,23 +696,16 @@ namespace shooting {
 
 		if (input.KeyPressed(VK_UP) || input.KeyPressed('W'))
 		{
-			m_TitleMenuIndex = 0;
+			SetTitleMenuIndex(0, true);
 		}
 		if (input.KeyPressed(VK_DOWN) || input.KeyPressed('S'))
 		{
-			m_TitleMenuIndex = 1;
+			SetTitleMenuIndex(1, true);
 		}
 
 		if (input.KeyPressed(VK_RETURN) || input.KeyPressed(VK_SPACE) || input.KeyPressed('J'))
 		{
-			if (m_TitleMenuIndex == 0)
-			{
-				RequestStartGame();
-			}
-			else
-			{
-				::PostQuitMessage(0);
-			}
+			ConfirmTitleMenuSelection();
 		}
 
 		if (input.KeyPressed(VK_ESCAPE))
@@ -725,15 +772,30 @@ namespace shooting {
 			const D2D1_RECT_F startRect = makeCenterRect({ 0.0f, 110.0f });
 			const D2D1_RECT_F exitRect = makeCenterRect({ 0.0f, 158.0f });
 
-			// テキストメニューだけを表示しつつ、マウスホバーでも選択中の黄色表示を切り替える。
-			if (!inputBlocked && IsMouseInRect(startRect))
+			int hoveredMenuIndex = -1;
+			if (!inputBlocked)
 			{
-				m_TitleMenuIndex = 0;
+				if (IsMouseInRect(startRect))
+				{
+					hoveredMenuIndex = 0;
+				}
+				else if (IsMouseInRect(exitRect))
+				{
+					hoveredMenuIndex = 1;
+				}
 			}
-			else if (!inputBlocked && IsMouseInRect(exitRect))
+
+			if (hoveredMenuIndex >= 0)
 			{
-				m_TitleMenuIndex = 1;
+				// マウスがボタンに乗った瞬間だけカーソル移動音を鳴らす。乗り続けている間は鳴らさない。
+				const bool enteredButton = m_TitleHoveredMenuIndex != hoveredMenuIndex;
+				if (enteredButton)
+				{
+					GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
+				}
+				SetTitleMenuIndex(hoveredMenuIndex, false);
 			}
+			m_TitleHoveredMenuIndex = hoveredMenuIndex;
 
 			m_uiManager.AddImage(
 				App::GetRelativeAssetsDir() + L"Textures/TitleLogo.png",
@@ -761,11 +823,13 @@ namespace shooting {
 
 			if (!inputBlocked && startButton.clicked)
 			{
-				RequestStartGame();
+				SetTitleMenuIndex(0, false);
+				ConfirmTitleMenuSelection();
 			}
 			if (!inputBlocked && exitButton.clicked)
 			{
-				::PostQuitMessage(0);
+				SetTitleMenuIndex(1, false);
+				ConfirmTitleMenuSelection();
 			}
 
 			uiLayer->SetCrosshairEnabled(false);
@@ -799,6 +863,7 @@ namespace shooting {
 
 			if (!m_ScreenTransition.IsInputBlocked() && titleButton.clicked)
 			{
+				PlayButtonDecideSound();
 				RequestStartTitle();
 			}
 

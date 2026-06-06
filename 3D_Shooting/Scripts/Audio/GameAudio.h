@@ -9,10 +9,12 @@ namespace shooting {
 
 	enum class GameSoundId
 	{
+		Wormhole,
 		PlayerShot,
 		BombThrow,
 		BombExplode,
 		ItemPickup,
+		Heal,
 		PlayerDamage,
 		EnemyDamage,
 		WaveStart,

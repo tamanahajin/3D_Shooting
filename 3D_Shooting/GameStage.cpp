@@ -108,14 +108,15 @@ namespace shooting {
 		auto playerObject = GetSharedGameObject(L"Player", false);
 		auto player = std::dynamic_pointer_cast<Player>(playerObject);
 
-		// 登場演出中は敵を出さない。プレイヤーが取得できない場合は、
-		// 進行不能を避けるため初回ウェーブを開始する。
+		// 登場演出中は敵を出さない。
 		if (player && player->IsSpawnIntroActive())
 		{
 			return;
 		}
 
 		m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		// インゲームBGMは登場演出が終わってから開始する。
+		GameAudio::Instance().PlayBgm(GameBgmId::InGame);
 		m_waveController.StartNextWave(GetEnemySpawnCenter());
 	}
 
@@ -160,11 +161,9 @@ namespace shooting {
 	{
 		//カメラとライトの設定
 		m_camera = ObjectFactory::Create<MainCamera>(GetThis<Stage>());
-		//m_camera = ObjectFactory::Create<MainCamera>();
 		m_camera->SetEye(Vec3(0, 3.43f, -6.37f));
 		m_camera->SetAt(Vec3(0, 0.125f, 0));
 		m_lightSet = ObjectFactory::Create<LightSet>();
-		
 		// 地面
 		CreateGround();
 		// 壁

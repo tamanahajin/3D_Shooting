@@ -865,6 +865,13 @@ namespace shooting {
 			return false;
 		}
 
+		if (!player->IsSpawnIntroCharacterVisible())
+		{
+			// キャラ本体を消している登場待機中は、手に追従する武器だけが先に見えないようにする。
+			m_HasStableTransform = false;
+			return false;
+		}
+
 		auto weaponTransform = GetComponent<Transform>(false);
 		if (!weaponTransform)
 		{
@@ -992,7 +999,10 @@ namespace shooting {
 		if (m_SpawnIntroActive)
 		{
 			// 登場演出中は移動・射撃入力を受けず、ワープホールから歩いて出る動きだけを見せる。
-			anim->ChangeAnimation(AnimState::Sprint);
+			if (IsSpawnIntroCharacterVisible())
+			{
+				anim->ChangeAnimation(AnimState::Sprint);
+			}
 			UpdateSpawnIntro(elapsedTime);
 			if (m_BombPreview)
 			{

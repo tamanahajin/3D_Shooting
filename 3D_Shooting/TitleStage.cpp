@@ -147,13 +147,14 @@ namespace shooting {
 		m_camera->SetAt(kTitleCameraAtBase);
 		m_lightSet = ObjectFactory::Create<LightSet>();
 
-		// タイトル背景は本編と同じ地形生成だけを使い、ゲーム進行用の敵AIやアイテム生成は起動しない。
 		CreateGround();
 		CreateWalls();
 		CreateHeightVariationObjects();
 		CreateCoverObjects();
 		AddGameObject<SkyDome>();
 		CreateTitleActors();
+
+		GameAudio::Instance().PlayBgm(GameBgmId::Title);
 	}
 
 	void TitleStage::CreateTitleActors()

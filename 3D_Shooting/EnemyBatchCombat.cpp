@@ -110,6 +110,8 @@ namespace shooting {
 		}
 
 		enemy.hp -= bsmUtil::Clamp(info.m_Damage, 0, info.m_Damage);
+		GameAudio::Instance().PlaySound(GameSoundId::EnemyDamage);
+
 		if (enemy.hp <= 0)
 		{
 			if (info.m_DelayDeathUntilLanding)
