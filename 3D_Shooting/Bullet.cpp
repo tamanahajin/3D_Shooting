@@ -105,7 +105,12 @@ namespace shooting {
 		if (otherObj->FindTag(L"Player")) return;
 
 		DamageInfo info;
-		info.m_Damage = GetComponent<DamageDealer>()->GetDamage();
+		info.m_Damage = GameDebugSettingsStore::ApplyPlayerDamageMultiplier(GetComponent<DamageDealer>()->GetDamage());
+		if (info.m_Damage <= 0)
+		{
+			SetActive(false);
+			return;
+		}
 		info.m_Instigator = GetThis<GameObject>();
 
 		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(otherObj))
@@ -365,7 +370,11 @@ namespace shooting {
 		{
 			dmg = dd->GetDamage();
 		}
-		info.m_Damage = dmg;
+		info.m_Damage = GameDebugSettingsStore::ApplyPlayerDamageMultiplier(dmg);
+		if (info.m_Damage <= 0)
+		{
+			return;
+		}
 		info.m_Instigator = GetThis<GameObject>();
 		info.m_DelayDeathUntilLanding = true;
 

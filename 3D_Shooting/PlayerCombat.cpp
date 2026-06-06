@@ -805,7 +805,11 @@ namespace shooting {
 			}
 
 			DamageInfo info;
-			info.m_Damage = damage;
+			info.m_Damage = GameDebugSettingsStore::ApplyPlayerDamageMultiplier(damage);
+			if (info.m_Damage <= 0)
+			{
+				return;
+			}
 			info.m_Instigator = shooter;
 			info.m_HitPoint = hit.m_Point;
 			info.m_HitNormal = hit.m_Normal;

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include "DebugSettings.h"
 #include "EnemyFactory.h"
 #include <memory>
 #include <map>
@@ -40,6 +41,7 @@ namespace shooting {
 
 		void Update(double elapsedTime, const Vec3& spawnCenter);
 		void StartNextWave(const Vec3& spawnCenter);
+		void SetNextWaveNumber(int wave);
 		int CreateEnemyBatch(
 			const Vec3& center,
 			int count,
@@ -59,6 +61,12 @@ namespace shooting {
 				return 0;
 			}
 
+			const auto& debug = GameDebugSettingsStore::Get();
+			if (debug.overrideEnemyCount)
+			{
+				return debug.enemyCountOverride > 0 ? debug.enemyCountOverride : 0;
+			}
+
 			const int enemyCount = m_settings.firstWaveEnemyCount +
 				((wave - 1) * m_settings.addEnemyCountPerWave);
 			return enemyCount > 0 ? enemyCount : 0;
@@ -73,6 +81,16 @@ namespace shooting {
 
 			const int speedStep = wave / m_settings.speedUpEveryWaves;
 			return 1.0f + (static_cast<float>(speedStep) * m_settings.speedMultiplierAddPerStep);
+		}
+
+		float GetAppliedEnemySpeedMultiplierForWave(int wave) const
+		{
+			float debugMultiplier = GameDebugSettingsStore::Get().enemySpeedMultiplier;
+			if (debugMultiplier < 0.1f)
+			{
+				debugMultiplier = 0.1f;
+			}
+			return GetEnemySpeedMultiplierForWave(wave) * debugMultiplier;
 		}
 
 	private:

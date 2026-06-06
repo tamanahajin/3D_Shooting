@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ImGuiLayer.h"
+#include "DebugSettings.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_dx12.h"
@@ -185,11 +186,6 @@ namespace shooting {
 		}
 
 		DrawDebugWindow();
-
-		if (m_showDemoWindow)
-		{
-			ImGui::ShowDemoWindow(&m_showDemoWindow);
-		}
 	}
 
 	void ImGuiLayer::DrawDebugWindow()
@@ -199,7 +195,7 @@ namespace shooting {
 			return;
 		}
 
-		ImGui::SetNextWindowSize(ImVec2(320.0f, 160.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(360.0f, 300.0f), ImGuiCond_FirstUseEver);
 		if (!ImGui::Begin("Debug", &m_showDebugWindow))
 		{
 			ImGui::End();
@@ -210,7 +206,43 @@ namespace shooting {
 		ImGui::Text("Frame Time: %.3f ms", m_elapsedTime * 1000.0);
 		ImGui::Separator();
 		ImGui::TextUnformatted("F1: Toggle debug window");
-		ImGui::Checkbox("Show ImGui Demo", &m_showDemoWindow);
+		ImGui::Separator();
+
+		auto& debug = GameDebugSettingsStore::Get();
+		ImGui::Checkbox("Player Invincible", &debug.playerInvincible);
+		ImGui::Checkbox("Override Enemy Count", &debug.overrideEnemyCount);
+		ImGui::BeginDisabled(!debug.overrideEnemyCount);
+		ImGui::InputInt("Enemy Count", &debug.enemyCountOverride);
+		ImGui::EndDisabled();
+		ImGui::SliderFloat("Damage Multiplier", &debug.playerDamageMultiplier, 0.0f, 10.0f, "%.2f");
+		ImGui::InputInt("Start Wave", &debug.startWave);
+		ImGui::SliderFloat("Enemy Speed Multiplier", &debug.enemySpeedMultiplier, 0.1f, 5.0f, "%.2f");
+		ImGui::Checkbox("Show Collision", &debug.showCollision);
+
+		if (debug.enemyCountOverride < 0)
+		{
+			debug.enemyCountOverride = 0;
+		}
+		if (debug.playerDamageMultiplier < 0.0f)
+		{
+			debug.playerDamageMultiplier = 0.0f;
+		}
+		if (debug.playerDamageMultiplier > 10.0f)
+		{
+			debug.playerDamageMultiplier = 10.0f;
+		}
+		if (debug.startWave < 1)
+		{
+			debug.startWave = 1;
+		}
+		if (debug.enemySpeedMultiplier < 0.1f)
+		{
+			debug.enemySpeedMultiplier = 0.1f;
+		}
+		if (debug.enemySpeedMultiplier > 5.0f)
+		{
+			debug.enemySpeedMultiplier = 5.0f;
+		}
 
 		ImGui::End();
 	}

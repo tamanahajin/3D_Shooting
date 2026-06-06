@@ -25,6 +25,8 @@ namespace shooting {
 	//	class Collision : public Component ;
 	//	用途: 衝突判定コンポーネントの親クラス
 	//--------------------------------------------------------------------------------------
+	bool Collision::s_GlobalDebugDraw = false;
+
 	//構築と破棄
 	Collision::Collision(const std::shared_ptr<GameObject>& GameObjectPtr) :
 		Component(GameObjectPtr),
@@ -34,7 +36,8 @@ namespace shooting {
 		m_SleepCheckWorldMatrix(),
 		m_SleepCheckTimer(0.0f),
 		m_SleepTime(2.0f),
-		m_IsSleep(false)
+		m_IsSleep(false),
+		m_IsDebugDraw(false)
 	{
 	}
 	Collision::~Collision() {}
@@ -251,12 +254,20 @@ namespace shooting {
 
 	bool Collision::IsDebugDraw() const
 	{
-		return m_IsDebugDraw;
+		return m_IsDebugDraw || s_GlobalDebugDraw;
+	}
+	void Collision::SetGlobalDebugDraw(bool b)
+	{
+		s_GlobalDebugDraw = b;
+	}
+	bool Collision::IsGlobalDebugDraw()
+	{
+		return s_GlobalDebugDraw;
 	}
 	void Collision::SetDebugDraw(bool b)
 	{
 		m_IsDebugDraw = b;
-		SetDrawActive(b);
+		SetDrawActive(IsDebugDraw());
 	}
 
 	//操作
@@ -267,6 +278,8 @@ namespace shooting {
 
 	void Collision::OnUpdate(double elapsedTime)
 	{
+		UNREFERENCED_PARAMETER(elapsedTime);
+		SetDrawActive(IsDebugDraw());
 	}
 
 	void Collision::InitDebugDrawResources()
@@ -1814,4 +1827,3 @@ namespace shooting {
 	}
 
 }
-

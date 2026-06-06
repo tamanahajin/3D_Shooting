@@ -69,6 +69,7 @@ namespace shooting {
 		// ヒットストップの残り時間はゲーム内時間ではなく実時間で減らす。
 		// ここで更新しておくと、敵・プレイヤー・弾は次フレームから GetGameDeltaTime() 経由で遅くなる。
 		m_HitStop.Update(elapsedTime);
+		ApplyDebugRuntimeSettings();
 
 		if (m_WaitingInitialWaveUntilPlayerIntroEnds)
 		{
@@ -103,6 +104,30 @@ namespace shooting {
 		MaintainBombItems();
 	}
 
+	void GameStage::ApplyDebugRuntimeSettings()
+	{
+		const auto& debug = GameDebugSettingsStore::Get();
+
+		Collision::SetGlobalDebugDraw(debug.showCollision);
+
+		auto playerObject = GetSharedGameObject(L"Player", false);
+		if (playerObject)
+		{
+			if (auto hp = playerObject->GetComponent<Health>(false))
+			{
+				hp->SetInvincible(debug.playerInvincible);
+			}
+		}
+
+		auto controller = GetEnemyController();
+		if (controller)
+		{
+			const int currentWave = m_waveController.GetCurrentWave();
+			const int waveForSpeed = currentWave > 0 ? currentWave : 1;
+			controller->SetMoveSpeedMultiplier(m_waveController.GetAppliedEnemySpeedMultiplierForWave(waveForSpeed));
+		}
+	}
+
 	void GameStage::StartInitialWaveAfterPlayerIntro()
 	{
 		auto playerObject = GetSharedGameObject(L"Player", false);
@@ -115,6 +140,7 @@ namespace shooting {
 		}
 
 		m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		m_waveController.SetNextWaveNumber(GameDebugSettingsStore::Get().startWave);
 		// インゲームBGMは登場演出が終わってから開始する。
 		GameAudio::Instance().PlayBgm(GameBgmId::InGame);
 		m_waveController.StartNextWave(GetEnemySpawnCenter());

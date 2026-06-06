@@ -49,7 +49,6 @@ namespace shooting {
 
 		bool m_initialized = false;
 		bool m_showDebugWindow = true;
-		bool m_showDemoWindow = false;
 		float m_fps = 0.0f;
 		double m_elapsedTime = 0.0;
 

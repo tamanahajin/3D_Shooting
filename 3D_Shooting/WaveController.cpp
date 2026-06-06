@@ -87,8 +87,14 @@ namespace shooting {
 		spawnDesc.settings.minSpacing = m_settings.minSpawnSpacing;
 		spawnDesc.settings.maxAttempts = m_settings.maxSpawnAttempts;
 
-		controller->SetMoveSpeedMultiplier(GetEnemySpeedMultiplierForWave(m_currentWave));
+		controller->SetMoveSpeedMultiplier(GetAppliedEnemySpeedMultiplierForWave(m_currentWave));
 		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
+	}
+
+	void WaveController::SetNextWaveNumber(int wave)
+	{
+		m_currentWave = wave > 1 ? wave - 1 : 0;
+		m_waveTimer = 0.0;
 	}
 
 	int WaveController::CreateEnemyBatch(

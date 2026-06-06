@@ -304,6 +304,18 @@ namespace shooting {
 
 	void BaseDevice::ReleaseD3DObjects()
 	{
+		try
+		{
+			if (m_commandQueue && m_fence)
+			{
+				WaitForGpu(m_commandQueue.Get());
+			}
+		}
+		catch (HrException&)
+		{
+			// デバイスロスト中は待機できないため、そのまま破棄処理へ進める。
+		}
+
 #if defined(_DEBUG)
 		m_imguiLayer.reset();
 #endif
@@ -506,6 +518,14 @@ namespace shooting {
 				ThrowIfFailed(m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
 				MoveToNextFrame();
+#if defined(_DEBUG)
+				if (m_imguiLayer)
+				{
+					// DebugLayer有効時は、前フレームで使った短命な描画リソースが次フレーム更新で解放されると
+					// OBJECT_DELETED_WHILE_STILL_IN_USE になりやすい。Debug + ImGui中だけ保守的にGPUを待つ。
+					WaitForGpu(m_commandQueue.Get());
+				}
+#endif
 			}
 			catch (HrException& e)
 			{
@@ -549,11 +569,13 @@ namespace shooting {
 		// cleaned up by the destructor.
 		try
 		{
-			m_scene->Destroy();
 			WaitForGpu(m_commandQueue.Get());
 #if defined(_DEBUG)
+			// ImGuiのDX12バックエンドはフォントテクスチャや内部バッファを持つ。
+			// GPU待機前に破棄すると、直前のImGui描画コマンドが参照中のリソースを解放してしまう。
 			m_imguiLayer.reset();
 #endif
+			m_scene->Destroy();
 		}
 		catch (HrException&)
 		{

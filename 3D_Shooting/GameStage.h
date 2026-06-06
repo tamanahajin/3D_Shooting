@@ -84,6 +84,7 @@ namespace shooting {
 		void CreateItems();
 		void MaintainRecoveryItems();
 		void MaintainBombItems();
+		void ApplyDebugRuntimeSettings();
 		// 初回ウェーブ開始待ち中に呼び、登場演出が終わっていればウェーブ1を開始する。
 		void StartInitialWaveAfterPlayerIntro();
 		void EnsureItemFactory();

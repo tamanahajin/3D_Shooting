@@ -124,9 +124,6 @@
     <ClCompile Include="Common\imgui\imgui.cpp">
       <Filter>Libs\ImGui\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Common\imgui\imgui_demo.cpp">
-      <Filter>Libs\ImGui\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Common\imgui\imgui_draw.cpp">
       <Filter>Libs\ImGui\Sources</Filter>
     </ClCompile>
@@ -493,6 +490,9 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Character.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSettings.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="EnemyFactory.h">

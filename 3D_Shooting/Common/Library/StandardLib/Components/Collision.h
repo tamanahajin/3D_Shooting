@@ -55,6 +55,7 @@ namespace shooting {
 		bool m_IsSleep;
 		// デバッグ描画用表示フラグ
 		bool m_IsDebugDraw;
+		static bool s_GlobalDebugDraw;
 	protected:
 		//--------------------------------------------------------------------------------------
 		/*!
@@ -383,6 +384,8 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		bool IsDebugDraw() const;
+		static void SetGlobalDebugDraw(bool b);
+		static bool IsGlobalDebugDraw();
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief デバッグ描画用表示フラグを設定する

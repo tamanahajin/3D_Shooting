@@ -56,9 +56,6 @@
     <ClCompile Include="Common\imgui\imgui.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Common\imgui\imgui_demo.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Common\imgui\imgui_draw.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -124,6 +121,7 @@
     <ClInclude Include="BulletPool.h" />
     <ClInclude Include="BulletType.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="DebugSettings.h" />
     <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="HitStopController.h" />
     <ClInclude Include="Scripts\Audio\GameAudio.h" />
