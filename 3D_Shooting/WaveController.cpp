@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "WaveController.h"
-#include "Character.h"
 
 namespace shooting {
 

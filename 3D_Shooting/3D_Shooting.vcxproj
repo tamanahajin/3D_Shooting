@@ -124,6 +124,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h" />
     <ClInclude Include="DebugSettings.h" />
+    <ClInclude Include="EnemyBatchController.h" />
     <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="HitStopController.h" />
     <ClInclude Include="Scripts\Audio\GameAudio.h" />

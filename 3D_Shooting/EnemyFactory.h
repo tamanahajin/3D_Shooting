@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include "Character.h"
+#include "EnemyBatchController.h"
 #include <memory>
 #include <map>
 #include <random>
@@ -27,7 +27,7 @@ namespace shooting {
 			float minDistance = 5.0f;   // 中心位置から最低限離す距離
 			float maxDistance = 20.0f;  // 中心位置から最大で離す距離
 			float spawnY = 0.525f;      // 生成時のY座標
-			float minSpacing = 2.5f;    // 同じ生成バッチ内の敵同士の最低距離
+			float minSpacing = 1.5f;    // 同じ生成バッチ内の敵同士の最低距離
 			int maxAttempts = 50;       // 位置再抽選の最大回数
 		};
 

@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "EnemyFactory.h"
-#include "Character.h"
 
 namespace shooting {
 

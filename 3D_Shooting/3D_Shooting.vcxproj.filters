@@ -498,6 +498,9 @@
     <ClInclude Include="DebugSettings.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyBatchController.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="EnemyFactory.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>

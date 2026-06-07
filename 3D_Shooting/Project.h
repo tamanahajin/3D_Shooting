@@ -26,6 +26,7 @@
 #include "BulletManager.h"
 #include "StageObjectCatalog.h"
 #include "Character.h"
+#include "EnemyBatchController.h"
 #include "EnemyFactory.h"
 #include "WaveController.h"
 #include "Item.h"
