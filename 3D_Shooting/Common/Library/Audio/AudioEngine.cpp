@@ -211,13 +211,24 @@ namespace shooting {
 
 		if (m_activeVoices.size() >= m_maxActiveVoices && !m_activeVoices.empty())
 		{
-			// 短いSEは発射・爆発などで一気に重なる。
-			// 上限を超える場合は一番古いVoiceを止めて、音声側の負荷が描画フレームに波及しないようにする。
-			auto& oldest = m_activeVoices.front();
-			oldest.voice->Stop(0);
-			oldest.voice->FlushSourceBuffers();
-			oldest.voice->DestroyVoice();
-			m_activeVoices.erase(m_activeVoices.begin());
+			// 上限を超える場合は、古いSEを削除
+			auto disposableIt = std::find_if(
+				m_activeVoices.begin(),
+				m_activeVoices.end(),
+				[](const ActiveVoice& activeVoice)
+				{
+					return !activeVoice.loop;
+				});
+
+			if (disposableIt == m_activeVoices.end())
+			{
+				return 0;
+			}
+
+			disposableIt->voice->Stop(0);
+			disposableIt->voice->FlushSourceBuffers();
+			disposableIt->voice->DestroyVoice();
+			m_activeVoices.erase(disposableIt);
 		}
 
 		IXAudio2SourceVoice* sourceVoice = nullptr;
@@ -251,7 +262,7 @@ namespace shooting {
 		}
 
 		const SoundInstanceId id = m_nextVoiceId++;
-		m_activeVoices.push_back({ id, sourceVoice, clip });
+		m_activeVoices.push_back({ id, sourceVoice, clip, desc.loop });
 		return id;
 	}
 
@@ -306,11 +317,23 @@ namespace shooting {
 		m_maxActiveVoices = maxActiveVoices < 1 ? 1 : maxActiveVoices;
 		while (m_activeVoices.size() > m_maxActiveVoices)
 		{
-			auto& oldest = m_activeVoices.front();
-			oldest.voice->Stop(0);
-			oldest.voice->FlushSourceBuffers();
-			oldest.voice->DestroyVoice();
-			m_activeVoices.erase(m_activeVoices.begin());
+			auto disposableIt = std::find_if(
+				m_activeVoices.begin(),
+				m_activeVoices.end(),
+				[](const ActiveVoice& activeVoice)
+				{
+					return !activeVoice.loop;
+				});
+
+			if (disposableIt == m_activeVoices.end())
+			{
+				break;
+			}
+
+			disposableIt->voice->Stop(0);
+			disposableIt->voice->FlushSourceBuffers();
+			disposableIt->voice->DestroyVoice();
+			m_activeVoices.erase(disposableIt);
 		}
 	}
 

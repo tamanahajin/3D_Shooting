@@ -62,6 +62,7 @@ namespace shooting {
 			SoundInstanceId id = 0;
 			IXAudio2SourceVoice* voice = nullptr;
 			AudioClipPtr clip;
+			bool loop = false;
 		};
 
 		SoundInstanceId m_nextVoiceId = 1;
