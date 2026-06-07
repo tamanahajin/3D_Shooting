@@ -185,7 +185,6 @@ namespace shooting {
 
 	float GameAudio::GetSoundDefaultVolume(GameSoundId id) const
 	{
-		// 呼び出し側は「何の音か」だけを指定し、聞こえ方の基準音量はここでまとめて調整する。
 		switch (id)
 		{
 		case GameSoundId::Wormhole:

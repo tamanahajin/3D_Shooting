@@ -23,6 +23,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp" />
     <ClCompile Include="EnemyBatchAnimation.cpp" />
     <ClCompile Include="EnemyBatchCombat.cpp" />
     <ClCompile Include="EnemyBatchController.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="BulletPool.h" />
     <ClInclude Include="BulletType.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h" />
     <ClInclude Include="DebugSettings.h" />
     <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="HitStopController.h" />

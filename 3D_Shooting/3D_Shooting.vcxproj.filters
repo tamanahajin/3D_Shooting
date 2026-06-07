@@ -313,6 +313,9 @@
     <ClCompile Include="WorldObjects.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Audio\GameAudio.h">
@@ -596,6 +599,9 @@
     </ClInclude>
     <ClInclude Include="HitStopController.h">
       <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

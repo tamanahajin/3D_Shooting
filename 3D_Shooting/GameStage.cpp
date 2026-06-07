@@ -66,6 +66,22 @@ namespace shooting {
 
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
+		bool benchmarkStartedThisFrame = false;
+		auto& benchmark = BenchmarkRecorder::Instance();
+		benchmark.UpdateNotification(elapsedTime);
+		if (App::GetInputDevice().KeyPressed(VK_F2))
+		{
+			if (benchmark.IsRunning())
+			{
+				benchmark.Stop(true);
+			}
+			else
+			{
+				benchmark.Start(30.0);
+				benchmarkStartedThisFrame = true;
+			}
+		}
+
 		// ヒットストップの残り時間はゲーム内時間ではなく実時間で減らす。
 		// ここで更新しておくと、敵・プレイヤー・弾は次フレームから GetGameDeltaTime() 経由で遅くなる。
 		m_HitStop.Update(elapsedTime);
@@ -102,6 +118,19 @@ namespace shooting {
 
 		MaintainRecoveryItems();
 		MaintainBombItems();
+
+		if (!benchmarkStartedThisFrame)
+		{
+			BenchmarkFrameStats stats;
+			stats.currentWave = GetCurrentWave();
+			stats.totalEnemyCount = GetTotalEnemyCount();
+			stats.aliveEnemyCount = GetAliveEnemyCount();
+			if (auto collisionManager = GetCollisionManager())
+			{
+				stats.collisionCheckCount = static_cast<int>(collisionManager->GetCollisionCountOfTern());
+			}
+			benchmark.RecordFrame(elapsedTime, stats);
+		}
 	}
 
 	void GameStage::ApplyDebugRuntimeSettings()

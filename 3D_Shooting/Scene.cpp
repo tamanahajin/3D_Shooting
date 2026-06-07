@@ -907,6 +907,22 @@ namespace shooting {
 				UITextAlign::Left);
 		}
 
+		// 右上：ベンチマーク開始/終了通知
+		{
+			auto& benchmark = BenchmarkRecorder::Instance();
+			if (benchmark.HasNotification())
+			{
+				m_uiManager.AddText(
+					benchmark.GetNotificationText(),
+					UIAnchor::TopRight,
+					{ -20.0f, 20.0f },
+					{ 360.0f, 36.0f },
+					UITextAlign::Right,
+					D2D1::ColorF(1.0f, 0.88f, 0.18f, 1.0f),
+					22.0f);
+			}
+		}
+
 		// 右上：撃破数
 		//{
 		//	wchar_t buff[128];

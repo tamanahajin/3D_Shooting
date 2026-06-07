@@ -163,6 +163,8 @@ namespace shooting {
 
 	void EnemyBatchController::OnUpdate(double elapsedTime)
 	{
+		ScopedBenchmarkTimer benchmarkTimer(BenchmarkSection::EnemyUpdate);
+
 		if (m_Enemies.empty())
 		{
 			return;

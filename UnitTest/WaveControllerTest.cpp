@@ -11,6 +11,14 @@ namespace ShootingTests
 	TEST_CLASS(WaveControllerTests)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(ResetDebugSettings)
+		{
+			auto& debug = GameDebugSettingsStore::Get();
+			debug.overrideEnemyCount = false;
+			debug.enemyCountOverride = 100;
+			debug.enemySpeedMultiplier = 1.0f;
+		}
+
 		TEST_METHOD(Wave1EnemyCountIs5)
 		{
 			WaveController wave;

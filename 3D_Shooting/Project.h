@@ -13,6 +13,7 @@
 //個別オブジェクト等
 #include "ProjectUtil.h"
 #include "DebugSettings.h"
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
 #include "UIManager.h"
 #include "ScreenTransition.h"
 #include "Scripts/Audio/GameAudio.h"

@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
+
 namespace shooting {
 
 	void Stage::OnUpdateConstantBuffers()
@@ -87,6 +89,8 @@ namespace shooting {
 	//この関数を多重定義する
 	void Stage::UpdateCollision()
 	{
+		ScopedBenchmarkTimer benchmarkTimer(BenchmarkSection::Collision);
+
 		//衝突判定管理者のUpdate(判定)
 		m_collisionManager->OnUpdate(Scene::GetElapsedTime());
 	}

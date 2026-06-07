@@ -5,6 +5,7 @@
 
 
 #include "stdafx.h"
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
 
 namespace shooting {
 
@@ -576,6 +577,8 @@ namespace shooting {
 		std::initializer_list<std::wstring> ignoreTags
 	)
 	{
+		BenchmarkRecorder::Instance().IncrementRaycastCount();
+
 		if (maxDist <= 0.0f) return false;
 
 		Vec3 nDir = dir;
@@ -760,6 +763,8 @@ namespace shooting {
 		std::initializer_list<std::wstring> ignoreTags
 	)
 	{
+		BenchmarkRecorder::Instance().IncrementRaycastCount();
+
 		if (maxDist <= 0.0f) return false;
 
 		Vec3 nDir = dir;
