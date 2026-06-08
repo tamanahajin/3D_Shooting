@@ -179,6 +179,16 @@ namespace shooting {
 			Vec3 knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 			double knockbackControlTimer = 0.0;
 
+			// 爆風で吹っ飛んでいる間だけ描画に足すランダム回転。実座標と当たり判定には反映しない。
+			// rotationは移動方向の向きとして使うため、爆風演出は別クォータニオンに分けて保持する。
+			Quat knockbackSpinRotation = Quat();
+			// 回転軸。爆風を受けた瞬間にランダム決定し、回転中は固定する。
+			Vec3 knockbackSpinAxis = Vec3(0.0f, 1.0f, 0.0f);
+			// 1秒あたりの回転量。符号もランダムにして、敵ごとに回転方向を変える。
+			float knockbackSpinSpeed = 0.0f;
+			// 回転を進める残り時間。0になった後は、接地して演出が終わるまで最後の姿勢を保持する。
+			double knockbackSpinTimer = 0.0;
+
 			// 描画用の向きと、一定間隔で追跡力を再計算するためのタイマー。
 			Quat rotation = Quat();
 			double steeringTimer = 0.0;
@@ -220,7 +230,7 @@ namespace shooting {
 			std::weak_ptr<EnemyCollisionProxy> proxy;
 		};
 
-		// GameStageへの型付き参照。毎フレームのdynamic_pointer_castを避けるためOnCreateで保持する。
+		// GameStageへの型付き参照。
 		std::shared_ptr<GameStage> m_GameStage;
 		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
 		std::vector<EnemyState> m_Enemies;
@@ -402,6 +412,13 @@ namespace shooting {
 		@param velocity 爆風などで与える速度
 		*/
 		void AddKnockback(size_t index, const Vec3& velocity);
+		/*!
+		@brief 指定敵へ爆風用のランダム回転演出を開始する
+		@param index 対象敵のインデックス
+
+		実座標とコリジョンには影響させず、EnemyInstancedRenderer の描画行列にだけ反映する。
+		*/
+		void AddRandomRotation(size_t index);
 		/*!
 		@brief プロキシ側の接地衝突を敵状態へ反映する
 		@param index 対象敵のインデックス

@@ -314,6 +314,33 @@ namespace shooting {
 			const bool knockbackActive = enemy.knockbackControlTimer > 0.0
 				|| (bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
 
+			// 爆風回転は描画用クォータニオンだけを進める。
+			// 実座標・当たり判定・AIの向きには影響させないので、大量敵でも扱いやすい。
+			if (enemy.knockbackSpinTimer > 0.0)
+			{
+				enemy.knockbackSpinTimer -= elapsedTime;
+				if (enemy.knockbackSpinTimer < 0.0)
+				{
+					enemy.knockbackSpinTimer = 0.0;
+				}
+
+				// このフレーム分の回転を累積する。軸と速度は爆風を受けた瞬間にランダム決定済み。
+				Quat deltaRotation;
+				deltaRotation.rotationAxis(enemy.knockbackSpinAxis, enemy.knockbackSpinSpeed * dt);
+
+				enemy.knockbackSpinRotation = deltaRotation * enemy.knockbackSpinRotation;
+				enemy.knockbackSpinRotation.normalize();
+			}
+
+			// 接地して操作不能時間も終わったら、爆風姿勢を解除して通常の移動方向回転へ戻す。
+			// タイマー終了だけで戻すと空中で急に姿勢が戻るため、接地を待つ。
+			if (enemy.isGround && enemy.knockbackControlTimer <= 0.0 && enemy.knockbackSpinSpeed != 0.0f)
+			{
+				enemy.knockbackSpinRotation.identity();
+				enemy.knockbackSpinSpeed = 0.0f;
+				enemy.knockbackSpinTimer = 0.0;
+			}
+
 			// ステージ外へ落ちた敵は、地形解決より先に死亡扱いへ切り替える。
 			KillByFall(enemy);
 

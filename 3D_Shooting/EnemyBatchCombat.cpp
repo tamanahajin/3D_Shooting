@@ -9,6 +9,19 @@ HPや被弾演出の状態はEnemyStateに集約し、物理プロキシから�
 
 namespace shooting {
 
+	namespace {
+		/*!
+		@brief 指定範囲内の乱数を返す
+		@param minValue 最小値
+		@param maxValue 最大値
+		@return minValue から maxValue までの乱数
+		*/
+		float RandomRange(float minValue, float maxValue)
+		{
+			return minValue + (maxValue - minValue) * Util::RandZeroToOne(true);
+		}
+	}
+
 	/*!
 	@brief 敵を死亡状態へ切り替える
 	@param enemy 対象敵の状態
@@ -32,6 +45,11 @@ namespace shooting {
 		enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackControlTimer = 0.0;
+		// 死亡アニメーションへ入る時は、爆風用の描画回転を残さない。
+		enemy.knockbackSpinRotation.identity();
+		enemy.knockbackSpinAxis = Vec3(0.0f, 1.0f, 0.0f);
+		enemy.knockbackSpinSpeed = 0.0f;
+		enemy.knockbackSpinTimer = 0.0;
 		ChangeAnimation(enemy, AnimState::Dead, true);
 	}
 
@@ -189,6 +207,51 @@ namespace shooting {
 		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.isGround = false;
 		enemy.knockbackControlTimer = 0.45;
+
+		AddRandomRotation(index);
+	}
+
+	/*!
+	@brief 指定敵へランダムな回転を与える
+	@param index 対象敵のインデックス
+
+	主に爆発で吹っ飛ぶときに使用する。
+	移動方向を表す enemy.rotation は書き換えず、描画用の knockbackSpinRotation だけを更新する。
+	*/
+	void EnemyBatchController::AddRandomRotation(size_t index)
+	{
+		if (index >= m_Enemies.size())
+		{
+			return;
+		}
+
+		auto& enemy = m_Enemies[index];
+		if (!enemy.active || enemy.isDead)
+		{
+			return;
+		}
+
+		Vec3 axis(
+			RandomRange(-1.0f, 1.0f),
+			RandomRange(0.2f, 1.0f),
+			RandomRange(-1.0f, 1.0f));
+
+		// 乱数がほぼゼロベクトルになると回転軸として使えないため、念のため上方向へ倒す。
+		if (bsmUtil::lengthSqr(axis) <= 1e-6f)
+		{
+			axis = Vec3(0.0f, 1.0f, 0.0f);
+		}
+		axis.normalize();
+
+		// 回転方向も敵ごとに変えると、同じ爆風でも全員が同じ姿勢になりにくい。
+		const float sign = Util::RandZeroToOne(true) < 0.5f ? -1.0f : 1.0f;
+
+		enemy.knockbackSpinAxis = axis;
+		// 1.5から3.5回転/秒程度。
+		enemy.knockbackSpinSpeed = sign * RandomRange(XM_2PI * 1.5f, XM_2PI * 3.5f);
+		enemy.knockbackSpinTimer = 0.65;
+		// 新しい爆風を受けた時は、前回の最終姿勢を引きずらず最初から回す。
+		enemy.knockbackSpinRotation.identity();
 	}
 
 	/*!

@@ -189,6 +189,13 @@ namespace shooting {
 				drawRotation.normalize();
 			}
 
+			if (enemy.knockbackSpinSpeed != 0.0f)
+			{
+				// 爆風回転は描画行列にだけ合成する。enemy.rotation は移動方向を向くための基準として残す。
+				drawRotation = enemy.knockbackSpinRotation * drawRotation;
+				drawRotation.normalize();
+			}
+
 			Mat4x4 world;
 			world.affineTransformation(
 				enemy.status.modelScale,
