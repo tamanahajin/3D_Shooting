@@ -43,5 +43,7 @@ float4 main(InstancedPSInput input) : SV_Target0
     const float damage = saturate(input.Damage);
     color.rgb = lerp(color.rgb, float3(1.0f, 0.08f, 0.04f), damage);
 
+    ApplyFog(color, ComputeFogFactor(input.WorldPos));
+
     return color;
 }

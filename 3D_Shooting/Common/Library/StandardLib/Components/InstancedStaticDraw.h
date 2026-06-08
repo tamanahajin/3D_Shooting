@@ -26,6 +26,10 @@ namespace shooting {
 		bool m_UseBaseColorOverride = false;
 		bool m_UseMaterialTexture = true;
 		bool m_LightingEnabled = true;
+		bool m_FogEnabled = true;
+		float m_FogStart = -25.0f;
+		float m_FogEnd = -40.0f;
+		XMFLOAT4 m_FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 		Col4 m_BaseColorOverride = Col4(1.0f);
 
 		std::wstring m_MeshKey;
@@ -69,6 +73,8 @@ namespace shooting {
 		void ClearBaseColorOverride() { m_UseBaseColorOverride = false; m_BaseColorOverride = Col4(1.0f); }
 		void SetUseMaterialTexture(bool b) { m_UseMaterialTexture = b; }
 		void SetLightingEnabled(bool b) { m_LightingEnabled = b; }
+		bool IsSetFogEnabled() const { return m_FogEnabled; }
+		void SetFogEnabled(bool b) { m_FogEnabled = b; }
 
 		void BuildInstanceBuffer();
 		void BuildShadowInstanceBuffer();

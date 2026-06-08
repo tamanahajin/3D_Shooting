@@ -264,8 +264,33 @@ namespace shooting {
 		baseConstant.worldViewProj =
 			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
-		baseConstant.fogVector = Vec4(g_XMZero);
-		baseConstant.fogColor = Vec4(g_XMZero);
+		if (m_FogEnabled)
+		{
+			const float start = m_FogStart;
+			const float end = m_FogEnd;
+			if (start == end)
+			{
+				// 開始距離と終了距離が同じ場合は計算が不安定になるため、全体をフォグ済みとして扱う。
+				static const XMVECTORF32 fullyFogged = { 0, 0, 0, 1 };
+				baseConstant.fogVector = Vec4(fullyFogged);
+			}
+			else
+			{
+				// インスタンス描画では各頂点がシェーダ内で world 座標へ変換される。
+				// そのため world は identity のまま view のZ成分だけを使い、worldPosとの内積でフォグ量を出す。
+				XMVECTOR viewZ = XMVectorMergeXY(
+					XMVectorMergeZW(view.r[0], view.r[2]),
+					XMVectorMergeZW(view.r[1], view.r[3]));
+				XMVECTOR wOffset = XMVectorSwizzle<1, 2, 3, 0>(XMLoadFloat(&start));
+				baseConstant.fogVector = Vec4((viewZ + wOffset) / (start - end));
+			}
+			baseConstant.fogColor = (Col4)m_FogColor;
+		}
+		else
+		{
+			baseConstant.fogVector = Vec4(g_XMZero);
+			baseConstant.fogColor = Vec4(g_XMZero);
+		}
 
 		for (int i = 0; i < myLightSet->GetNumLights(); i++)
 		{
