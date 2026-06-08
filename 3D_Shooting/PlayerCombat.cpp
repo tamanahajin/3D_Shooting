@@ -1180,14 +1180,14 @@ namespace shooting {
 			}
 
 			// ----------------------------
-			// ② プレビュー用（Enemy/Bulletを無視）
+			// ② プレビュー用（Enemy/Bullet/Itemを無視）
 			// ----------------------------
 			if (traceBombPreview)
 			{
 				RaycastHit hit;
 				aimPointPreview = rayOrigin + rayDir * bombAimMaxDist;
 
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, bombAimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy" }))
+				if (m_CollisionManager->Raycast(rayOrigin, rayDir, bombAimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy", L"Item" }))
 				{
 					hasHitPreview = true;
 					aimPointPreview = hit.m_Point;

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 #include "BombAimPreview.h"
 
@@ -163,7 +163,7 @@ namespace shooting {
 			const Vec3 down(0, -1, 0);
 
 			RaycastHit hit;
-			if (colMgr->SphereCast(probeStart, down, probeDistance, 0.1f, hit, GetGameObject(), { L"Bullet", L"Enemy" }))
+			if (colMgr->SphereCast(probeStart, down, probeDistance, 0.1f, hit, GetGameObject(), { L"Bullet", L"Enemy", L"Item" }))
 			{
 				ringCenter = hit.m_Point;
 				ringNormal = SafeNormalize(hit.m_Normal);
