@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿/*!
+@file WaveController.h
+@brief 敵ウェーブ管理
+*/
+
+#pragma once
 #include "stdafx.h"
 #include "DebugSettings.h"
 #include "EnemyFactory.h"
@@ -9,6 +14,12 @@ namespace shooting {
 
 	class EnemyBatchController;
 
+	/*!
+	@brief ウェーブ進行と敵生成数に関する設定
+
+	ウェーブ間隔、初期敵数、ウェーブごとの増加数、速度上昇間隔、
+	スポーン距離など、敵ウェーブ全体の調整値をまとめる。
+	*/
 	struct WaveSettings
 	{
 		double intervalSeconds = 15.0;
@@ -23,37 +34,112 @@ namespace shooting {
 		int maxSpawnAttempts = 50;
 	};
 
-	// ウェーブの状態管理と敵生成指示を担当するクラス。
-	// GameStageはスポーン中心位置を渡すだけにし、何ウェーブ目か・何体出すか・速度倍率はここに集約する。
+	/*!
+	@brief ウェーブの状態管理と敵生成指示を担当するクラス
+
+	GameStage はスポーン中心位置を渡すだけにし、
+	何ウェーブ目か、何体出すか、速度倍率をここに集約する。
+	*/
 	class WaveController
 	{
 	public:
+		/*!
+		@brief 既定設定でウェーブコントローラを生成する
+		*/
 		WaveController()
 		{
 			m_statusByKind[EnemyKind::Default] = EnemyStatus();
 		}
+		/*!
+		@brief 敵バッチコントローラを指定して生成する
+		@param controller 敵生成先のバッチコントローラ
+		*/
 		explicit WaveController(const std::shared_ptr<EnemyBatchController>& controller);
 
+		/*!
+		@brief 敵生成先のバッチコントローラを設定する
+		@param controller 敵生成先のバッチコントローラ
+		*/
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
+		/*!
+		@brief ウェーブが敵を生成できる状態かを判定する
+		@return 敵生成先と EnemyFactory が有効なら true
+		*/
 		bool IsValid() const;
+		/*!
+		@brief 敵種別ごとのステータスを設定する
+		@param kind 敵種別
+		@param status 適用する敵ステータス
+		*/
 		void SetEnemyStatus(EnemyKind kind, const EnemyStatus& status);
+		/*!
+		@brief 敵種別ごとのステータスを取得する
+		@param kind 敵種別
+		@return 指定種別の設定。なければ Default、さらに無ければ既定値
+		*/
 		EnemyStatus GetEnemyStatus(EnemyKind kind) const;
 
+		/*!
+		@brief ウェーブタイマーを進め、時間切れなら次ウェーブを開始する
+		@param elapsedTime 経過時間
+		@param spawnCenter 敵生成の中心位置
+		*/
 		void Update(double elapsedTime, const Vec3& spawnCenter);
+		/*!
+		@brief 次のウェーブ番号へ進めて敵を生成する
+		@param spawnCenter 敵生成の中心位置
+		*/
 		void StartNextWave(const Vec3& spawnCenter);
+		/*!
+		@brief 次に開始するウェーブ番号を設定する
+		@param wave 次に開始したいウェーブ番号
+		*/
 		void SetNextWaveNumber(int wave);
+		/*!
+		@brief 任意の敵数と生成設定で敵バッチを生成する
+		@param center 生成中心
+		@param count 生成数
+		@param settings 配置ルール
+		@param kind 敵種別
+		@return 実際に生成できた敵数
+		*/
 		int CreateEnemyBatch(
 			const Vec3& center,
 			int count,
 			const EnemyFactory::SpawnSettings& settings,
 			EnemyKind kind = EnemyKind::Default);
 
+		/*!
+		@brief これまでのウェーブ生成で作った敵総数を取得する
+		@return 敵総生成数
+		*/
 		int GetTotalEnemyCount() const { return m_totalEnemyCount; }
+		/*!
+		@brief 現在のウェーブ番号を取得する
+		@return 現在ウェーブ番号
+		*/
 		int GetCurrentWave() const { return m_currentWave; }
+		/*!
+		@brief 次ウェーブまでの残り時間を取得する
+		@return 秒単位の残り時間
+		*/
 		double GetWaveTimeRemaining() const { return m_waveTimer; }
+		/*!
+		@brief ウェーブ設定を編集用に取得する
+		@return ウェーブ設定
+		*/
 		WaveSettings& GetSettings() { return m_settings; }
+		/*!
+		@brief ウェーブ設定を参照用に取得する
+		@return ウェーブ設定
+		*/
 		const WaveSettings& GetSettings() const { return m_settings; }
 
+		/*!
+		@brief 指定ウェーブで生成する敵数を計算する
+		@param wave ウェーブ番号
+		@return 生成する敵数
+		*/
 		int GetEnemyCountForWave(int wave) const
 		{
 			if (wave <= 0)
@@ -72,6 +158,11 @@ namespace shooting {
 			return enemyCount > 0 ? enemyCount : 0;
 		}
 
+		/*!
+		@brief 指定ウェーブの基本速度倍率を計算する
+		@param wave ウェーブ番号
+		@return デバッグ倍率を含まない速度倍率
+		*/
 		float GetEnemySpeedMultiplierForWave(int wave) const
 		{
 			if (wave <= 0 || m_settings.speedUpEveryWaves <= 0)
@@ -83,6 +174,11 @@ namespace shooting {
 			return 1.0f + (static_cast<float>(speedStep) * m_settings.speedMultiplierAddPerStep);
 		}
 
+		/*!
+		@brief 指定ウェーブの最終速度倍率を計算する
+		@param wave ウェーブ番号
+		@return デバッグ設定を掛けた速度倍率
+		*/
 		float GetAppliedEnemySpeedMultiplierForWave(int wave) const
 		{
 			float debugMultiplier = GameDebugSettingsStore::Get().enemySpeedMultiplier;
@@ -102,7 +198,15 @@ namespace shooting {
 		std::shared_ptr<EnemyFactory> m_enemyFactory;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
+		/*!
+		@brief 現在の敵バッチコントローラを取得する
+		@return 有効なら EnemyBatchController、無効なら nullptr
+		*/
 		std::shared_ptr<EnemyBatchController> GetController() const;
+		/*!
+		@brief EnemyFactory を作成または更新する
+		@param controller 敵生成先のバッチコントローラ
+		*/
 		void WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
 	};
 

@@ -10,6 +10,11 @@
 
 namespace shooting {
 
+	/*!
+	@brief 指定アニメーションが単発再生かを判定する
+	@param state 対象アニメーション
+	@return 単発再生として扱う場合は true
+	*/
 	bool EnemyBatchController::IsOneShotState(AnimState state) const
 	{
 		switch (state)
@@ -23,6 +28,11 @@ namespace shooting {
 		}
 	}
 
+	/*!
+	@brief 指定アニメーションを最終フレーム付近で保持するかを判定する
+	@param state 対象アニメーション
+	@return 最終フレーム付近で停止させる場合は true
+	*/
 	bool EnemyBatchController::IsHoldLastFrameState(AnimState state) const
 	{
 		switch (state)
@@ -36,6 +46,11 @@ namespace shooting {
 		}
 	}
 
+	/*!
+	@brief 敵モデルから指定アニメーションの再生時間を取得する
+	@param state 対象アニメーション
+	@return 秒単位の再生時間。取得できない場合は0
+	*/
 	double EnemyBatchController::GetAnimationDurationSeconds(AnimState state) const
 	{
 		auto mesh = BaseScene::Get()->GetMesh(L"ENEMY_MODEL_SKINNED");
@@ -59,11 +74,22 @@ namespace shooting {
 		return static_cast<double>(assimp->GetAnimationDurationSeconds(index));
 	}
 
+	/*!
+	@brief 最終フレーム手前で止めるための停止時刻を返す
+	@param duration アニメーション全体の長さ
+	@return 停止に使う秒数
+	*/
 	double EnemyBatchController::GetHoldTimeSeconds(double duration) const
 	{
 		return bsmUtil::Max(0.0, duration - (1.0 / 30.0));
 	}
 
+	/*!
+	@brief 敵のアニメーション状態を変更する
+	@param enemy 対象敵の状態
+	@param state 変更先のアニメーション
+	@param forceRestart 同じ状態でも先頭から再生する場合は true
+	*/
 	void EnemyBatchController::ChangeAnimation(EnemyState& enemy, AnimState state, bool forceRestart)
 	{
 		if (!forceRestart && enemy.animationState == state)
@@ -76,6 +102,13 @@ namespace shooting {
 		enemy.animationFinished = false;
 	}
 
+	/*!
+	@brief 敵のアニメーション時間を進める
+	@param enemy 対象敵の状態
+	@param elapsedTime 経過時間
+
+	単発アニメーションは終了後に止め、ループ系は時間を進め続ける。
+	*/
 	void EnemyBatchController::UpdateAnimation(EnemyState& enemy, double elapsedTime)
 	{
 		if (IsOneShotState(enemy.animationState))
@@ -110,6 +143,11 @@ namespace shooting {
 		enemy.animationTime += elapsedTime;
 	}
 
+	/*!
+	@brief 被弾フラッシュの現在強度を取得する
+	@param enemy 対象敵の状態
+	@return 0.0から1.0のフラッシュ強度
+	*/
 	float EnemyBatchController::GetDamageFlashValue(const EnemyState& enemy) const
 	{
 		if (enemy.damageFlashDuration <= 0.0 || enemy.damageFlashTimer <= 0.0)
@@ -129,6 +167,11 @@ namespace shooting {
 		return static_cast<float>(value);
 	}
 
+	/*!
+	@brief 被弾フラッシュタイマーを開始する
+	@param enemy 対象敵の状態
+	@param duration フラッシュ時間
+	*/
 	void EnemyBatchController::StartDamageFlash(EnemyState& enemy, double duration)
 	{
 		if (duration <= 0.0)

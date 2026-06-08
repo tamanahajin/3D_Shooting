@@ -3,6 +3,10 @@
 
 namespace shooting {
 
+	/*!
+	@brief 敵ファクトリを生成する
+	@param controller 敵の登録先コントローラ
+	*/
 	EnemyFactory::EnemyFactory(const std::shared_ptr<EnemyBatchController>& controller) :
 		m_controller(controller),
 		m_randomEngine(std::random_device{}())
@@ -10,21 +14,39 @@ namespace shooting {
 		m_StatusByKind[EnemyKind::Default] = EnemyStatus();
 	}
 
+	/*!
+	@brief 敵の登録先コントローラを差し替える
+	@param controller 敵の登録先コントローラ
+	*/
 	void EnemyFactory::SetController(const std::shared_ptr<EnemyBatchController>& controller)
 	{
 		m_controller = controller;
 	}
 
+	/*!
+	@brief 登録先コントローラが有効かを判定する
+	@return 有効なら true
+	*/
 	bool EnemyFactory::IsValid() const
 	{
 		return !m_controller.expired();
 	}
 
+	/*!
+	@brief 敵種別ごとのステータスを設定する
+	@param kind 敵種別
+	@param status 適用するステータス
+	*/
 	void EnemyFactory::SetStatus(EnemyKind kind, const EnemyStatus& status)
 	{
 		m_StatusByKind[kind] = status;
 	}
 
+	/*!
+	@brief 敵種別ごとのステータスを取得する
+	@param kind 敵種別
+	@return 指定種別のステータス。なければ Default、さらに無ければ既定値
+	*/
 	EnemyStatus EnemyFactory::GetStatus(EnemyKind kind) const
 	{
 		auto it = m_StatusByKind.find(kind);
@@ -41,11 +63,25 @@ namespace shooting {
 
 		return EnemyStatus();
 	}
+
+	/*!
+	@brief 敵1体を種別設定で生成する
+	@param kind 敵種別
+	@param position 生成位置
+	@return 生成された敵のインデックス。失敗時は size_t(-1)
+	*/
 	size_t EnemyFactory::CreateEnemy(EnemyKind kind, const Vec3& position) const
 	{
 		return CreateEnemy(kind, position, GetStatus(kind));
 	}
 
+	/*!
+	@brief 敵1体を指定ステータスで生成する
+	@param kind 敵種別
+	@param position 生成位置
+	@param status 敵ステータス
+	@return 生成された敵のインデックス。失敗時は size_t(-1)
+	*/
 	size_t EnemyFactory::CreateEnemy(EnemyKind kind, const Vec3& position, const EnemyStatus& status) const
 	{
 		auto controller = m_controller.lock();
@@ -64,6 +100,13 @@ namespace shooting {
 		}
 	}
 
+	/*!
+	@brief 中心位置の周囲に複数体の敵を生成する
+	@param desc 生成バッチ情報
+	@return 実際に生成できた敵数
+
+	先に生成位置を抽選してから、同じステータスでまとめて EnemyBatchController へ登録する。
+	*/
 	int EnemyFactory::CreateEnemiesAround(const SpawnBatchDesc& desc)
 	{
 		if (desc.count <= 0 || !IsValid())
@@ -105,6 +148,12 @@ namespace shooting {
 		return createdCount;
 	}
 
+	/*!
+	@brief 中心位置からランダムな距離と角度で生成位置を作る
+	@param center 生成中心
+	@param settings 配置ルール
+	@return 抽選された生成位置
+	*/
 	Vec3 EnemyFactory::CreateRandomPosition(const Vec3& center, const SpawnSettings& settings)
 	{
 		// min/maxが逆に設定されても生成できるように、ここで正規化する。
@@ -124,6 +173,13 @@ namespace shooting {
 			center.z + (radius * sinf(angle)));
 	}
 
+	/*!
+	@brief 採用済みの生成位置と十分離れているかを判定する
+	@param position 判定する位置
+	@param existingPositions 採用済みの生成位置
+	@param minSpacing 最低距離
+	@return 十分離れている場合は true
+	*/
 	bool EnemyFactory::IsFarEnough(const Vec3& position, const std::vector<Vec3>& existingPositions, float minSpacing) const
 	{
 		if (minSpacing <= 0.0f)

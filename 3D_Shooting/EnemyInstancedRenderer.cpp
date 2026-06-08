@@ -11,6 +11,12 @@ EnemyBatchControllerが保持する敵配列から描画用データだけを受
 namespace shooting {
 
 	namespace {
+		/*!
+		@brief 被弾押され演出の現在強度を計算する
+		@param timer 残り時間
+		@param duration 全体時間
+		@return 0.0から1.0の演出強度
+		*/
 		float GetHitPushPower(double timer, double duration)
 		{
 			if (timer <= 0.0 || duration <= 0.0)
@@ -28,6 +34,13 @@ namespace shooting {
 			return remainingRate * remainingRate;
 		}
 
+		/*!
+		@brief 被弾押され演出の描画位置オフセットを計算する
+		@param direction 押される水平方向
+		@param distance 最大押し戻し距離
+		@param pushPower 現在の演出強度
+		@return 描画用の位置オフセット
+		*/
 		Vec3 GetHitPushOffset(const Vec3& direction, float distance, float pushPower)
 		{
 			// pushPowerが0なら位置補正は不要。描画位置をそのまま使う。
@@ -52,6 +65,13 @@ namespace shooting {
 			return pushDirection * (distance * pushPower);
 		}
 
+		/*!
+		@brief 被弾押され演出の描画用傾き回転を計算する
+		@param direction 押される水平方向
+		@param leanAngle 最大傾き角
+		@param pushPower 現在の演出強度
+		@return 描画用の追加回転
+		*/
 		Quat GetHitPushRotation(const Vec3& direction, float leanAngle, float pushPower)
 		{
 			Quat rotation;
@@ -75,13 +95,33 @@ namespace shooting {
 		}
 	}
 
+	/*!
+	@brief 敵インスタンシング描画オブジェクトを生成する
+	@param stage 所属するステージ
+	*/
 	EnemyInstancedRenderer::EnemyInstancedRenderer(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
 	}
 
+	/*!
+	@brief 敵インスタンシング描画オブジェクトを生成し、参照先コントローラを保持する
+	@param stage 所属するステージ
+	@param controller 描画元になる敵バッチコントローラ
+	*/
+	EnemyInstancedRenderer::EnemyInstancedRenderer(
+		const std::shared_ptr<Stage>& stage,
+		const std::shared_ptr<EnemyBatchController>& controller) :
+		GameObject(stage),
+		m_Controller(controller)
+	{
+	}
+
 	EnemyInstancedRenderer::~EnemyInstancedRenderer() {}
 
+	/*!
+	@brief 敵モデル用の InstancedSkinnedDraw を作成する
+	*/
 	void EnemyInstancedRenderer::OnCreate()
 	{
 		m_Draw = AddComponent<InstancedSkinnedDraw>();
@@ -92,6 +132,10 @@ namespace shooting {
 		AddTag(L"EnemyRenderer");
 	}
 
+	/*!
+	@brief 保持している敵バッチから描画インスタンスを受け取り、GPU用バッファを更新する
+	@param elapsedTime 経過時間。この処理では使用しない
+	*/
 	void EnemyInstancedRenderer::OnUpdate2(double elapsedTime)
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
@@ -101,8 +145,7 @@ namespace shooting {
 			return;
 		}
 
-		auto controllerObject = GetStage()->GetSharedGameObject(L"EnemyBatchController", false);
-		auto controller = std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		auto controller = m_Controller.lock();
 		if (controller)
 		{
 			controller->FillInstanceSources(m_InstanceSources, m_ModelOffset);
@@ -116,6 +159,13 @@ namespace shooting {
 		m_Draw->BuildInstanceBuffer();
 	}
 
+	/*!
+	@brief 敵配列からスキンメッシュ描画用インスタンス配列を作成する
+	@param outSources 出力先のインスタンス配列
+	@param modelOffset モデル原点補正
+
+	被弾押され演出はここで描画用行列にだけ反映し、敵の実座標やコリジョンには影響させない。
+	*/
 	void EnemyBatchController::FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const
 	{
 		outSources.clear();

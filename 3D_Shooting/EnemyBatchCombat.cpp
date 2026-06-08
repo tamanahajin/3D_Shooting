@@ -9,6 +9,12 @@ HPや被弾演出の状態はEnemyStateに集約し、物理プロキシから�
 
 namespace shooting {
 
+	/*!
+	@brief 敵を死亡状態へ切り替える
+	@param enemy 対象敵の状態
+
+	HP、移動力、ノックバック、遅延死亡フラグをリセットし、死亡アニメーションを先頭から再生する。
+	*/
 	void EnemyBatchController::KillEnemy(EnemyState& enemy)
 	{
 		if (enemy.isDead)
@@ -29,6 +35,10 @@ namespace shooting {
 		ChangeAnimation(enemy, AnimState::Dead, true);
 	}
 
+	/*!
+	@brief 落下死ラインを超えた敵を死亡させる
+	@param enemy 対象敵の状態
+	*/
 	void EnemyBatchController::KillByFall(EnemyState& enemy)
 	{
 		if (enemy.position.y >= kFallDeathY)
@@ -39,6 +49,11 @@ namespace shooting {
 		KillEnemy(enemy);
 	}
 
+	/*!
+	@brief 敵の頭上付近にダメージ数値を表示する
+	@param index 対象敵のインデックス
+	@param info ダメージ情報
+	*/
 	void EnemyBatchController::ShowDamageNumber(size_t index, const DamageInfo& info)
 	{
 		if (info.m_Damage <= 0 || index >= m_Enemies.size())
@@ -55,6 +70,13 @@ namespace shooting {
 		}
 	}
 
+	/*!
+	@brief 通常被弾時の押され演出を開始する
+	@param enemy 対象敵の状態
+	@param info ダメージ情報
+
+	実座標は動かさず、描画用の位置補正と傾きに使う方向だけを決める。
+	*/
 	void EnemyBatchController::StartHitPush(EnemyState& enemy, const DamageInfo& info)
 	{
 		enemy.hitPushDuration = enemy.status.hitPushDuration;
@@ -89,6 +111,14 @@ namespace shooting {
 		enemy.hitPushDirection = direction;
 	}
 
+	/*!
+	@brief 指定敵へダメージを適用する
+	@param index 対象敵のインデックス
+	@param info ダメージ量、攻撃者、死亡遅延などの情報
+	@return このダメージで即死亡した場合は true
+
+	爆弾などで死亡遅延が指定された場合は、HPを一時的に1へ戻して着地後に死亡させる。
+	*/
 	bool EnemyBatchController::ApplyDamage(size_t index, const DamageInfo& info)
 	{
 		if (index >= m_Enemies.size())
@@ -131,6 +161,13 @@ namespace shooting {
 		return false;
 	}
 
+	/*!
+	@brief 指定敵へ爆風などのノックバック速度を与える
+	@param index 対象敵のインデックス
+	@param velocity 与える速度。水平成分と上方向成分を分けて扱う
+
+	通常の追跡速度は弱め、一定時間はAI制御よりノックバックを優先する。
+	*/
 	void EnemyBatchController::AddKnockback(size_t index, const Vec3& velocity)
 	{
 		if (index >= m_Enemies.size())
@@ -154,6 +191,13 @@ namespace shooting {
 		enemy.knockbackControlTimer = 0.45;
 	}
 
+	/*!
+	@brief プロキシ側で検出した接地衝突を敵状態へ反映する
+	@param index 対象敵のインデックス
+	@param pair 衝突情報
+
+	CollisionManager 側の床押し戻し結果を、バッチ配列側の接地状態と重力速度へ戻す。
+	*/
 	void EnemyBatchController::NotifyGroundCollision(size_t index, const CollisionPair& pair)
 	{
 		if (index >= m_Enemies.size())

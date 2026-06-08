@@ -241,7 +241,7 @@ namespace shooting {
 		// 敵
 		auto enemyController = AddGameObject<EnemyBatchController>();
 		m_waveController.SetController(enemyController);
-		AddGameObject<EnemyInstancedRenderer>();
+		AddGameObject<EnemyInstancedRenderer>(enemyController);
 		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
 		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。
 		m_WaitingInitialWaveUntilPlayerIntroEnds = true;
