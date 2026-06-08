@@ -315,7 +315,6 @@ namespace shooting {
 				|| (bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
 
 			// 爆風回転は描画用クォータニオンだけを進める。
-			// 実座標・当たり判定・AIの向きには影響させないので、大量敵でも扱いやすい。
 			if (enemy.knockbackSpinTimer > 0.0)
 			{
 				enemy.knockbackSpinTimer -= elapsedTime;

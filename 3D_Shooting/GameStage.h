@@ -76,7 +76,8 @@ namespace shooting {
 		std::unordered_map<long long, GroundLookupCell> m_groundLookupCells;
 		float m_groundLookupCellSize = 5.0f;
 		std::vector<ItemSpawnBlocker> m_itemSpawnBlockers;
-		std::mt19937 m_itemSpawnRandom = std::mt19937(20260513);
+		// アイテム出現用乱数。CreateItemsでステージ開始ごとにシードを入れる。
+		std::mt19937 m_itemSpawnRandom;
 		HitStopController m_HitStop;
 		// 初回ウェーブだけ、プレイヤー登場演出の完了を待ってから開始する。
 		bool m_WaitingInitialWaveUntilPlayerIntroEnds = false;
