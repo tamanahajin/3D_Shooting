@@ -9,7 +9,6 @@ namespace shooting {
 		const float kSpawnIntroWalkDistance = 2.4f;
 		const double kSpawnIntroPortalOnlyDuration = 1.0;
 		const double kSpawnIntroDuration = 1.05;
-		const double kSpawnIntroPortalExtraLife = 0.25;
 		const float kSpawnIntroPortalBackOffset = 0.25f;
 		const float kSpawnIntroPortalHeight = 0.85f;
 		const float kSpawnIntroPortalScale = 1.15f;
@@ -27,7 +26,7 @@ namespace shooting {
 		{
 		private:
 			float m_Elapsed = 0.0f;
-			float m_LifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration + kSpawnIntroPortalExtraLife);
+			float m_LifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration);
 
 		public:
 			PlayerSpawnPortal(const std::shared_ptr<Stage>& stage, const TransParam& param)
@@ -39,7 +38,6 @@ namespace shooting {
 			void OnCreate() override
 			{
 				AddTag(L"PlayerSpawnPortal");
-				// 登場待機中の主役になるため、半透明扱いではなく不透明の黒い円として描画する。
 				SetAlphaActive(false);
 				SetShadowActive(false);
 
