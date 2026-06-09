@@ -140,7 +140,7 @@ namespace shooting {
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
 
-		if (!m_Draw)
+		if (!m_RenderingEnabled || !m_Draw)
 		{
 			return;
 		}
@@ -157,6 +157,251 @@ namespace shooting {
 
 		m_Draw->SetInstances(m_InstanceSources);
 		m_Draw->BuildInstanceBuffer();
+	}
+
+	/*!
+	@brief インスタンシング描画の有効状態を切り替える
+	@param enabled 有効にする場合は true
+	*/
+	void EnemyInstancedRenderer::SetRenderingEnabled(bool enabled)
+	{
+		if (m_RenderingEnabled == enabled)
+		{
+			return;
+		}
+
+		m_RenderingEnabled = enabled;
+		SetUpdateActive(enabled);
+		SetDrawActive(enabled);
+
+		if (!enabled && m_Draw)
+		{
+			// 無効化した瞬間に古いインスタンスが残らないよう、描画用バッファも空にしておく。
+			m_InstanceSources.clear();
+			m_Draw->SetInstances(m_InstanceSources);
+			m_Draw->BuildInstanceBuffer();
+		}
+	}
+
+	/*!
+	@brief 通常描画プロキシを生成する
+	@param stage 所属するステージ
+	*/
+	EnemyIndividualDrawProxy::EnemyIndividualDrawProxy(const std::shared_ptr<Stage>& stage) :
+		GameObject(stage)
+	{
+	}
+
+	EnemyIndividualDrawProxy::~EnemyIndividualDrawProxy() {}
+
+	/*!
+	@brief 敵1体分の通常スキンメッシュ描画を作成する
+	*/
+	void EnemyIndividualDrawProxy::OnCreate()
+	{
+		SetBatchUpdateManaged(true);
+		SetShadowActive(false);
+
+		m_Draw = AddComponent<BcPNTBoneDraw>();
+		m_Draw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
+		m_Draw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
+		m_Draw->SetOwnShadowActive(false);
+		m_Draw->SetModelOffset(Vec3(0.0f, 0.0f, 0.0f));
+
+		AddTag(L"EnemyIndividualDrawProxy");
+		SetRenderingEnabled(false);
+	}
+
+	/*!
+	@brief インスタンス描画用データを通常描画用 Transform とアニメーションへ反映する
+	@param source EnemyBatchController が作成した描画用データ
+	*/
+	void EnemyIndividualDrawProxy::ApplyInstanceSource(const SkinnedInstanceSource& source)
+	{
+		Vec3 scale;
+		Quat rotation;
+		Vec3 position;
+		source.world.decompose(scale, rotation, position);
+
+		auto transform = GetComponent<Transform>(false);
+		if (transform)
+		{
+			transform->SetScale(scale);
+			transform->SetQuaternion(rotation);
+			transform->SetPosition(position);
+		}
+
+		if (m_Draw)
+		{
+			m_Draw->SetAnimationIndex(source.animationIndex);
+			m_Draw->UpdateAnimation(static_cast<double>(source.animationTime));
+		}
+
+		SetRenderingEnabled(true);
+	}
+
+	/*!
+	@brief プロキシの描画・更新を切り替える
+	@param enabled 有効にする場合は true
+	*/
+	void EnemyIndividualDrawProxy::SetRenderingEnabled(bool enabled)
+	{
+		SetUpdateActive(enabled);
+		SetDrawActive(enabled);
+		SetShadowActive(false);
+	}
+
+	/*!
+	@brief 通常描画レンダラーを生成する
+	@param stage 所属するステージ
+	*/
+	EnemyIndividualRenderer::EnemyIndividualRenderer(const std::shared_ptr<Stage>& stage) :
+		GameObject(stage)
+	{
+	}
+
+	/*!
+	@brief 通常描画レンダラーを生成し、参照先コントローラを保持する
+	@param stage 所属するステージ
+	@param controller 描画元になる敵バッチコントローラ
+	*/
+	EnemyIndividualRenderer::EnemyIndividualRenderer(
+		const std::shared_ptr<Stage>& stage,
+		const std::shared_ptr<EnemyBatchController>& controller) :
+		GameObject(stage),
+		m_Controller(controller)
+	{
+	}
+
+	EnemyIndividualRenderer::~EnemyIndividualRenderer() {}
+
+	/*!
+	@brief 通常描画レンダラー本体を初期化する
+	*/
+	void EnemyIndividualRenderer::OnCreate()
+	{
+		SetDrawActive(false);
+		SetShadowActive(false);
+		SetUpdateActive(m_RenderingEnabled);
+		AddTag(L"EnemyRenderer");
+		AddTag(L"EnemyIndividualRenderer");
+	}
+
+	/*!
+	@brief 描画に必要なプロキシ数を揃える
+	@param requiredCount 必要なプロキシ数
+	*/
+	void EnemyIndividualRenderer::ResizeDrawProxies(size_t requiredCount)
+	{
+		auto stage = GetStage(false);
+		if (!stage)
+		{
+			return;
+		}
+
+		while (m_DrawProxies.size() < requiredCount)
+		{
+			auto proxy = stage->AddGameObject<EnemyIndividualDrawProxy>();
+			m_DrawProxies.push_back(proxy);
+		}
+
+		if (m_DrawProxies.size() <= requiredCount)
+		{
+			return;
+		}
+
+		// 敵が死亡して描画数が減った場合は、余った通常描画プロキシをステージから外す。
+		// 配列側の敵インデックスとは対応させず、表示する順番だけを詰め直す。
+		for (size_t i = requiredCount; i < m_DrawProxies.size(); ++i)
+		{
+			if (m_DrawProxies[i])
+			{
+				m_DrawProxies[i]->SetRenderingEnabled(false);
+				stage->RemoveGameObject(m_DrawProxies[i]);
+			}
+		}
+		m_DrawProxies.resize(requiredCount);
+	}
+
+	/*!
+	@brief 生成済みプロキシをステージから外す
+	*/
+	void EnemyIndividualRenderer::ClearDrawProxies()
+	{
+		auto stage = GetStage(false);
+		for (auto& proxy : m_DrawProxies)
+		{
+			if (!proxy)
+			{
+				continue;
+			}
+
+			proxy->SetRenderingEnabled(false);
+			if (stage)
+			{
+				stage->RemoveGameObject(proxy);
+			}
+		}
+		m_DrawProxies.clear();
+	}
+
+	/*!
+	@brief 保持している敵バッチから描画データを受け取り、通常描画プロキシへ同期する
+	@param elapsedTime 経過時間。この処理では使用しない
+	*/
+	void EnemyIndividualRenderer::OnUpdate2(double elapsedTime)
+	{
+		UNREFERENCED_PARAMETER(elapsedTime);
+
+		if (!m_RenderingEnabled)
+		{
+			return;
+		}
+
+		auto controller = m_Controller.lock();
+		if (controller)
+		{
+			controller->FillInstanceSources(m_InstanceSources, m_ModelOffset);
+		}
+		else
+		{
+			m_InstanceSources.clear();
+		}
+
+		ResizeDrawProxies(m_InstanceSources.size());
+		const size_t drawCount = (m_InstanceSources.size() < m_DrawProxies.size())
+			? m_InstanceSources.size()
+			: m_DrawProxies.size();
+		for (size_t i = 0; i < drawCount; ++i)
+		{
+			if (m_DrawProxies[i])
+			{
+				m_DrawProxies[i]->ApplyInstanceSource(m_InstanceSources[i]);
+			}
+		}
+	}
+
+	/*!
+	@brief 通常描画経路の有効状態を切り替える
+	@param enabled 有効にする場合は true
+	*/
+	void EnemyIndividualRenderer::SetRenderingEnabled(bool enabled)
+	{
+		if (m_RenderingEnabled == enabled)
+		{
+			return;
+		}
+
+		m_RenderingEnabled = enabled;
+		SetUpdateActive(enabled);
+		SetDrawActive(false);
+		SetShadowActive(false);
+
+		if (!enabled)
+		{
+			m_InstanceSources.clear();
+			ClearDrawProxies();
+		}
 	}
 
 	/*!

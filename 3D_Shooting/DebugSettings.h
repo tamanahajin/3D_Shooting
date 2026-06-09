@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 
@@ -13,6 +13,7 @@ namespace shooting {
 		int startWave = 1;
 		float enemySpeedMultiplier = 1.0f;
 		bool showCollision = false;
+		bool useEnemyInstancedRendering = true;
 	};
 
 	class GameDebugSettingsStore

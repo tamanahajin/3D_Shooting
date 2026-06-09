@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ImGuiLayer.h"
 #include "DebugSettings.h"
 
@@ -218,6 +218,7 @@ namespace shooting {
 		ImGui::InputInt("Start Wave", &debug.startWave);
 		ImGui::SliderFloat("Enemy Speed Multiplier", &debug.enemySpeedMultiplier, 0.1f, 5.0f, "%.2f");
 		ImGui::Checkbox("Show Collision", &debug.showCollision);
+		ImGui::Checkbox("Enemy Instancing", &debug.useEnemyInstancedRendering);
 
 		if (debug.enemyCountOverride < 0)
 		{

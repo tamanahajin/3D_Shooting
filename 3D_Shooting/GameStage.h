@@ -8,6 +8,8 @@
 namespace shooting {
 
 	class EnemyBatchController;
+	class EnemyIndividualRenderer;
+	class EnemyInstancedRenderer;
 	class ItemFactory;
 
 	class GameStage : public Stage
@@ -79,6 +81,9 @@ namespace shooting {
 		// アイテム出現用乱数。CreateItemsでステージ開始ごとにシードを入れる。
 		std::mt19937 m_itemSpawnRandom;
 		HitStopController m_HitStop;
+		std::shared_ptr<EnemyInstancedRenderer> m_enemyInstancedRenderer;
+		std::shared_ptr<EnemyIndividualRenderer> m_enemyIndividualRenderer;
+		bool m_enemyRendererUsesInstancing = true;
 		// 初回ウェーブだけ、プレイヤー登場演出の完了を待ってから開始する。
 		bool m_WaitingInitialWaveUntilPlayerIntroEnds = false;
 
@@ -86,6 +91,8 @@ namespace shooting {
 		void MaintainRecoveryItems();
 		void MaintainBombItems();
 		void ApplyDebugRuntimeSettings();
+		void CreateEnemyRenderers(const std::shared_ptr<EnemyBatchController>& controller);
+		void ApplyEnemyRendererMode(bool useInstancing);
 		// 初回ウェーブ開始待ち中に呼び、登場演出が終わっていればウェーブ1を開始する。
 		void StartInitialWaveAfterPlayerIntro();
 		void EnsureItemFactory();

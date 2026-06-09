@@ -64,6 +64,29 @@ namespace shooting {
 		return m_HitStop.Apply(rawDeltaTime);
 	}
 
+	void GameStage::CreateEnemyRenderers(const std::shared_ptr<EnemyBatchController>& controller)
+	{
+		m_enemyInstancedRenderer = AddGameObject<EnemyInstancedRenderer>(controller);
+		m_enemyIndividualRenderer = AddGameObject<EnemyIndividualRenderer>(controller);
+
+		m_enemyRendererUsesInstancing = GameDebugSettingsStore::Get().useEnemyInstancedRendering;
+		ApplyEnemyRendererMode(m_enemyRendererUsesInstancing);
+	}
+
+	void GameStage::ApplyEnemyRendererMode(bool useInstancing)
+	{
+		m_enemyRendererUsesInstancing = useInstancing;
+
+		if (m_enemyInstancedRenderer)
+		{
+			m_enemyInstancedRenderer->SetRenderingEnabled(useInstancing);
+		}
+		if (m_enemyIndividualRenderer)
+		{
+			m_enemyIndividualRenderer->SetRenderingEnabled(!useInstancing);
+		}
+	}
+
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
 		bool benchmarkStartedThisFrame = false;
@@ -155,6 +178,12 @@ namespace shooting {
 			const int waveForSpeed = currentWave > 0 ? currentWave : 1;
 			controller->SetMoveSpeedMultiplier(m_waveController.GetAppliedEnemySpeedMultiplierForWave(waveForSpeed));
 		}
+
+		if (m_enemyRendererUsesInstancing != debug.useEnemyInstancedRendering)
+		{
+			// 比較動画用の切り替え。敵のAIや当たり判定は変えず、描画経路だけを差し替える。
+			ApplyEnemyRendererMode(debug.useEnemyInstancedRendering);
+		}
 	}
 
 	void GameStage::StartInitialWaveAfterPlayerIntro()
@@ -241,7 +270,7 @@ namespace shooting {
 		// 敵
 		auto enemyController = AddGameObject<EnemyBatchController>();
 		m_waveController.SetController(enemyController);
-		AddGameObject<EnemyInstancedRenderer>(enemyController);
+		CreateEnemyRenderers(enemyController);
 		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
 		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。
 		m_WaitingInitialWaveUntilPlayerIntroEnds = true;
