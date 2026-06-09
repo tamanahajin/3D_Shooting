@@ -196,6 +196,12 @@ namespace shooting {
 		}
 	}
 
+	void BenchmarkRecorder::ClearNotification()
+	{
+		m_NotificationSecondsRemaining = 0.0;
+		m_NotificationText.clear();
+	}
+
 	void BenchmarkRecorder::ResetRunState()
 	{
 		m_ElapsedSeconds = 0.0;

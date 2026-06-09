@@ -192,9 +192,12 @@ namespace shooting {
 		m_camera->SetEye(kTitleCameraEyeBase + Vec3(sway, 0.0f, 0.0f));
 	}
 
+	void TitleStage::OnUpdate2(double)
+	{
+	}
+
 	void TitleStage::UpdateCollision()
 	{
-		// タイトル背景は見た目専用なので、静的コリジョンを生成していても毎フレームの判定は行わない。
 	}
 
 }

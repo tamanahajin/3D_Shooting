@@ -580,6 +580,13 @@ namespace shooting {
 
 	void Scene::StartTitle()
 	{
+		auto& benchmark = BenchmarkRecorder::Instance();
+		if (benchmark.IsRunning())
+		{
+			benchmark.Stop(true);
+		}
+		benchmark.ClearNotification();
+
 		m_GameState = GameState::Title;
 		m_TitleMenuIndex = 0;
 		m_TitleHoveredMenuIndex = -1;
@@ -592,6 +599,9 @@ namespace shooting {
 
 	void Scene::StartGame()
 	{
+		// ベンチマークはインゲーム中だけ扱う。前ステートの通知は新しいプレイへ持ち越さない。
+		BenchmarkRecorder::Instance().ClearNotification();
+
 		m_LastScore = 0;
 		m_GameState = GameState::Playing;
 
@@ -1063,6 +1073,14 @@ namespace shooting {
 
 				if (player && player->IsDeathAnimationFinished())
 				{
+					auto& benchmark = BenchmarkRecorder::Instance();
+					if (benchmark.IsRunning())
+					{
+						// ゲームオーバー後は本編外なので、実行中の計測をここで確定する。
+						benchmark.Stop(true);
+					}
+					benchmark.ClearNotification();
+
 					m_LastScore = gameStage->GetDefeatedEnemyCount();
 					m_GameState = GameState::Result;
 

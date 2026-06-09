@@ -20,6 +20,7 @@ namespace shooting {
 
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override;
+		virtual void OnUpdate2(double elapsedTime) override;
 		virtual void UpdateCollision() override;
 	};
 

@@ -57,6 +57,7 @@ namespace shooting {
 		void AddSectionTime(BenchmarkSection section, double milliseconds);
 		void IncrementRaycastCount();
 		void UpdateNotification(double elapsedSeconds);
+		void ClearNotification();
 
 		const BenchmarkSummary& GetLastSummary() const { return m_LastSummary; }
 		const std::string& GetLastOutputPath() const { return m_LastSummary.outputPath; }
