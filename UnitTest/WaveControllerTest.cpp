@@ -17,6 +17,7 @@ namespace ShootingTests
 			debug.overrideEnemyCount = false;
 			debug.enemyCountOverride = 100;
 			debug.enemySpeedMultiplier = 1.0f;
+			debug.enemySpawnPerFrame = 10;
 		}
 
 		TEST_METHOD(Wave1EnemyCountIs5)

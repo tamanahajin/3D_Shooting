@@ -114,35 +114,75 @@ namespace shooting {
 			return 0;
 		}
 
-		// 同じウェーブで生成する敵同士が重なりにくいよう、先に全スポーン位置を決める。
 		std::vector<Vec3> positions;
 		positions.reserve(static_cast<size_t>(desc.count));
+		int processedCount = 0;
+		return CreateEnemiesAroundStep(desc, desc.count, positions, processedCount);
+	}
 
+	/*!
+	@brief 中心位置の周囲に、未処理分から一部だけ敵を生成する
+	@param desc 生成バッチ情報
+	@param maxProcessCount 今回処理する最大数
+	@param acceptedPositions これまでに採用した生成位置。距離チェックに使い、今回分も追加する
+	@param processedCount これまでに処理した敵数。今回分だけ増える
+	@return 今回実際に生成できた敵数
+
+	ウェーブ開始時の負荷を分散するため、位置抽選と EnemyBatchController への登録を
+	maxProcessCount 体ぶんだけ進める。acceptedPositions は同じ生成バッチ内で共有し、
+	フレームをまたいでも敵同士の最低距離チェックが効くようにする。
+	*/
+	int EnemyFactory::CreateEnemiesAroundStep(
+		const SpawnBatchDesc& desc,
+		int maxProcessCount,
+		std::vector<Vec3>& acceptedPositions,
+		int& processedCount)
+	{
+		if (desc.count <= 0 || maxProcessCount <= 0 || !IsValid())
+		{
+			return 0;
+		}
+
+		if (processedCount < 0)
+		{
+			processedCount = 0;
+		}
+		if (processedCount >= desc.count)
+		{
+			return 0;
+		}
+
+		if (acceptedPositions.capacity() < static_cast<size_t>(desc.count))
+		{
+			acceptedPositions.reserve(static_cast<size_t>(desc.count));
+		}
+
+		// 同じウェーブで生成する敵同士が重なりにくいよう、採用済み位置との距離を見ながら抽選する。
 		const int maxAttempts = desc.settings.maxAttempts > 0 ? desc.settings.maxAttempts : 1;
-		for (int count = 0; count < desc.count; ++count)
+		const EnemyStatus status = desc.overrideStatus ? desc.status : GetStatus(desc.kind);
+		int createdCount = 0;
+		int processedThisStep = 0;
+		while (processedCount < desc.count && processedThisStep < maxProcessCount)
 		{
 			Vec3 position(desc.center.x, desc.settings.spawnY, desc.center.z);
 
 			for (int attempt = 0; attempt < maxAttempts; ++attempt)
 			{
 				position = CreateRandomPosition(desc.center, desc.settings);
-				if (IsFarEnough(position, positions, desc.settings.minSpacing))
+				if (IsFarEnough(position, acceptedPositions, desc.settings.minSpacing))
 				{
 					break;
 				}
 			}
 
-			positions.push_back(position);
-		}
-
-		int createdCount = 0;
-		const EnemyStatus status = desc.overrideStatus ? desc.status : GetStatus(desc.kind);
-		for (const auto& position : positions)
-		{
+			acceptedPositions.push_back(position);
 			if (CreateEnemy(desc.kind, position, status) != static_cast<size_t>(-1))
 			{
 				++createdCount;
 			}
+
+			++processedCount;
+			++processedThisStep;
 		}
 
 		return createdCount;

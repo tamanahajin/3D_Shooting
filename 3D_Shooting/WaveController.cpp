@@ -75,6 +75,14 @@ namespace shooting {
 	*/
 	void WaveController::Update(double elapsedTime, const Vec3& spawnCenter)
 	{
+		ProcessPendingEnemySpawns();
+		if (HasPendingEnemySpawns())
+		{
+			// 生成キューが残っている間は次ウェーブのタイマーを進めない。
+			// 敵数を大きくしたベンチ時に、生成待ちのまま次ウェーブまで重なるのを避ける。
+			return;
+		}
+
 		if (m_currentWave <= 0 || m_settings.intervalSeconds <= 0.0)
 		{
 			return;
@@ -91,7 +99,7 @@ namespace shooting {
 	@brief 次のウェーブ番号へ進めて敵を生成する
 	@param spawnCenter 敵生成の中心位置
 
-	ウェーブ番号から敵数と速度倍率を計算し、EnemyFactory にまとめて生成させる。
+	ウェーブ番号から敵数と速度倍率を計算し、敵生成キューへ積む。
 	*/
 	void WaveController::StartNextWave(const Vec3& spawnCenter)
 	{
@@ -120,7 +128,8 @@ namespace shooting {
 		spawnDesc.settings.maxAttempts = m_settings.maxSpawnAttempts;
 
 		controller->SetMoveSpeedMultiplier(GetAppliedEnemySpeedMultiplierForWave(m_currentWave));
-		m_totalEnemyCount += m_enemyFactory->CreateEnemiesAround(spawnDesc);
+		QueueEnemyBatch(spawnDesc);
+		ProcessPendingEnemySpawns();
 	}
 
 	/*!
@@ -205,6 +214,81 @@ namespace shooting {
 		{
 			m_enemyFactory->SetStatus(statusByKind.first, statusByKind.second);
 		}
+	}
+
+	/*!
+	@brief 敵生成バッチを分割生成キューへ積む
+	@param desc 生成バッチ情報
+
+	ステータスをここで固定しておくと、生成が複数フレームに分かれても
+	同じウェーブ内の敵設定が途中で変わらない。
+	*/
+	void WaveController::QueueEnemyBatch(const EnemyFactory::SpawnBatchDesc& desc)
+	{
+		if (desc.count <= 0)
+		{
+			return;
+		}
+
+		PendingSpawnBatch batch;
+		batch.desc = desc;
+		if (!batch.desc.overrideStatus)
+		{
+			batch.desc.overrideStatus = true;
+			batch.desc.status = GetEnemyStatus(batch.desc.kind);
+		}
+		batch.acceptedPositions.reserve(static_cast<size_t>(desc.count));
+		m_pendingSpawnBatches.push_back(batch);
+	}
+
+	/*!
+	@brief 分割生成キューを1フレームぶん進める
+
+	DebugSettings の enemySpawnPerFrame 体まで生成し、残りは次フレームへ回す。
+	*/
+	void WaveController::ProcessPendingEnemySpawns()
+	{
+		if (!m_enemyFactory || !m_enemyFactory->IsValid())
+		{
+			return;
+		}
+
+		int remainingBudget = GetEnemySpawnPerFrame();
+		while (remainingBudget > 0 && !m_pendingSpawnBatches.empty())
+		{
+			auto& batch = m_pendingSpawnBatches.front();
+			const int processedBefore = batch.processedCount;
+			const int createdCount = m_enemyFactory->CreateEnemiesAroundStep(
+				batch.desc,
+				remainingBudget,
+				batch.acceptedPositions,
+				batch.processedCount);
+			const int processedThisFrame = batch.processedCount - processedBefore;
+
+			m_totalEnemyCount += createdCount;
+
+			if (processedThisFrame <= 0)
+			{
+				// 何も進まない場合は無限ループを避ける。Factoryが無効化された場合などの保険。
+				break;
+			}
+
+			remainingBudget -= processedThisFrame;
+			if (batch.processedCount >= batch.desc.count)
+			{
+				m_pendingSpawnBatches.pop_front();
+			}
+		}
+	}
+
+	/*!
+	@brief 1フレームに生成する敵数を取得する
+	@return 1以上の生成数
+	*/
+	int WaveController::GetEnemySpawnPerFrame() const
+	{
+		const int spawnPerFrame = GameDebugSettingsStore::Get().enemySpawnPerFrame;
+		return spawnPerFrame > 0 ? spawnPerFrame : 1;
 	}
 
 }

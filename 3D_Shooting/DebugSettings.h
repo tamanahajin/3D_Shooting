@@ -6,14 +6,15 @@ namespace shooting {
 
 	struct GameDebugSettings
 	{
-		bool playerInvincible = false;
-		bool overrideEnemyCount = false;
-		int enemyCountOverride = 5;
+		bool playerInvincible = true;
+		bool overrideEnemyCount = true;
+		int enemyCountOverride = 100;
 		float playerDamageMultiplier = 1.0f;
 		int startWave = 1;
 		float enemySpeedMultiplier = 1.0f;
 		bool showCollision = false;
 		bool useEnemyInstancedRendering = true;
+		int enemySpawnPerFrame = 10000;
 	};
 
 	class GameDebugSettingsStore

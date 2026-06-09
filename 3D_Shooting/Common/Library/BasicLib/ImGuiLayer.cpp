@@ -219,6 +219,7 @@ namespace shooting {
 		ImGui::SliderFloat("Enemy Speed Multiplier", &debug.enemySpeedMultiplier, 0.1f, 5.0f, "%.2f");
 		ImGui::Checkbox("Show Collision", &debug.showCollision);
 		ImGui::Checkbox("Enemy Instancing", &debug.useEnemyInstancedRendering);
+		ImGui::InputInt("Enemy Spawn/Frame", &debug.enemySpawnPerFrame);
 
 		if (debug.enemyCountOverride < 0)
 		{
@@ -243,6 +244,14 @@ namespace shooting {
 		if (debug.enemySpeedMultiplier > 5.0f)
 		{
 			debug.enemySpeedMultiplier = 5.0f;
+		}
+		if (debug.enemySpawnPerFrame < 1)
+		{
+			debug.enemySpawnPerFrame = 1;
+		}
+		if (debug.enemySpawnPerFrame > 10000)
+		{
+			debug.enemySpawnPerFrame = 10000;
 		}
 
 		ImGui::End();

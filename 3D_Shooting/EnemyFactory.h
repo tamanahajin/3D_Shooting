@@ -115,6 +115,19 @@ namespace shooting {
 		@return 実際に生成できた敵数
 		*/
 		int CreateEnemiesAround(const SpawnBatchDesc& desc);
+		/*!
+		@brief 指定した中心位置の周囲に、未処理分から一部だけ敵を生成する
+		@param desc 生成バッチ情報
+		@param maxProcessCount 今回処理する最大数
+		@param acceptedPositions これまでに採用した生成位置。距離チェックに使い、今回分も追加する
+		@param processedCount これまでに処理した敵数。今回分だけ増える
+		@return 今回実際に生成できた敵数
+		*/
+		int CreateEnemiesAroundStep(
+			const SpawnBatchDesc& desc,
+			int maxProcessCount,
+			std::vector<Vec3>& acceptedPositions,
+			int& processedCount);
 
 	private:
 		std::weak_ptr<EnemyBatchController> m_controller;

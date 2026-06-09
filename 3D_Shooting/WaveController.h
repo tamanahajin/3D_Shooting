@@ -7,8 +7,10 @@
 #include "stdafx.h"
 #include "DebugSettings.h"
 #include "EnemyFactory.h"
+#include <deque>
 #include <memory>
 #include <map>
+#include <vector>
 
 namespace shooting {
 
@@ -190,6 +192,19 @@ namespace shooting {
 		}
 
 	private:
+		/*!
+		@brief フレームをまたいで消化する敵生成バッチ
+
+		生成位置の距離チェックは同じバッチ内の採用済み位置を使うため、
+		acceptedPositions もキュー側で保持する。
+		*/
+		struct PendingSpawnBatch
+		{
+			EnemyFactory::SpawnBatchDesc desc;
+			std::vector<Vec3> acceptedPositions;
+			int processedCount = 0;
+		};
+
 		WaveSettings m_settings;
 		int m_totalEnemyCount = 0;
 		int m_currentWave = 0;
@@ -197,6 +212,7 @@ namespace shooting {
 		std::weak_ptr<EnemyBatchController> m_controller;
 		std::shared_ptr<EnemyFactory> m_enemyFactory;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
+		std::deque<PendingSpawnBatch> m_pendingSpawnBatches;
 
 		/*!
 		@brief 現在の敵バッチコントローラを取得する
@@ -208,6 +224,25 @@ namespace shooting {
 		@param controller 敵生成先のバッチコントローラ
 		*/
 		void WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
+		/*!
+		@brief 敵生成バッチを分割生成キューへ積む
+		@param desc 生成バッチ情報
+		*/
+		void QueueEnemyBatch(const EnemyFactory::SpawnBatchDesc& desc);
+		/*!
+		@brief 分割生成キューを1フレームぶん進める
+		*/
+		void ProcessPendingEnemySpawns();
+		/*!
+		@brief 分割生成キューに未生成分が残っているかを判定する
+		@return 未生成分がある場合は true
+		*/
+		bool HasPendingEnemySpawns() const { return !m_pendingSpawnBatches.empty(); }
+		/*!
+		@brief 1フレームに生成する敵数を取得する
+		@return 1以上の生成数
+		*/
+		int GetEnemySpawnPerFrame() const;
 	};
 
 }
