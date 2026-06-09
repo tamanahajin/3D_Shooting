@@ -270,6 +270,8 @@ namespace shooting {
 		// 敵
 		auto enemyController = AddGameObject<EnemyBatchController>();
 		m_waveController.SetController(enemyController);
+		const int prewarmWave = GameDebugSettingsStore::Get().startWave > 0 ? GameDebugSettingsStore::Get().startWave : 1;
+		enemyController->PrewarmCollisionProxyPool(m_waveController.GetEnemyCountForWave(prewarmWave));
 		CreateEnemyRenderers(enemyController);
 		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
 		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。

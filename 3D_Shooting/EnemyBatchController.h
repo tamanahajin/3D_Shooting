@@ -203,6 +203,7 @@ namespace shooting {
 		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
 		float m_CollisionRadius = 0.2f;
 		float m_CollisionHeight = 0.3f;
+		bool m_InUse = true;
 
 		/*!
 		@brief 衝突相手を判定し、接地・弾・爆弾の処理をコントローラへ転送する
@@ -231,6 +232,29 @@ namespace shooting {
 		*/
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
+		/*!
+		@brief プールから取り出したプロキシを新しい敵に割り当てる
+		@param controller 本体状態を持つ敵バッチコントローラ
+		@param enemyIndex m_Enemies 内の対象インデックス
+		@param startPosition 生成位置
+		@param status 当たり判定サイズとモデルスケールを含む敵設定
+
+		GameObject と CollisionCapsule は作り直さず、参照先と Transform だけを差し替える。
+		*/
+		void ResetForEnemy(
+			const std::shared_ptr<EnemyBatchController>& controller,
+			size_t enemyIndex,
+			const Vec3& startPosition,
+			const EnemyStatus& status);
+		/*!
+		@brief 使用中プロキシをプールへ戻せる状態にする
+		*/
+		void DeactivateForPool();
+		/*!
+		@brief 現在敵に割り当てられているかを取得する
+		@return 使用中なら true
+		*/
+		bool IsInUse() const { return m_InUse; }
 		/*!
 		@brief 衝突開始時の処理を共通ハンドラへ渡す
 		@param pair 衝突情報
@@ -344,6 +368,8 @@ namespace shooting {
 		std::shared_ptr<GameStage> m_GameStage;
 		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
 		std::vector<EnemyState> m_Enemies;
+		// 死亡済み敵のコリジョンプロキシを再利用するためのプール。
+		std::vector<std::shared_ptr<EnemyCollisionProxy>> m_CollisionProxyPool;
 		// 各敵の分離力を一時保存する。全敵位置を使うため、OnUpdate冒頭でまとめて計算する。
 		std::vector<Vec3> m_SeparationForces;
 		// 敵同士の分離計算を軽くするための空間グリッド。
@@ -374,6 +400,19 @@ namespace shooting {
 		@param index 対象敵のインデックス
 		*/
 		void SyncProxyTransform(size_t index);
+		/*!
+		@brief 空きプロキシを取得し、なければ新規作成する
+		@param index 割り当てる敵のインデックス
+		@param startPosition 生成位置
+		@param status 敵設定
+		@return 使用可能な EnemyCollisionProxy
+		*/
+		std::shared_ptr<EnemyCollisionProxy> AcquireCollisionProxy(size_t index, const Vec3& startPosition, const EnemyStatus& status);
+		/*!
+		@brief 使用済みプロキシをプールへ戻す
+		@param proxy 戻すプロキシ
+		*/
+		void ReleaseCollisionProxy(const std::shared_ptr<EnemyCollisionProxy>& proxy);
 		/*!
 		@brief 死亡アニメーションが終わった敵のプロキシを削除対象にする
 		@param index 対象敵のインデックス
@@ -499,6 +538,14 @@ namespace shooting {
 		@return 追加された敵のインデックス
 		*/
 		size_t AddEnemy(const Vec3& startPosition, const EnemyStatus& status);
+		/*!
+		@brief 敵コリジョンプロキシを事前生成してプールへ入れる
+		@param count 確保しておきたいプロキシ数
+
+		Wave開始時の AddGameObject<EnemyCollisionProxy> 集中を避けるため、
+		ステージ開始時など負荷を逃がしやすいタイミングで呼ぶ。
+		*/
+		void PrewarmCollisionProxyPool(int count);
 		/*!
 		@brief 全敵に適用する移動速度倍率を設定する
 		@param multiplier 速度倍率。0.1未満は0.1に丸める

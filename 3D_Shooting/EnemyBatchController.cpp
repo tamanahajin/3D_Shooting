@@ -74,10 +74,44 @@ namespace shooting {
 		m_Enemies.push_back(enemy);
 
 		// 当たり判定だけは軽量なGameObjectとして残し、描画やAI状態はm_Enemies側でまとめて扱う。
-		auto proxy = m_GameStage->AddGameObject<EnemyCollisionProxy>(GetThis<EnemyBatchController>(), index, startPosition, enemy.status);
+		// 生成スパイクを抑えるため、死亡済みプロキシがあれば再利用する。
+		auto proxy = AcquireCollisionProxy(index, startPosition, enemy.status);
 		m_Enemies[index].proxy = proxy;
 		SyncProxyTransform(index);
 		return index;
+	}
+
+	/*!
+	@brief 敵コリジョンプロキシを事前生成してプールへ入れる
+	@param count 確保しておきたいプロキシ数
+
+	生成スパイクの主因は EnemyCollisionProxy の GameObject と CollisionCapsule 作成が
+	Wave開始フレームに集中すること。先に非アクティブ状態で作っておけば、Wave中は再設定だけで済む。
+	*/
+	void EnemyBatchController::PrewarmCollisionProxyPool(int count)
+	{
+		if (count <= 0 || !m_GameStage)
+		{
+			return;
+		}
+
+		const int missingCount = count - static_cast<int>(m_CollisionProxyPool.size());
+		if (missingCount <= 0)
+		{
+			return;
+		}
+
+		const Vec3 pooledPosition(0.0f, -1000.0f, 0.0f);
+		const EnemyStatus defaultStatus;
+		for (int i = 0; i < missingCount; ++i)
+		{
+			auto proxy = m_GameStage->AddGameObject<EnemyCollisionProxy>(
+				GetThis<EnemyBatchController>(),
+				0,
+				pooledPosition,
+				defaultStatus);
+			ReleaseCollisionProxy(proxy);
+		}
 	}
 
 	/*!
@@ -121,7 +155,57 @@ namespace shooting {
 	}
 
 	/*!
-	@brief 敵プロキシをステージから外し、配列上では非アクティブにする
+	@brief 空きプロキシを取得し、なければ新規作成する
+	@param index 割り当てる敵のインデックス
+	@param startPosition 生成位置
+	@param status 敵設定
+	@return 使用可能な EnemyCollisionProxy
+
+	EnemyCollisionProxy は Transform と CollisionCapsule を持つため、毎回 AddGameObject すると
+	Wave開始時にコンポーネント生成コストが集中する。プールに戻したものを優先して再利用する。
+	*/
+	std::shared_ptr<EnemyCollisionProxy> EnemyBatchController::AcquireCollisionProxy(
+		size_t index,
+		const Vec3& startPosition,
+		const EnemyStatus& status)
+	{
+		while (!m_CollisionProxyPool.empty())
+		{
+			auto proxy = m_CollisionProxyPool.back();
+			m_CollisionProxyPool.pop_back();
+			if (!proxy)
+			{
+				continue;
+			}
+
+			proxy->ResetForEnemy(GetThis<EnemyBatchController>(), index, startPosition, status);
+			return proxy;
+		}
+
+		return m_GameStage->AddGameObject<EnemyCollisionProxy>(
+			GetThis<EnemyBatchController>(),
+			index,
+			startPosition,
+			status);
+	}
+
+	/*!
+	@brief 使用済みプロキシをプールへ戻す
+	@param proxy 戻すプロキシ
+	*/
+	void EnemyBatchController::ReleaseCollisionProxy(const std::shared_ptr<EnemyCollisionProxy>& proxy)
+	{
+		if (!proxy)
+		{
+			return;
+		}
+
+		proxy->DeactivateForPool();
+		m_CollisionProxyPool.push_back(proxy);
+	}
+
+	/*!
+	@brief 敵プロキシをプールへ戻し、配列上では非アクティブにする
 	@param index 削除する敵のインデックス
 
 	配列要素を詰めると既存プロキシの index がずれるため、要素は残して active=false にする。
@@ -136,10 +220,7 @@ namespace shooting {
 		auto proxy = m_Enemies[index].proxy.lock();
 		if (proxy)
 		{
-			proxy->RemoveTag(L"Enemy");
-			proxy->SetDrawActive(false);
-			proxy->SetUpdateActive(false);
-			m_GameStage->RemoveGameObject(proxy);
+			ReleaseCollisionProxy(proxy);
 		}
 
 		m_Enemies[index].active = false;

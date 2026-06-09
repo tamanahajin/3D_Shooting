@@ -31,7 +31,8 @@ namespace shooting {
 		m_StartPosition(startPosition),
 		m_ModelScale(status.modelScale),
 		m_CollisionRadius(status.collisionRadius),
-		m_CollisionHeight(status.collisionHeight)
+		m_CollisionHeight(status.collisionHeight),
+		m_InUse(true)
 	{
 		m_transParam.position = startPosition;
 	}
@@ -68,6 +69,83 @@ namespace shooting {
 	}
 
 	/*!
+	@brief プールから取り出したプロキシを新しい敵に割り当てる
+	@param controller 敵本体の状態を持つバッチコントローラ
+	@param enemyIndex m_Enemies 内の対応インデックス
+	@param startPosition 初期位置
+	@param status 当たり判定サイズとモデルスケールを含む敵設定
+
+	敵生成時に GameObject と CollisionCapsule を毎回作り直すとスパイクになりやすい。
+	この関数では既存プロキシを再利用し、敵配列への参照と当たり判定サイズだけを更新する。
+	*/
+	void EnemyCollisionProxy::ResetForEnemy(
+		const std::shared_ptr<EnemyBatchController>& controller,
+		size_t enemyIndex,
+		const Vec3& startPosition,
+		const EnemyStatus& status)
+	{
+		m_Controller = controller;
+		m_EnemyIndex = enemyIndex;
+		m_StartPosition = startPosition;
+		m_ModelScale = status.modelScale;
+		m_CollisionRadius = status.collisionRadius;
+		m_CollisionHeight = status.collisionHeight;
+		m_InUse = true;
+
+		SetUpdateActive(true);
+		SetDrawActive(false);
+		SetShadowActive(false);
+
+		auto transform = GetComponent<Transform>(false);
+		if (transform)
+		{
+			transform->SetPosition(m_StartPosition);
+			transform->SetScale(m_ModelScale);
+			transform->SetRotation(0.0f, 0.0f, 0.0f);
+			transform->SetToBefore();
+		}
+
+		auto collision = GetComponent<CollisionCapsule>(false);
+		if (collision)
+		{
+			collision->SetUpdateActive(true);
+			collision->SetDebugDraw(false);
+			collision->SetMakedRadius(m_CollisionRadius);
+			collision->SetMakedHeight(m_CollisionHeight);
+			collision->WakeUp();
+		}
+
+		AddTag(L"Enemy");
+		AddTag(L"EnemyProxy");
+		AddTag(L"NoStaticStageCollision");
+		AddTag(L"UseStageObjectCollision");
+	}
+
+	/*!
+	@brief 使用中プロキシをプールへ戻せる状態にする
+
+	CollisionManager は GameObject の updateActive と Collision の updateActive を見るため、
+	両方を無効化しておけばステージに残したまま判定対象から外せる。
+	*/
+	void EnemyCollisionProxy::DeactivateForPool()
+	{
+		m_InUse = false;
+		m_Controller.reset();
+		m_EnemyIndex = 0;
+
+		RemoveTag(L"Enemy");
+		SetUpdateActive(false);
+		SetDrawActive(false);
+		SetShadowActive(false);
+
+		if (auto collision = GetComponent<CollisionCapsule>(false))
+		{
+			collision->SetUpdateActive(false);
+			collision->SetDrawActive(false);
+		}
+	}
+
+	/*!
 	@brief 衝突相手の種類に応じて敵バッチへ処理を転送する
 	@param pair CollisionManager から渡された衝突情報
 
@@ -75,6 +153,11 @@ namespace shooting {
 	*/
 	void EnemyCollisionProxy::HandleCollision(const CollisionPair& pair)
 	{
+		if (!m_InUse)
+		{
+			return;
+		}
+
 		auto otherCollision = pair.m_Dest.lock();
 		if (!otherCollision)
 		{
@@ -159,6 +242,11 @@ namespace shooting {
 	*/
 	bool EnemyCollisionProxy::ApplyDamage(const DamageInfo& info)
 	{
+		if (!m_InUse)
+		{
+			return false;
+		}
+
 		auto controller = m_Controller.lock();
 		return controller ? controller->ApplyDamage(m_EnemyIndex, info) : false;
 	}
@@ -169,6 +257,11 @@ namespace shooting {
 	*/
 	void EnemyCollisionProxy::AddKnockback(const Vec3& velocity)
 	{
+		if (!m_InUse)
+		{
+			return;
+		}
+
 		auto controller = m_Controller.lock();
 		if (controller)
 		{
@@ -182,6 +275,11 @@ namespace shooting {
 	*/
 	bool EnemyCollisionProxy::IsAlive() const
 	{
+		if (!m_InUse)
+		{
+			return false;
+		}
+
 		auto controller = m_Controller.lock();
 		return controller ? controller->IsEnemyAlive(m_EnemyIndex) : false;
 	}
