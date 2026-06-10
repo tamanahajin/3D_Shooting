@@ -50,6 +50,8 @@ namespace shooting {
 		void SetMasterVolume(float volume);
 		void SetSeVolume(float volume);
 		void SetBgmVolume(float volume);
+		float GetSeVolume() const { return m_seVolume; }
+		float GetBgmVolume() const { return m_bgmVolume; }
 
 		bool IsEnabled() const { return m_enabled; }
 
@@ -67,10 +69,12 @@ namespace shooting {
 		std::map<GameSoundId, AudioClipPtr> m_soundClips;
 		std::map<GameBgmId, AudioClipPtr> m_bgmClips;
 		SoundInstanceId m_currentBgm = 0;
+		GameBgmId m_currentBgmId = GameBgmId::Title;
+		float m_currentBgmVolumeScale = 1.0f;
 		bool m_enabled = false;
 		float m_masterVolume = 1.0f;
-		float m_seVolume = 1.0f;
-		float m_bgmVolume = 0.7f;
+		float m_seVolume = 0.5f;
+		float m_bgmVolume = 0.5f;
 	};
 
 }

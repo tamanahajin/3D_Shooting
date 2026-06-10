@@ -61,8 +61,10 @@ namespace shooting {
 	{
 		m_textBlocks.clear();
 		m_progressBars.clear();
+		m_sliders.clear();
 		m_imageBlocks.clear();
 		m_buttons.clear();
+		m_backgroundOverlays.clear();
 		m_overlays.clear();
 	}
 
@@ -194,6 +196,18 @@ namespace shooting {
 		m_progressBars.push_back(block);
 	}
 
+	void UILayer::AddSliderBlock(
+		const D2D1_RECT_F& rect,
+		float value,
+		const std::wstring& label)
+	{
+		SliderBlock block;
+		block.layout = rect;
+		block.value = bsmUtil::Clamp(value, 0.0f, 1.0f);
+		block.label = label;
+		m_sliders.push_back(block);
+	}
+
 	void UILayer::AddButtonBlock(
 		const D2D1_RECT_F& rect,
 		const std::wstring& text,
@@ -214,12 +228,20 @@ namespace shooting {
 
 	void UILayer::AddOverlayBlock(
 		const D2D1_RECT_F& rect,
-		const D2D1_COLOR_F& color)
+		const D2D1_COLOR_F& color,
+		bool front)
 	{
 		OverlayBlock block;
 		block.layout = rect;
 		block.color = color;
-		m_overlays.push_back(block);
+		if (front)
+		{
+			m_overlays.push_back(block);
+		}
+		else
+		{
+			m_backgroundOverlays.push_back(block);
+		}
 	}
 
 	void UILayer::Render(UINT frameIndex)
@@ -230,6 +252,17 @@ namespace shooting {
 		m_d3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
 
 		m_d2dDeviceContext->BeginDraw();
+
+		for (const auto& overlay : m_backgroundOverlays)
+		{
+			if (overlay.color.a <= 0.0f)
+			{
+				continue;
+			}
+
+			m_textBrush->SetColor(overlay.color);
+			m_d2dDeviceContext->FillRectangle(overlay.layout, m_textBrush.Get());
+		}
 
 		// バーを先に描画
 		for (const auto& bar : m_progressBars)
@@ -280,6 +313,47 @@ namespace shooting {
 				&image.layout,
 				image.opacity,
 				D2D1_INTERPOLATION_MODE_LINEAR);
+		}
+
+		for (const auto& slider : m_sliders)
+		{
+			const auto& r = slider.layout;
+			const float labelWidth = 92.0f;
+			const float trackLeft = r.left + labelWidth + 26.0f;
+			const float trackRight = r.right;
+			const float centerY = (r.top + r.bottom) * 0.5f;
+			const float trackHeight = 8.0f;
+			const float knobRadius = 9.0f;
+			const float ratio = bsmUtil::Clamp(slider.value, 0.0f, 1.0f);
+			const float knobX = trackLeft + (trackRight - trackLeft) * ratio;
+
+			D2D1_RECT_F labelRect = D2D1::RectF(r.left, r.top, r.left + labelWidth, r.bottom);
+			D2D1_RECT_F trackRect = D2D1::RectF(trackLeft, centerY - trackHeight * 0.5f, trackRight, centerY + trackHeight * 0.5f);
+			D2D1_RECT_F fillRect = trackRect;
+			fillRect.right = knobX;
+
+			m_textBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+			m_d2dDeviceContext->DrawText(
+				slider.label.c_str(),
+				static_cast<UINT>(slider.label.length()),
+				m_textFormatLeft.Get(),
+				labelRect,
+				m_textBrush.Get());
+
+			m_textBrush->SetColor(D2D1::ColorF(0.18f, 0.20f, 0.24f, 0.95f));
+			m_d2dDeviceContext->FillRectangle(trackRect, m_textBrush.Get());
+
+			m_textBrush->SetColor(D2D1::ColorF(0.95f, 0.78f, 0.22f, 0.98f));
+			m_d2dDeviceContext->FillRectangle(fillRect, m_textBrush.Get());
+
+			m_textBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+			m_d2dDeviceContext->DrawRectangle(trackRect, m_textBrush.Get(), 1.5f);
+
+			D2D1_ELLIPSE knob = D2D1::Ellipse(D2D1::Point2F(knobX, centerY), knobRadius, knobRadius);
+			m_textBrush->SetColor(D2D1::ColorF(0.97f, 0.97f, 0.97f, 1.0f));
+			m_d2dDeviceContext->FillEllipse(knob, m_textBrush.Get());
+			m_textBrush->SetColor(D2D1::ColorF(0.08f, 0.09f, 0.11f, 1.0f));
+			m_d2dDeviceContext->DrawEllipse(knob, m_textBrush.Get(), 1.5f);
 		}
 
 		// テキスト
@@ -390,7 +464,9 @@ namespace shooting {
 
 		m_textBlocks.clear();
 		m_progressBars.clear();
+		m_sliders.clear();
 		m_imageBlocks.clear();
+		m_backgroundOverlays.clear();
 		m_overlays.clear();
 		m_bitmapCache.clear();
 

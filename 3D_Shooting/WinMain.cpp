@@ -23,5 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	}
 
 	shooting::BaseDevice device(1280, 800, L"BOM!BOM!BOM!");
+	// Escはゲーム内のオプション表示に使うため、共通App側の即終了処理は無効にする。
+	device.SetQuiteEscapeKey(false);
 	return shooting::App::Run(&device, hInstance, nCmdShow);
 }

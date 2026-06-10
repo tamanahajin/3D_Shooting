@@ -32,6 +32,8 @@ namespace shooting {
 		int m_TitleMenuIndex = 0;
 		int m_TitleHoveredMenuIndex = -1;
 		double m_TitleTime = 0.0;
+		bool m_OptionOpen = false;
+		int m_OptionDraggingSlider = -1;
 		ScreenTransition m_ScreenTransition;
 
 	public:
@@ -49,6 +51,12 @@ namespace shooting {
 		void ConfirmTitleMenuSelection();
 		void SetTitleMenuIndex(int index, bool playCursorMoveSound);
 		void UpdateTitleInput();
+		void UpdateOptionInput();
+		void OpenOptionMenu();
+		void CloseOptionMenu();
+		void DrawOptionButton(UILayer& uiLayer);
+		void DrawOptionMenu(UILayer& uiLayer);
+		float UpdateOptionSliderValue(int sliderIndex, const D2D1_RECT_F& rect, float currentValue);
 		void RenderUIWithTransition(UILayer& uiLayer);
 		void SetMouseCursorVisible(bool visible);
 

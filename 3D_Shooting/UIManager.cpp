@@ -7,8 +7,10 @@ namespace shooting {
 	{
 		m_texts.clear();
 		m_bars.clear();
+		m_sliders.clear();
 		m_images.clear();
 		m_buttons.clear();
+		m_backgroundOverlays.clear();
 		m_overlays.clear();
 	}
 
@@ -66,11 +68,34 @@ namespace shooting {
 		m_bars.push_back(cmd);
 	}
 
+	void UIManager::AddSlider(
+		const std::wstring& label,
+		float value,
+		UIAnchor anchor,
+		const UIPointF& offset,
+		const UISizeF& size)
+	{
+		SliderCommand cmd;
+		cmd.label = label;
+		cmd.value = bsmUtil::Clamp(value, 0.0f, 1.0f);
+		cmd.anchor = anchor;
+		cmd.offset = offset;
+		cmd.size = size;
+		m_sliders.push_back(cmd);
+	}
+
 	void UIManager::AddFullscreenOverlay(const D2D1_COLOR_F& color)
 	{
 		OverlayCommand cmd;
 		cmd.color = color;
 		m_overlays.push_back(cmd);
+	}
+
+	void UIManager::AddFullscreenBackgroundOverlay(const D2D1_COLOR_F& color)
+	{
+		OverlayCommand cmd;
+		cmd.color = color;
+		m_backgroundOverlays.push_back(cmd);
 	}
 
 	bool UIManager::IsPointInRect(float x, float y, const D2D1_RECT_F& rect)
@@ -184,6 +209,14 @@ namespace shooting {
 		const float screenW = layer.GetWidth();
 		const float screenH = layer.GetHeight();
 
+		for (const auto& overlay : m_backgroundOverlays)
+		{
+			layer.AddOverlayBlock(
+				D2D1::RectF(0.0f, 0.0f, screenW, screenH),
+				overlay.color,
+				false);
+		}
+
 		for (const auto& bar : m_bars)
 		{
 			layer.AddProgressBar(
@@ -191,6 +224,14 @@ namespace shooting {
 				bar.value,
 				bar.maxValue,
 				bar.label);
+		}
+
+		for (const auto& slider : m_sliders)
+		{
+			layer.AddSliderBlock(
+				ResolveRect(screenW, screenH, slider.anchor, slider.offset, slider.size),
+				slider.value,
+				slider.label);
 		}
 
 		for (const auto& image : m_images)

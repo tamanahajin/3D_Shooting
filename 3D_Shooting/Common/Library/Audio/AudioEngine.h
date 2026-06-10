@@ -53,6 +53,7 @@ namespace shooting {
 
 		void Stop(SoundInstanceId id);
 		void StopAll();
+		void SetVolume(SoundInstanceId id, float volume);
 		void SetMasterVolume(float volume);
 		void SetMaxActiveVoices(size_t maxActiveVoices);
 

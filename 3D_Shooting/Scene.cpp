@@ -7,6 +7,14 @@ namespace shooting {
 	{
 		const float kSceneTransitionFadeOutSeconds = 0.35f;
 		const float kSceneTransitionFadeInSeconds = 0.45f;
+		const wchar_t* kOptionIconPath = L"UI/option.png";
+		const int kOptionSliderNone = -1;
+		const int kOptionSliderBgm = 0;
+		const int kOptionSliderSe = 1;
+		const float kOptionIconSize = 46.0f;
+		const float kOptionIconMargin = 20.0f;
+		const float kOptionSliderHeight = 34.0f;
+		const float kOptionSliderTrackOffset = 118.0f;
 
 		std::shared_ptr<BaseMesh> CreateBombPreviewDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
 		{
@@ -587,6 +595,8 @@ namespace shooting {
 		}
 		benchmark.ClearNotification();
 
+		m_OptionOpen = false;
+		m_OptionDraggingSlider = kOptionSliderNone;
 		m_GameState = GameState::Title;
 		m_TitleMenuIndex = 0;
 		m_TitleHoveredMenuIndex = -1;
@@ -602,6 +612,8 @@ namespace shooting {
 		// ベンチマークはインゲーム中だけ扱う。前ステートの通知は新しいプレイへ持ち越さない。
 		BenchmarkRecorder::Instance().ClearNotification();
 
+		m_OptionOpen = false;
+		m_OptionDraggingSlider = kOptionSliderNone;
 		m_LastScore = 0;
 		m_GameState = GameState::Playing;
 
@@ -695,8 +707,97 @@ namespace shooting {
 		}
 	}
 
+	void Scene::OpenOptionMenu()
+	{
+		if (m_OptionOpen || m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		m_OptionOpen = true;
+		m_OptionDraggingSlider = kOptionSliderNone;
+		GameAudio::Instance().PlaySound(GameSoundId::Decide);
+
+		if (m_GameState == GameState::Playing)
+		{
+			SetMouseCursorVisible(true);
+		}
+	}
+
+	void Scene::CloseOptionMenu()
+	{
+		if (!m_OptionOpen)
+		{
+			return;
+		}
+
+		m_OptionOpen = false;
+		m_OptionDraggingSlider = kOptionSliderNone;
+		GameAudio::Instance().PlaySound(GameSoundId::Cancel);
+
+		if (m_GameState == GameState::Playing)
+		{
+			SetMouseCursorVisible(false);
+		}
+	}
+
+	void Scene::UpdateOptionInput()
+	{
+		if (!m_OptionOpen || m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		if (App::GetInputDevice().KeyPressed(VK_ESCAPE))
+		{
+			CloseOptionMenu();
+		}
+	}
+
+	float Scene::UpdateOptionSliderValue(int sliderIndex, const D2D1_RECT_F& rect, float currentValue)
+	{
+		const auto& input = App::GetInputDevice();
+		const auto& mouse = input.GetMouseState();
+
+		const float trackLeft = rect.left + kOptionSliderTrackOffset;
+		const float trackRight = rect.right;
+		const D2D1_RECT_F hitRect = D2D1::RectF(
+			trackLeft - 18.0f,
+			rect.top - 8.0f,
+			trackRight + 18.0f,
+			rect.bottom + 8.0f);
+
+		if (input.MousePressed(VK_LBUTTON) && IsMouseInRect(hitRect))
+		{
+			m_OptionDraggingSlider = sliderIndex;
+		}
+
+		float value = currentValue;
+		if (m_OptionDraggingSlider == sliderIndex && input.MouseDown(VK_LBUTTON))
+		{
+			const float width = trackRight - trackLeft;
+			if (width > 0.0f)
+			{
+				value = bsmUtil::Clamp((static_cast<float>(mouse.now.x) - trackLeft) / width, 0.0f, 1.0f);
+			}
+		}
+
+		if (m_OptionDraggingSlider == sliderIndex && input.MouseReleased(VK_LBUTTON))
+		{
+			m_OptionDraggingSlider = kOptionSliderNone;
+		}
+
+		return value;
+	}
+
 	void Scene::UpdateTitleInput()
 	{
+		if (m_OptionOpen)
+		{
+			UpdateOptionInput();
+			return;
+		}
+
 		if (m_ScreenTransition.IsInputBlocked())
 		{
 			return;
@@ -720,7 +821,100 @@ namespace shooting {
 
 		if (input.KeyPressed(VK_ESCAPE))
 		{
-			::PostQuitMessage(0);
+			OpenOptionMenu();
+		}
+	}
+
+	void Scene::DrawOptionButton(UILayer& uiLayer)
+	{
+		const float screenW = uiLayer.GetWidth();
+		const D2D1_RECT_F rect = D2D1::RectF(
+			screenW - kOptionIconMargin - kOptionIconSize,
+			kOptionIconMargin,
+			screenW - kOptionIconMargin,
+			kOptionIconMargin + kOptionIconSize);
+		const bool hovered = IsMouseInRect(rect);
+
+		m_uiManager.AddImage(
+			App::GetRelativeAssetsDir() + kOptionIconPath,
+			UIAnchor::TopRight,
+			{ -kOptionIconMargin, kOptionIconMargin },
+			{ kOptionIconSize, kOptionIconSize },
+			hovered ? 1.0f : 0.82f);
+
+		if (!m_ScreenTransition.IsInputBlocked() &&
+			hovered &&
+			App::GetInputDevice().MousePressed(VK_LBUTTON))
+		{
+			if (m_OptionOpen)
+			{
+				CloseOptionMenu();
+			}
+			else
+			{
+				OpenOptionMenu();
+			}
+		}
+	}
+
+	void Scene::DrawOptionMenu(UILayer& uiLayer)
+	{
+		const float screenW = uiLayer.GetWidth();
+		const float screenH = uiLayer.GetHeight();
+		const float sliderWidth = bsmUtil::Max(240.0f, bsmUtil::Min(420.0f, screenW - 80.0f));
+		const UISizeF sliderSize = { sliderWidth, kOptionSliderHeight };
+
+		auto makeSliderRect = [&](float yOffset)
+		{
+			const float left = (screenW - sliderWidth) * 0.5f;
+			const float top = (screenH - kOptionSliderHeight) * 0.5f + yOffset;
+			return D2D1::RectF(left, top, left + sliderWidth, top + kOptionSliderHeight);
+		};
+
+		auto& audio = GameAudio::Instance();
+		const D2D1_RECT_F bgmRect = makeSliderRect(-46.0f);
+		const D2D1_RECT_F seRect = makeSliderRect(18.0f);
+		const float bgmVolume = UpdateOptionSliderValue(kOptionSliderBgm, bgmRect, audio.GetBgmVolume());
+		const float seVolume = UpdateOptionSliderValue(kOptionSliderSe, seRect, audio.GetSeVolume());
+
+		if (std::fabs(bgmVolume - audio.GetBgmVolume()) > 0.001f)
+		{
+			audio.SetBgmVolume(bgmVolume);
+		}
+		if (std::fabs(seVolume - audio.GetSeVolume()) > 0.001f)
+		{
+			audio.SetSeVolume(seVolume);
+		}
+
+		m_uiManager.AddFullscreenBackgroundOverlay(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.48f));
+
+		m_uiManager.AddSlider(
+			L"BGM",
+			audio.GetBgmVolume(),
+			UIAnchor::Center,
+			{ 0.0f, -46.0f },
+			sliderSize);
+
+		m_uiManager.AddSlider(
+			L"SE",
+			audio.GetSeVolume(),
+			UIAnchor::Center,
+			{ 0.0f, 18.0f },
+			sliderSize);
+
+		auto exitButton = m_uiManager.AddButton(
+			L"EXIT",
+			UIAnchor::Center,
+			{ 0.0f, 104.0f },
+			{ 180.0f, 52.0f },
+			D2D1::ColorF(0.08f, 0.09f, 0.11f, 0.92f),
+			D2D1::ColorF(0.18f, 0.20f, 0.24f, 0.96f),
+			D2D1::ColorF(D2D1::ColorF::White));
+
+		if (!m_ScreenTransition.IsInputBlocked() && exitButton.clicked)
+		{
+			PlayButtonDecideSound();
+			RequestExitGame();
 		}
 	}
 
@@ -762,6 +956,15 @@ namespace shooting {
 
 		if (m_GameState == GameState::Title)
 		{
+			if (m_OptionOpen)
+			{
+				DrawOptionMenu(*uiLayer);
+				DrawOptionButton(*uiLayer);
+				uiLayer->SetCrosshairEnabled(false);
+				RenderUIWithTransition(*uiLayer);
+				return;
+			}
+
 			const bool inputBlocked = m_ScreenTransition.IsInputBlocked();
 			const float titleBob = std::sin(static_cast<float>(m_TitleTime) * 1.8f) * 10.0f;
 			const D2D1_COLOR_F selectedColor = D2D1::ColorF(1.0f, 0.86f, 0.12f, 1.0f);
@@ -842,6 +1045,7 @@ namespace shooting {
 				ConfirmTitleMenuSelection();
 			}
 
+			DrawOptionButton(*uiLayer);
 			uiLayer->SetCrosshairEnabled(false);
 			RenderUIWithTransition(*uiLayer);
 			return;
@@ -899,6 +1103,15 @@ namespace shooting {
 		auto device = BaseDevice::GetBaseDevice();
 		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
 		auto hp = player ? player->GetComponent<Health>() : nullptr;
+
+		if (m_OptionOpen)
+		{
+			DrawOptionMenu(*uiLayer);
+			DrawOptionButton(*uiLayer);
+			uiLayer->SetCrosshairEnabled(false);
+			RenderUIWithTransition(*uiLayer);
+			return;
+		}
 
 		// 左上：デバッグ表示
 		{
@@ -1024,6 +1237,7 @@ namespace shooting {
 					D2D1::ColorF(1.0f, 0.82f, 0.16f, alpha));
 			}
 		}
+		DrawOptionButton(*uiLayer);
 		uiLayer->SetCrosshairEnabled(true);
 		RenderUIWithTransition(*uiLayer);
 	}
@@ -1066,6 +1280,22 @@ namespace shooting {
 		{
 			if (m_activeStage)
 			{
+				if (m_OptionOpen)
+				{
+					UpdateOptionInput();
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+					return;
+				}
+
+				if (App::GetInputDevice().KeyPressed(VK_ESCAPE))
+				{
+					OpenOptionMenu();
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+					return;
+				}
+
 				m_activeStage->UpdateStage();
 
 				auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);

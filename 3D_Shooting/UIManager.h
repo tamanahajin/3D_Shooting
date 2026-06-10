@@ -75,7 +75,15 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size);
 
+		void AddSlider(
+			const std::wstring& label,
+			float value,
+			UIAnchor anchor,
+			const UIPointF& offset,
+			const UISizeF& size);
+
 		void AddFullscreenOverlay(const D2D1_COLOR_F& color);
+		void AddFullscreenBackgroundOverlay(const D2D1_COLOR_F& color);
 
 		UIButtonResult AddButton(
 			const std::wstring& text,
@@ -106,6 +114,15 @@ namespace shooting {
 			std::wstring label;
 			float value;
 			float maxValue;
+			UIAnchor anchor;
+			UIPointF offset;
+			UISizeF size;
+		};
+
+		struct SliderCommand
+		{
+			std::wstring label;
+			float value;
 			UIAnchor anchor;
 			UIPointF offset;
 			UISizeF size;
@@ -148,8 +165,10 @@ namespace shooting {
 
 		std::vector<TextCommand> m_texts;
 		std::vector<ProgressBarCommand> m_bars;
+		std::vector<SliderCommand> m_sliders;
 		std::vector<ImageCommand> m_images;
 		std::vector<ButtonCommand> m_buttons;
+		std::vector<OverlayCommand> m_backgroundOverlays;
 		std::vector<OverlayCommand> m_overlays;
 	};
 

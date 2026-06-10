@@ -304,6 +304,27 @@ namespace shooting {
 		m_activeVoices.clear();
 	}
 
+	void AudioEngine::SetVolume(SoundInstanceId id, float volume)
+	{
+		if (id == 0)
+		{
+			return;
+		}
+
+		auto it = std::find_if(m_activeVoices.begin(), m_activeVoices.end(),
+			[id](const ActiveVoice& activeVoice)
+			{
+				return activeVoice.id == id;
+			});
+
+		if (it == m_activeVoices.end() || !it->voice)
+		{
+			return;
+		}
+
+		it->voice->SetVolume(Clamp01(volume));
+	}
+
 	void AudioEngine::SetMasterVolume(float volume)
 	{
 		if (m_masterVoice)

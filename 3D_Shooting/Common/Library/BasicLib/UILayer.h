@@ -37,6 +37,11 @@ namespace shooting {
 			float maxValue,
 			const std::wstring& label = L"");
 
+		void AddSliderBlock(
+			const D2D1_RECT_F& rect,
+			float value,
+			const std::wstring& label);
+
 		void AddButtonBlock(
 			const D2D1_RECT_F& rect,
 			const std::wstring& text,
@@ -47,7 +52,8 @@ namespace shooting {
 
 		void AddOverlayBlock(
 			const D2D1_RECT_F& rect,
-			const D2D1_COLOR_F& color);
+			const D2D1_COLOR_F& color,
+			bool front = true);
 
 		void Render(UINT frameIndex);
 		void ReleaseResources();
@@ -89,6 +95,13 @@ namespace shooting {
 			D2D1_RECT_F layout;
 			float value = 0.0f;
 			float maxValue = 1.0f;
+			std::wstring label;
+		};
+
+		struct SliderBlock
+		{
+			D2D1_RECT_F layout;
+			float value = 0.0f;
 			std::wstring label;
 		};
 
@@ -134,8 +147,10 @@ namespace shooting {
 
 		std::vector<TextBlock> m_textBlocks;
 		std::vector<ProgressBarBlock> m_progressBars;
+		std::vector<SliderBlock> m_sliders;
 		std::vector<ImageBlock> m_imageBlocks;
 		std::vector<ButtonBlock> m_buttons;
+		std::vector<OverlayBlock> m_backgroundOverlays;
 		std::vector<OverlayBlock> m_overlays;
 		std::map<std::wstring, Microsoft::WRL::ComPtr<ID2D1Bitmap1>> m_bitmapCache;
 

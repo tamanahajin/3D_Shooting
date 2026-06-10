@@ -142,6 +142,11 @@ namespace shooting {
 		desc.pitch = 1.0f;
 		desc.loop = true;
 		m_currentBgm = m_engine.Play(it->second, desc);
+		if (m_currentBgm != 0)
+		{
+			m_currentBgmId = id;
+			m_currentBgmVolumeScale = volumeScale;
+		}
 		return m_currentBgm;
 	}
 
@@ -174,6 +179,12 @@ namespace shooting {
 	void GameAudio::SetBgmVolume(float volume)
 	{
 		m_bgmVolume = Clamp01(volume);
+		if (m_currentBgm != 0)
+		{
+			m_engine.SetVolume(
+				m_currentBgm,
+				Clamp01(m_bgmVolume * GetBgmDefaultVolume(m_currentBgmId) * m_currentBgmVolumeScale));
+		}
 	}
 
 	float GameAudio::Clamp01(float value) const
