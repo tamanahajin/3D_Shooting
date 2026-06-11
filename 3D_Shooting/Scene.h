@@ -33,6 +33,7 @@ namespace shooting {
 		int m_TitleHoveredMenuIndex = -1;
 		double m_TitleTime = 0.0;
 		bool m_OptionOpen = false;
+		bool m_WaitingForOptionMouseRelease = false;
 		int m_OptionDraggingSlider = -1;
 		ScreenTransition m_ScreenTransition;
 

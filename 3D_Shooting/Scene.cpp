@@ -596,6 +596,7 @@ namespace shooting {
 		benchmark.ClearNotification();
 
 		m_OptionOpen = false;
+		m_WaitingForOptionMouseRelease = false;
 		m_OptionDraggingSlider = kOptionSliderNone;
 		m_GameState = GameState::Title;
 		m_TitleMenuIndex = 0;
@@ -613,6 +614,7 @@ namespace shooting {
 		BenchmarkRecorder::Instance().ClearNotification();
 
 		m_OptionOpen = false;
+		m_WaitingForOptionMouseRelease = false;
 		m_OptionDraggingSlider = kOptionSliderNone;
 		m_LastScore = 0;
 		m_GameState = GameState::Playing;
@@ -737,6 +739,12 @@ namespace shooting {
 
 		if (m_GameState == GameState::Playing)
 		{
+			const auto& input = App::GetInputDevice();
+			// UIを閉じたクリックが射撃入力へ流れないよう、押されているボタンの解放を待つ。
+			m_WaitingForOptionMouseRelease =
+				input.MouseDown(VK_LBUTTON) ||
+				input.MouseDown(VK_RBUTTON) ||
+				input.MouseDown(VK_MBUTTON);
 			SetMouseCursorVisible(false);
 		}
 	}
@@ -1283,6 +1291,22 @@ namespace shooting {
 				if (m_OptionOpen)
 				{
 					UpdateOptionInput();
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+					return;
+				}
+
+				if (m_WaitingForOptionMouseRelease)
+				{
+					const auto& input = App::GetInputDevice();
+					if (!input.MouseDown(VK_LBUTTON) &&
+						!input.MouseDown(VK_RBUTTON) &&
+						!input.MouseDown(VK_MBUTTON))
+					{
+						m_WaitingForOptionMouseRelease = false;
+					}
+
+					// 解放を検出したフレームも更新せず、次フレームからゲーム入力を受け付ける。
 					UpdateConstantBuffers();
 					CommitConstantBuffers();
 					return;
