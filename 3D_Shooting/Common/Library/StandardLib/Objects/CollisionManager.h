@@ -317,6 +317,14 @@ namespace shooting {
 		*/
 		//--------------------------------------------------------------------------------------
 		virtual void OnUpdate(double elapsedTime) override;
+		//--------------------------------------------------------------------------------------
+		/*!
+		@brief 空間分割ノードと衝突ペアが保持しているGameObject参照を解放する
+
+		Stage破棄時に明示的に呼び、CollisionManagerとGameObject間の循環所有を残さない。
+		*/
+		//--------------------------------------------------------------------------------------
+		virtual void OnDestroy() override;
 
 		virtual void OnUpdateConstantBuffers() {}
 		virtual void OnCommitConstantBuffers() {}

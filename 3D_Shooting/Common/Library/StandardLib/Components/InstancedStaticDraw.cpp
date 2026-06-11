@@ -264,7 +264,7 @@ namespace shooting {
 		baseConstant.worldViewProj =
 			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
-		if (m_FogEnabled)
+		if (m_FogEnabled && BaseScene::Get()->IsFogEnabled())
 		{
 			const float start = m_FogStart;
 			const float end = m_FogEnd;

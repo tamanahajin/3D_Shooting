@@ -165,6 +165,12 @@ namespace shooting {
 	*/
 	bool EnemyBatchController::ResolveGeneratedGround(EnemyState& enemy, double elapsedTime)
 	{
+		auto gameStage = m_GameStage.lock();
+		if (!gameStage)
+		{
+			return false;
+		}
+
 		// StageGroundResolver側の共通構造へ詰め替え、敵バッチ側の状態と地形解決処理を分離する。
 		StageGroundResolveState groundState;
 		groundState.position = enemy.position;
@@ -176,7 +182,7 @@ namespace shooting {
 
 		bool terrainBlockedX = false;
 		bool terrainBlockedZ = false;
-		if (TrySlideAgainstGeneratedTerrainStep(*m_GameStage, groundState, 0.75f, terrainBlockedX, terrainBlockedZ))
+		if (TrySlideAgainstGeneratedTerrainStep(*gameStage, groundState, 0.75f, terrainBlockedX, terrainBlockedZ))
 		{
 			// 段差に引っかかった軸だけ速度を消す。両軸を止めると壁沿いに滑れなくなる。
 			if (terrainBlockedX)
@@ -195,7 +201,7 @@ namespace shooting {
 
 		// CSV地形で接地できない場合でも、中央の旧ベース床だけはフォールバックとして扱う。
 		// これがないとCSV外の通常床上で敵が落下扱いになり続ける。
-		if (!TryResolveStageGround(*m_GameStage, groundState))
+		if (!TryResolveStageGround(*gameStage, groundState))
 		{
 			const float baseFloorHalf = 32.5f;
 			const bool insideBaseFloor = fabsf(groundState.position.x) <= baseFloorHalf &&
@@ -230,15 +236,18 @@ namespace shooting {
 			return;
 		}
 
-		if (m_GameStage)
+		auto gameStage = m_GameStage.lock();
+		if (!gameStage)
 		{
-			// ヒットストップなどでゲーム側の実効デルタが変わるため、敵更新も同じ時間に合わせる。
-			elapsedTime = m_GameStage->GetGameDeltaTime(elapsedTime);
+			return;
 		}
+
+		// ヒットストップなどでゲーム側の実効デルタが変わるため、敵更新も同じ時間に合わせる。
+		elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
 
 		// 敵の追跡先。プレイヤーが取れないフレームは原点を目標にして、NaNや未初期化値を避ける。
 		Vec3 targetPosition(0.0f, 0.0f, 0.0f);
-		auto player = m_GameStage->GetSharedGameObject(L"Player", false);
+		auto player = gameStage->GetSharedGameObject(L"Player", false);
 		if (player)
 		{
 			auto playerTransform = player->GetComponent<Transform>(false);
@@ -436,9 +445,7 @@ namespace shooting {
 			enemy.gravityVelocity.z = 0.0f;
 
 			// CSV地形や中央床に合わせて最終位置を補正する。失敗時は未接地として落下を継続する。
-			const bool resolvedGeneratedGround = m_GameStage
-				? ResolveGeneratedGround(enemy, elapsedTime)
-				: false;
+			const bool resolvedGeneratedGround = ResolveGeneratedGround(enemy, elapsedTime);
 
 			if (enemy.delayDeathUntilLanding)
 			{

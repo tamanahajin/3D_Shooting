@@ -60,15 +60,15 @@ namespace shooting {
 			pose
 			);
 		//shapeの作成
-		physx::PxShape* shape
-			= ptrPxPhysics->createShape(
-			*m_pxParam.pGeometry,
-			*ptrPxPhysics->createMaterial(
+		auto material = ptrPxPhysics->createMaterial(
 			m_pxParam.staticFriction,
 			m_pxParam.dynamicFriction,
-			m_pxParam.restitution
-			)
-			);
+			m_pxParam.restitution);
+		physx::PxShape* shape = ptrPxPhysics->createShape(
+			*m_pxParam.pGeometry,
+			*material);
+		// Shape側がMaterial参照を保持するため、生成側の参照はここで解放する。
+		material->release();
 		shape->setLocalPose(m_pxParam.localPose);
 		m_pRigidStatic->attachShape(*shape);
 		pBaseScene->GetPxScene()->addActor(*m_pRigidStatic);
@@ -85,6 +85,7 @@ namespace shooting {
 		if (m_pRigidStatic)
 		{
 			m_pRigidStatic->release();
+			m_pRigidStatic = nullptr;
 		}
 	}
 
@@ -117,15 +118,15 @@ namespace shooting {
 			pose
 			);
 		//shapeの作成
-		physx::PxShape* shape
-			= ptrPxPhysics->createShape(
-			*m_pxParam.pGeometry,
-			*ptrPxPhysics->createMaterial(
+		auto material = ptrPxPhysics->createMaterial(
 			m_pxParam.staticFriction,
 			m_pxParam.dynamicFriction,
-			m_pxParam.restitution
-			)
-			);
+			m_pxParam.restitution);
+		physx::PxShape* shape = ptrPxPhysics->createShape(
+			*m_pxParam.pGeometry,
+			*material);
+		// Shape側がMaterial参照を保持するため、生成側の参照はここで解放する。
+		material->release();
 		shape->setLocalPose(m_pxParam.localPose);
 		m_pRigidDynamic->attachShape(*shape);
 		pBaseScene->GetPxScene()->addActor(*m_pRigidDynamic);
@@ -153,6 +154,7 @@ namespace shooting {
 		if (m_pRigidDynamic)
 		{
 			m_pRigidDynamic->release();
+			m_pRigidDynamic = nullptr;
 		}
 	}
 

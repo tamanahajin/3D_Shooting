@@ -364,8 +364,8 @@ namespace shooting {
 			std::weak_ptr<EnemyCollisionProxy> proxy;
 		};
 
-		// GameStageへの型付き参照。
-		std::shared_ptr<GameStage> m_GameStage;
+		// GameStageがこのコントローラを所有する
+		std::weak_ptr<GameStage> m_GameStage;
 		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
 		std::vector<EnemyState> m_Enemies;
 		// 死亡済み敵のコリジョンプロキシを再利用するためのプール。

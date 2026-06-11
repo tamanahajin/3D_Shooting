@@ -326,6 +326,29 @@ namespace shooting {
 	}
 	CollisionManager::~CollisionManager() {}
 
+	void CollisionManager::OnDestroy()
+	{
+		for (auto& pairs : m_CollisionPairVec)
+		{
+			pairs.clear();
+			pairs.shrink_to_fit();
+		}
+		m_TempKeepVec.clear();
+		m_TempKeepVec.shrink_to_fit();
+		m_TempExitVec.clear();
+		m_TempExitVec.shrink_to_fit();
+
+		if (pImpl)
+		{
+			// 各ノードのm_ObjVecはshared_ptrを持つため、Manager破棄前に明示的に切り離す。
+			pImpl->m_CollisionBlocks.AllClear();
+			pImpl->m_StaticCollisionBlocks.AllClear();
+			pImpl->m_StaticCollisionObjectKeys.clear();
+			pImpl->m_StaticCollisionObjectKeys.shrink_to_fit();
+			pImpl->m_StaticCollisionBlocksDirty = true;
+		}
+	}
+
 	void CollisionManager::SetRootAABB(const AABB& aabb)
 	{
 		pImpl->m_CollisionBlocks.SetRootAABB(aabb);

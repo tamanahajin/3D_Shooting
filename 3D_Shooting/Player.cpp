@@ -240,8 +240,16 @@ namespace shooting {
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
 
-		hp->m_OnDamaged = [self = GetThis<Player>()](const DamageInfo& info)
+		// HealthはPlayerが所有するため、コールバックからPlayerを強参照すると自己循環になる。
+		std::weak_ptr<Player> weakSelf = GetThis<Player>();
+		hp->m_OnDamaged = [weakSelf](const DamageInfo& info)
 		{
+			auto self = weakSelf.lock();
+			if (!self)
+			{
+				return;
+			}
+
 			GameAudio::Instance().PlaySound(GameSoundId::PlayerDamage);
 
 			// ダメージエフェクトを開始
@@ -252,8 +260,14 @@ namespace shooting {
 			}
 		};
 
-		hp->m_OnDeath = [self = GetThis<Player>()](const DamageInfo& info)
+		hp->m_OnDeath = [weakSelf](const DamageInfo& info)
 		{
+			auto self = weakSelf.lock();
+			if (!self)
+			{
+				return;
+			}
+
 			GameAudio::Instance().PlaySound(GameSoundId::PlayerDamage);
 
 			self->m_IsDead = true;

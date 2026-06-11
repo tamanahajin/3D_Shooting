@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "UIManager.h"
 #include "Project.h"
+#include "StageEditor.h"
 
 namespace shooting {
 
@@ -36,6 +37,8 @@ namespace shooting {
 		bool m_WaitingForOptionMouseRelease = false;
 		int m_OptionDraggingSlider = -1;
 		ScreenTransition m_ScreenTransition;
+		StageEditor m_StageEditor;
+		bool m_StageEditorReloadRequested = false;
 
 	public:
 		Scene(UINT frameCount, PrimDevice* pPrimDevice);
@@ -60,12 +63,17 @@ namespace shooting {
 		float UpdateOptionSliderValue(int sliderIndex, const D2D1_RECT_F& rect, float currentValue);
 		void RenderUIWithTransition(UILayer& uiLayer);
 		void SetMouseCursorVisible(bool visible);
+		void EnterStageEditor();
+		void ExitStageEditor();
+		void ReloadStageForEditor();
 
 		virtual void CreateAssetResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) override;
 		virtual void Update(double elapsedTime) override;
 		virtual void UpdateConstantBuffers() override;
 		virtual void CommitConstantBuffers() override;
+		virtual void Destroy() override;
 		virtual void UpdateUI(std::unique_ptr<UILayer>& uiLayer) override;
+		virtual void UpdateImGui() override;
 		virtual void ShadowPass(ID3D12GraphicsCommandList* pCommandList) override;
 		virtual void ScenePass(ID3D12GraphicsCommandList* pCommandList) override;
 	};

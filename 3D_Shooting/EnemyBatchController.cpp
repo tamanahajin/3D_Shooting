@@ -30,10 +30,14 @@ namespace shooting {
 	*/
 	void EnemyBatchController::OnCreate()
 	{
-		m_GameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		m_GameStage = gameStage;
 		SetDrawActive(false);
 		SetShadowActive(false);
-		m_GameStage->SetSharedGameObject(L"EnemyBatchController", GetThis<GameObject>());
+		if (gameStage)
+		{
+			gameStage->SetSharedGameObject(L"EnemyBatchController", GetThis<GameObject>());
+		}
 		AddTag(L"EnemyBatchController");
 	}
 
@@ -90,7 +94,8 @@ namespace shooting {
 	*/
 	void EnemyBatchController::PrewarmCollisionProxyPool(int count)
 	{
-		if (count <= 0 || !m_GameStage)
+		auto gameStage = m_GameStage.lock();
+		if (count <= 0 || !gameStage)
 		{
 			return;
 		}
@@ -105,7 +110,7 @@ namespace shooting {
 		const EnemyStatus defaultStatus;
 		for (int i = 0; i < missingCount; ++i)
 		{
-			auto proxy = m_GameStage->AddGameObject<EnemyCollisionProxy>(
+			auto proxy = gameStage->AddGameObject<EnemyCollisionProxy>(
 				GetThis<EnemyBatchController>(),
 				0,
 				pooledPosition,
@@ -182,7 +187,13 @@ namespace shooting {
 			return proxy;
 		}
 
-		return m_GameStage->AddGameObject<EnemyCollisionProxy>(
+		auto gameStage = m_GameStage.lock();
+		if (!gameStage)
+		{
+			return nullptr;
+		}
+
+		return gameStage->AddGameObject<EnemyCollisionProxy>(
 			GetThis<EnemyBatchController>(),
 			index,
 			startPosition,

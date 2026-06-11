@@ -1083,7 +1083,8 @@ namespace shooting {
 
 		const float bombAimMaxDist = m_BombPreview ? m_BombPreview->GetMaxRange() : 20.0f;
 
-		if (m_MainCamera && m_CollisionManager)
+		auto collisionManager = m_CollisionManager.lock();
+		if (m_MainCamera && collisionManager)
 		{
 			auto trans = GetComponent<Transform>();
 
@@ -1127,7 +1128,7 @@ namespace shooting {
 
 				aimPointShot = shotAimOrigin + rayDir * shotAimRange;
 
-				if (m_CollisionManager->Raycast(shotAimOrigin, rayDir, shotAimRange, shotHit, GetThis<GameObject>(), { L"Bullet" }))
+				if (collisionManager->Raycast(shotAimOrigin, rayDir, shotAimRange, shotHit, GetThis<GameObject>(), { L"Bullet" }))
 				{
 					hasHitShot = true;
 					aimPointShot = shotHit.m_Point;
@@ -1164,7 +1165,7 @@ namespace shooting {
 					muzzleRay.normalize();
 
 					RaycastHit muzzleHit;
-					if (m_CollisionManager->Raycast(
+					if (collisionManager->Raycast(
 						muzzle,
 						muzzleRay,
 						muzzleRayLength + kNormalShotMuzzleBlockMargin,
@@ -1187,7 +1188,7 @@ namespace shooting {
 				RaycastHit hit;
 				aimPointPreview = rayOrigin + rayDir * bombAimMaxDist;
 
-				if (m_CollisionManager->Raycast(rayOrigin, rayDir, bombAimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy", L"Item" }))
+				if (collisionManager->Raycast(rayOrigin, rayDir, bombAimMaxDist, hit, GetThis<GameObject>(), { L"Bullet", L"Enemy", L"Item" }))
 				{
 					hasHitPreview = true;
 					aimPointPreview = hit.m_Point;

@@ -114,14 +114,28 @@ namespace shooting {
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
 
-		hp->m_OnDamaged = [self = GetThis<SeekObject>()](const DamageInfo& info)
+		// Healthから所有者を強参照すると自己循環になるため、イベント側は弱参照だけを保持する。
+		std::weak_ptr<SeekObject> weakSelf = GetThis<SeekObject>();
+		hp->m_OnDamaged = [weakSelf](const DamageInfo& info)
 		{
+			auto self = weakSelf.lock();
+			if (!self)
+			{
+				return;
+			}
+
 			self->ShowDamageNumber(info);
 			self->StartDamageFlash(0.2);
 		};
 
-		hp->m_OnDeath = [self = GetThis<SeekObject>()](const DamageInfo& info)
+		hp->m_OnDeath = [weakSelf](const DamageInfo& info)
 		{
+			auto self = weakSelf.lock();
+			if (!self)
+			{
+				return;
+			}
+
 			self->ShowDamageNumber(info);
 			self->StartDamageFlash(0.2);
 			self->m_IsDead = true;

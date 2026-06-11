@@ -58,6 +58,7 @@ namespace shooting {
 		}
 
 		virtual void UpdateUI(std::unique_ptr<UILayer>& uiLayer) = 0;
+		virtual void UpdateImGui() {}
 		virtual void Update(double elapsedTime) = 0;
 		virtual void Destroy() {}
 		virtual void Render(ID3D12CommandQueue* pCommandQueue, bool setBackbufferReadyForPresent);
@@ -313,10 +314,20 @@ namespace shooting {
 		{
 			return s_elapsedTime;
 		}
+		bool IsFogEnabled() const
+		{
+			return m_fogEnabled;
+		}
+		void SetFogEnabled(bool enabled)
+		{
+			m_fogEnabled = enabled;
+		}
 		float m_fogDensity;
 
 	protected:
 		UINT m_frameCount;
+		// 各描画コンポーネントの個別設定を維持したまま、シーン全体のフォグを一時停止する。
+		bool m_fogEnabled = true;
 
 		// *2: shadowCommandLists, sceneCommandLists
 		ID3D12CommandList* m_batchSubmit[2 + CommandListCount];

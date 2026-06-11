@@ -7,7 +7,8 @@ namespace shooting {
 
 	class MainCamera : public PerspecCamera {
 	private:
-		std::shared_ptr<Stage> m_Stage;
+		// StageがCameraを所有するため、逆方向は弱参照にして循環所有を防ぐ。
+		std::weak_ptr<Stage> m_Stage;
 		// 目標となるオブジェクト
 		std::weak_ptr<GameObject> m_TargetObject;
 		// 目標を追いかける際の補間値

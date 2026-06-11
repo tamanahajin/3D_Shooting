@@ -390,6 +390,16 @@ namespace shooting {
 		GameAudio::Instance().Shutdown();
 	}
 
+	void Scene::Destroy()
+	{
+		if (m_activeStage)
+		{
+			// PhysXを破棄する前に、ステージ内コンポーネントへ外部リソースの解放を通知する。
+			m_activeStage->OnDestroy();
+			m_activeStage.reset();
+		}
+	}
+
 	bool Scene::IsMouseInRect(const D2D1_RECT_F& rect) const
 	{
 		const auto& mouse = App::GetInputDevice().GetMouseState();
@@ -588,6 +598,17 @@ namespace shooting {
 
 	void Scene::StartTitle()
 	{
+		if (m_StageEditor.IsActive())
+		{
+			auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+			if (gameStage)
+			{
+				m_StageEditor.Exit(*gameStage);
+			}
+		}
+		m_StageEditorReloadRequested = false;
+		SetFogEnabled(true);
+
 		auto& benchmark = BenchmarkRecorder::Instance();
 		if (benchmark.IsRunning())
 		{
@@ -610,6 +631,9 @@ namespace shooting {
 
 	void Scene::StartGame()
 	{
+		m_StageEditorReloadRequested = false;
+		SetFogEnabled(true);
+
 		// ベンチマークはインゲーム中だけ扱う。前ステートの通知は新しいプレイへ持ち越さない。
 		BenchmarkRecorder::Instance().ClearNotification();
 
@@ -624,6 +648,77 @@ namespace shooting {
 		GameAudio::Instance().StopBgm();
 
 		ResetActiveStage<GameStage>(App::GetD3D12Device());
+	}
+
+	void Scene::EnterStageEditor()
+	{
+#if defined(_DEBUG)
+		if (m_GameState != GameState::Playing ||
+			m_OptionOpen ||
+			m_ScreenTransition.IsInputBlocked())
+		{
+			return;
+		}
+
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+		if (!gameStage || !m_StageEditor.Enter(*gameStage))
+		{
+			return;
+		}
+
+		auto& benchmark = BenchmarkRecorder::Instance();
+		if (benchmark.IsRunning())
+		{
+			// エディタ中はゲーム更新を止めるため、計測中なら編集開始前までで確定する。
+			benchmark.Stop(true);
+		}
+
+		m_StageEditorReloadRequested = false;
+		SetFogEnabled(false);
+		SetMouseCursorVisible(true);
+#endif
+	}
+
+	void Scene::ExitStageEditor()
+	{
+#if defined(_DEBUG)
+		if (!m_StageEditor.IsActive())
+		{
+			return;
+		}
+
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+		if (gameStage)
+		{
+			m_StageEditor.Exit(*gameStage);
+		}
+
+		const auto& input = App::GetInputDevice();
+		// エディタを閉じたクリックが射撃や爆弾入力へ流れないよう、ボタンの解放を待つ。
+		m_WaitingForOptionMouseRelease =
+			input.MouseDown(VK_LBUTTON) ||
+			input.MouseDown(VK_RBUTTON) ||
+			input.MouseDown(VK_MBUTTON);
+		m_StageEditorReloadRequested = false;
+		SetFogEnabled(true);
+		SetMouseCursorVisible(false);
+#endif
+	}
+
+	void Scene::ReloadStageForEditor()
+	{
+#if defined(_DEBUG)
+		if (!m_StageEditor.IsActive())
+		{
+			m_StageEditorReloadRequested = false;
+			return;
+		}
+
+		// 描画中にステージを破棄しないよう、ImGuiからの要求を次のUpdateで処理する。
+		auto gameStage = ResetActiveStage<GameStage>(App::GetD3D12Device());
+		m_StageEditor.OnStageReloaded(*gameStage);
+		m_StageEditorReloadRequested = false;
+#endif
 	}
 
 	void Scene::RequestStartGame()
@@ -1108,6 +1203,15 @@ namespace shooting {
 			return;
 		}
 
+#if defined(_DEBUG)
+		if (m_StageEditor.IsActive())
+		{
+			uiLayer->SetCrosshairEnabled(false);
+			RenderUIWithTransition(*uiLayer);
+			return;
+		}
+#endif
+
 		auto device = BaseDevice::GetBaseDevice();
 		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
 		auto hp = player ? player->GetComponent<Health>() : nullptr;
@@ -1250,6 +1354,31 @@ namespace shooting {
 		RenderUIWithTransition(*uiLayer);
 	}
 
+	void Scene::UpdateImGui()
+	{
+#if defined(_DEBUG)
+		if (m_GameState != GameState::Playing || !m_StageEditor.IsActive())
+		{
+			return;
+		}
+
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
+		auto device = BaseDevice::GetBaseDevice();
+		if (!gameStage || !device)
+		{
+			return;
+		}
+
+		if (m_StageEditor.DrawImGui(
+				*gameStage,
+				static_cast<float>(device->GetWidth()),
+				static_cast<float>(device->GetHeight())))
+		{
+			m_StageEditorReloadRequested = true;
+		}
+#endif
+	}
+
 	void Scene::Update(double elapsedTime)
 	{
 		s_elapsedTime = elapsedTime;
@@ -1288,6 +1417,43 @@ namespace shooting {
 		{
 			if (m_activeStage)
 			{
+#if defined(_DEBUG)
+				if (!m_OptionOpen &&
+					!m_ScreenTransition.IsInputBlocked() &&
+					App::GetInputDevice().KeyPressed(VK_F3))
+				{
+					if (m_StageEditor.IsActive())
+					{
+						ExitStageEditor();
+					}
+					else
+					{
+						EnterStageEditor();
+					}
+
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+					return;
+				}
+
+				if (m_StageEditor.IsActive())
+				{
+					if (App::GetInputDevice().KeyPressed(VK_ESCAPE))
+					{
+						ExitStageEditor();
+					}
+					else if (m_StageEditorReloadRequested)
+					{
+						ReloadStageForEditor();
+					}
+
+					// 編集中は敵・プレイヤー・ウェーブを進めず、描画用定数だけを更新する。
+					UpdateConstantBuffers();
+					CommitConstantBuffers();
+					return;
+				}
+#endif
+
 				if (m_OptionOpen)
 				{
 					UpdateOptionInput();

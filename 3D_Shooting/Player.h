@@ -50,7 +50,8 @@ namespace shooting {
 		// 弾発射間隔
 		double m_ShotCool = 0.0;
 		std::shared_ptr<MainCamera> m_MainCamera;
-		std::shared_ptr<CollisionManager> m_CollisionManager;
+		// CollisionManager側も空間分割ノードからPlayerを保持するため、弱参照にして循環所有を防ぐ。
+		std::weak_ptr<CollisionManager> m_CollisionManager;
 		std::shared_ptr<BulletManager> m_BulletManager;
 
 		// 地面衝突判定の共通処理

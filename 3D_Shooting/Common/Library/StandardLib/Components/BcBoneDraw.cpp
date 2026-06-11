@@ -194,7 +194,7 @@ namespace shooting {
 				m_ConstantBuffer.worldViewProj =
 					Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
-				if (m_FogEnabled)
+				if (m_FogEnabled && BaseScene::Get()->IsFogEnabled())
 				{
 					auto start = m_FogStart;
 					auto end = m_FogEnd;

@@ -155,10 +155,34 @@ namespace shooting {
 
 	void Stage::OnDestroy()
 	{
+		if (m_collisionManager)
+		{
+			// 空間分割ノードがステージ内GameObjectをshared_ptrで保持しているため、先に参照を解放する。
+			m_collisionManager->ComponentDestroy();
+			m_collisionManager->OnDestroy();
+		}
+
 		for (auto& v : m_gameObjectVec)
 		{
+			// RigidbodyなどはOnDestroyで外部リソースを解放するため、オブジェクト破棄前に必ず通知する。
+			v->ComponentDestroy();
 			v->OnDestroy();
 		}
+		for (auto& v : m_waitAddObjectVec)
+		{
+			// 更新待ちのオブジェクトも生成済みなので、登録前でもコンポーネントの破棄通知が必要。
+			v->ComponentDestroy();
+			v->OnDestroy();
+		}
+
+		m_waitAddObjectVec.clear();
+		m_waitRemoveObjectVec.clear();
+		m_SharedMap.clear();
+		m_SharedGroupMap.clear();
+		m_gameObjectVec.clear();
+		m_collisionManager.reset();
+		m_camera.reset();
+		m_lightSet.reset();
 	}
 
 	void Stage::SetToBefore()

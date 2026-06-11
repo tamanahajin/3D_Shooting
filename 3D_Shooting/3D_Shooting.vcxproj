@@ -103,6 +103,7 @@
     <ClCompile Include="PlayerCombat.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ScreenTransition.cpp" />
+    <ClCompile Include="StageEditor.cpp" />
     <ClCompile Include="StageObjectCatalog.cpp" />
     <ClCompile Include="StageGroundResolver.cpp" />
     <ClCompile Include="TitleStage.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ScreenTransition.h" />
+    <ClInclude Include="StageEditor.h" />
     <ClInclude Include="StageObjectCatalog.h" />
     <ClInclude Include="StageGroundResolver.h" />
     <ClInclude Include="stdafx.h" />

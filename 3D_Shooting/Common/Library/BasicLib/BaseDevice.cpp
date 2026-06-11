@@ -503,6 +503,7 @@ namespace shooting {
 				if (m_imguiLayer)
 				{
 					m_imguiLayer->BeginFrame(m_fps, m_elapsedTime);
+					m_scene->UpdateImGui();
 					m_imguiLayer->Render(
 						m_frameIndex,
 						m_commandQueue.Get(),

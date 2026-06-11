@@ -516,7 +516,11 @@ namespace shooting {
 
 	void MainCamera::OnCreate()
 	{
-		m_CollisionManager = m_Stage->GetCollisionManager();
+		auto stage = m_Stage.lock();
+		if (stage)
+		{
+			m_CollisionManager = stage->GetCollisionManager();
+		}
 	}
 
 	void MainCamera::OnUpdate(double elapsedTime)

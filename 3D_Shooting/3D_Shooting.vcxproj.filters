@@ -286,6 +286,9 @@
     <ClCompile Include="ScreenTransition.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="StageEditor.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="SeekObject.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -334,6 +337,9 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ScreenTransition.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StageEditor.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageObjectCatalog.h">
