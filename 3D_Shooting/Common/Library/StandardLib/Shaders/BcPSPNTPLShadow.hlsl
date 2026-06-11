@@ -29,10 +29,6 @@ float4 main(PSInputPixelLightingTxShadow pin) : SV_Target0
 		color.rgb *= lightResult.Diffuse;
 
 		AddSpecular(color, lightResult.Specular);
-		ApplyFog(color, pin.PositionWS.w);
-	}
-	else {
-		ApplyFog(color, pin.PositionWS.w);
 	}
 
 
@@ -44,7 +40,10 @@ float4 main(PSInputPixelLightingTxShadow pin) : SV_Target0
 	float NdotL = dot(N, L);
 
 	color = AddPixelShadow(color, ambient,pin.norm, pin.lightRay, pin.lightView, pin.lightSpacePos);
+	color.rgb *= ambient + DplusS(N, L, NdotL, pin.lightView);
 
-	return float4(color.xyz * (ambient + DplusS(N, L, NdotL, pin.lightView)), color.w);
+	// ライトと影の計算後にフォグを適用し、遠距離の物体色をフォグ色へ収束させる。
+	ApplyFog(color, pin.PositionWS.w);
+
+	return color;
 }
-

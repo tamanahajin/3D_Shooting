@@ -113,6 +113,10 @@ namespace shooting {
 
 		bool m_OwnShadowActive = false;
 		bool m_CastShadowActive = false;
+		bool m_FogEnabled = true;
+		float m_FogStart = -25.0f;
+		float m_FogEnd = -40.0f;
+		XMFLOAT4 m_FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 
 		std::wstring m_MeshKey;
 		std::wstring m_TextureKey;
@@ -163,6 +167,8 @@ namespace shooting {
 		void SetOwnShadowActive(bool b) { m_OwnShadowActive = b; }
 		bool IsCastShadowActive() const { return m_CastShadowActive; }
 		void SetCastShadowActive(bool b) { m_CastShadowActive = b; }
+		bool IsSetFogEnabled() const { return m_FogEnabled; }
+		void SetFogEnabled(bool b) { m_FogEnabled = b; }
 
 		virtual void OnCreate() override;
 		virtual void OnUpdateConstantBuffers() override;

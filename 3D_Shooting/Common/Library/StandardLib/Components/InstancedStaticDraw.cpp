@@ -1022,8 +1022,33 @@ namespace shooting {
 		m_ConstantBuffer.worldViewProj =
 			Mat4x4(XMMatrixTranspose(XMMatrixMultiply(worldView, proj)));
 
-		m_ConstantBuffer.fogVector = Vec4(g_XMZero);
-		m_ConstantBuffer.fogColor = Vec4(g_XMZero);
+		if (m_FogEnabled && BaseScene::Get()->IsFogEnabled())
+		{
+			const float start = m_FogStart;
+			const float end = m_FogEnd;
+			if (start == end)
+			{
+				// 開始距離と終了距離が同じ場合はゼロ除算を避け、全体をフォグ済みとして扱う。
+				static const XMVECTORF32 fullyFogged = { 0, 0, 0, 1 };
+				m_ConstantBuffer.fogVector = Vec4(fullyFogged);
+			}
+			else
+			{
+				// 敵の頂点はシェーダー内でインスタンスごとのワールド座標へ変換される。
+				// view のZ成分を定数化し、ピクセルシェーダーでワールド座標との内積からフォグ量を求める。
+				XMVECTOR viewZ = XMVectorMergeXY(
+					XMVectorMergeZW(view.r[0], view.r[2]),
+					XMVectorMergeZW(view.r[1], view.r[3]));
+				XMVECTOR wOffset = XMVectorSwizzle<1, 2, 3, 0>(XMLoadFloat(&start));
+				m_ConstantBuffer.fogVector = Vec4((viewZ + wOffset) / (start - end));
+			}
+			m_ConstantBuffer.fogColor = (Col4)m_FogColor;
+		}
+		else
+		{
+			m_ConstantBuffer.fogVector = Vec4(g_XMZero);
+			m_ConstantBuffer.fogColor = Vec4(g_XMZero);
+		}
 
 		for (int i = 0; i < myLightSet->GetNumLights(); i++)
 		{
