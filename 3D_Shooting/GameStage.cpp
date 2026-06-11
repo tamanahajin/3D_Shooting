@@ -243,6 +243,23 @@ namespace shooting {
 
 	void GameStage::OnCreate()
 	{
+		const std::wstring configPath =
+			App::GetRelativeAssetsDir() + L"Data\\EnemyWaveConfig.json";
+		EnemyWaveConfig config;
+		std::string configError;
+		if (!EnemyWaveConfigLoader::Load(configPath, config, configError))
+		{
+			// 設定の一部だけが既定値へ戻ると調整ミスを見つけにくいため、起動時に明示的に失敗させる。
+			throw std::runtime_error(
+				"EnemyWaveConfig.jsonの読み込みに失敗しました: " + configError);
+		}
+
+		m_waveController.GetSettings() = config.waveSettings;
+		for (const auto& enemyStatus : config.enemyStatuses)
+		{
+			m_waveController.SetEnemyStatus(enemyStatus.first, enemyStatus.second);
+		}
+
 		//カメラとライトの設定
 		m_camera = ObjectFactory::Create<MainCamera>(GetThis<Stage>());
 		m_camera->SetEye(Vec3(0, 3.43f, -6.37f));

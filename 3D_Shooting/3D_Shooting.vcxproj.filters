@@ -80,6 +80,9 @@
     <Filter Include="Scripts\Sources\Audio">
       <UniqueIdentifier>{5922de59-466b-4aea-be02-d4c43703d714}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{a0c49243-195d-45e4-b16f-18572cb525a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Library\Audio\AudioEngine.cpp">
@@ -256,6 +259,9 @@
     <ClCompile Include="EnemyInstancedRenderer.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyWaveConfigLoader.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="GameStage.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -317,6 +323,9 @@
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\JsonLoader.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -510,6 +519,9 @@
     <ClInclude Include="EnemyFactory.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyWaveConfigLoader.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="WaveController.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
@@ -612,8 +624,14 @@
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\JsonLoader.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\EnemyWaveConfig.json">
+      <Filter>Data</Filter>
+    </None>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">
       <Filter>Libs\StandardLib\Shaders</Filter>
     </None>

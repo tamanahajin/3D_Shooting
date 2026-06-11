@@ -24,6 +24,7 @@
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp" />
+    <ClCompile Include="Common\Library\BasicLib\JsonLoader.cpp" />
     <ClCompile Include="EnemyBatchAnimation.cpp" />
     <ClCompile Include="EnemyBatchCombat.cpp" />
     <ClCompile Include="EnemyBatchController.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="EnemyCollisionProxy.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyInstancedRenderer.cpp" />
+    <ClCompile Include="EnemyWaveConfigLoader.cpp" />
     <ClCompile Include="Scripts\Audio\GameAudio.cpp" />
     <ClCompile Include="WaveController.cpp" />
     <ClCompile Include="Common\Library\Audio\AudioEngine.cpp" />
@@ -124,9 +126,11 @@
     <ClInclude Include="BulletType.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h" />
+    <ClInclude Include="Common\Library\BasicLib\JsonLoader.h" />
     <ClInclude Include="DebugSettings.h" />
     <ClInclude Include="EnemyBatchController.h" />
     <ClInclude Include="EnemyFactory.h" />
+    <ClInclude Include="EnemyWaveConfigLoader.h" />
     <ClInclude Include="HitStopController.h" />
     <ClInclude Include="Scripts\Audio\GameAudio.h" />
     <ClInclude Include="WaveController.h" />
@@ -216,6 +220,7 @@
     <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\EnemyWaveConfig.json" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCConstant.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCLighting.hlsli" />

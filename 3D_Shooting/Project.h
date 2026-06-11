@@ -29,6 +29,7 @@
 #include "EnemyBatchController.h"
 #include "EnemyFactory.h"
 #include "WaveController.h"
+#include "EnemyWaveConfigLoader.h"
 #include "Item.h"
 #include "ItemFactory.h"
 #include "Player.h"
