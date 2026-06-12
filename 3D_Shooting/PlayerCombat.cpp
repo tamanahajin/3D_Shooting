@@ -76,6 +76,8 @@ namespace shooting {
 		const Vec3 kBlasterMuzzleLocalPosition(0.0f, 5.204915f, 46.0f);
 		// ボム弾モデルの表示スケール。
 		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
+		// 爆弾の軌道始点の高さ
+		const float kBombStartBodyCenterHeight = 0.65f;
 
 		struct RightHandSocketTransform
 		{
@@ -1071,6 +1073,7 @@ namespace shooting {
 
 		// --- 狙い点計算（Raycast） ---
 		Vec3 muzzle(0, 0, 0);
+		Vec3 bombStart(0, 0, 0);
 
 		Vec3 aimPointShot(0, 0, 0);
 		RaycastHit shotHit;
@@ -1087,6 +1090,8 @@ namespace shooting {
 		if (m_MainCamera && collisionManager)
 		{
 			auto trans = GetComponent<Transform>();
+
+			bombStart = trans->GetPosition() + Vec3(0.0f, kBombStartBodyCenterHeight, 0.0f);
 
 			// 銃口
 			muzzle = trans->GetPosition()
@@ -1214,8 +1219,8 @@ namespace shooting {
 					}
 				}
 
-				// rot（銃口→aimPointPreview）
-				Vec3 shotDir = aimPointPreview - muzzle;
+				// 実際の爆弾と同じ胴体中央から着弾予測地点へ向く回転を作る。
+				Vec3 shotDir = aimPointPreview - bombStart;
 				if (shotDir.length() > 1e-6f)
 				{
 					shotDir.normalize();
@@ -1230,7 +1235,7 @@ namespace shooting {
 		{
 			m_BombPreview->SetPreviewInput(
 				bombMode,
-				muzzle,
+				bombStart,
 				aimPointPreview,
 				hitNormalPreview,
 				hasHitPreview
@@ -1248,7 +1253,7 @@ namespace shooting {
 
 				if (bulletMgr)
 				{
-					bulletMgr->FireEx<BombBullet>(muzzle, shotRotPreview, scale,
+					bulletMgr->FireEx<BombBullet>(bombStart, shotRotPreview, scale,
 									[&](BombBullet& b)
 									{
 										// プレビューに渡した値をそのまま実弾へ（Enemy無視の狙い点）
