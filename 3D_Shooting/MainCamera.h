@@ -59,8 +59,14 @@ namespace shooting {
 		bool m_SpawnIntroViewActive = false;
 		Vec3 m_SpawnIntroEye = Vec3(0.0f, 0.0f, 0.0f);
 		Vec3 m_SpawnIntroAt = Vec3(0.0f, 0.0f, 0.0f);
+		float m_ShakeIntensity = 0.0f;
+		float m_ShakeDuration = 0.0f;
+		float m_ShakeTimeRemaining = 0.0f;
+		float m_ShakeElapsedTime = 0.0f;
+		Vec3 m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 
 		std::weak_ptr<CollisionManager> m_CollisionManager;
+		Vec3 UpdateCameraShake(float elapsedTime);
 	public:
 		MainCamera(const std::shared_ptr<Stage>& stage);
 		//MainCamera();
@@ -278,6 +284,21 @@ namespace shooting {
 
 		void SetSpawnIntroView(bool active, const Vec3& eye, const Vec3& at);
 		void FinishSpawnIntroViewAndResumeFollow();
+
+		/*!
+		@brief ワールド上の衝撃位置からカメラシェイクを開始する
+		@param[in] worldPosition 衝撃が発生した位置
+		@param[in] intensity 衝撃位置に最も近い場合の最大移動量
+		@param[in] duration シェイクを継続する秒数
+		@param[in] maxDistance シェイクが届く最大距離
+
+		複数の爆発が続いた場合は強さを加算するが、過剰に揺れないよう内部で上限を設ける。
+		*/
+		void RequestCameraShake(
+			const Vec3& worldPosition,
+			float intensity,
+			float duration,
+			float maxDistance);
 
 		Vec3 ResolveCameraEyeBySweep(
 			const std::shared_ptr<Stage>& stage,

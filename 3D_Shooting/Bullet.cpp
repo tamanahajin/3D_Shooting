@@ -327,6 +327,15 @@ namespace shooting {
 			trans->SetScale(Vec3(m_ExplosionScale, m_ExplosionScale, m_ExplosionScale));
 		}
 
+		if (auto camera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera()))
+		{
+			const auto& tuning = GetBombTuning();
+			camera->RequestCameraShake(
+				explosionPos,
+				tuning.cameraShakeIntensity,
+				tuning.cameraShakeDuration,
+				tuning.cameraShakeMaxDistance);
+		}
 
 		// ゲームオブジェクト
 		SetDrawActive(false);

@@ -4,6 +4,11 @@
 
 namespace shooting {
 
+	namespace
+	{
+		const float kMaximumCameraShakeIntensity = 0.55f;
+	}
+
 	//--------------------------------------------------------------------------------------
 	//	MainCameraカメラ
 	//--------------------------------------------------------------------------------------
@@ -217,6 +222,84 @@ namespace shooting {
 		// 演出中はマウス追従を止めていたため、復帰1フレーム目の大きなdeltaで
 		// カメラが跳ねないようにカーソル状態を同期する。
 		App::GetInputDevice().WarpCursorToClientPos(GetClientCenter(App::GetHwnd()));
+	}
+
+	void MainCamera::RequestCameraShake(
+		const Vec3& worldPosition,
+		float intensity,
+		float duration,
+		float maxDistance)
+	{
+		if (!bsmUtil::IsFiniteVec3(worldPosition) ||
+			!std::isfinite(intensity) ||
+			!std::isfinite(duration) ||
+			!std::isfinite(maxDistance) ||
+			intensity <= 0.0f ||
+			duration <= 0.0f ||
+			maxDistance <= 0.0f)
+		{
+			return;
+		}
+
+		// 前フレームで加えたシェイクを除いた注視点を使い、距離計算が揺れ自体に影響されないようにする。
+		const Vec3 baseAt = GetAt() - m_LastShakeOffset;
+		const float distance = bsmUtil::length(baseAt - worldPosition);
+		if (!std::isfinite(distance) || distance >= maxDistance)
+		{
+			return;
+		}
+
+		const float distanceRate =
+			1.0f - bsmUtil::Clamp(distance / maxDistance, 0.0f, 1.0f);
+		const float appliedIntensity = intensity * distanceRate;
+		m_ShakeIntensity = bsmUtil::Min(
+			m_ShakeIntensity + appliedIntensity,
+			kMaximumCameraShakeIntensity);
+		m_ShakeDuration = bsmUtil::Max(m_ShakeDuration, duration);
+		m_ShakeTimeRemaining = bsmUtil::Max(m_ShakeTimeRemaining, duration);
+	}
+
+	Vec3 MainCamera::UpdateCameraShake(float elapsedTime)
+	{
+		if (m_ShakeTimeRemaining <= 0.0f ||
+			m_ShakeDuration <= 0.0f ||
+			m_ShakeIntensity <= 0.0f)
+		{
+			m_ShakeIntensity = 0.0f;
+			m_ShakeDuration = 0.0f;
+			m_ShakeTimeRemaining = 0.0f;
+			m_ShakeElapsedTime = 0.0f;
+			return Vec3(0.0f, 0.0f, 0.0f);
+		}
+
+		const float safeElapsedTime = bsmUtil::Max(elapsedTime, 0.0f);
+		m_ShakeElapsedTime += safeElapsedTime;
+		m_ShakeTimeRemaining = bsmUtil::Max(
+			0.0f,
+			m_ShakeTimeRemaining - safeElapsedTime);
+
+		// 残り時間の二乗で減衰させ、爆発直後は強く、終了間際は滑らかに静止させる。
+		const float remainingRate = bsmUtil::Clamp(
+			m_ShakeTimeRemaining / m_ShakeDuration,
+			0.0f,
+			1.0f);
+		const float amplitude =
+			m_ShakeIntensity * remainingRate * remainingRate;
+		const float phase = m_ShakeElapsedTime;
+
+		// 軸ごとに異なる周波数を使い、単純な往復運動に見えない揺れを作る。
+		const Vec3 offset(
+			std::sin(phase * 67.0f) * amplitude,
+			std::sin((phase * 83.0f) + 1.7f) * amplitude * 0.65f,
+			std::sin((phase * 53.0f) + 3.1f) * amplitude * 0.45f);
+
+		if (m_ShakeTimeRemaining <= 0.0f)
+		{
+			m_ShakeIntensity = 0.0f;
+			m_ShakeDuration = 0.0f;
+			m_ShakeElapsedTime = 0.0f;
+		}
+		return offset;
 	}
 
 
@@ -531,13 +614,16 @@ namespace shooting {
 			// 演出終了後も解除しなければ、この最終位置のままゲームを続けられる。
 			PerspecCamera::SetAt(m_SpawnIntroAt);
 			PerspecCamera::SetEye(m_SpawnIntroEye);
+			m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 			PerspecCamera::OnUpdate(elapsedTime);
 			return;
 		}
 
 		//前回のターンからの時間
-		Vec3 newEye = GetEye();
-		Vec3 newAt = GetAt();
+		// 前フレームのシェイクを除去してから通常追従を計算し、揺れの位置が累積しないようにする。
+		Vec3 newEye = GetEye() - m_LastShakeOffset;
+		Vec3 newAt = GetAt() - m_LastShakeOffset;
+		m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 		//計算に使うための腕角度（ベクトル）
 		Vec3 armVec = newEye - newAt;
 		//正規化しておく
@@ -619,7 +705,7 @@ namespace shooting {
 		{
 			Vec3 toAt = ptrTarget->GetComponent<Transform>()->GetWorldMatrix().transInMatrix();
 			toAt += m_TargetToAt;
-			newAt = Lerp::CalculateLerp(GetAt(), toAt, 0, 1.0f, 1.0, Lerp::Linear);
+			newAt = Lerp::CalculateLerp(newAt, toAt, 0, 1.0f, 1.0, Lerp::Linear);
 		}
 
 		//Vec3 toEye = newAt + armVec * m_ArmLen;
@@ -712,15 +798,18 @@ namespace shooting {
 		}
 		else
 		{
-			newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
+			newEye = Lerp::CalculateLerp(newEye, toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
 		}
 
 		// 既存の Eye lerp は残してOK（好みで m_ToTargetLerp=1 にしても良い）
 		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
 
-		// SetAtがEyeを動かす実装だとガタつくので、ベースを直接呼ぶ
-		PerspecCamera::SetAt(newAt);
-		PerspecCamera::SetEye(newEye);
+		// EyeとAtへ同じ量を加えることで照準方向を維持し、画面全体だけを揺らす。
+		m_LastShakeOffset = UpdateCameraShake(static_cast<float>(elapsedTime));
+
+		// SetAtがEyeを動かす実装だとガタつくので、ベースを直接呼ぶ。
+		PerspecCamera::SetAt(newAt + m_LastShakeOffset);
+		PerspecCamera::SetEye(newEye + m_LastShakeOffset);
 		PerspecCamera::OnUpdate(elapsedTime);
 	}
 }
