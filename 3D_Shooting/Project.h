@@ -25,6 +25,7 @@
 #include "BulletPool.h"
 #include "BulletManager.h"
 #include "StageObjectCatalog.h"
+#include "StagePropPlacement.h"
 #include "Character.h"
 #include "EnemyBatchController.h"
 #include "EnemyFactory.h"

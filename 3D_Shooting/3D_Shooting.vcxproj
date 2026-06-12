@@ -107,6 +107,7 @@
     <ClCompile Include="ScreenTransition.cpp" />
     <ClCompile Include="StageEditor.cpp" />
     <ClCompile Include="StageObjectCatalog.cpp" />
+    <ClCompile Include="StagePropPlacement.cpp" />
     <ClCompile Include="StageGroundResolver.cpp" />
     <ClCompile Include="TitleStage.cpp" />
     <ClCompile Include="SeekObject.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="ScreenTransition.h" />
     <ClInclude Include="StageEditor.h" />
     <ClInclude Include="StageObjectCatalog.h" />
+    <ClInclude Include="StagePropPlacement.h" />
     <ClInclude Include="StageGroundResolver.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TitleStage.h" />
@@ -221,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Data\EnemyWaveConfig.json" />
+    <None Include="Assets\Stage\stage_props.csv" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCConstant.hlsli" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCLighting.hlsli" />

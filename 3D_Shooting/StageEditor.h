@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "stdafx.h"
+#include "StagePropPlacement.h"
 
 namespace shooting {
 
@@ -10,8 +11,8 @@ namespace shooting {
 	/*!
 	@brief CSVで構成されたステージグリッドをゲーム内で編集するデバッグ用エディタ
 
-	編集値はメモリ上に保持し、保存時に stage_heights.csv と
-	stage_objects.csv へ書き出す。ステージの再生成は Scene 側へ要求する。
+	編集値はメモリ上に保持し、保存時に高さ、地形、配置物の各CSVへ
+	書き出す。ステージの再生成は Scene 側へ要求する。
 	*/
 	class StageEditor
 	{
@@ -42,11 +43,15 @@ namespace shooting {
 			const std::shared_ptr<Camera>& camera,
 			float screenWidth,
 			float screenHeight) const;
+		StagePropPlacement* FindPropAtCell(int row, int column);
+		const StagePropPlacement* FindPropAtCell(int row, int column) const;
+		void RemovePropAtCell(int row, int column);
 		int GetIndex(int row, int column) const;
 		bool IsValidCell(int row, int column) const;
 
 		std::vector<int> m_objects;
 		std::vector<int> m_heights;
+		std::vector<StagePropPlacement> m_propPlacements;
 		int m_rowCount = 0;
 		int m_columnCount = 0;
 		int m_selectedRow = -1;

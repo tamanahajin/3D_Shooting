@@ -307,6 +307,9 @@
     <ClCompile Include="StageObjectCatalog.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="StagePropPlacement.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
@@ -352,6 +355,9 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageObjectCatalog.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StagePropPlacement.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StageGroundResolver.h">
@@ -630,6 +636,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Data\EnemyWaveConfig.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="Assets\Stage\stage_props.csv">
       <Filter>Data</Filter>
     </None>
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli">

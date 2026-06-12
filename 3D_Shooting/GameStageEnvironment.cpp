@@ -966,6 +966,68 @@ namespace shooting {
 			}
 		}
 
+		// エディタで指定した配置物を、ランダム自然物と同じインスタンシング描画へ追加する。
+		void AddEditedStageProps(
+			GameStage& stage,
+			std::map<std::wstring, StageObjectBatch>& batches,
+			std::vector<PlacementCircle>& occupied,
+			const StageLayoutGrid& grid)
+		{
+			std::vector<StagePropPlacement> placements;
+			std::string errorMessage;
+			if (!StagePropPlacementFile::Load(
+					App::GetRelativeAssetsDir() + StagePropPlacementFile::GetRelativePath(),
+					placements,
+					errorMessage))
+			{
+#if defined(_DEBUG)
+				OutputDebugStringA(("Stage prop load failed: " + errorMessage + "\n").c_str());
+#endif
+				return;
+			}
+
+			for (const auto& placement : placements)
+			{
+				if (placement.row < 0 ||
+					placement.row >= grid.rowCount ||
+					placement.column < 0 ||
+					placement.column >= grid.columnCount)
+				{
+					continue;
+				}
+
+				const auto* def = FindStageObjectDefByName(placement.modelName);
+				if (!def)
+				{
+					continue;
+				}
+
+				Vec3 position = GetStageLayoutCellPosition(
+					grid,
+					placement.row,
+					placement.column,
+					0.0f);
+				position = position + CalculateStagePropSubcellOffset(
+					placement.subRow,
+					placement.subColumn,
+					kStageLayoutCellSize);
+				float groundHeight = 0.0f;
+				if (stage.TryGetSlopeGroundHeight(position, groundHeight))
+				{
+					// 高台や坂のセルでは、配置物の根元を解決済み地面高さへ合わせる。
+					position.y = groundHeight;
+				}
+
+				const float yRotation =
+					placement.yRotationDegrees * (XM_PI / 180.0f);
+				AddStageObjectInstance(batches, *def, position, yRotation, 1.0f);
+
+				const float radius = def->placementRadius;
+				occupied.push_back({ position, radius });
+				stage.AddItemSpawnBlocker(position, radius);
+			}
+		}
+
 
 		// 外周用フォルダを優先し、無ければ旧Cliffカテゴリから近いモデルを選ぶ互換用の探索。
 		const StageObjectDef* FindOuterCliffDef()
@@ -1621,6 +1683,9 @@ namespace shooting {
 		occupied.push_back({ Vec3(-7.5f, 0.0f, -5.0f), 1.7f });
 		occupied.push_back({ Vec3(10.0f, 0.0f, 4.0f), 1.7f });
 		AddHeightVariationOccupancy(occupied);
+
+		// 手動配置を先に占有登録し、後から生成するランダム自然物との重なりを防ぐ。
+		AddEditedStageProps(*this, batches, occupied, LoadStageLayoutGrid());
 
 		std::mt19937 gen(20260506);
 

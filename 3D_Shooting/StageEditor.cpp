@@ -7,6 +7,7 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 
@@ -22,6 +23,81 @@ namespace shooting {
 		const Vec3 kStageOrigin(0.0f, 0.0f, 0.0f);
 		const wchar_t* kObjectCsvPath = L"Stage/stage_objects.csv";
 		const wchar_t* kHeightCsvPath = L"Stage/stage_heights.csv";
+
+		bool IsEditablePropCategory(StageObjectCategory category)
+		{
+			return category == StageObjectCategory::Tree ||
+				category == StageObjectCategory::Log ||
+				category == StageObjectCategory::Rock ||
+				category == StageObjectCategory::Stone ||
+				category == StageObjectCategory::Plant ||
+				category == StageObjectCategory::Mushroom;
+		}
+
+		const char* GetPropCategoryName(StageObjectCategory category)
+		{
+			switch (category)
+			{
+			case StageObjectCategory::Tree:
+				return "Tree";
+			case StageObjectCategory::Log:
+				return "Log";
+			case StageObjectCategory::Rock:
+				return "Rock";
+			case StageObjectCategory::Stone:
+				return "Stone";
+			case StageObjectCategory::Plant:
+				return "Plant";
+			case StageObjectCategory::Mushroom:
+				return "Mushroom";
+			default:
+				return "Other";
+			}
+		}
+
+		std::string NarrowUtf8(const std::wstring& value)
+		{
+			if (value.empty())
+			{
+				return std::string();
+			}
+
+			const int requiredSize = WideCharToMultiByte(
+				CP_UTF8,
+				0,
+				value.c_str(),
+				static_cast<int>(value.size()),
+				nullptr,
+				0,
+				nullptr,
+				nullptr);
+			if (requiredSize <= 0)
+			{
+				return std::string();
+			}
+
+			std::string result(static_cast<size_t>(requiredSize), '\0');
+			WideCharToMultiByte(
+				CP_UTF8,
+				0,
+				value.c_str(),
+				static_cast<int>(value.size()),
+				&result[0],
+				requiredSize,
+				nullptr,
+				nullptr);
+			return result;
+		}
+
+		float NormalizeDegrees(float degrees)
+		{
+			float normalized = std::fmod(degrees, 360.0f);
+			if (normalized < 0.0f)
+			{
+				normalized += 360.0f;
+			}
+			return normalized;
+		}
 
 		std::string NarrowPath(const std::wstring& path)
 		{
@@ -216,16 +292,22 @@ namespace shooting {
 	{
 		std::vector<int> objects;
 		std::vector<int> heights;
+		std::vector<StagePropPlacement> propPlacements;
 		int objectRows = 0;
 		int objectColumns = 0;
 		int heightRows = 0;
 		int heightColumns = 0;
+		std::string propError;
 
 		const std::wstring assets = App::GetRelativeAssetsDir();
 		if (!LoadCsvGrid(assets + kObjectCsvPath, objects, objectRows, objectColumns) ||
-			!LoadCsvGrid(assets + kHeightCsvPath, heights, heightRows, heightColumns))
+			!LoadCsvGrid(assets + kHeightCsvPath, heights, heightRows, heightColumns) ||
+			!StagePropPlacementFile::Load(
+				assets + StagePropPlacementFile::GetRelativePath(),
+				propPlacements,
+				propError))
 		{
-			m_statusText = "CSV load failed.";
+			m_statusText = propError.empty() ? "CSV load failed." : propError;
 			return false;
 		}
 		if (objectRows != heightRows || objectColumns != heightColumns)
@@ -233,9 +315,18 @@ namespace shooting {
 			m_statusText = "CSV grid sizes do not match.";
 			return false;
 		}
+		for (const auto& placement : propPlacements)
+		{
+			if (placement.row >= objectRows || placement.column >= objectColumns)
+			{
+				m_statusText = "Stage prop is outside the grid.";
+				return false;
+			}
+		}
 
 		m_objects = std::move(objects);
 		m_heights = std::move(heights);
+		m_propPlacements = std::move(propPlacements);
 		m_rowCount = objectRows;
 		m_columnCount = objectColumns;
 		m_loaded = true;
@@ -253,6 +344,7 @@ namespace shooting {
 	bool StageEditor::Save()
 	{
 		const std::wstring assets = App::GetRelativeAssetsDir();
+		std::string propError;
 		if (!SaveCsvGrid(
 				assets + kObjectCsvPath,
 				m_objects,
@@ -262,9 +354,13 @@ namespace shooting {
 				assets + kHeightCsvPath,
 				m_heights,
 				m_rowCount,
-				m_columnCount))
+				m_columnCount) ||
+			!StagePropPlacementFile::Save(
+				assets + StagePropPlacementFile::GetRelativePath(),
+				m_propPlacements,
+				propError))
 		{
-			m_statusText = "CSV save failed.";
+			m_statusText = propError.empty() ? "CSV save failed." : propError;
 			return false;
 		}
 
@@ -490,6 +586,103 @@ namespace shooting {
 			screenCorners[3],
 			IM_COL32(255, 215, 40, 255),
 			3.0f);
+
+		const auto* placement = FindPropAtCell(m_selectedRow, m_selectedColumn);
+		if (placement)
+		{
+			const float subcellSize =
+				kStageCellSize / static_cast<float>(kStagePropSubcellCount);
+			const float minX = centerX - halfCell;
+			const float minZ = centerZ - halfCell;
+			const ImU32 subgridColor = IM_COL32(80, 220, 235, 210);
+
+			// 選択中の親セルだけ3x3へ分割し、配置位置とステージ上の向きを対応させる。
+			for (int line = 1; line < kStagePropSubcellCount; ++line)
+			{
+				const float x = minX + (static_cast<float>(line) * subcellSize);
+				ImVec2 start{};
+				ImVec2 end{};
+				if (ProjectToScreen(
+						camera,
+						Vec3(x, selectedY, centerZ - halfCell),
+						screenWidth,
+						screenHeight,
+						start) &&
+					ProjectToScreen(
+						camera,
+						Vec3(x, selectedY, centerZ + halfCell),
+						screenWidth,
+						screenHeight,
+						end))
+				{
+					drawList->AddLine(start, end, subgridColor, 1.5f);
+				}
+
+				const float z = minZ + (static_cast<float>(line) * subcellSize);
+				if (ProjectToScreen(
+						camera,
+						Vec3(centerX - halfCell, selectedY, z),
+						screenWidth,
+						screenHeight,
+						start) &&
+					ProjectToScreen(
+						camera,
+						Vec3(centerX + halfCell, selectedY, z),
+						screenWidth,
+						screenHeight,
+						end))
+				{
+					drawList->AddLine(start, end, subgridColor, 1.5f);
+				}
+			}
+
+			const Vec3 offset = CalculateStagePropSubcellOffset(
+				placement->subRow,
+				placement->subColumn,
+				kStageCellSize);
+			const float subcellCenterX = centerX + offset.x;
+			const float subcellCenterZ = centerZ + offset.z;
+			const float halfSubcell = subcellSize * 0.5f;
+			const Vec3 selectedSubcellCorners[] =
+			{
+				Vec3(subcellCenterX - halfSubcell, selectedY, subcellCenterZ - halfSubcell),
+				Vec3(subcellCenterX + halfSubcell, selectedY, subcellCenterZ - halfSubcell),
+				Vec3(subcellCenterX + halfSubcell, selectedY, subcellCenterZ + halfSubcell),
+				Vec3(subcellCenterX - halfSubcell, selectedY, subcellCenterZ + halfSubcell),
+			};
+
+			ImVec2 selectedSubcellScreenCorners[4]{};
+			bool canDrawSelectedSubcell = true;
+			for (int i = 0; i < 4; ++i)
+			{
+				if (!ProjectToScreen(
+						camera,
+						selectedSubcellCorners[i],
+						screenWidth,
+						screenHeight,
+						selectedSubcellScreenCorners[i]))
+				{
+					canDrawSelectedSubcell = false;
+					break;
+				}
+			}
+			if (canDrawSelectedSubcell)
+			{
+				drawList->AddQuadFilled(
+					selectedSubcellScreenCorners[0],
+					selectedSubcellScreenCorners[1],
+					selectedSubcellScreenCorners[2],
+					selectedSubcellScreenCorners[3],
+					IM_COL32(80, 220, 235, 90));
+				drawList->AddQuad(
+					selectedSubcellScreenCorners[0],
+					selectedSubcellScreenCorners[1],
+					selectedSubcellScreenCorners[2],
+					selectedSubcellScreenCorners[3],
+					IM_COL32(80, 220, 235, 255),
+					2.5f);
+			}
+		}
 #else
 		(void)camera;
 		(void)screenWidth;
@@ -511,7 +704,7 @@ namespace shooting {
 		}
 
 		bool reloadStage = false;
-		ImGui::SetNextWindowSize(ImVec2(330.0f, 260.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(380.0f, 490.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowPos(ImVec2(16.0f, 16.0f), ImGuiCond_FirstUseEver);
 		if (ImGui::Begin("Stage Editor"))
 		{
@@ -552,6 +745,170 @@ namespace shooting {
 					m_heights[index] = bsmUtil::Clamp(height, 0, kStageHeightMax);
 					m_dirty = true;
 					m_statusText = "Modified.";
+				}
+
+				ImGui::Separator();
+				const StagePropPlacement* selectedPlacement =
+					FindPropAtCell(m_selectedRow, m_selectedColumn);
+				const std::string currentModelName = selectedPlacement
+					? NarrowUtf8(selectedPlacement->modelName)
+					: "None";
+				std::wstring selectedModelName;
+				bool removePlacement = false;
+
+				if (ImGui::BeginCombo("Placement", currentModelName.c_str()))
+				{
+					if (ImGui::Selectable("None", selectedPlacement == nullptr))
+					{
+						removePlacement = true;
+					}
+
+					const StageObjectCategory categories[] =
+					{
+						StageObjectCategory::Tree,
+						StageObjectCategory::Log,
+						StageObjectCategory::Rock,
+						StageObjectCategory::Stone,
+						StageObjectCategory::Plant,
+						StageObjectCategory::Mushroom,
+					};
+					for (const auto category : categories)
+					{
+						const auto defs = StageObjectCatalog::GetByCategory(category);
+						if (defs.empty())
+						{
+							continue;
+						}
+
+						ImGui::Separator();
+						ImGui::TextDisabled("%s", GetPropCategoryName(category));
+						for (const auto* def : defs)
+						{
+							if (!def || !IsEditablePropCategory(def->category))
+							{
+								continue;
+							}
+
+							const std::string displayName = NarrowUtf8(def->name);
+							const std::string selectableLabel =
+								displayName + "##" + NarrowUtf8(def->key);
+							const bool isSelected =
+								selectedPlacement &&
+								selectedPlacement->modelName == def->name;
+							if (ImGui::Selectable(selectableLabel.c_str(), isSelected))
+							{
+								selectedModelName = def->name;
+							}
+						}
+					}
+					ImGui::EndCombo();
+				}
+
+				if (removePlacement)
+				{
+					RemovePropAtCell(m_selectedRow, m_selectedColumn);
+					m_dirty = true;
+					m_statusText = "Modified.";
+				}
+				else if (!selectedModelName.empty())
+				{
+					auto* placement = FindPropAtCell(m_selectedRow, m_selectedColumn);
+					if (!placement)
+					{
+						StagePropPlacement newPlacement;
+						newPlacement.row = m_selectedRow;
+						newPlacement.column = m_selectedColumn;
+						newPlacement.modelName = selectedModelName;
+						m_propPlacements.push_back(newPlacement);
+					}
+					else
+					{
+						placement->modelName = selectedModelName;
+					}
+					m_dirty = true;
+					m_statusText = "Modified.";
+				}
+
+				auto* editablePlacement =
+					FindPropAtCell(m_selectedRow, m_selectedColumn);
+				if (editablePlacement)
+				{
+					ImGui::TextUnformatted("Position in Cell");
+					const char* subcellLabels[kStagePropSubcellCount][kStagePropSubcellCount] =
+					{
+						{ "NW##PropPos00", "N##PropPos01", "NE##PropPos02" },
+						{ "W##PropPos10", "C##PropPos11", "E##PropPos12" },
+						{ "SW##PropPos20", "S##PropPos21", "SE##PropPos22" },
+					};
+					for (int subRow = 0; subRow < kStagePropSubcellCount; ++subRow)
+					{
+						for (int subColumn = 0; subColumn < kStagePropSubcellCount; ++subColumn)
+						{
+							const bool isSelected =
+								editablePlacement->subRow == subRow &&
+								editablePlacement->subColumn == subColumn;
+							if (isSelected)
+							{
+								ImGui::PushStyleColor(
+									ImGuiCol_Button,
+									ImVec4(0.90f, 0.57f, 0.10f, 1.0f));
+								ImGui::PushStyleColor(
+									ImGuiCol_ButtonHovered,
+									ImVec4(1.0f, 0.68f, 0.18f, 1.0f));
+								ImGui::PushStyleColor(
+									ImGuiCol_ButtonActive,
+									ImVec4(0.78f, 0.45f, 0.05f, 1.0f));
+							}
+
+							if (ImGui::Button(
+									subcellLabels[subRow][subColumn],
+									ImVec2(52.0f, 28.0f)))
+							{
+								editablePlacement->subRow = subRow;
+								editablePlacement->subColumn = subColumn;
+								m_dirty = true;
+								m_statusText = "Modified.";
+							}
+
+							if (isSelected)
+							{
+								ImGui::PopStyleColor(3);
+							}
+							if (subColumn + 1 < kStagePropSubcellCount)
+							{
+								ImGui::SameLine();
+							}
+						}
+					}
+
+					float rotation = editablePlacement->yRotationDegrees;
+					if (ImGui::SliderFloat(
+							"Y Rotation",
+							&rotation,
+							0.0f,
+							359.0f,
+							"%.0f deg"))
+					{
+						editablePlacement->yRotationDegrees = NormalizeDegrees(rotation);
+						m_dirty = true;
+						m_statusText = "Modified.";
+					}
+
+					if (ImGui::Button("-90 deg", ImVec2(110.0f, 28.0f)))
+					{
+						editablePlacement->yRotationDegrees =
+							NormalizeDegrees(editablePlacement->yRotationDegrees - 90.0f);
+						m_dirty = true;
+						m_statusText = "Modified.";
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("+90 deg", ImVec2(110.0f, 28.0f)))
+					{
+						editablePlacement->yRotationDegrees =
+							NormalizeDegrees(editablePlacement->yRotationDegrees + 90.0f);
+						m_dirty = true;
+						m_statusText = "Modified.";
+					}
 				}
 			}
 
@@ -594,6 +951,43 @@ namespace shooting {
 	int StageEditor::GetIndex(int row, int column) const
 	{
 		return (row * m_columnCount) + column;
+	}
+
+	StagePropPlacement* StageEditor::FindPropAtCell(int row, int column)
+	{
+		const auto found = std::find_if(
+			m_propPlacements.begin(),
+			m_propPlacements.end(),
+			[row, column](const StagePropPlacement& placement)
+			{
+				return placement.row == row && placement.column == column;
+			});
+		return found != m_propPlacements.end() ? &(*found) : nullptr;
+	}
+
+	const StagePropPlacement* StageEditor::FindPropAtCell(int row, int column) const
+	{
+		const auto found = std::find_if(
+			m_propPlacements.begin(),
+			m_propPlacements.end(),
+			[row, column](const StagePropPlacement& placement)
+			{
+				return placement.row == row && placement.column == column;
+			});
+		return found != m_propPlacements.end() ? &(*found) : nullptr;
+	}
+
+	void StageEditor::RemovePropAtCell(int row, int column)
+	{
+		m_propPlacements.erase(
+			std::remove_if(
+				m_propPlacements.begin(),
+				m_propPlacements.end(),
+				[row, column](const StagePropPlacement& placement)
+				{
+					return placement.row == row && placement.column == column;
+				}),
+			m_propPlacements.end());
 	}
 
 	bool StageEditor::IsValidCell(int row, int column) const

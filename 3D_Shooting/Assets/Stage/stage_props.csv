@@ -1,0 +1,5 @@
+# row,column,model_name,y_rotation_degrees,sub_row,sub_column
+0,0,rock_tallf,270.0,0,0
+1,3,mushroom_red,0.0,1,2
+11,11,tree_blocks,0.0,1,0
+12,10,mushroom_tangroup,90.0,0,2
