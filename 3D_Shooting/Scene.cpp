@@ -8,6 +8,7 @@ namespace shooting {
 		const float kSceneTransitionFadeOutSeconds = 0.35f;
 		const float kSceneTransitionFadeInSeconds = 0.45f;
 		const wchar_t* kOptionIconPath = L"UI/option.png";
+		const wchar_t* kBombHudIconPath = L"UI/bom_icon.png";
 		const int kOptionSliderNone = -1;
 		const int kOptionSliderBgm = 0;
 		const int kOptionSliderSe = 1;
@@ -15,6 +16,8 @@ namespace shooting {
 		const float kOptionIconMargin = 20.0f;
 		const float kOptionSliderHeight = 34.0f;
 		const float kOptionSliderTrackOffset = 118.0f;
+		const float kBombHudIconSize = 56.0f;
+		const float kBombHudMargin = 24.0f;
 
 		std::shared_ptr<BaseMesh> CreateBombPreviewDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
 		{
@@ -1288,6 +1291,37 @@ namespace shooting {
 				UIAnchor::BottomCenter,
 				{ 0.0f, -48.0f },
 				{ 320.0f, 28.0f });
+		}
+
+		// 左下：現在所持している爆弾数
+		if (player)
+		{
+			const std::wstring bombCountText =
+				L"x " + std::to_wstring(player->GetBombAmmo());
+
+			m_uiManager.AddImage(
+				App::GetRelativeAssetsDir() + kBombHudIconPath,
+				UIAnchor::BottomLeft,
+				{ kBombHudMargin, -kBombHudMargin },
+				{ kBombHudIconSize, kBombHudIconSize });
+
+			// 数字へ影を付け、明暗の異なるステージ背景でも読み取れるようにする。
+			m_uiManager.AddText(
+				bombCountText,
+				UIAnchor::BottomLeft,
+				{ kBombHudMargin + kBombHudIconSize + 10.0f, -kBombHudMargin + 2.0f },
+				{ 100.0f, kBombHudIconSize },
+				UITextAlign::Left,
+				D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.85f),
+				30.0f);
+			m_uiManager.AddText(
+				bombCountText,
+				UIAnchor::BottomLeft,
+				{ kBombHudMargin + kBombHudIconSize + 8.0f, -kBombHudMargin },
+				{ 100.0f, kBombHudIconSize },
+				UITextAlign::Left,
+				D2D1::ColorF(1.0f, 0.88f, 0.18f, 1.0f),
+				30.0f);
 		}
 
 
