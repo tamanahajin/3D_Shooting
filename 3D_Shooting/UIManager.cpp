@@ -5,6 +5,10 @@ namespace shooting {
 
 	void UIManager::BeginFrame()
 	{
+		// 前フレームのホバー状態を残し、ボタンに入った瞬間だけ効果音を鳴らせるようにする。
+		m_PreviousHoveredButtonIds.swap(m_CurrentHoveredButtonIds);
+		m_CurrentHoveredButtonIds.clear();
+
 		m_texts.clear();
 		m_bars.clear();
 		m_sliders.clear();
@@ -48,6 +52,29 @@ namespace shooting {
 		cmd.size = size;
 		cmd.opacity = opacity;
 		m_images.push_back(cmd);
+	}
+
+	UIButtonResult UIManager::AddImageButton(
+		const std::wstring& path,
+		const std::wstring& buttonId,
+		UIAnchor anchor,
+		const UIPointF& offset,
+		const UISizeF& size,
+		float opacity,
+		float hoverOpacity,
+		const UIButtonBehavior& behavior)
+	{
+		auto device = BaseDevice::GetBaseDevice();
+		const float screenW = static_cast<float>(device->GetWidth());
+		const float screenH = static_cast<float>(device->GetHeight());
+		const D2D1_RECT_F rect = ResolveRect(screenW, screenH, anchor, offset, size);
+		const auto result = EvaluateButtonInteraction(
+			MakeButtonHoverId(L"ImageButton", buttonId, rect),
+			rect,
+			behavior);
+
+		AddImage(path, anchor, offset, size, result.hovered ? hoverOpacity : opacity);
+		return result;
 	}
 
 	void UIManager::AddProgressBar(
@@ -106,6 +133,66 @@ namespace shooting {
 			y <= rect.bottom;
 	}
 
+	std::wstring UIManager::MakeButtonHoverId(
+		const std::wstring& prefix,
+		const std::wstring& label,
+		const D2D1_RECT_F& rect)
+	{
+		// 同じ文字のボタンが複数あっても区別できるよう、表示位置を識別子に含める。
+		return prefix + L":" + label +
+			L":" + std::to_wstring(rect.left) +
+			L":" + std::to_wstring(rect.top) +
+			L":" + std::to_wstring(rect.right) +
+			L":" + std::to_wstring(rect.bottom);
+	}
+
+	UIButtonResult UIManager::EvaluateButtonInteraction(
+		const std::wstring& buttonId,
+		const D2D1_RECT_F& rect,
+		const UIButtonBehavior& behavior)
+	{
+		UIButtonResult result;
+		result.rect = rect;
+		if (!behavior.enabled)
+		{
+			return result;
+		}
+
+		const auto& input = App::GetInputDevice();
+		const auto& mouse = input.GetMouseState();
+		result.hovered = IsPointInRect(
+			static_cast<float>(mouse.now.x),
+			static_cast<float>(mouse.now.y),
+			rect);
+		result.clicked = result.hovered && input.MousePressed(VK_LBUTTON);
+
+		UpdateButtonHoverSound(buttonId, result.hovered, behavior.playHoverSound);
+		if (result.clicked && behavior.playClickSound)
+		{
+			GameAudio::Instance().PlaySound(GameSoundId::Decide);
+		}
+
+		return result;
+	}
+
+	void UIManager::UpdateButtonHoverSound(
+		const std::wstring& buttonId,
+		bool hovered,
+		bool playHoverSound)
+	{
+		if (!hovered || buttonId.empty())
+		{
+			return;
+		}
+
+		m_CurrentHoveredButtonIds.insert(buttonId);
+		if (playHoverSound &&
+			m_PreviousHoveredButtonIds.find(buttonId) == m_PreviousHoveredButtonIds.end())
+		{
+			GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
+		}
+	}
+
 	UIButtonResult UIManager::AddButton(
 		const std::wstring& text,
 		UIAnchor anchor,
@@ -113,21 +200,18 @@ namespace shooting {
 		const UISizeF& size,
 		const D2D1_COLOR_F& baseColor,
 		const D2D1_COLOR_F& hoverColor,
-		const D2D1_COLOR_F& textColor)
+		const D2D1_COLOR_F& textColor,
+		const UIButtonBehavior& behavior)
 	{
 		auto device = BaseDevice::GetBaseDevice();
 		const float screenW = static_cast<float>(device->GetWidth());
 		const float screenH = static_cast<float>(device->GetHeight());
 
-		D2D1_RECT_F rect = ResolveRect(screenW, screenH, anchor, offset, size);
-
-		const auto& mouse = App::GetInputDevice().GetMouseState();
-		const bool hovered = IsPointInRect(
-			static_cast<float>(mouse.now.x),
-			static_cast<float>(mouse.now.y),
-			rect);
-
-		const bool clicked = hovered && App::GetInputDevice().MousePressed(VK_LBUTTON);
+		const D2D1_RECT_F rect = ResolveRect(screenW, screenH, anchor, offset, size);
+		const auto result = EvaluateButtonInteraction(
+			MakeButtonHoverId(L"TextButton", text, rect),
+			rect,
+			behavior);
 
 		ButtonCommand cmd;
 		cmd.text = text;
@@ -137,13 +221,9 @@ namespace shooting {
 		cmd.anchor = anchor;
 		cmd.offset = offset;
 		cmd.size = size;
-		cmd.hovered = hovered;
+		cmd.hovered = result.hovered;
 		m_buttons.push_back(cmd);
 
-		UIButtonResult result;
-		result.hovered = hovered;
-		result.clicked = clicked;
-		result.rect = rect;
 		return result;
 	}
 

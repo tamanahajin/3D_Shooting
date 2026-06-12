@@ -35,7 +35,6 @@ namespace shooting {
 		long long m_LastTotalDamageDealt = 0;
 		int m_LastBestExplosionKills = 0;
 		int m_TitleMenuIndex = 0;
-		int m_TitleHoveredMenuIndex = -1;
 		double m_TitleTime = 0.0;
 		bool m_OptionOpen = false;
 		bool m_WaitingForOptionMouseRelease = false;
@@ -55,14 +54,13 @@ namespace shooting {
 		void RequestStartGame();
 		void RequestStartTitle();
 		void RequestExitGame();
-		void PlayButtonDecideSound();
 		void ConfirmTitleMenuSelection();
 		void SetTitleMenuIndex(int index, bool playCursorMoveSound);
 		void UpdateTitleInput();
 		void UpdateOptionInput();
 		void OpenOptionMenu();
 		void CloseOptionMenu();
-		void DrawOptionButton(UILayer& uiLayer);
+		void DrawOptionButton();
 		void DrawOptionMenu(UILayer& uiLayer);
 		float UpdateOptionSliderValue(int sliderIndex, const D2D1_RECT_F& rect, float currentValue);
 		void RenderUIWithTransition(UILayer& uiLayer);

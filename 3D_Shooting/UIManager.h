@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include <unordered_set>
 
 namespace shooting {
 
@@ -46,6 +47,16 @@ namespace shooting {
 		D2D1_RECT_F rect{};
 	};
 
+	struct UIButtonBehavior
+	{
+		/// 無効時はホバー、クリック、効果音をすべて処理しない。
+		bool enabled = true;
+		/// カーソルがボタンへ入った瞬間の効果音を再生する。
+		bool playHoverSound = true;
+		/// マウスでクリックしたときの決定音を再生する。
+		bool playClickSound = true;
+	};
+
 	class UIManager
 	{
 	public:
@@ -66,6 +77,16 @@ namespace shooting {
 			const UIPointF& offset,
 			const UISizeF& size,
 			float opacity = 1.0f);
+
+		UIButtonResult AddImageButton(
+			const std::wstring& path,
+			const std::wstring& buttonId,
+			UIAnchor anchor,
+			const UIPointF& offset,
+			const UISizeF& size,
+			float opacity = 0.82f,
+			float hoverOpacity = 1.0f,
+			const UIButtonBehavior& behavior = UIButtonBehavior());
 
 		void AddProgressBar(
 			const std::wstring& label,
@@ -92,7 +113,8 @@ namespace shooting {
 			const UISizeF& size,
 			const D2D1_COLOR_F& baseColor = D2D1::ColorF(0.15f, 0.25f, 0.45f, 0.95f),
 			const D2D1_COLOR_F& hoverColor = D2D1::ColorF(0.25f, 0.40f, 0.75f, 0.95f),
-			const D2D1_COLOR_F& textColor = D2D1::ColorF(D2D1::ColorF::White));
+			const D2D1_COLOR_F& textColor = D2D1::ColorF(D2D1::ColorF::White),
+			const UIButtonBehavior& behavior = UIButtonBehavior());
 
 		void Render(UILayer& layer) const;
 
@@ -162,6 +184,18 @@ namespace shooting {
 		};
 
 		static bool IsPointInRect(float x, float y, const D2D1_RECT_F& rect);
+		static std::wstring MakeButtonHoverId(
+			const std::wstring& prefix,
+			const std::wstring& label,
+			const D2D1_RECT_F& rect);
+		UIButtonResult EvaluateButtonInteraction(
+			const std::wstring& buttonId,
+			const D2D1_RECT_F& rect,
+			const UIButtonBehavior& behavior);
+		void UpdateButtonHoverSound(
+			const std::wstring& buttonId,
+			bool hovered,
+			bool playHoverSound);
 
 		std::vector<TextCommand> m_texts;
 		std::vector<ProgressBarCommand> m_bars;
@@ -170,6 +204,8 @@ namespace shooting {
 		std::vector<ButtonCommand> m_buttons;
 		std::vector<OverlayCommand> m_backgroundOverlays;
 		std::vector<OverlayCommand> m_overlays;
+		std::unordered_set<std::wstring> m_PreviousHoveredButtonIds;
+		std::unordered_set<std::wstring> m_CurrentHoveredButtonIds;
 	};
 
 }

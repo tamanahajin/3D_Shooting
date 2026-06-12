@@ -624,7 +624,6 @@ namespace shooting {
 		m_OptionDraggingSlider = kOptionSliderNone;
 		m_GameState = GameState::Title;
 		m_TitleMenuIndex = 0;
-		m_TitleHoveredMenuIndex = -1;
 		m_TitleTime = 0.0;
 
 		SetMouseCursorVisible(true);
@@ -777,14 +776,9 @@ namespace shooting {
 			});
 	}
 
-	void Scene::PlayButtonDecideSound()
-	{
-		GameAudio::Instance().PlaySound(GameSoundId::Decide);
-	}
-
 	void Scene::ConfirmTitleMenuSelection()
 	{
-		PlayButtonDecideSound();
+		GameAudio::Instance().PlaySound(GameSoundId::Decide);
 
 		if (m_TitleMenuIndex == 0)
 		{
@@ -935,26 +929,24 @@ namespace shooting {
 		}
 	}
 
-	void Scene::DrawOptionButton(UILayer& uiLayer)
+	void Scene::DrawOptionButton()
 	{
-		const float screenW = uiLayer.GetWidth();
-		const D2D1_RECT_F rect = D2D1::RectF(
-			screenW - kOptionIconMargin - kOptionIconSize,
-			kOptionIconMargin,
-			screenW - kOptionIconMargin,
-			kOptionIconMargin + kOptionIconSize);
-		const bool hovered = IsMouseInRect(rect);
+		UIButtonBehavior behavior;
+		behavior.enabled = !m_ScreenTransition.IsInputBlocked();
+		// 開閉時は決定音とキャンセル音を使い分けるため、ボタン共通の決定音は鳴らさない。
+		behavior.playClickSound = false;
 
-		m_uiManager.AddImage(
+		const auto optionButton = m_uiManager.AddImageButton(
 			App::GetRelativeAssetsDir() + kOptionIconPath,
+			L"OptionButton",
 			UIAnchor::TopRight,
 			{ -kOptionIconMargin, kOptionIconMargin },
 			{ kOptionIconSize, kOptionIconSize },
-			hovered ? 1.0f : 0.82f);
+			0.82f,
+			1.0f,
+			behavior);
 
-		if (!m_ScreenTransition.IsInputBlocked() &&
-			hovered &&
-			App::GetInputDevice().MousePressed(VK_LBUTTON))
+		if (optionButton.clicked)
 		{
 			if (m_OptionOpen)
 			{
@@ -1012,6 +1004,8 @@ namespace shooting {
 			{ 0.0f, 18.0f },
 			sliderSize);
 
+		UIButtonBehavior exitButtonBehavior;
+		exitButtonBehavior.enabled = !m_ScreenTransition.IsInputBlocked();
 		auto exitButton = m_uiManager.AddButton(
 			L"EXIT",
 			UIAnchor::Center,
@@ -1019,11 +1013,11 @@ namespace shooting {
 			{ 180.0f, 52.0f },
 			D2D1::ColorF(0.08f, 0.09f, 0.11f, 0.92f),
 			D2D1::ColorF(0.18f, 0.20f, 0.24f, 0.96f),
-			D2D1::ColorF(D2D1::ColorF::White));
+			D2D1::ColorF(D2D1::ColorF::White),
+			exitButtonBehavior);
 
-		if (!m_ScreenTransition.IsInputBlocked() && exitButton.clicked)
+		if (exitButton.clicked)
 		{
-			PlayButtonDecideSound();
 			RequestExitGame();
 		}
 	}
@@ -1069,7 +1063,7 @@ namespace shooting {
 			if (m_OptionOpen)
 			{
 				DrawOptionMenu(*uiLayer);
-				DrawOptionButton(*uiLayer);
+				DrawOptionButton();
 				uiLayer->SetCrosshairEnabled(false);
 				RenderUIWithTransition(*uiLayer);
 				return;
@@ -1082,43 +1076,13 @@ namespace shooting {
 			const D2D1_COLOR_F buttonBaseColor = D2D1::ColorF(0.04f, 0.05f, 0.06f, 0.74f);
 			const D2D1_COLOR_F buttonHoverColor = D2D1::ColorF(0.14f, 0.16f, 0.18f, 0.88f);
 			const float screenW = uiLayer->GetWidth();
-			const float screenH = uiLayer->GetHeight();
 			const UISizeF menuSize = { 260.0f, 38.0f };
 			const float logoWidth = bsmUtil::Min(780.0f, screenW * 0.74f);
 			const float logoHeight = logoWidth * (173.0f / 1365.0f);
-			auto makeCenterRect = [&](const UIPointF& offset)
-			{
-				const float left = (screenW - menuSize.w) * 0.5f + offset.x;
-				const float top = (screenH - menuSize.h) * 0.5f + offset.y;
-				return D2D1::RectF(left, top, left + menuSize.w, top + menuSize.h);
-			};
-			const D2D1_RECT_F startRect = makeCenterRect({ 0.0f, 110.0f });
-			const D2D1_RECT_F exitRect = makeCenterRect({ 0.0f, 158.0f });
-
-			int hoveredMenuIndex = -1;
-			if (!inputBlocked)
-			{
-				if (IsMouseInRect(startRect))
-				{
-					hoveredMenuIndex = 0;
-				}
-				else if (IsMouseInRect(exitRect))
-				{
-					hoveredMenuIndex = 1;
-				}
-			}
-
-			if (hoveredMenuIndex >= 0)
-			{
-				// マウスがボタンに乗った瞬間だけカーソル移動音を鳴らす。乗り続けている間は鳴らさない。
-				const bool enteredButton = m_TitleHoveredMenuIndex != hoveredMenuIndex;
-				if (enteredButton)
-				{
-					GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
-				}
-				SetTitleMenuIndex(hoveredMenuIndex, false);
-			}
-			m_TitleHoveredMenuIndex = hoveredMenuIndex;
+			UIButtonBehavior titleButtonBehavior;
+			titleButtonBehavior.enabled = !inputBlocked;
+			// キーボード決定と同じ経路で音を鳴らすため、マウスクリック時の自動再生は無効にする。
+			titleButtonBehavior.playClickSound = false;
 
 			m_uiManager.AddImage(
 				App::GetRelativeAssetsDir() + L"Textures/TitleLogo.png",
@@ -1133,7 +1097,8 @@ namespace shooting {
 				menuSize,
 				buttonBaseColor,
 				buttonHoverColor,
-				m_TitleMenuIndex == 0 ? selectedColor : normalColor);
+				m_TitleMenuIndex == 0 ? selectedColor : normalColor,
+				titleButtonBehavior);
 
 			auto exitButton = m_uiManager.AddButton(
 				L"EXIT",
@@ -1142,20 +1107,30 @@ namespace shooting {
 				menuSize,
 				buttonBaseColor,
 				buttonHoverColor,
-				m_TitleMenuIndex == 1 ? selectedColor : normalColor);
+				m_TitleMenuIndex == 1 ? selectedColor : normalColor,
+				titleButtonBehavior);
 
-			if (!inputBlocked && startButton.clicked)
+			if (startButton.hovered)
+			{
+				SetTitleMenuIndex(0, false);
+			}
+			else if (exitButton.hovered)
+			{
+				SetTitleMenuIndex(1, false);
+			}
+
+			if (startButton.clicked)
 			{
 				SetTitleMenuIndex(0, false);
 				ConfirmTitleMenuSelection();
 			}
-			if (!inputBlocked && exitButton.clicked)
+			if (exitButton.clicked)
 			{
 				SetTitleMenuIndex(1, false);
 				ConfirmTitleMenuSelection();
 			}
 
-			DrawOptionButton(*uiLayer);
+			DrawOptionButton();
 			uiLayer->SetCrosshairEnabled(false);
 			RenderUIWithTransition(*uiLayer);
 			return;
@@ -1251,6 +1226,8 @@ namespace shooting {
 				yellow,
 				34.0f);
 
+			UIButtonBehavior titleButtonBehavior;
+			titleButtonBehavior.enabled = !m_ScreenTransition.IsInputBlocked();
 			auto titleButton = m_uiManager.AddButton(
 				L"TITLE",
 				UIAnchor::Center,
@@ -1258,11 +1235,11 @@ namespace shooting {
 				{ 240.0f, 58.0f },
 				D2D1::ColorF(0.35f, 0.12f, 0.12f, 0.95f),
 				D2D1::ColorF(0.65f, 0.20f, 0.20f, 0.95f),
-				white);
+				white,
+				titleButtonBehavior);
 
-			if (!m_ScreenTransition.IsInputBlocked() && titleButton.clicked)
+			if (titleButton.clicked)
 			{
-				PlayButtonDecideSound();
 				RequestStartTitle();
 			}
 
@@ -1301,7 +1278,7 @@ namespace shooting {
 		if (m_OptionOpen)
 		{
 			DrawOptionMenu(*uiLayer);
-			DrawOptionButton(*uiLayer);
+			DrawOptionButton();
 			uiLayer->SetCrosshairEnabled(false);
 			RenderUIWithTransition(*uiLayer);
 			return;
@@ -1462,7 +1439,7 @@ namespace shooting {
 					D2D1::ColorF(1.0f, 0.82f, 0.16f, alpha));
 			}
 		}
-		DrawOptionButton(*uiLayer);
+		DrawOptionButton();
 		uiLayer->SetCrosshairEnabled(true);
 		RenderUIWithTransition(*uiLayer);
 	}
