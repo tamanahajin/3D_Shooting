@@ -57,6 +57,7 @@ namespace shooting {
 		RegisterSoundIfExists(GameSoundId::ItemPickup, L"SE", L"item_pickup.wav");
 		RegisterSoundIfExists(GameSoundId::Heal, L"SE", L"heal.wav");
 		RegisterSoundIfExists(GameSoundId::PlayerDamage, L"SE", L"player_damage.wav");
+		RegisterSoundIfExists(GameSoundId::PlayerDead, L"SE", L"player_dead.wav");
 		RegisterSoundIfExists(GameSoundId::EnemyDamage, L"SE", L"enemy_damage.wav");
 		RegisterSoundIfExists(GameSoundId::WaveStart, L"SE", L"wave_start.wav");
 
@@ -212,6 +213,8 @@ namespace shooting {
 			return 0.75f;
 		case GameSoundId::PlayerDamage:
 			return 0.85f;
+		case GameSoundId::PlayerDead:
+			return 0.90f;
 		case GameSoundId::EnemyDamage:
 			return 0.55f;
 		case GameSoundId::WaveStart:

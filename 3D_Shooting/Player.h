@@ -41,6 +41,17 @@ namespace shooting {
 		bool UpdateSpawnIntro(double elapsedTime);
 		void UpdateSpawnIntroCamera(const Vec3& playerPosition);
 		void SetSpawnIntroCharacterVisible(bool visible);
+		/*!
+		@brief プレイヤー死亡時の共通演出を開始する
+
+		BGM停止とヒットストップを行う。通常ダメージによる死亡と落下死の両方から呼ぶ。
+		*/
+		void StartDeathPresentation();
+		/*!
+		@brief 予約された死亡SEの遅延時間を実時間で更新する
+		@param rawElapsedTime 時間倍率を適用していない経過時間
+		*/
+		void UpdateDeathSound(double rawElapsedTime);
 		//入力ハンドラー
 		InputHandler<Player> m_InputHandler;
 		//スピード
@@ -66,6 +77,8 @@ namespace shooting {
 
 		bool m_IsDead = false;
 		bool m_DeathAnimFinished = false;
+		bool m_DeathSoundPending = false;
+		double m_DeathSoundDelayTimer = 0.0;
 		bool m_SpawnIntroActive = false;
 		bool m_SpawnIntroCharacterVisible = true;
 		bool m_SpawnIntroSePlayed = false;

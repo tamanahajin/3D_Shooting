@@ -16,6 +16,7 @@ namespace shooting {
 		ItemPickup,
 		Heal,
 		PlayerDamage,
+		PlayerDead,
 		EnemyDamage,
 		WaveStart,
 		CursorMove,

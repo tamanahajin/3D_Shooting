@@ -15,6 +15,12 @@ namespace shooting {
 		const float kSpawnIntroCameraDistance = 4.2f;
 		const float kSpawnIntroCameraHeight = 1.35f;
 		const float kSpawnIntroCameraLookHeight = 1.0f;
+		// 死亡した瞬間にゲーム内時間をほぼ停止させる時間。
+		const double kDeathHitStopDuration = 0.18;
+		// 完全停止を避けつつ、死亡した瞬間を強調するための時間倍率。
+		const double kDeathHitStopTimeScale = 0.03;
+		// 死亡判定から死亡SEを鳴らすまでの実時間。
+		const double kDeathSoundDelay = 1.1;
 
 		float SmoothStep(float t)
 		{
@@ -76,6 +82,37 @@ namespace shooting {
 		m_IsGround(false)
 	{
 		m_transParam = param;
+	}
+
+	void Player::StartDeathPresentation()
+	{
+		// ヒットストップ直後に聞こえるよう、死亡SEは実時間タイマーで遅延再生する。
+		m_DeathSoundPending = true;
+		m_DeathSoundDelayTimer = kDeathSoundDelay;
+		// 死亡SEは残し、インゲームBGMだけを停止してゲームオーバーを明確にする。
+		GameAudio::Instance().StopBgm();
+
+		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		if (gameStage)
+		{
+			gameStage->RequestHitStop(kDeathHitStopDuration, kDeathHitStopTimeScale);
+		}
+	}
+
+	void Player::UpdateDeathSound(double rawElapsedTime)
+	{
+		if (!m_DeathSoundPending)
+		{
+			return;
+		}
+
+		m_DeathSoundDelayTimer -= rawElapsedTime;
+		if (m_DeathSoundDelayTimer <= 0.0)
+		{
+			m_DeathSoundPending = false;
+			m_DeathSoundDelayTimer = 0.0;
+			GameAudio::Instance().PlaySound(GameSoundId::PlayerDead);
+		}
 	}
 
 	Vec2 Player::GetInputState() const
@@ -268,10 +305,9 @@ namespace shooting {
 				return;
 			}
 
-			GameAudio::Instance().PlaySound(GameSoundId::PlayerDamage);
-
 			self->m_IsDead = true;
 			self->m_DeathAnimFinished = false;
+			self->StartDeathPresentation();
 
 			auto anim = self->GetBehavior<AnimationStateBehavior>();
 			anim->ChangeAnimation(AnimState::Dead);

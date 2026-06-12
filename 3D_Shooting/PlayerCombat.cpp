@@ -78,6 +78,8 @@ namespace shooting {
 		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
 		// 爆弾の軌道始点の高さ
 		const float kBombStartBodyCenterHeight = 0.65f;
+		// プレイヤー死亡モーションの再生速度。通常速度より遅くしてゲームオーバーを強調する。
+		const double kDeathAnimationTimeScale = 0.25;
 
 		struct RightHandSocketTransform
 		{
@@ -866,8 +868,10 @@ namespace shooting {
 	bool PlayerWeapon::TryUpdateFromPlayerHand()
 	{
 		auto player = m_Player.lock();
-		if (!player || !player->IsUpdateActive())
+		if (!player || !player->IsUpdateActive() || player->IsDead())
 		{
+			// 死亡モーション中は手のソケットを更新せず、武器の見た目だけを非表示にする。
+			m_HasStableTransform = false;
 			return false;
 		}
 
@@ -956,6 +960,9 @@ namespace shooting {
 	void Player::OnUpdate(double elapsedTime)
 	{
 		const double rawElapsedTime = elapsedTime;
+		// 死亡SEの遅延はヒットストップ倍率に影響されない実時間で進める。
+		UpdateDeathSound(rawElapsedTime);
+
 		bool hitStopActive = false;
 		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
 		{
@@ -968,9 +975,14 @@ namespace shooting {
 		{
 			// AnimationStateBehaviorは共通Behavior更新で生のelapsedTimeを受け取るため、
 			// プレイヤー側でゲーム内時間との比率を渡してヒットストップ対象にする。
-			const double animationTimeScale = rawElapsedTime > 1e-8
+			double animationTimeScale = rawElapsedTime > 1e-8
 				? elapsedTime / rawElapsedTime
 				: 1.0;
+			if (m_IsDead)
+			{
+				// ヒットストップ倍率へ死亡演出用倍率を掛け、両方の演出を維持する。
+				animationTimeScale *= kDeathAnimationTimeScale;
+			}
 			anim->SetPlaybackTimeScale(animationTimeScale);
 		}
 
@@ -998,6 +1010,7 @@ namespace shooting {
 			}
 			m_IsDead = true;
 			m_DeathAnimFinished = false;
+			StartDeathPresentation();
 			anim->ChangeAnimation(AnimState::Dead, true);
 			return;
 		}
