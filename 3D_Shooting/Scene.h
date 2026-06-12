@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "UIManager.h"
 #include "Project.h"
@@ -29,7 +29,11 @@ namespace shooting {
 		bool m_CursorVisible = true;
 
 		GameState m_GameState = GameState::Title;
-		int m_LastScore = 0;
+		double m_LastSurvivalTime = 0.0;
+		int m_LastDefeatedEnemyCount = 0;
+		int m_LastReachedWave = 0;
+		long long m_LastTotalDamageDealt = 0;
+		int m_LastBestExplosionKills = 0;
 		int m_TitleMenuIndex = 0;
 		int m_TitleHoveredMenuIndex = -1;
 		double m_TitleTime = 0.0;

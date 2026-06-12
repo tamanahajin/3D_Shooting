@@ -64,6 +64,22 @@ namespace shooting {
 		return m_HitStop.Apply(rawDeltaTime);
 	}
 
+	void GameStage::RecordDamageDealt(int damage)
+	{
+		if (damage > 0)
+		{
+			m_TotalDamageDealt += damage;
+		}
+	}
+
+	void GameStage::RecordExplosionKills(int killCount)
+	{
+		if (killCount > m_BestExplosionKills)
+		{
+			m_BestExplosionKills = killCount;
+		}
+	}
+
 	void GameStage::CreateEnemyRenderers(const std::shared_ptr<EnemyBatchController>& controller)
 	{
 		m_enemyInstancedRenderer = AddGameObject<EnemyInstancedRenderer>(controller);
@@ -89,6 +105,13 @@ namespace shooting {
 
 	void GameStage::OnUpdate2(double elapsedTime)
 	{
+		// 登場演出と死亡演出は、プレイヤーが操作できないため生存時間へ含めない。
+		auto player = GetSharedGameObjectEx<Player>(L"Player", false);
+		if (player && !player->IsSpawnIntroActive() && !player->IsDead())
+		{
+			m_SurvivalTime += elapsedTime;
+		}
+
 		bool benchmarkStartedThisFrame = false;
 		auto& benchmark = BenchmarkRecorder::Instance();
 		benchmark.UpdateNotification(elapsedTime);

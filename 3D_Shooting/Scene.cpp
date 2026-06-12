@@ -643,7 +643,11 @@ namespace shooting {
 		m_OptionOpen = false;
 		m_WaitingForOptionMouseRelease = false;
 		m_OptionDraggingSlider = kOptionSliderNone;
-		m_LastScore = 0;
+		m_LastSurvivalTime = 0.0;
+		m_LastDefeatedEnemyCount = 0;
+		m_LastReachedWave = 0;
+		m_LastTotalDamageDealt = 0;
+		m_LastBestExplosionKills = 0;
 		m_GameState = GameState::Playing;
 
 		SetMouseCursorVisible(false);
@@ -1159,27 +1163,102 @@ namespace shooting {
 
 		if (m_GameState == GameState::Result)
 		{
-			wchar_t buff[256];
-			swprintf_s(
-				buff,
-				L"GAME OVER\n\nScore: %d",
-				m_LastScore);
+			const D2D1_COLOR_F white = D2D1::ColorF(D2D1::ColorF::White);
+			const D2D1_COLOR_F red = D2D1::ColorF(0.92f, 0.12f, 0.10f, 1.0f);
+			const D2D1_COLOR_F yellow = D2D1::ColorF(1.0f, 0.82f, 0.12f, 1.0f);
+
+			// ゲームオーバー時の3D画面を残し、UIだけを読みやすく暗くする。
+			m_uiManager.AddFullscreenBackgroundOverlay(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.68f));
 
 			m_uiManager.AddText(
-				buff,
+				L"GAME OVER",
 				UIAnchor::Center,
-				{ 0.0f, -170.0f },
-				{ 600.0f, 160.0f },
-				UITextAlign::Center);
+				{ 0.0f, -230.0f },
+				{ 720.0f, 72.0f },
+				UITextAlign::Center,
+				red,
+				56.0f);
+
+			m_uiManager.AddText(
+				L"生存時間",
+				UIAnchor::Center,
+				{ 0.0f, -145.0f },
+				{ 360.0f, 32.0f },
+				UITextAlign::Center,
+				white,
+				22.0f);
+
+			const int survivalSeconds = static_cast<int>(m_LastSurvivalTime);
+			wchar_t survivalText[32];
+			swprintf_s(
+				survivalText,
+				L"%02d:%02d",
+				survivalSeconds / 60,
+				survivalSeconds % 60);
+			m_uiManager.AddText(
+				survivalText,
+				UIAnchor::Center,
+				{ 0.0f, -108.0f },
+				{ 360.0f, 46.0f },
+				UITextAlign::Center,
+				yellow,
+				38.0f);
+
+			auto addResultRow = [&](const std::wstring& label, const std::wstring& value, float y)
+			{
+				m_uiManager.AddText(
+					label,
+					UIAnchor::Center,
+					{ -150.0f, y },
+					{ 250.0f, 38.0f },
+					UITextAlign::Right,
+					white,
+					22.0f);
+				m_uiManager.AddText(
+					value,
+					UIAnchor::Center,
+					{ 100.0f, y - 2.0f },
+					{ 220.0f, 42.0f },
+					UITextAlign::Left,
+					yellow,
+					28.0f);
+			};
+
+			addResultRow(L"総撃破数", std::to_wstring(m_LastDefeatedEnemyCount), -42.0f);
+			addResultRow(L"到達ウェーブ", std::to_wstring(m_LastReachedWave), 4.0f);
+			addResultRow(L"与えた総ダメージ", std::to_wstring(m_LastTotalDamageDealt), 50.0f);
+
+			m_uiManager.AddText(
+				L"BEST EXPLOSION",
+				UIAnchor::Center,
+				{ 0.0f, 108.0f },
+				{ 460.0f, 36.0f },
+				UITextAlign::Center,
+				white,
+				26.0f);
+
+			wchar_t bestExplosionText[64];
+			swprintf_s(
+				bestExplosionText,
+				L"1 BOMB / %d KILLS",
+				m_LastBestExplosionKills);
+			m_uiManager.AddText(
+				bestExplosionText,
+				UIAnchor::Center,
+				{ 0.0f, 145.0f },
+				{ 500.0f, 48.0f },
+				UITextAlign::Center,
+				yellow,
+				34.0f);
 
 			auto titleButton = m_uiManager.AddButton(
-				L"BACK TO TITLE",
+				L"TITLE",
 				UIAnchor::Center,
-				{ 0.0f, 80.0f },
-				{ 320.0f, 64.0f },
+				{ 0.0f, 220.0f },
+				{ 240.0f, 58.0f },
 				D2D1::ColorF(0.35f, 0.12f, 0.12f, 0.95f),
 				D2D1::ColorF(0.65f, 0.20f, 0.20f, 0.95f),
-				D2D1::ColorF(D2D1::ColorF::White));
+				white);
 
 			if (!m_ScreenTransition.IsInputBlocked() && titleButton.clicked)
 			{
@@ -1535,7 +1614,12 @@ namespace shooting {
 					}
 					benchmark.ClearNotification();
 
-					m_LastScore = gameStage->GetDefeatedEnemyCount();
+					// GameStageはこの後更新を止めるため、リザルト用の値をここで確定する。
+					m_LastSurvivalTime = gameStage->GetSurvivalTime();
+					m_LastDefeatedEnemyCount = gameStage->GetDefeatedEnemyCount();
+					m_LastReachedWave = gameStage->GetCurrentWave();
+					m_LastTotalDamageDealt = gameStage->GetTotalDamageDealt();
+					m_LastBestExplosionKills = gameStage->GetBestExplosionKills();
 					m_GameState = GameState::Result;
 
 					SetMouseCursorVisible(true);

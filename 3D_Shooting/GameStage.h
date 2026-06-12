@@ -86,6 +86,10 @@ namespace shooting {
 		bool m_enemyRendererUsesInstancing = true;
 		// 初回ウェーブだけ、プレイヤー登場演出の完了を待ってから開始する。
 		bool m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		// リザルト表示用の1プレイ分の集計値。
+		double m_SurvivalTime = 0.0;
+		long long m_TotalDamageDealt = 0;
+		int m_BestExplosionKills = 0;
 
 		void CreateItems();
 		void MaintainRecoveryItems();
@@ -126,6 +130,31 @@ namespace shooting {
 		EnemyStatus GetEnemyStatus(EnemyKind kind) const { return m_waveController.GetEnemyStatus(kind); }
 		int GetAliveEnemyCount() const;
 		int GetDefeatedEnemyCount() const;
+		/*!
+		@brief プレイヤーが操作可能になってから死亡するまでの生存時間を取得する
+		@return 生存時間（秒）
+		*/
+		double GetSurvivalTime() const { return m_SurvivalTime; }
+		/*!
+		@brief 敵へ実際に与えた総ダメージを取得する
+		@return オーバーキル分を除いた総ダメージ
+		*/
+		long long GetTotalDamageDealt() const { return m_TotalDamageDealt; }
+		/*!
+		@brief 爆弾1個で死亡が確定した敵数の最高記録を取得する
+		@return 1回の爆発による最大撃破数
+		*/
+		int GetBestExplosionKills() const { return m_BestExplosionKills; }
+		/*!
+		@brief 敵へ実際に与えたダメージを総ダメージへ加算する
+		@param damage 加算するダメージ
+		*/
+		void RecordDamageDealt(int damage);
+		/*!
+		@brief 爆弾1個の撃破数で最高記録を更新する
+		@param killCount その爆弾で死亡が確定した敵数
+		*/
+		void RecordExplosionKills(int killCount);
 
 		void SpawnDamageNumber(const Vec3& position, int damage);
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }

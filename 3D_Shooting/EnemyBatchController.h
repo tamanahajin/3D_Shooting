@@ -274,7 +274,7 @@ namespace shooting {
 		/*!
 		@brief このプロキシに対応する敵へダメージを適用する
 		@param info ダメージ量、攻撃者、吹っ飛び死亡遅延などの情報
-		@return このダメージで即死亡した場合は true
+		@return このダメージで即死亡、または着地後の死亡が確定した場合は true
 		*/
 		bool ApplyDamage(const DamageInfo& info);
 		/*!
@@ -560,7 +560,7 @@ namespace shooting {
 		@brief 指定敵へダメージを適用する
 		@param index 対象敵のインデックス
 		@param info ダメージ情報
-		@return このダメージで即死亡した場合は true
+		@return このダメージで即死亡、または着地後の死亡が確定した場合は true
 		*/
 		bool ApplyDamage(size_t index, const DamageInfo& info);
 		/*!

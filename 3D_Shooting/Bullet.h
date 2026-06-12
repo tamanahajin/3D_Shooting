@@ -95,6 +95,8 @@ namespace shooting {
 
 		// 爆発中の多重ヒット防止
 		std::unordered_set<const GameObject*> m_HitOnce;
+		// この爆弾1個で死亡が確定した敵数。BEST EXPLOSION の更新に使う。
+		int m_ExplosionKillCount = 0;
 
 		bool SolveBallistic_ApexHeight(
 			const Vec3& p0, const Vec3& p1,

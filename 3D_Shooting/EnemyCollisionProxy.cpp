@@ -238,7 +238,7 @@ namespace shooting {
 	/*!
 	@brief 対応する敵へダメージを適用する
 	@param info ダメージ情報
-	@return このダメージで即死亡した場合は true
+	@return このダメージで即死亡、または着地後の死亡が確定した場合は true
 	*/
 	bool EnemyCollisionProxy::ApplyDamage(const DamageInfo& info)
 	{

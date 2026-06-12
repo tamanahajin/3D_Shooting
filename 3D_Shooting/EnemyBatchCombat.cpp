@@ -133,7 +133,7 @@ namespace shooting {
 	@brief 指定敵へダメージを適用する
 	@param index 対象敵のインデックス
 	@param info ダメージ量、攻撃者、死亡遅延などの情報
-	@return このダメージで即死亡した場合は true
+	@return このダメージで即死亡、または着地後の死亡が確定した場合は true
 
 	爆弾などで死亡遅延が指定された場合は、HPを一時的に1へ戻して着地後に死亡させる。
 	*/
@@ -145,9 +145,17 @@ namespace shooting {
 		}
 
 		auto& enemy = m_Enemies[index];
-		if (!enemy.active || enemy.isDead || info.m_Damage <= 0)
+		// 着地後の死亡が確定している敵は、別の攻撃で撃破数やダメージを重複計上しない。
+		if (!enemy.active || enemy.isDead || enemy.delayDeathUntilLanding || info.m_Damage <= 0)
 		{
 			return false;
+		}
+
+		// 総ダメージには残りHPを超えたオーバーキル分を含めない。
+		const int appliedDamage = std::min(enemy.hp, info.m_Damage);
+		if (auto gameStage = m_GameStage.lock())
+		{
+			gameStage->RecordDamageDealt(appliedDamage);
 		}
 
 		ShowDamageNumber(index, info);
@@ -169,7 +177,7 @@ namespace shooting {
 				enemy.delayDeathUntilLanding = true;
 				enemy.delayedDeathWasAirborne = false;
 				enemy.delayedDeathMinTimer = 0.12;
-				return false;
+				return true;
 			}
 
 			KillEnemy(enemy);

@@ -389,13 +389,19 @@ namespace shooting {
 
 		if (auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(target))
 		{
-			enemyProxy->ApplyDamage(info);
+			const bool defeatedByThisExplosion = enemyProxy->ApplyDamage(info);
 
 			// ヒットストップ
 			auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 			if (gameStage)
 			{
 				gameStage->RequestHitStop(0.1, 0.03);
+				if (defeatedByThisExplosion)
+				{
+					// 同じ爆弾の累計撃破数が伸びるたび、ステージ側の最高記録を更新する。
+					++m_ExplosionKillCount;
+					gameStage->RecordExplosionKills(m_ExplosionKillCount);
+				}
 			}
 
 			if (!enemyProxy->IsAlive())
@@ -576,6 +582,7 @@ namespace shooting {
 		m_Exploding = false;
 		m_ExplosionTimer = 0.0;
 		m_HitOnce.clear();
+		m_ExplosionKillCount = 0;
 
 		m_FlyTime = 0.0f;
 		m_TotalT = 0.0f;
