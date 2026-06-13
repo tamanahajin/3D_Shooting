@@ -650,7 +650,8 @@
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(ProjectDir)Common\PhysX\dlls\$(Configuration)\" "$(SolutionDir)$(Configuration)\"
-xcopy /y /d "$(ProjectDir)Common\Assimp\dlls\" "$(SolutionDir)$(Configuration)\"</Command>
+xcopy /y /d "$(ProjectDir)Common\Assimp\dlls\" "$(SolutionDir)$(Configuration)\"
+copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -680,7 +681,8 @@ xcopy /y /d "$(ProjectDir)Common\Assimp\dlls\" "$(SolutionDir)$(Configuration)\"
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(ProjectDir)Common\PhysX\dlls\$(Configuration)\" "$(SolutionDir)$(Configuration)\"
-xcopy /y /d "$(ProjectDir)Common\Assimp\dlls\" "$(SolutionDir)$(Configuration)\"</Command>
+xcopy /y /d "$(ProjectDir)Common\Assimp\dlls\" "$(SolutionDir)$(Configuration)\"
+copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
