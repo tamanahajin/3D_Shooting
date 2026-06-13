@@ -345,7 +345,7 @@ namespace shooting {
 			AnimState animationState = AnimState::Idle;
 			bool animationFinished = false;
 
-			// active=falseになると配列には残すが、更新・描画対象から外す。
+			// active=falseになると更新・描画対象から外れ、次の敵生成時に同じスロットを再利用する。
 			bool active = true;
 			bool isGround = false;
 			bool isDead = false;
@@ -369,6 +369,8 @@ namespace shooting {
 		std::weak_ptr<GameStage> m_GameStage;
 		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
 		std::vector<EnemyState> m_Enemies;
+		// 使用を終えた敵状態のインデックス。新しい敵はここからスロットを取得して再利用する。
+		std::vector<size_t> m_FreeEnemyIndices;
 		// 死亡済み敵のコリジョンプロキシを再利用するためのプール。
 		std::vector<std::shared_ptr<EnemyCollisionProxy>> m_CollisionProxyPool;
 		// 各敵の分離力を一時保存する。全敵位置を使うため、OnUpdate冒頭でまとめて計算する。
@@ -536,7 +538,10 @@ namespace shooting {
 		@brief 指定設定で敵を1体追加する
 		@param startPosition 生成位置
 		@param status 敵の調整値
-		@return 追加された敵のインデックス
+		@return 割り当てられた敵スロットのインデックス
+
+		死亡済みの空きスロットがある場合はその EnemyState を初期化して再利用し、
+		空きがない場合だけ敵状態配列を拡張する。
 		*/
 		size_t AddEnemy(const Vec3& startPosition, const EnemyStatus& status);
 		/*!
@@ -595,8 +600,8 @@ namespace shooting {
 		*/
 		int GetAliveEnemyCount() const;
 		/*!
-		@brief これまでに配列へ追加された敵数を取得する
-		@return 敵配列の総数
+		@brief 現在確保されている敵状態スロット数を取得する
+		@return 再利用待ちの空きスロットを含む敵状態配列の要素数
 		*/
 		int GetTotalEnemyCount() const;
 		/*!

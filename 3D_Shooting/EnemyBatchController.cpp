@@ -55,18 +55,32 @@ namespace shooting {
 	@brief 指定ステータスで敵を追加する
 	@param startPosition 生成位置
 	@param status HP、移動速度、当たり判定などの敵設定
-	@return 追加された敵のインデックス
+	@return 割り当てられた敵スロットのインデックス
 
-	敵本体の状態は m_Enemies に追加し、当たり判定だけを EnemyCollisionProxy として作成する。
+	死亡済みスロットがあれば EnemyState 全体を初期値から上書きして再利用する。
+	空きがない場合だけ m_Enemies を拡張し、当たり判定は EnemyCollisionProxy へ割り当てる。
 	*/
 	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
 	{
+		size_t index = m_Enemies.size();
+		if (!m_FreeEnemyIndices.empty())
+		{
+			index = m_FreeEnemyIndices.back();
+			m_FreeEnemyIndices.pop_back();
+		}
+		else
+		{
+			m_Enemies.emplace_back();
+		}
+
+		// 再利用スロットには前の敵の速度、死亡状態、演出タイマーなどが残っている。
+		// EnemyStateを作り直してから必要な初期値を設定し、状態の持ち越しを防ぐ。
 		EnemyState enemy;
 		enemy.status = status;
 		enemy.position = startPosition;
 		enemy.previousPosition = startPosition;
 		enemy.rotation = Quat();
-		enemy.steeringTimer = static_cast<double>(m_Enemies.size() & 3) * 0.0125;
+		enemy.steeringTimer = static_cast<double>(index & 3) * 0.0125;
 		enemy.steeringInterval = status.steeringInterval;
 		enemy.animationState = AnimState::Idle;
 		enemy.animationTime = 0.0;
@@ -74,8 +88,7 @@ namespace shooting {
 		enemy.maxHp = status.maxHp > 0 ? status.maxHp : 1;
 		enemy.hp = enemy.maxHp;
 
-		const size_t index = m_Enemies.size();
-		m_Enemies.push_back(enemy);
+		m_Enemies[index] = enemy;
 
 		// 当たり判定だけは軽量なGameObjectとして残し、描画やAI状態はm_Enemies側でまとめて扱う。
 		// 生成スパイクを抑えるため、死亡済みプロキシがあれば再利用する。
@@ -216,10 +229,11 @@ namespace shooting {
 	}
 
 	/*!
-	@brief 敵プロキシをプールへ戻し、配列上では非アクティブにする
+	@brief 敵プロキシと敵状態スロットをそれぞれのプールへ戻す
 	@param index 削除する敵のインデックス
 
-	配列要素を詰めると既存プロキシの index がずれるため、要素は残して active=false にする。
+	配列要素を詰めると既存プロキシの index がずれるため、要素は残して空きインデックスとして記録する。
+	同じ敵を二重に返却しないよう、すでに非アクティブな場合は何もしない。
 	*/
 	void EnemyBatchController::RemoveEnemyProxy(size_t index)
 	{
@@ -228,15 +242,22 @@ namespace shooting {
 			return;
 		}
 
-		auto proxy = m_Enemies[index].proxy.lock();
+		auto& enemy = m_Enemies[index];
+		if (!enemy.active)
+		{
+			return;
+		}
+
+		auto proxy = enemy.proxy.lock();
 		if (proxy)
 		{
 			ReleaseCollisionProxy(proxy);
 		}
 
-		m_Enemies[index].active = false;
-		m_Enemies[index].deathAnimFinished = true;
-		m_Enemies[index].proxy.reset();
+		enemy.active = false;
+		enemy.deathAnimFinished = true;
+		enemy.proxy.reset();
+		m_FreeEnemyIndices.push_back(index);
 	}
 
 	/*!
@@ -273,8 +294,8 @@ namespace shooting {
 	}
 
 	/*!
-	@brief 敵配列に登録済みの総数を取得する
-	@return m_Enemies の要素数
+	@brief 現在確保されている敵状態スロット数を取得する
+	@return 再利用待ちの空きスロットを含む m_Enemies の要素数
 	*/
 	int EnemyBatchController::GetTotalEnemyCount() const
 	{
