@@ -16,6 +16,7 @@
  MIT License URL: https://opensource.org/license/mit
 */
 #include "stdafx.h"
+#include "ErrorLogger.h"
 #include <mmsystem.h>
 
 namespace shooting {
@@ -296,6 +297,7 @@ namespace shooting {
 			//デバッグ出力をする。
 			std::string str = e.what_m() + "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("PrimDevice::OnUpdateDraw/BaseException", e.what_m());
 			//メッセージボックス
 			g_msg = e.what_m() + "\n";
 			//メッセージボックススレッドのスタート
@@ -309,6 +311,7 @@ namespace shooting {
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("PrimDevice::OnUpdateDraw/runtime_error", e.what());
 			//メッセージボックス
 			g_msg = e.what();
 			g_msg += "\n";
@@ -323,6 +326,7 @@ namespace shooting {
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("PrimDevice::OnUpdateDraw/exception", e.what());
 			//メッセージボックス
 			g_msg = e.what();
 			g_msg += "\n";
@@ -335,6 +339,7 @@ namespace shooting {
 		catch (...)
 		{
 			OutputDebugStringA("原因不明のエラー\n");
+			ErrorLogger::Write("PrimDevice::OnUpdateDraw/unknown", "原因不明のエラー");
 
 			//メッセージボックス
 			g_msg = "原因不明のエラー\n";

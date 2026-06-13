@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include <d3d12sdklayers.h>
+#include "ErrorLogger.h"
 #include "ImGuiLayer.h"
 
 namespace shooting {
@@ -23,6 +24,10 @@ namespace shooting {
 			wchar_t message[128] = {};
 			swprintf_s(message, L"D3D12 device removed reason: 0x%08X\n", static_cast<unsigned int>(reason));
 			OutputDebugString(message);
+			ErrorLogger::WriteHr(
+				"BaseDevice::OutputDeviceRemovedReason",
+				reason,
+				"D3D12 device removed/reset detected.");
 		}
 	}
 

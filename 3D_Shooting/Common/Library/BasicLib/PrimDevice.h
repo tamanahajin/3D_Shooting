@@ -137,7 +137,7 @@ namespace shooting {
 
 		// パフォーマンス比較中は、描画負荷の差がFPSへ直接反映されるよう上限を無効にする。
 		// 通常プレイ向けに60FPS制限へ戻す場合は true に変更する。
-		static constexpr bool kEnableFrameRateLimit = false;
+		static constexpr bool kEnableFrameRateLimit = true;
 
 		// ---- 60FPS上限用 ----
 		void LimitFrameRate();

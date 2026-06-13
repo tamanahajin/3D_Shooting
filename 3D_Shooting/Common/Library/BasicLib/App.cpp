@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 
+#include "ErrorLogger.h"
+
 #if defined(_DEBUG)
 #include "ImGuiLayer.h"
 #endif
@@ -213,6 +215,7 @@ namespace shooting {
 			//デバッグ出力をする。
 			std::string str = e.what_m() + "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("App::Run/BaseException", e.what_m());
 			if (primDeviceActive)
 			{
 				pPrimDevice->OnDestroy();
@@ -235,6 +238,7 @@ namespace shooting {
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("App::Run/runtime_error", e.what());
 			if (primDeviceActive)
 			{
 				pPrimDevice->OnDestroy();
@@ -257,6 +261,7 @@ namespace shooting {
 			std::string str(e.what());
 			str += "\n";
 			OutputDebugStringA(str.c_str());
+			ErrorLogger::Write("App::Run/exception", e.what());
 			if (primDeviceActive)
 			{
 				pPrimDevice->OnDestroy();
@@ -277,6 +282,7 @@ namespace shooting {
 		{
 			//デバッグ出力をする。
 			OutputDebugStringA("原因不明のエラー\n");
+			ErrorLogger::Write("App::Run/unknown", "原因不明のエラー");
 			if (primDeviceActive)
 			{
 				pPrimDevice->OnDestroy();
