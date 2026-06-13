@@ -134,6 +134,7 @@
     <ClInclude Include="DebugSettings.h" />
     <ClInclude Include="EnemyBatchController.h" />
     <ClInclude Include="EnemyFactory.h" />
+    <ClInclude Include="EnemySpawnPositionResolver.h" />
     <ClInclude Include="EnemyWaveConfigLoader.h" />
     <ClInclude Include="HitStopController.h" />
     <ClInclude Include="Scripts\Audio\GameAudio.h" />

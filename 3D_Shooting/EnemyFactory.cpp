@@ -23,6 +23,12 @@ namespace shooting {
 		m_controller = controller;
 	}
 
+	void EnemyFactory::SetSpawnPositionResolver(
+		const std::shared_ptr<EnemySpawnPositionResolver>& resolver)
+	{
+		m_spawnPositionResolver = resolver;
+	}
+
 	/*!
 	@brief 登録先コントローラが有効かを判定する
 	@return 有効なら true
@@ -83,6 +89,40 @@ namespace shooting {
 	@return 生成された敵のインデックス。失敗時は size_t(-1)
 	*/
 	size_t EnemyFactory::CreateEnemy(EnemyKind kind, const Vec3& position, const EnemyStatus& status) const
+	{
+		Vec3 resolvedPosition;
+		if (!TryResolveSpawnPosition(position, status, resolvedPosition))
+		{
+			return static_cast<size_t>(-1);
+		}
+
+		return CreateEnemyAtResolvedPosition(kind, resolvedPosition, status);
+	}
+
+	bool EnemyFactory::TryResolveSpawnPosition(
+		const Vec3& candidatePosition,
+		const EnemyStatus& status,
+		Vec3& outPosition) const
+	{
+		auto resolver = m_spawnPositionResolver.lock();
+		if (!resolver)
+		{
+			// タイトル用など位置解決を設定しない利用箇所では、従来どおり指定位置を採用する。
+			outPosition = candidatePosition;
+			return true;
+		}
+
+		EnemySpawnPositionRequest request;
+		request.candidatePosition = candidatePosition;
+		request.clearanceRadius = status.collisionRadius;
+		request.groundFootOffset = status.groundFootOffset;
+		return resolver->TryResolveEnemySpawnPosition(request, outPosition);
+	}
+
+	size_t EnemyFactory::CreateEnemyAtResolvedPosition(
+		EnemyKind kind,
+		const Vec3& position,
+		const EnemyStatus& status) const
 	{
 		auto controller = m_controller.lock();
 		if (!controller)
@@ -157,7 +197,7 @@ namespace shooting {
 			acceptedPositions.reserve(static_cast<size_t>(desc.count));
 		}
 
-		// 同じウェーブで生成する敵同士が重なりにくいよう、採用済み位置との距離を見ながら抽選する。
+		// 同じウェーブの敵、地形、配置物のすべてを通過した候補だけを採用する。
 		const int maxAttempts = desc.settings.maxAttempts > 0 ? desc.settings.maxAttempts : 1;
 		const EnemyStatus status = desc.overrideStatus ? desc.status : GetStatus(desc.kind);
 		int createdCount = 0;
@@ -165,22 +205,34 @@ namespace shooting {
 		while (processedCount < desc.count && processedThisStep < maxProcessCount)
 		{
 			Vec3 position(desc.center.x, desc.settings.spawnY, desc.center.z);
+			bool foundPosition = false;
 
 			for (int attempt = 0; attempt < maxAttempts; ++attempt)
 			{
-				position = CreateRandomPosition(desc.center, desc.settings);
-				if (IsFarEnough(position, acceptedPositions, desc.settings.minSpacing))
+				const Vec3 candidate = CreateRandomPosition(desc.center, desc.settings);
+				Vec3 resolvedPosition;
+				if (!TryResolveSpawnPosition(candidate, status, resolvedPosition))
 				{
-					break;
+					continue;
 				}
+				if (!IsFarEnough(resolvedPosition, acceptedPositions, desc.settings.minSpacing))
+				{
+					continue;
+				}
+
+				position = resolvedPosition;
+				foundPosition = true;
+				break;
 			}
 
-			acceptedPositions.push_back(position);
-			if (CreateEnemy(desc.kind, position, status) != static_cast<size_t>(-1))
+			if (foundPosition &&
+				CreateEnemyAtResolvedPosition(desc.kind, position, status) != static_cast<size_t>(-1))
 			{
+				acceptedPositions.push_back(position);
 				++createdCount;
 			}
 
+			// 有効位置が見つからない敵も処理済みにし、混雑時に生成キューが停止し続けることを防ぐ。
 			++processedCount;
 			++processedThisStep;
 		}

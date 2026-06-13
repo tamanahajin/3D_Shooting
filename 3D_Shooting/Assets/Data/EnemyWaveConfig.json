@@ -18,6 +18,7 @@
       "modelScale": [0.01, 0.01, 0.01],
       "collisionRadius": 0.2,
       "collisionHeight": 0.3,
+      "groundFootOffset": 0.35,
       "steeringInterval": 0.05,
       "damageFlashDuration": 0.2,
       "damageNumberOffsetY": 0.35,

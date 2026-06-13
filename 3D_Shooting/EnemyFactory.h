@@ -6,6 +6,7 @@
 #pragma once
 #include "stdafx.h"
 #include "EnemyBatchController.h"
+#include "EnemySpawnPositionResolver.h"
 #include <memory>
 #include <map>
 #include <random>
@@ -75,6 +76,11 @@ namespace shooting {
 		*/
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
 		/*!
+		@brief 敵生成位置の検証先を設定する
+		@param resolver ステージ固有の生成位置解決処理
+		*/
+		void SetSpawnPositionResolver(const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
+		/*!
 		@brief 現在の登録先が有効かを判定する
 		@return 有効な EnemyBatchController を参照している場合は true
 		*/
@@ -131,9 +137,32 @@ namespace shooting {
 
 	private:
 		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemySpawnPositionResolver> m_spawnPositionResolver;
 		std::mt19937 m_randomEngine;
 		std::map<EnemyKind, EnemyStatus> m_StatusByKind;
 
+		/*!
+		@brief 地形と配置物を考慮して生成候補を検証する
+		@param candidatePosition 抽選した生成候補
+		@param status 生成する敵の設定
+		@param outPosition 採用可能な生成位置
+		@return 採用可能な場合は true
+		*/
+		bool TryResolveSpawnPosition(
+			const Vec3& candidatePosition,
+			const EnemyStatus& status,
+			Vec3& outPosition) const;
+		/*!
+		@brief 検証済み位置へ敵を登録する
+		@param kind 敵種別
+		@param position 検証済み生成位置
+		@param status 敵ステータス
+		@return 生成された敵のインデックス。失敗時は size_t(-1)
+		*/
+		size_t CreateEnemyAtResolvedPosition(
+			EnemyKind kind,
+			const Vec3& position,
+			const EnemyStatus& status) const;
 		/*!
 		@brief 中心位置の周囲からランダムな生成位置を作成する
 		@param center 生成中心

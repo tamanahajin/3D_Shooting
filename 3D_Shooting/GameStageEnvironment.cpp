@@ -838,17 +838,21 @@ namespace shooting {
 			}
 		}
 
-		void AddHeightVariationItemSpawnBlockers(GameStage& stage)
+		void AddHeightVariationSpawnBlockers(GameStage& stage)
 		{
 			const auto placements = BuildHeightVariationPlacements();
 			for (const auto& placement : placements)
 			{
-				// アイテムは高台の上には置けるようにし、斜面上だけを避ける。
+				// アイテムは従来どおり斜面を避けるが、敵は坂表面へ生成できるようにする。
 				if (!IsSlopePlacement(placement))
 				{
 					continue;
 				}
-				stage.AddItemSpawnBlocker(placement.position, placement.occupancyRadius);
+				stage.AddStageSpawnBlocker(
+					placement.position,
+					placement.occupancyRadius,
+					true,
+					false);
 			}
 		}
 
@@ -961,7 +965,7 @@ namespace shooting {
 
 				AddStageObjectInstance(batches, *def, position, rotDist(gen), scaleMultiplier);
 				occupied.push_back({ position, radius });
-				stage.AddItemSpawnBlocker(position, radius);
+				stage.AddStageSpawnBlocker(position, radius);
 				++placed;
 			}
 		}
@@ -1024,7 +1028,7 @@ namespace shooting {
 
 				const float radius = def->placementRadius;
 				occupied.push_back({ position, radius });
-				stage.AddItemSpawnBlocker(position, radius);
+				stage.AddStageSpawnBlocker(position, radius);
 			}
 		}
 
@@ -1571,37 +1575,42 @@ namespace shooting {
 	// 外周は見た目の崖モデルと、ゲームプレイ用の大きい透明コリジョンを別々に作る。
 	void GameStage::CreateWalls()
 	{
-		const auto* cliff = FindOuterCliffDef();
-		if (!cliff)
-		{
-			return;
-		}
-
-		std::map<std::wstring, StageObjectBatch> batches;
-
 		const float groundHalf = 32.0f;
 		const float edge = groundHalf + 1.5f;
 		const float outerCliffScale = 1.0f;
 		const float outerSideLength = (groundHalf / 4.0f) - 1.5f;
-
-		auto& batch = batches[cliff->key];
-		batch.meshKey = cliff->key;
-		batch.materialPrefix = cliff->materialPrefix;
-
-		// 外周崖は4辺それぞれ1枚の長いインスタンスにする。
-		const Vec3 sideScale(outerSideLength, outerCliffScale, outerCliffScale);
-		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, -edge), 0.0f, sideScale));
-		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, edge), XM_PI, sideScale));
-		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(-edge, 0.0f, 0.0f), XM_PIDIV2, sideScale));
-		batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(edge, 0.0f, 0.0f), -XM_PIDIV2, sideScale));
-
-		FlushStageObjectBatches(*this, batches);
-
 		const float wallHalf = edge - 0.3f;
 		const float wallLength = wallHalf * 2.0f;
 		const float wallThickness = 1.5f;
 		const float wallHeight = 36.0f;
 		const float wallY = 2.0f;
+		const float wallInnerHalf = wallHalf - (wallThickness * 0.5f);
+
+		// 敵生成判定は、見た目ではなく実際の壁コリジョンの内側面に合わせる。
+		// 敵半径は判定時にさらに差し引くため、壁との接触と壁外生成を同時に防げる。
+		m_stageSpawnBounds.minX = -wallInnerHalf;
+		m_stageSpawnBounds.maxX = wallInnerHalf;
+		m_stageSpawnBounds.minZ = -wallInnerHalf;
+		m_stageSpawnBounds.maxZ = wallInnerHalf;
+		m_stageSpawnBounds.valid = true;
+
+		const auto* cliff = FindOuterCliffDef();
+		if (cliff)
+		{
+			std::map<std::wstring, StageObjectBatch> batches;
+			auto& batch = batches[cliff->key];
+			batch.meshKey = cliff->key;
+			batch.materialPrefix = cliff->materialPrefix;
+
+			// 外周崖は4辺それぞれ1枚の長いインスタンスにする。
+			const Vec3 sideScale(outerSideLength, outerCliffScale, outerCliffScale);
+			batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, -edge), 0.0f, sideScale));
+			batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(0.0f, 0.0f, edge), XM_PI, sideScale));
+			batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(-edge, 0.0f, 0.0f), XM_PIDIV2, sideScale));
+			batch.worlds.push_back(MakeStageObjectWorld(*cliff, Vec3(edge, 0.0f, 0.0f), -XM_PIDIV2, sideScale));
+
+			FlushStageObjectBatches(*this, batches);
+		}
 
 		TransParam wallParam;
 		wallParam.scale = Vec3(1.0f, 1.0f, 1.0f);
@@ -1671,9 +1680,9 @@ namespace shooting {
 		std::map<std::wstring, StageObjectBatch> batches;
 		std::vector<PlacementCircle> occupied;
 
-		ClearItemSpawnBlockers();
-		AddItemSpawnBlocker(Vec3(0.0f, 0.0f, 0.0f), 5.0f);
-		AddHeightVariationItemSpawnBlockers(*this);
+		ClearStageSpawnBlockers();
+		AddStageSpawnBlocker(Vec3(0.0f, 0.0f, 0.0f), 5.0f);
+		AddHeightVariationSpawnBlockers(*this);
 
 		// プレイヤー初期位置、アイテム、坂周辺を先に予約し、自然物が重ならないようにする。
 		occupied.push_back({ Vec3(0.0f, 0.0f, 0.0f), 5.0f });
@@ -1754,26 +1763,133 @@ namespace shooting {
 
 		FlushStageObjectBatches(*this, batches);
 	}
-	void GameStage::ClearItemSpawnBlockers()
+	void GameStage::ClearStageSpawnBlockers()
 	{
-		m_itemSpawnBlockers.clear();
+		m_stageSpawnBlockers.clear();
 	}
 
-	void GameStage::AddItemSpawnBlocker(const Vec3& position, float radius)
+	void GameStage::AddStageSpawnBlocker(
+		const Vec3& position,
+		float radius,
+		bool blocksItems,
+		bool blocksEnemies)
 	{
-		if (radius <= 0.0f)
+		if (radius <= 0.0f || (!blocksItems && !blocksEnemies))
 		{
 			return;
 		}
 
-		ItemSpawnBlocker blocker;
+		StageSpawnBlocker blocker;
 		blocker.position = position;
 		blocker.radius = radius;
-		m_itemSpawnBlockers.push_back(blocker);
+		blocker.blocksItems = blocksItems;
+		blocker.blocksEnemies = blocksEnemies;
+		m_stageSpawnBlockers.push_back(blocker);
+	}
+
+	bool GameStage::IsStageSpawnPositionFree(
+		const Vec3& position,
+		float radius,
+		StageSpawnTarget target) const
+	{
+		for (const auto& blocker : m_stageSpawnBlockers)
+		{
+			const bool blocksTarget =
+				target == StageSpawnTarget::Item
+				? blocker.blocksItems
+				: blocker.blocksEnemies;
+			if (!blocksTarget)
+			{
+				continue;
+			}
+
+			const float dx = position.x - blocker.position.x;
+			const float dz = position.z - blocker.position.z;
+			const float minDistance = radius + blocker.radius;
+			if ((dx * dx + dz * dz) < (minDistance * minDistance))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool GameStage::TryResolveEnemySpawnGroundHeight(
+		const Vec3& position,
+		float clearanceRadius,
+		float& outHeight) const
+	{
+		const float sampleRadius = clearanceRadius > 0.05f ? clearanceRadius : 0.05f;
+		const float diagonalOffset = sampleRadius * 0.70710678f;
+		const Vec3 sampleOffsets[] =
+		{
+			Vec3(0.0f, 0.0f, 0.0f),
+			Vec3(sampleRadius, 0.0f, 0.0f),
+			Vec3(-sampleRadius, 0.0f, 0.0f),
+			Vec3(0.0f, 0.0f, sampleRadius),
+			Vec3(0.0f, 0.0f, -sampleRadius),
+			Vec3(diagonalOffset, 0.0f, diagonalOffset),
+			Vec3(-diagonalOffset, 0.0f, diagonalOffset),
+			Vec3(diagonalOffset, 0.0f, -diagonalOffset),
+			Vec3(-diagonalOffset, 0.0f, -diagonalOffset),
+		};
+
+		float centerHeight = 0.0f;
+		float minHeight = (std::numeric_limits<float>::max)();
+		float maxHeight = -(std::numeric_limits<float>::max)();
+		for (size_t i = 0; i < _countof(sampleOffsets); ++i)
+		{
+			const Vec3 samplePosition = position + sampleOffsets[i];
+			float sampleHeight = 0.0f;
+			TryGetSlopeGroundHeight(samplePosition, sampleHeight);
+			if (i == 0)
+			{
+				centerHeight = sampleHeight;
+			}
+			if (sampleHeight < minHeight)
+			{
+				minHeight = sampleHeight;
+			}
+			if (sampleHeight > maxHeight)
+			{
+				maxHeight = sampleHeight;
+			}
+		}
+
+		// 坂の連続した高さ変化は許可し、高台の端や側面のような急な高低差だけを棄却する。
+		// 敵の足元全体を確認することで、中心点だけが表面にある状態で内部へ食い込むのを防ぐ。
+		const float maxFootprintHeightDifference = 0.75f;
+		if (maxHeight - minHeight > maxFootprintHeightDifference)
+		{
+			return false;
+		}
+
+		outHeight = centerHeight;
+		return true;
+	}
+
+	bool GameStage::IsInsideStageSpawnBounds(const Vec3& position, float radius) const
+	{
+		if (!m_stageSpawnBounds.valid)
+		{
+			return true;
+		}
+
+		// 敵の中心だけで判定すると、中心が内側でもカプセル側面が壁へ埋まる。
+		// 境界を敵半径ぶん狭め、敵全体が外周壁の内側へ収まることを保証する。
+		return position.x >= m_stageSpawnBounds.minX + radius &&
+			position.x <= m_stageSpawnBounds.maxX - radius &&
+			position.z >= m_stageSpawnBounds.minZ + radius &&
+			position.z <= m_stageSpawnBounds.maxZ - radius;
 	}
 
 	bool GameStage::IsItemSpawnPositionFree(const Vec3& position, float radius) const
 	{
+		if (!IsStageSpawnPositionFree(position, radius, StageSpawnTarget::Item))
+		{
+			return false;
+		}
+
 		auto overlaps = [&](const Vec3& otherPosition, float otherRadius)
 		{
 			const float dx = position.x - otherPosition.x;
@@ -1781,14 +1897,6 @@ namespace shooting {
 			const float minDistance = radius + otherRadius;
 			return (dx * dx + dz * dz) < (minDistance * minDistance);
 		};
-
-		for (const auto& blocker : m_itemSpawnBlockers)
-		{
-			if (overlaps(blocker.position, blocker.radius))
-			{
-				return false;
-			}
-		}
 
 		for (const auto& obj : GetGameObjectVec())
 		{
@@ -1805,6 +1913,44 @@ namespace shooting {
 			}
 		}
 
+		return true;
+	}
+
+	bool GameStage::TryResolveEnemySpawnPosition(
+		const EnemySpawnPositionRequest& request,
+		Vec3& outPosition) const
+	{
+		if (!bsmUtil::IsFiniteVec3(request.candidatePosition) ||
+			request.clearanceRadius < 0.0f ||
+			request.groundFootOffset < 0.0f)
+		{
+			return false;
+		}
+
+		float groundHeight = 0.0f;
+		if (!TryResolveEnemySpawnGroundHeight(
+				request.candidatePosition,
+				request.clearanceRadius,
+				groundHeight))
+		{
+			return false;
+		}
+
+		Vec3 resolvedPosition = request.candidatePosition;
+		resolvedPosition.y = groundHeight + request.groundFootOffset;
+		if (!IsInsideStageSpawnBounds(resolvedPosition, request.clearanceRadius))
+		{
+			return false;
+		}
+		if (!IsStageSpawnPositionFree(
+				resolvedPosition,
+				request.clearanceRadius,
+				StageSpawnTarget::Enemy))
+		{
+			return false;
+		}
+
+		outPosition = resolvedPosition;
 		return true;
 	}
 

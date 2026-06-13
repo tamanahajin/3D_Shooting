@@ -64,6 +64,12 @@ namespace shooting {
 		*/
 		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
 		/*!
+		@brief 敵生成位置の検証先を設定する
+		@param resolver ステージ固有の生成位置解決処理
+		*/
+		void SetEnemySpawnPositionResolver(
+			const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
+		/*!
 		@brief ウェーブが敵を生成できる状態かを判定する
 		@return 敵生成先と EnemyFactory が有効なら true
 		*/
@@ -210,6 +216,7 @@ namespace shooting {
 		int m_currentWave = 0;
 		double m_waveTimer = 0.0;
 		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemySpawnPositionResolver> m_enemySpawnPositionResolver;
 		std::shared_ptr<EnemyFactory> m_enemyFactory;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 		std::deque<PendingSpawnBatch> m_pendingSpawnBatches;

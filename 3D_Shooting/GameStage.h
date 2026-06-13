@@ -12,7 +12,7 @@ namespace shooting {
 	class EnemyInstancedRenderer;
 	class ItemFactory;
 
-	class GameStage : public Stage
+	class GameStage : public Stage, public EnemySpawnPositionResolver
 	{
 	public:
 		struct DamageNumberEntry
@@ -64,10 +64,27 @@ namespace shooting {
 			std::vector<size_t> platformIndices;
 		};
 
-		struct ItemSpawnBlocker
+		struct StageSpawnBlocker
 		{
 			Vec3 position;
 			float radius = 0.0f;
+			bool blocksItems = true;
+			bool blocksEnemies = true;
+		};
+
+		enum class StageSpawnTarget
+		{
+			Item,
+			Enemy,
+		};
+
+		struct StageSpawnBounds
+		{
+			float minX = 0.0f;
+			float maxX = 0.0f;
+			float minZ = 0.0f;
+			float maxZ = 0.0f;
+			bool valid = false;
 		};
 
 		WaveController m_waveController;
@@ -77,7 +94,8 @@ namespace shooting {
 		std::vector<PlatformSurfaceEntry> m_platformSurfaces;
 		std::unordered_map<long long, GroundLookupCell> m_groundLookupCells;
 		float m_groundLookupCellSize = 5.0f;
-		std::vector<ItemSpawnBlocker> m_itemSpawnBlockers;
+		std::vector<StageSpawnBlocker> m_stageSpawnBlockers;
+		StageSpawnBounds m_stageSpawnBounds;
 		// アイテム出現用乱数。CreateItemsでステージ開始ごとにシードを入れる。
 		std::mt19937 m_itemSpawnRandom;
 		HitStopController m_HitStop;
@@ -101,8 +119,17 @@ namespace shooting {
 		void StartInitialWaveAfterPlayerIntro();
 		void EnsureItemFactory();
 		bool TryFindItemSpawnPosition(Vec3& outPosition);
+		bool IsStageSpawnPositionFree(
+			const Vec3& position,
+			float radius,
+			StageSpawnTarget target) const;
+		bool IsInsideStageSpawnBounds(const Vec3& position, float radius) const;
+		bool TryResolveEnemySpawnGroundHeight(
+			const Vec3& position,
+			float clearanceRadius,
+			float& outHeight) const;
 		bool IsItemSpawnPositionFree(const Vec3& position, float radius) const;
-		void ClearItemSpawnBlockers();
+		void ClearStageSpawnBlockers();
 		std::shared_ptr<EnemyBatchController> GetEnemyController() const;
 		Vec3 GetEnemySpawnCenter() const;
 		void ClearGroundLookup();
@@ -182,7 +209,27 @@ namespace shooting {
 			Vec3& outPoint,
 			Vec3& outNormal,
 			float& outDistance) const;
-		void AddItemSpawnBlocker(const Vec3& position, float radius);
+		/*!
+		@brief アイテムまたは敵の生成を避けるステージ占有領域を追加する
+		@param position 占有領域の中心
+		@param radius XZ平面上の占有半径
+		@param blocksItems アイテム生成を避ける場合は true
+		@param blocksEnemies 敵生成を避ける場合は true
+		*/
+		void AddStageSpawnBlocker(
+			const Vec3& position,
+			float radius,
+			bool blocksItems = true,
+			bool blocksEnemies = true);
+		/*!
+		@brief 地形表面へ高さを合わせ、配置物や地形内部を避けて敵生成位置を解決する
+		@param request 生成候補と敵の占有情報
+		@param outPosition 採用可能な生成位置
+		@return 地形表面上の生成可能位置なら true
+		*/
+		virtual bool TryResolveEnemySpawnPosition(
+			const EnemySpawnPositionRequest& request,
+			Vec3& outPosition) const override;
 
 		virtual void OnCreate() override;
 		virtual void OnUpdate2(double elapsedTime) override;

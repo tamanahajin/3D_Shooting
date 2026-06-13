@@ -543,6 +543,9 @@
     <ClInclude Include="EnemyFactory.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="EnemySpawnPositionResolver.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="EnemyWaveConfigLoader.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>

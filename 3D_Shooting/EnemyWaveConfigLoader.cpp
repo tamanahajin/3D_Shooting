@@ -215,6 +215,7 @@ namespace shooting {
 				!ReadVec3(value, "modelScale", valuePath, status.modelScale, outError) ||
 				!ReadFloat(value, "collisionRadius", valuePath, status.collisionRadius, outError) ||
 				!ReadFloat(value, "collisionHeight", valuePath, status.collisionHeight, outError) ||
+				!ReadFloat(value, "groundFootOffset", valuePath, status.groundFootOffset, outError) ||
 				!ReadNumber(value, "steeringInterval", valuePath, status.steeringInterval, outError) ||
 				!ReadNumber(value, "damageFlashDuration", valuePath, status.damageFlashDuration, outError) ||
 				!ReadFloat(value, "damageNumberOffsetY", valuePath, status.damageNumberOffsetY, outError) ||
@@ -232,6 +233,7 @@ namespace shooting {
 				status.modelScale.z <= 0.0f ||
 				status.collisionRadius <= 0.0f ||
 				status.collisionHeight <= 0.0f ||
+				status.groundFootOffset < 0.0f ||
 				status.steeringInterval < 0.0 ||
 				status.damageFlashDuration < 0.0 ||
 				status.damageNumberOffsetY < 0.0f ||

@@ -176,7 +176,7 @@ namespace shooting {
 		groundState.position = enemy.position;
 		groundState.previousPosition = enemy.previousPosition;
 		groundState.gravityVelocity = enemy.gravityVelocity;
-		groundState.footOffset = 0.35f;
+		groundState.footOffset = enemy.status.groundFootOffset;
 		groundState.wasGrounded = enemy.isGround;
 		groundState.elapsedTime = static_cast<float>(elapsedTime);
 

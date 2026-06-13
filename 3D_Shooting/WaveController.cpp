@@ -23,6 +23,16 @@ namespace shooting {
 		WaveEnemyFactory(controller);
 	}
 
+	void WaveController::SetEnemySpawnPositionResolver(
+		const std::shared_ptr<EnemySpawnPositionResolver>& resolver)
+	{
+		m_enemySpawnPositionResolver = resolver;
+		if (m_enemyFactory)
+		{
+			m_enemyFactory->SetSpawnPositionResolver(resolver);
+		}
+	}
+
 	/*!
 	@brief ウェーブが敵を生成できる状態かを判定する
 	@return 敵生成先と EnemyFactory が有効なら true
@@ -209,6 +219,7 @@ namespace shooting {
 		{
 			m_enemyFactory->SetController(controller);
 		}
+		m_enemyFactory->SetSpawnPositionResolver(m_enemySpawnPositionResolver.lock());
 
 		for (const auto& statusByKind : m_statusByKind)
 		{

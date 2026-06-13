@@ -309,6 +309,7 @@ namespace shooting {
 		AddGameObject<PlayerWeapon>(player);
 		// 敵
 		auto enemyController = AddGameObject<EnemyBatchController>();
+		m_waveController.SetEnemySpawnPositionResolver(GetThis<GameStage>());
 		m_waveController.SetController(enemyController);
 		const int prewarmWave = GameDebugSettingsStore::Get().startWave > 0 ? GameDebugSettingsStore::Get().startWave : 1;
 		enemyController->PrewarmCollisionProxyPool(m_waveController.GetEnemyCountForWave(prewarmWave));
