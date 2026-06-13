@@ -209,43 +209,6 @@ CSVは実行時の`BenchmarkResults`ディレクトリへ出力されます。�
 └─ 3D_Shooting.sln             Visual Studioソリューション
 ```
 
-## ビルド方法
-
-### 必要環境
-
-- Windows 10またはWindows 11
-- Visual Studio 2022
-- MSVC v143
-- Windows 10 SDK
-- x64ビルド環境
-
-Visual Studioで`3D_Shooting.sln`を開き、`Debug | x64`または`Release | x64`を選択してビルドします。
-
-コマンドラインからDebugビルドする場合:
-
-```powershell
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" `
-  3D_Shooting.sln /m /p:Configuration=Debug /p:Platform=x64
-```
-
-Releaseビルド:
-
-```powershell
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" `
-  3D_Shooting.sln /m /p:Configuration=Release /p:Platform=x64
-```
-
-現状のプロジェクト設定には一部の開発環境依存パスが含まれています。別のPCでビルドする場合は、`.vcxproj`のインクルードディレクトリとライブラリディレクトリを環境に合わせて調整してください。
-
-## テスト
-
-Debugビルド後、次のコマンドで単体テストを実行できます。
-
-```powershell
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" `
-  ".\x64\Debug\UnitTest.dll"
-```
-
 ## 今後の改善
 
 - ベンチマーク条件の固定と改善前後データの公開
