@@ -1286,19 +1286,36 @@ namespace shooting {
 
 		// 左上：デバッグ表示
 		{
-			wchar_t buff[256];
-			swprintf_s(
-				buff,
-				L"FPS: %.1f\nFrame: %.6f",
-				device->GetStableFps(),
-				device->GetStableElapsedTime());
+			const auto& debug = GameDebugSettingsStore::Get();
+			wchar_t buff[256] = {};
 
-			m_uiManager.AddText(
-				buff,
-				UIAnchor::TopLeft,
-				{ 20.0f, 20.0f },
-				{ 260.0f, 70.0f },
-				UITextAlign::Left);
+			// 表示項目を個別に無効化できるよう、改行を含む文字列を組み立て分ける。
+			if (debug.showFps && debug.showElapsedTime)
+			{
+				swprintf_s(
+					buff,
+					L"FPS: %.1f\nElapsed Time: %.6f",
+					device->GetStableFps(),
+					device->GetStableElapsedTime());
+			}
+			else if (debug.showFps)
+			{
+				swprintf_s(buff, L"FPS: %.1f", device->GetStableFps());
+			}
+			else if (debug.showElapsedTime)
+			{
+				swprintf_s(buff, L"Elapsed Time: %.6f", device->GetStableElapsedTime());
+			}
+
+			if (buff[0] != L'\0')
+			{
+				m_uiManager.AddText(
+					buff,
+					UIAnchor::TopLeft,
+					{ 20.0f, 20.0f },
+					{ 300.0f, 70.0f },
+					UITextAlign::Left);
+			}
 		}
 
 		// 右上：ベンチマーク開始/終了通知

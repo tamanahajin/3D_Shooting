@@ -114,18 +114,31 @@ namespace shooting {
 
 		bool benchmarkStartedThisFrame = false;
 		auto& benchmark = BenchmarkRecorder::Instance();
-		benchmark.UpdateNotification(elapsedTime);
-		if (App::GetInputDevice().KeyPressed(VK_F2))
+		const bool benchmarkEnabled = GameDebugSettingsStore::Get().enableBenchmarkRecording;
+		if (benchmarkEnabled)
+		{
+			benchmark.UpdateNotification(elapsedTime);
+			if (App::GetInputDevice().KeyPressed(VK_F2))
+			{
+				if (benchmark.IsRunning())
+				{
+					benchmark.Stop(true);
+				}
+				else
+				{
+					benchmark.Start(30.0);
+					benchmarkStartedThisFrame = true;
+				}
+			}
+		}
+		else
 		{
 			if (benchmark.IsRunning())
 			{
+				// デバッグ画面から無効化された場合は、計測中のデータを失わずに終了する。
 				benchmark.Stop(true);
 			}
-			else
-			{
-				benchmark.Start(30.0);
-				benchmarkStartedThisFrame = true;
-			}
+			benchmark.ClearNotification();
 		}
 
 		// ヒットストップの残り時間はゲーム内時間ではなく実時間で減らす。
@@ -165,7 +178,7 @@ namespace shooting {
 		MaintainRecoveryItems();
 		MaintainBombItems();
 
-		if (!benchmarkStartedThisFrame)
+		if (benchmarkEnabled && !benchmarkStartedThisFrame)
 		{
 			BenchmarkFrameStats stats;
 			stats.currentWave = GetCurrentWave();

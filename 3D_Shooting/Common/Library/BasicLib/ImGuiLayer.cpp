@@ -180,12 +180,14 @@ namespace shooting {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+#if defined(_DEBUG)
 		if (ImGui::IsKeyPressed(ImGuiKey_F1))
 		{
 			m_showDebugWindow = !m_showDebugWindow;
 		}
 
 		DrawDebugWindow();
+#endif
 	}
 
 	void ImGuiLayer::DrawDebugWindow()
@@ -218,6 +220,9 @@ namespace shooting {
 		ImGui::InputInt("Start Wave", &debug.startWave);
 		ImGui::SliderFloat("Enemy Speed Multiplier", &debug.enemySpeedMultiplier, 0.1f, 5.0f, "%.2f");
 		ImGui::Checkbox("Show Collision", &debug.showCollision);
+		ImGui::Checkbox("Show FPS", &debug.showFps);
+		ImGui::Checkbox("Show Elapsed Time", &debug.showElapsedTime);
+		ImGui::Checkbox("Enable Benchmark (F2)", &debug.enableBenchmarkRecording);
 		ImGui::Checkbox("Enemy Instancing", &debug.useEnemyInstancedRendering);
 		ImGui::InputInt("Enemy Spawn/Frame", &debug.enemySpawnPerFrame);
 
