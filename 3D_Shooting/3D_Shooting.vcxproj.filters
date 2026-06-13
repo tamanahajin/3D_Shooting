@@ -618,6 +618,9 @@
     <ClInclude Include="Common\Library\BasicLib\DxHelper.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\ErrorLogger.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\App.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
