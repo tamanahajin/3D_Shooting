@@ -16,6 +16,7 @@ https://github.com/user-attachments/assets/c555f9e1-e7af-41cf-a216-cf6c2c06bd4a
 - グラフィックスAPI: DirectX 12
 - 開発言語: C++
 - 開発環境: Visual Studio 2022
+- 使用AI: Codex ※コードは理解し説明できる前提
 - ベースフレームワーク: [yasyamanoi/BaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)
 
 本作は`BaseCrossDx12`をベースに、ゲームシステム、敵のバッチ処理、インスタンシング描画、ステージ生成、デバッグツールなどを追加・拡張して開発しています。
