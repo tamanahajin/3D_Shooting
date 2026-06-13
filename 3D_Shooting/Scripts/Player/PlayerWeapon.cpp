@@ -78,23 +78,16 @@ namespace shooting {
 		RightHandSocketTransform ExtractSocketWorldTransform(
 			const Mat4x4& socketModel,
 			const Mat4x4& playerWorld,
-			const std::shared_ptr<Transform>& playerTransform,
-			bool useColumnMajorTransform)
+			const std::shared_ptr<Transform>& playerTransform)
 		{
-			const Vec3 rowModelPosition = socketModel.transInMatrix();
-			const Vec3 columnModelPosition(socketModel._14, socketModel._24, socketModel._34);
-
 			Mat4x4 socketWorld = socketModel;
-			if (useColumnMajorTransform)
-			{
-				socketWorld.transpose();
-			}
+			// Assimpのノード行列をDirectXの行ベクトル形式へ変換してから、
+			// プレイヤーのワールド行列を合成する。
+			socketWorld.transpose();
 			socketWorld *= playerWorld;
 
 			RightHandSocketTransform result;
-			result.position = TransformSocketPointToWorld(
-				useColumnMajorTransform ? columnModelPosition : rowModelPosition,
-				playerWorld);
+			result.position = socketWorld.transInMatrix();
 			result.right = NormalizeOrFallback(socketWorld.rotXInMatrix(), playerTransform->GetRight());
 			result.forward = NormalizeOrFallback(socketWorld.rotZInMatrix(), playerTransform->GetForward());
 			result.up = NormalizeOrFallback(socketWorld.rotYInMatrix(), playerTransform->GetUp());
@@ -102,10 +95,10 @@ namespace shooting {
 		}
 
 		/*!
-		@brief 右手ソケットの行列形式を判定してワールド変換を取得する
+		@brief アニメーション済みの右手ソケットからワールド変換を取得する
 
-		読み込むモデルによってノード行列の平行移動成分が行優先・列優先のどちらに
-		格納されるかが異なるため、両方を変換しプレイヤーに近い結果を採用する。
+		BcPNTBoneDrawが保持するノード行列はAssimp側の列ベクトル形式なので、
+		DirectXの行ベクトル形式へ変換してから位置と各軸を取得する。
 		*/
 		bool TryGetRightHandWorldTransform(
 			const std::shared_ptr<Player>& player,
@@ -132,14 +125,7 @@ namespace shooting {
 				playerParam.quaternion,
 				playerParam.position + boneDraw->GetModelOffset());
 
-			const RightHandSocketTransform rowSocket =
-				ExtractSocketWorldTransform(socketModel, playerWorld, playerTransform, false);
-			const RightHandSocketTransform columnSocket =
-				ExtractSocketWorldTransform(socketModel, playerWorld, playerTransform, true);
-
-			const float rowDistance = (rowSocket.position - playerTransform->GetPosition()).length();
-			const float columnDistance = (columnSocket.position - playerTransform->GetPosition()).length();
-			outTransform = columnDistance < rowDistance ? columnSocket : rowSocket;
+			outTransform = ExtractSocketWorldTransform(socketModel, playerWorld, playerTransform);
 			return true;
 		}
 
