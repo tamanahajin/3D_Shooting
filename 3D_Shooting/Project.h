@@ -34,6 +34,7 @@
 #include "Item.h"
 #include "ItemFactory.h"
 #include "Player.h"
+#include "PlayerWeapon.h"
 #include "GameStage.h"
 #include "TitleStage.h"
 #include "StageGroundResolver.h"

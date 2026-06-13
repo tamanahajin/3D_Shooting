@@ -102,7 +102,10 @@
     <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="MainCamera.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerAimResolver.cpp" />
     <ClCompile Include="PlayerCombat.cpp" />
+    <ClCompile Include="PlayerShotEffects.cpp" />
+    <ClCompile Include="PlayerWeapon.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ScreenTransition.cpp" />
     <ClCompile Include="StageEditor.cpp" />
@@ -208,6 +211,9 @@
     <ClInclude Include="IBulletPool.h" />
     <ClInclude Include="MainCamera.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerAimResolver.h" />
+    <ClInclude Include="PlayerShotEffects.h" />
+    <ClInclude Include="PlayerWeapon.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="ProjectUtil.h" />
     <ClInclude Include="resource.h" />

@@ -21,6 +21,8 @@ namespace shooting {
 		const double kDeathHitStopTimeScale = 0.03;
 		// 死亡判定から死亡SEを鳴らすまでの実時間。
 		const double kDeathSoundDelay = 1.1;
+		// 死亡モーションを通常より遅く再生し、ゲームオーバーになったことを強調する。
+		const double kDeathAnimationTimeScale = 0.25;
 
 		float SmoothStep(float t)
 		{
@@ -113,6 +115,153 @@ namespace shooting {
 			m_DeathSoundDelayTimer = 0.0;
 			GameAudio::Instance().PlaySound(GameSoundId::PlayerDead);
 		}
+	}
+
+	void Player::UpdateAnimationPlaybackRate(
+		double rawElapsedTime,
+		double gameElapsedTime)
+	{
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (!anim)
+		{
+			return;
+		}
+
+		// Behaviorは生の経過時間で更新されるため、ゲーム内時間との比率を渡して
+		// ヒットストップ中のアニメーションにも同じ時間倍率を適用する。
+		double playbackTimeScale = rawElapsedTime > 1e-8
+			? gameElapsedTime / rawElapsedTime
+			: 1.0;
+		if (m_IsDead)
+		{
+			playbackTimeScale *= kDeathAnimationTimeScale;
+		}
+		anim->SetPlaybackTimeScale(playbackTimeScale);
+	}
+
+	bool Player::UpdateDeathState()
+	{
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (m_IsDead)
+		{
+			if (!anim)
+			{
+				m_DeathAnimFinished = true;
+				return true;
+			}
+
+			if (!anim->IsFinished())
+			{
+				anim->ChangeAnimation(AnimState::Dead);
+			}
+			else
+			{
+				m_DeathAnimFinished = true;
+			}
+			return true;
+		}
+
+		auto transform = GetComponent<Transform>(false);
+		if (!transform || transform->GetPosition().y >= kFallDeathY)
+		{
+			return false;
+		}
+
+		if (auto health = GetComponent<Health>(false))
+		{
+			health->SetHP(0);
+		}
+		m_IsDead = true;
+		m_DeathAnimFinished = false;
+		StartDeathPresentation();
+		if (anim)
+		{
+			anim->ChangeAnimation(AnimState::Dead, true);
+		}
+		return true;
+	}
+
+	bool Player::UpdateSpawnIntroState(double elapsedTime)
+	{
+		if (!m_SpawnIntroActive)
+		{
+			return false;
+		}
+
+		if (IsSpawnIntroCharacterVisible())
+		{
+			if (auto anim = GetBehavior<AnimationStateBehavior>())
+			{
+				anim->ChangeAnimation(AnimState::Sprint);
+			}
+		}
+		UpdateSpawnIntro(elapsedTime);
+
+		// 登場演出中は戦闘処理を止めるため、前フレームの爆弾プレビューも明示的に消す。
+		if (m_BombPreview)
+		{
+			m_BombPreview->SetPreviewInput(
+				false,
+				Vec3(0.0f, 0.0f, 0.0f),
+				Vec3(0.0f, 0.0f, 0.0f),
+				Vec3(0.0f, 1.0f, 0.0f),
+				false);
+		}
+		return true;
+	}
+
+	void Player::UpdateMovementState(double elapsedTime, bool hitStopActive)
+	{
+		auto anim = GetBehavior<AnimationStateBehavior>();
+		if (anim && (!anim->IsPlayingAttack() || anim->IsFinished()))
+		{
+			if (!m_IsGround)
+			{
+				anim->ChangeAnimation(AnimState::Jump);
+			}
+			else if (GetMoveVector().length() > 0.0f)
+			{
+				anim->ChangeAnimation(AnimState::Sprint);
+			}
+			else
+			{
+				anim->ChangeAnimation(AnimState::Idle);
+			}
+		}
+
+		m_InputHandler.PushHandle(GetThis<Player>());
+		MovePlayer(static_cast<float>(elapsedTime));
+		ResolveSlopeCollision(elapsedTime);
+
+		if (!hitStopActive && App::GetInputDevice().KeyDown(VK_SPACE))
+		{
+			OnPushA();
+		}
+
+		// 次フレームは衝突処理で接地を再確認する。
+		m_IsGround = false;
+	}
+
+	void Player::OnUpdate(double elapsedTime)
+	{
+		const double rawElapsedTime = elapsedTime;
+		UpdateDeathSound(rawElapsedTime);
+
+		bool hitStopActive = false;
+		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
+		{
+			hitStopActive = gameStage->IsHitStopActive();
+			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
+		}
+
+		UpdateAnimationPlaybackRate(rawElapsedTime, elapsedTime);
+		if (UpdateDeathState() || UpdateSpawnIntroState(elapsedTime))
+		{
+			return;
+		}
+
+		UpdateMovementState(elapsedTime, hitStopActive);
+		UpdateCombat(elapsedTime, hitStopActive);
 	}
 
 	Vec2 Player::GetInputState() const
@@ -261,7 +410,6 @@ namespace shooting {
 		//カメラを得る
 		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
 		m_CollisionManager = GetStage()->GetCollisionManager();
-		m_BulletManager = GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
 
 		if (m_MainCamera)
 		{

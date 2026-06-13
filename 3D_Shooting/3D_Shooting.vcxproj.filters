@@ -283,7 +283,16 @@
     <ClCompile Include="Player.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerAimResolver.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
     <ClCompile Include="PlayerCombat.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerShotEffects.cpp">
+      <Filter>Scripts\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerWeapon.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
@@ -343,6 +352,15 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerAimResolver.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerShotEffects.h">
+      <Filter>Scripts\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerWeapon.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">

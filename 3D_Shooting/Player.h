@@ -4,32 +4,12 @@
 
 namespace shooting {
 
-	class Player;
-
-	class PlayerWeapon : public GameObject
-	{
-	private:
-		std::weak_ptr<Player> m_Player;
-		bool m_HasStableTransform = false;
-		bool m_StableTransformIsIdle = false;
-		Vec3 m_StablePosition = Vec3(0.0f, 0.0f, 0.0f);
-		Vec3 m_StableScale = Vec3(1.0f, 1.0f, 1.0f);
-		Quat m_StableRotation = Quat();
-
-		bool TryUpdateFromPlayerHand();
-
-	public:
-		PlayerWeapon(const std::shared_ptr<Stage>& stagePtr, const std::shared_ptr<Player>& player);
-		virtual ~PlayerWeapon() {}
-		virtual void OnCreate() override;
-		virtual void OnUpdate(double elapsedTime) override {}
-		virtual void OnUpdate2(double elapsedTime) override;
-	};
+	struct PlayerBombAim;
+	struct PlayerNormalShotAim;
 
 	class Player : public GameObject
 	{
 	private:
-		double m_totalTime;
 		//プレイヤーが使用するコントローラとキーボードの入力
 		Vec2 GetInputState() const;
 		Vec2 GetInputKey() const;
@@ -52,6 +32,24 @@ namespace shooting {
 		@param rawElapsedTime 時間倍率を適用していない経過時間
 		*/
 		void UpdateDeathSound(double rawElapsedTime);
+		/*! @brief ヒットストップと死亡演出をアニメーション再生倍率へ反映する */
+		void UpdateAnimationPlaybackRate(double rawElapsedTime, double gameElapsedTime);
+		/*! @brief 死亡中または落下死を処理する @return 以降の通常更新を止める場合はtrue */
+		bool UpdateDeathState();
+		/*! @brief 登場演出を更新する @return 登場演出中の場合はtrue */
+		bool UpdateSpawnIntroState(double elapsedTime);
+		/*! @brief 移動アニメーション、移動、ジャンプを更新する */
+		void UpdateMovementState(double elapsedTime, bool hitStopActive);
+		/*!
+		@brief 射撃入力、照準解決、プレビュー、発射を更新する
+		*/
+		void UpdateCombat(double elapsedTime, bool hitStopActive);
+		/*! @brief 水平方向だけを使って攻撃対象へプレイヤーを向ける */
+		void FaceAttackTarget(const Vec3& target);
+		/*! @brief 解決済みの照準結果を使って爆弾を投擲する */
+		void FireBomb(const PlayerBombAim& aim);
+		/*! @brief 解決済みの照準結果を使って通常弾を発射する */
+		void FireNormalShot(const PlayerNormalShotAim& aim);
 		//入力ハンドラー
 		InputHandler<Player> m_InputHandler;
 		//スピード
@@ -63,7 +61,6 @@ namespace shooting {
 		std::shared_ptr<MainCamera> m_MainCamera;
 		// CollisionManager側も空間分割ノードからPlayerを保持するため、弱参照にして循環所有を防ぐ。
 		std::weak_ptr<CollisionManager> m_CollisionManager;
-		std::shared_ptr<BulletManager> m_BulletManager;
 
 		// 地面衝突判定の共通処理
 		void CheckGroundCollision(const CollisionPair& pair);
