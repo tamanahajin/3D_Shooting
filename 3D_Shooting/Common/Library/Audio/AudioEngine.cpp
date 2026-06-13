@@ -211,16 +211,23 @@ namespace shooting {
 
 		if (m_activeVoices.size() >= m_maxActiveVoices && !m_activeVoices.empty())
 		{
-			// 上限を超える場合は、古いSEを削除
-			auto disposableIt = std::find_if(
+			// 低優先度かつ古いSEから停止する。
+			// 新しい音より重要なVoiceしか残っていない場合は、重要な音を守るため新規再生を諦める。
+			auto disposableIt = std::min_element(
 				m_activeVoices.begin(),
 				m_activeVoices.end(),
-				[](const ActiveVoice& activeVoice)
+				[](const ActiveVoice& lhs, const ActiveVoice& rhs)
 				{
-					return !activeVoice.loop;
+					if (lhs.loop != rhs.loop)
+					{
+						return !lhs.loop;
+					}
+					return lhs.priority < rhs.priority;
 				});
 
-			if (disposableIt == m_activeVoices.end())
+			if (disposableIt == m_activeVoices.end() ||
+				disposableIt->loop ||
+				disposableIt->priority > desc.priority)
 			{
 				return 0;
 			}
@@ -262,7 +269,7 @@ namespace shooting {
 		}
 
 		const SoundInstanceId id = m_nextVoiceId++;
-		m_activeVoices.push_back({ id, sourceVoice, clip, desc.loop });
+		m_activeVoices.push_back({ id, sourceVoice, clip, desc.loop, desc.priority });
 		return id;
 	}
 
@@ -338,15 +345,20 @@ namespace shooting {
 		m_maxActiveVoices = maxActiveVoices < 1 ? 1 : maxActiveVoices;
 		while (m_activeVoices.size() > m_maxActiveVoices)
 		{
-			auto disposableIt = std::find_if(
+			// 上限を縮小した場合も、重要度の低いSEから整理する。
+			auto disposableIt = std::min_element(
 				m_activeVoices.begin(),
 				m_activeVoices.end(),
-				[](const ActiveVoice& activeVoice)
+				[](const ActiveVoice& lhs, const ActiveVoice& rhs)
 				{
-					return !activeVoice.loop;
+					if (lhs.loop != rhs.loop)
+					{
+						return !lhs.loop;
+					}
+					return lhs.priority < rhs.priority;
 				});
 
-			if (disposableIt == m_activeVoices.end())
+			if (disposableIt == m_activeVoices.end() || disposableIt->loop)
 			{
 				break;
 			}

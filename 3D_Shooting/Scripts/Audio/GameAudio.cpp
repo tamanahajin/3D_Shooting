@@ -120,6 +120,7 @@ namespace shooting {
 		desc.volume = Clamp01(m_seVolume * GetSoundDefaultVolume(id) * volumeScale);
 		desc.pitch = pitch;
 		desc.loop = false;
+		desc.priority = GetSoundPriority(id);
 		return m_engine.Play(it->second, desc);
 	}
 
@@ -142,6 +143,7 @@ namespace shooting {
 		desc.volume = Clamp01(m_bgmVolume * GetBgmDefaultVolume(id) * volumeScale);
 		desc.pitch = 1.0f;
 		desc.loop = true;
+		desc.priority = AudioPriority::Critical;
 		m_currentBgm = m_engine.Play(it->second, desc);
 		if (m_currentBgm != 0)
 		{
@@ -227,6 +229,34 @@ namespace shooting {
 			return 0.60f;
 		default:
 			return 1.0f;
+		}
+	}
+
+	/**
+	 * @brief ゲーム内SEの再生優先度を返す
+	 *
+	 * 敵の被ダメージ音は爆弾1個で大量に発生するため低優先度にする。
+	 * 爆発音やプレイヤー死亡音はゲーム状況を伝える重要な音なので、
+	 * 同時再生数が上限に達しても低優先度SEに押し出されないよう保護する。
+	 */
+	AudioPriority GameAudio::GetSoundPriority(GameSoundId id) const
+	{
+		switch (id)
+		{
+		case GameSoundId::EnemyDamage:
+		case GameSoundId::PlayerShot:
+			return AudioPriority::Low;
+
+		case GameSoundId::BombExplode:
+		case GameSoundId::PlayerDamage:
+		case GameSoundId::WaveStart:
+			return AudioPriority::High;
+
+		case GameSoundId::PlayerDead:
+			return AudioPriority::Critical;
+
+		default:
+			return AudioPriority::Normal;
 		}
 	}
 

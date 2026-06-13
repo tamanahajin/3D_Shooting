@@ -12,11 +12,26 @@ namespace shooting {
 	using AudioClipPtr = std::shared_ptr<AudioClip>;
 	using SoundInstanceId = std::uint64_t;
 
+	/**
+	 * @brief 同時再生数が上限に達したときの音声の保護優先度
+	 *
+	 * 低優先度のSEが大量に発生しても、爆発音や死亡音などの重要な音を
+	 * 途中で停止しないために使用する。
+	 */
+	enum class AudioPriority : std::uint8_t
+	{
+		Low,
+		Normal,
+		High,
+		Critical,
+	};
+
 	struct AudioPlayDesc
 	{
 		float volume = 1.0f;
 		float pitch = 1.0f;
 		bool loop = false;
+		AudioPriority priority = AudioPriority::Normal;
 	};
 
 	class AudioClip final
@@ -64,6 +79,7 @@ namespace shooting {
 			IXAudio2SourceVoice* voice = nullptr;
 			AudioClipPtr clip;
 			bool loop = false;
+			AudioPriority priority = AudioPriority::Normal;
 		};
 
 		SoundInstanceId m_nextVoiceId = 1;

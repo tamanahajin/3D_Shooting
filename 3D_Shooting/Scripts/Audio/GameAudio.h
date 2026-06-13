@@ -61,6 +61,7 @@ namespace shooting {
 
 		float Clamp01(float value) const;
 		float GetSoundDefaultVolume(GameSoundId id) const;
+		AudioPriority GetSoundPriority(GameSoundId id) const;
 		float GetBgmDefaultVolume(GameBgmId id) const;
 		std::wstring ResolveAudioPath(const wchar_t* category, const wchar_t* fileName) const;
 		bool RegisterSoundIfExists(GameSoundId id, const wchar_t* category, const wchar_t* fileName);
