@@ -2,8 +2,8 @@
 #include "stdafx.h"
 #include <unordered_map>
 #include <random>
-#include "WaveController.h"
-#include "HitStopController.h"
+#include "Scripts/Enemy/WaveController.h"
+#include "Scripts/Combat/HitStopController.h"
 
 namespace shooting {
 

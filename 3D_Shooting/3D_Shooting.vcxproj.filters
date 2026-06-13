@@ -74,6 +74,27 @@
     <Filter Include="Scripts\Headers\Enemy">
       <UniqueIdentifier>{ee2969bc-5694-49e8-92db-41a8dd952576}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts\Headers\Camera">
+      <UniqueIdentifier>{6875ec65-7135-41d3-a81f-30b72b68ec41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\Combat">
+      <UniqueIdentifier>{326c8c91-081f-4bf9-a91d-c26ab6be7314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\Item">
+      <UniqueIdentifier>{f5ddd8bd-f317-4cd9-a511-af9ad51d63af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\Player">
+      <UniqueIdentifier>{49a54313-b085-4f11-9307-a68b35de4a5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\Scene">
+      <UniqueIdentifier>{a880f386-e809-4571-a9c3-2154358dff80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\Stage">
+      <UniqueIdentifier>{ae1d743e-0176-41d6-8e80-6d170ad02c57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Headers\UI">
+      <UniqueIdentifier>{e52184e2-178d-43c7-bac2-657cabf99815}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Scripts\Sources">
       <UniqueIdentifier>{42c831f3-7806-4539-bdc0-d97a54eda409}</UniqueIdentifier>
     </Filter>
@@ -85,6 +106,24 @@
     </Filter>
     <Filter Include="Scripts\Sources\Enemy">
       <UniqueIdentifier>{ff378a3c-c601-436a-bb7d-f6840b437023}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Camera">
+      <UniqueIdentifier>{64659d76-ec09-4aa7-b9b6-61ecbb9ef85b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Item">
+      <UniqueIdentifier>{97422be1-ad40-4216-8a2b-c6ab0bcfcb6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Player">
+      <UniqueIdentifier>{78139eea-13f5-473d-81d0-58dbf9218e84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Scene">
+      <UniqueIdentifier>{32b28246-a07b-4c04-9ae4-cf2103ac19cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Stage">
+      <UniqueIdentifier>{4d589e96-3ba0-43ce-8a7a-39f4c14748b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\UI">
+      <UniqueIdentifier>{e15c12fb-cbb2-4ed5-bd7b-d037fcaa193d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Data">
       <UniqueIdentifier>{a0c49243-195d-45e4-b16f-18572cb525a8}</UniqueIdentifier>
@@ -232,113 +271,113 @@
     <ClCompile Include="Common\Library\StandardLib\Components\WaveEffectDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="BombTuning.cpp">
+    <ClCompile Include="Common\Library\StandardLib\Components\BombTuning.cpp">
+      <Filter>Libs\StandardLib\Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Bullet\Bullet.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
-    <ClCompile Include="Bullet.cpp">
+    <ClCompile Include="Scripts\Bullet\BulletManager.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
-    <ClCompile Include="BulletManager.cpp">
-      <Filter>Scripts\Sources\Bullet</Filter>
+    <ClCompile Include="Scripts\Stage\Character.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="Character.cpp">
-      <Filter>Scripts\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyBatchAnimation.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyBatchAnimation.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyBatchCombat.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyBatchCombat.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyBatchController.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyBatchController.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyBatchMovement.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyBatchMovement.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyCollisionProxy.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyCollisionProxy.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyFactory.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyFactory.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRenderers.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyRenderers.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyWaveConfigLoader.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyWaveConfigLoader.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="GameStage.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\GameStage.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="GameStageEnvironment.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\GameStageEnvironment.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Audio\GameAudio.cpp">
       <Filter>Scripts\Sources\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Item\Item.cpp">
+      <Filter>Scripts\Sources\Item</Filter>
     </ClCompile>
-    <ClCompile Include="ItemFactory.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Item\ItemFactory.cpp">
+      <Filter>Scripts\Sources\Item</Filter>
     </ClCompile>
-    <ClCompile Include="MainCamera.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Camera\MainCamera.cpp">
+      <Filter>Scripts\Sources\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Player\Player.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerAimResolver.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Player\PlayerAimResolver.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerCombat.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Player\PlayerCombat.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerShotEffects.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerWeapon.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Player\PlayerWeapon.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Scene\Scene.cpp">
+      <Filter>Scripts\Sources\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenTransition.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\UI\ScreenTransition.cpp">
+      <Filter>Scripts\Sources\UI</Filter>
     </ClCompile>
-    <ClCompile Include="StageEditor.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\StageEditor.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="SeekObject.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Enemy\SeekObject.cpp">
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="StageGroundResolver.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\StageGroundResolver.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="TitleStage.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\TitleStage.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="StageObjectCatalog.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\StageObjectCatalog.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="StagePropPlacement.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\StagePropPlacement.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="UIManager.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\UI\UIManager.cpp">
+      <Filter>Scripts\Sources\UI</Filter>
     </ClCompile>
-    <ClCompile Include="WaveController.cpp">
+    <ClCompile Include="Scripts\Enemy\WaveController.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="WinMain.cpp">
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="WorldObjects.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="Scripts\Stage\WorldObjects.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
@@ -354,41 +393,41 @@
     <ClInclude Include="Common\Library\Audio\AudioEngine.h">
       <Filter>Libs\Audio\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="MainCamera.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Camera\MainCamera.h">
+      <Filter>Scripts\Headers\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Player\Player.h">
+      <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerAimResolver.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Player\PlayerAimResolver.h">
+      <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerShotEffects.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Player\PlayerShotEffects.h">
+      <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerWeapon.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Player\PlayerWeapon.h">
+      <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Scene\Scene.h">
+      <Filter>Scripts\Headers\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenTransition.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\UI\ScreenTransition.h">
+      <Filter>Scripts\Headers\UI</Filter>
     </ClInclude>
-    <ClInclude Include="StageEditor.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\StageEditor.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="StageObjectCatalog.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\StageObjectCatalog.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="StagePropPlacement.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\StagePropPlacement.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="StageGroundResolver.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\StageGroundResolver.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="TitleStage.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\TitleStage.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
     <ClInclude Include="Project.h">
       <Filter>Scripts\Headers</Filter>
@@ -534,37 +573,37 @@
     <ClInclude Include="Common\Library\StandardLib\Objects\StateMachine.h">
       <Filter>Libs\StandardLib\Objects\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="GameStage.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\GameStage.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="Character.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Stage\Character.h">
+      <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
     <ClInclude Include="DebugSettings.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyBatchController.h">
+    <ClInclude Include="Scripts\Enemy\EnemyBatchController.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyCollisionProxy.h">
+    <ClInclude Include="Scripts\Enemy\EnemyCollisionProxy.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyFactory.h">
+    <ClInclude Include="Scripts\Enemy\EnemyFactory.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyRenderers.h">
+    <ClInclude Include="Scripts\Enemy\EnemyRenderers.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemySpawnPositionResolver.h">
+    <ClInclude Include="Scripts\Enemy\EnemySpawnPositionResolver.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyStatus.h">
+    <ClInclude Include="Scripts\Enemy\EnemyStatus.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyWaveConfigLoader.h">
+    <ClInclude Include="Scripts\Enemy\EnemyWaveConfigLoader.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="WaveController.h">
+    <ClInclude Include="Scripts\Enemy\WaveController.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h">
@@ -591,22 +630,22 @@
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="IBullet.h">
+    <ClInclude Include="Scripts\Bullet\IBullet.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="Bullet.h">
+    <ClInclude Include="Scripts\Bullet\Bullet.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="BulletType.h">
+    <ClInclude Include="Scripts\Bullet\BulletType.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="BulletPool.h">
+    <ClInclude Include="Scripts\Bullet\BulletPool.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="BulletManager.h">
+    <ClInclude Include="Scripts\Bullet\BulletManager.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="IBulletPool.h">
+    <ClInclude Include="Scripts\Bullet\IBulletPool.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h">
@@ -615,8 +654,8 @@
     <ClInclude Include="Common\Library\StandardLib\Components\DamageDealer.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="DamageInfo.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Common\Library\StandardLib\Components\DamageInfo.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\DamageEffect.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -624,8 +663,8 @@
     <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="BombTuning.h">
-      <Filter>Scripts\Headers\Bullet</Filter>
+    <ClInclude Include="Common\Library\StandardLib\Components\BombTuning.h">
+      <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
@@ -633,8 +672,8 @@
     <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="UIManager.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\UI\UIManager.h">
+      <Filter>Scripts\Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BaseMaterial.h">
       <Filter>Libs\BasicLib\Headers</Filter>
@@ -654,14 +693,14 @@
     <ClInclude Include="Common\Library\StandardLib\Components\WaveEffectDraw.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Item\Item.h">
+      <Filter>Scripts\Headers\Item</Filter>
     </ClInclude>
-    <ClInclude Include="ItemFactory.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Item\ItemFactory.h">
+      <Filter>Scripts\Headers\Item</Filter>
     </ClInclude>
-    <ClInclude Include="HitStopController.h">
-      <Filter>Scripts\Headers</Filter>
+    <ClInclude Include="Scripts\Combat\HitStopController.h">
+      <Filter>Scripts\Headers\Combat</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h">
       <Filter>Libs\BasicLib\Headers</Filter>

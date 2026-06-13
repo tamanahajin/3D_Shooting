@@ -6,6 +6,6 @@
 //ライブラリ側
 #include "BasicInclude.h"
 //以下のインクルードは必要
-#include "Scene.h"
+#include "Scripts/Scene/Scene.h"
 //リソース
 #include "resource.h"

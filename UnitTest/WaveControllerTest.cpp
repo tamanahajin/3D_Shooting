@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "CppUnitTest.h"
 #include "../3D_Shooting/stdafx.h"
-#include "../3D_Shooting/WaveController.h"
+#include "../3D_Shooting/Scripts/Enemy/WaveController.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace shooting;

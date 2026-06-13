@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include "UIManager.h"
+#include "Scripts/UI/UIManager.h"
 #include "Project.h"
-#include "StageEditor.h"
+#include "Scripts/Stage/StageEditor.h"
 
 namespace shooting {
 
