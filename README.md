@@ -12,7 +12,9 @@ DirectX 12とC++で開発している、3Dサバイバルシューティング�
 - グラフィックスAPI: DirectX 12
 - 開発言語: C++
 - 開発環境: Visual Studio 2022
-- ゲームエンジン: 自作フレームワーク
+- ベースフレームワーク: [yasyamanoi/BaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)
+
+本作は`BaseCrossDx12`をベースに、ゲームシステム、敵のバッチ処理、インスタンシング描画、ステージ生成、デバッグツールなどを追加・拡張して開発しています。
 
 プレイヤーが倒れるまでウェーブが継続します。  
 通常射撃に加えて、取得した爆弾を投げることで広範囲の敵へダメージと吹き飛ばしを与えられます。
@@ -153,6 +155,10 @@ CSVは実行時の`BenchmarkResults`ディレクトリへ出力されます。�
 ## ライセンスと素材
 
 使用した音素材：OtoLogic(https://otologic.jp)
+
+## 謝辞
+
+本作の開発には、[yasyamanoi氏のBaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)をベースフレームワークとして使用しています。
 
 ## Author
 
