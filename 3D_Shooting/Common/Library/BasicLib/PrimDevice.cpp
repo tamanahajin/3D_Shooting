@@ -32,9 +32,12 @@ namespace shooting {
 		m_useWarpDevice(false),
 		m_enableUI(true)
 	{
-		m_timerPeriodRaised = (timeBeginPeriod(1) == TIMERR_NOERROR);
-		QueryPerformanceFrequency(&m_frameLimiterFrequency);
-		QueryPerformanceCounter(&m_nextFrameTime);
+		if (kEnableFrameRateLimit)
+		{
+			m_timerPeriodRaised = (timeBeginPeriod(1) == TIMERR_NOERROR);
+			QueryPerformanceFrequency(&m_frameLimiterFrequency);
+			QueryPerformanceCounter(&m_nextFrameTime);
+		}
 
 		WCHAR assetsPath[512];
 		GetAssetsPath(assetsPath, _countof(assetsPath));
@@ -269,7 +272,10 @@ namespace shooting {
 		int retCode = 0;
 		try
 		{
-			LimitFrameRate();
+			if (kEnableFrameRateLimit)
+			{
+				LimitFrameRate();
+			}
 #if defined(_DEBUG)
 			static bool loopStart = false;
 			if (!loopStart)
