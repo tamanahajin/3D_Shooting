@@ -31,7 +31,7 @@
     <ClCompile Include="EnemyBatchMovement.cpp" />
     <ClCompile Include="EnemyCollisionProxy.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
-    <ClCompile Include="EnemyInstancedRenderer.cpp" />
+    <ClCompile Include="EnemyRenderers.cpp" />
     <ClCompile Include="EnemyWaveConfigLoader.cpp" />
     <ClCompile Include="Scripts\Audio\GameAudio.cpp" />
     <ClCompile Include="WaveController.cpp" />
@@ -133,8 +133,11 @@
     <ClInclude Include="Common\Library\BasicLib\JsonLoader.h" />
     <ClInclude Include="DebugSettings.h" />
     <ClInclude Include="EnemyBatchController.h" />
+    <ClInclude Include="EnemyCollisionProxy.h" />
     <ClInclude Include="EnemyFactory.h" />
+    <ClInclude Include="EnemyRenderers.h" />
     <ClInclude Include="EnemySpawnPositionResolver.h" />
+    <ClInclude Include="EnemyStatus.h" />
     <ClInclude Include="EnemyWaveConfigLoader.h" />
     <ClInclude Include="HitStopController.h" />
     <ClInclude Include="Scripts\Audio\GameAudio.h" />

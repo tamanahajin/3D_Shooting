@@ -5,7 +5,7 @@
 
 #pragma once
 #include "stdafx.h"
-#include "EnemyBatchController.h"
+#include "EnemyStatus.h"
 #include "EnemySpawnPositionResolver.h"
 #include <memory>
 #include <map>

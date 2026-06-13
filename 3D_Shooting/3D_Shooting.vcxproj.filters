@@ -71,6 +71,9 @@
     <Filter Include="Scripts\Headers\Audio">
       <UniqueIdentifier>{c61e7f2a-ac1e-4268-9752-a55b0c5a62bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts\Headers\Enemy">
+      <UniqueIdentifier>{ee2969bc-5694-49e8-92db-41a8dd952576}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Scripts\Sources">
       <UniqueIdentifier>{42c831f3-7806-4539-bdc0-d97a54eda409}</UniqueIdentifier>
     </Filter>
@@ -79,6 +82,9 @@
     </Filter>
     <Filter Include="Scripts\Sources\Audio">
       <UniqueIdentifier>{5922de59-466b-4aea-be02-d4c43703d714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Enemy">
+      <UniqueIdentifier>{ff378a3c-c601-436a-bb7d-f6840b437023}</UniqueIdentifier>
     </Filter>
     <Filter Include="Data">
       <UniqueIdentifier>{a0c49243-195d-45e4-b16f-18572cb525a8}</UniqueIdentifier>
@@ -239,28 +245,28 @@
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBatchAnimation.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBatchCombat.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBatchController.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBatchMovement.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyCollisionProxy.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyFactory.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyInstancedRenderer.cpp">
-      <Filter>Scripts\Sources</Filter>
+    <ClCompile Include="EnemyRenderers.cpp">
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyWaveConfigLoader.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="GameStage.cpp">
       <Filter>Scripts\Sources</Filter>
@@ -326,7 +332,7 @@
       <Filter>Scripts\Sources</Filter>
     </ClCompile>
     <ClCompile Include="WaveController.cpp">
-      <Filter>Scripts\Sources</Filter>
+      <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="WinMain.cpp">
       <Filter>Scripts\Sources</Filter>
@@ -538,19 +544,28 @@
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
     <ClInclude Include="EnemyBatchController.h">
-      <Filter>Scripts\Headers</Filter>
+      <Filter>Scripts\Headers\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyCollisionProxy.h">
+      <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyFactory.h">
-      <Filter>Scripts\Headers</Filter>
+      <Filter>Scripts\Headers\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyRenderers.h">
+      <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemySpawnPositionResolver.h">
-      <Filter>Scripts\Headers</Filter>
+      <Filter>Scripts\Headers\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStatus.h">
+      <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyWaveConfigLoader.h">
-      <Filter>Scripts\Headers</Filter>
+      <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="WaveController.h">
-      <Filter>Scripts\Headers</Filter>
+      <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Objects\Steering.h">
       <Filter>Libs\StandardLib\Objects\Headers</Filter>

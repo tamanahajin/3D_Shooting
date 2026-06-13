@@ -1,6 +1,6 @@
 ﻿/*!
-@file EnemyInstancedRenderer.cpp
-@brief 敵のインスタンシング描画
+@file EnemyRenderers.cpp
+@brief 敵のインスタンシング描画と比較用個別描画
 
 EnemyBatchControllerが保持する敵配列から描画用データだけを受け取り、InstancedSkinnedDrawに渡す。
 */
