@@ -70,9 +70,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)Assimp.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)Assimp.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <GameProjectDir>$(MSBuildThisFileDirectory)..\3D_Shooting\</GameProjectDir>
@@ -96,7 +98,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(SolutionDir)3D_Shooting\Common;$(SolutionDir)3D_Shooting\Common\Library;$(SolutionDir)3D_Shooting\Common\Library\BasicLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Objects;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Components;$(SolutionDir)3D_Shooting;$(SolutionDir)3D_Shooting\Common\DirectXTex;$(SolutionDir)3D_Shooting\Common\PhysX\include;$(SolutionDir)3D_Shooting\Common\assimp\include;$(SolutionDir)3D_Shooting\Common\Assimp\include;$(SolutionDir)3D_Shooting\Common\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(SolutionDir)3D_Shooting\Common;$(SolutionDir)3D_Shooting\Common\Library;$(SolutionDir)3D_Shooting\Common\Library\BasicLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Objects;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Components;$(SolutionDir)3D_Shooting;$(SolutionDir)3D_Shooting\Common\DirectXTex;$(SolutionDir)3D_Shooting\Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -128,7 +130,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(SolutionDir)3D_Shooting\Common;$(SolutionDir)3D_Shooting\Common\Library;$(SolutionDir)3D_Shooting\Common\Library\BasicLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Objects;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Components;$(SolutionDir)3D_Shooting;$(SolutionDir)3D_Shooting\Common\DirectXTex;$(SolutionDir)3D_Shooting\Common\PhysX\include;$(SolutionDir)3D_Shooting\Common\assimp\include;$(SolutionDir)3D_Shooting\Common\Assimp\include;$(SolutionDir)3D_Shooting\Common\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(SolutionDir)3D_Shooting\Common;$(SolutionDir)3D_Shooting\Common\Library;$(SolutionDir)3D_Shooting\Common\Library\BasicLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Objects;$(SolutionDir)3D_Shooting\Common\Library\StandardLib\Components;$(SolutionDir)3D_Shooting;$(SolutionDir)3D_Shooting\Common\DirectXTex;$(SolutionDir)3D_Shooting\Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -159,18 +161,18 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(ProjectDir)..\3D_Shooting\Common;$(ProjectDir)..\3D_Shooting\Common\Library;$(ProjectDir)..\3D_Shooting\Common\Library\BasicLib;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib\Objects;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib\Components;$(ProjectDir)..\3D_Shooting;$(ProjectDir)..\3D_Shooting\Common\DirectXTex;$(ProjectDir)..\3D_Shooting\Common\PhysX\include;$(ProjectDir)..\3D_Shooting\Common\assimp\include;$(ProjectDir)..\3D_Shooting\Common\Assimp\include;$(ProjectDir)..\3D_Shooting\Common\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(ProjectDir)..\3D_Shooting\Common;$(ProjectDir)..\3D_Shooting\Common\Library;$(ProjectDir)..\3D_Shooting\Common\Library\BasicLib;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib\Objects;$(ProjectDir)..\3D_Shooting\Common\Library\StandardLib\Components;$(ProjectDir)..\3D_Shooting;$(ProjectDir)..\3D_Shooting\Common\DirectXTex;$(ProjectDir)..\3D_Shooting\Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(ProjectDir)..\3D_Shooting\Common\lib\$(Configuration);$(ProjectDir)..\3D_Shooting\Common\PhysX\lib\$(Configuration);$(ProjectDir)..\3D_Shooting\Common\Assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(ProjectDir)..\3D_Shooting\Common\lib\$(Configuration);$(ProjectDir)..\3D_Shooting\Common\PhysX\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(GameProjectDir)Common;$(GameProjectDir)Common\Library;$(GameProjectDir)Common\Library\BasicLib;$(GameProjectDir)Common\Library\StandardLib;$(GameProjectDir)Common\Library\StandardLib\Objects;$(GameProjectDir)Common\Library\StandardLib\Components;$(GameProjectDir);$(GameProjectDir)Common\DirectXTex;$(GameProjectDir)Common\PhysX\include;$(GameProjectDir)Common\assimp\include;$(GameProjectDir)Common\Assimp\include;$(GameProjectDir)Common\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(GameProjectDir)Common;$(GameProjectDir)Common\Library;$(GameProjectDir)Common\Library\BasicLib;$(GameProjectDir)Common\Library\StandardLib;$(GameProjectDir)Common\Library\StandardLib\Objects;$(GameProjectDir)Common\Library\StandardLib\Components;$(GameProjectDir);$(GameProjectDir)Common\DirectXTex;$(GameProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(GameProjectDir)Common\lib\$(Configuration);$(GameProjectDir)Common\PhysX\lib\$(Configuration);$(GameProjectDir)Common\Assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(GameProjectDir)Common\lib\$(Configuration);$(GameProjectDir)Common\PhysX\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

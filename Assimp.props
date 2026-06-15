@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Assimpのバージョンや配置場所はこのファイルだけで管理する。 -->
+  <PropertyGroup>
+    <AssimpRoot>$(MSBuildThisFileDirectory)3D_Shooting\Common\Assimp\</AssimpRoot>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <AssimpLibraryName>assimp-vc143-mtd.lib</AssimpLibraryName>
+    <AssimpDllName>assimp-vc143-mtd.dll</AssimpDllName>
+    <AssimpZlibLibraryName>zlibstaticd.lib</AssimpZlibLibraryName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <AssimpLibraryName>assimp-vc143-mt.lib</AssimpLibraryName>
+    <AssimpDllName>assimp-vc143-mt.dll</AssimpDllName>
+    <AssimpZlibLibraryName>zlibstatic.lib</AssimpZlibLibraryName>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(AssimpRoot)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(AssimpRoot)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(AssimpLibraryName);$(AssimpZlibLibraryName);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs Condition="'$(ConfigurationType)'=='Application'">$(AssimpDllName);%(DelayLoadDLLs)</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- 実行先には現在の構成に対応するDLLだけを配置する。 -->
+  <Target Name="CopyAssimpRuntime"
+          AfterTargets="Build"
+          Condition="'$(Platform)'=='x64' and Exists('$(AssimpRoot)dlls\$(AssimpDllName)')">
+    <Copy SourceFiles="$(AssimpRoot)dlls\$(AssimpDllName)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

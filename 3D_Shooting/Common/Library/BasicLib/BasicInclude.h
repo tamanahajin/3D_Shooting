@@ -130,12 +130,3 @@ using namespace shooting::bsm;
 #pragma comment(lib, "SceneQuery_static_64.lib")
 #pragma comment(lib, "SimulationController_static_64.lib")
 
-#if defined(_DEBUG)
-#pragma comment(lib, "assimp-vc143-mtd.lib")
-#pragma comment(lib, "zlibstaticd.lib")
-#else
-#pragma comment(lib, "assimp-vc143-mt.lib")
-#pragma comment(lib, "zlibstatic.lib")
-#endif
-
-
