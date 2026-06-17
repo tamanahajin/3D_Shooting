@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -99,29 +100,13 @@ namespace shooting {
 			return normalized;
 		}
 
-		std::string NarrowPath(const std::wstring& path)
-		{
-			const int requiredSize = WideCharToMultiByte(
-				CP_ACP, 0, path.c_str(), -1, nullptr, 0, nullptr, nullptr);
-			if (requiredSize <= 1)
-			{
-				return std::string();
-			}
-
-			std::string result(static_cast<size_t>(requiredSize), '\0');
-			WideCharToMultiByte(
-				CP_ACP, 0, path.c_str(), -1, &result[0], requiredSize, nullptr, nullptr);
-			result.pop_back();
-			return result;
-		}
-
 		bool LoadCsvGrid(
 			const std::wstring& path,
 			std::vector<int>& outValues,
 			int& outRows,
 			int& outColumns)
 		{
-			std::ifstream file(NarrowPath(path));
+			std::ifstream file{ std::filesystem::path(path) };
 			if (!file.is_open())
 			{
 				return false;
@@ -192,10 +177,22 @@ namespace shooting {
 				return false;
 			}
 
+			const std::filesystem::path outputPath(path);
+			const std::filesystem::path parentPath = outputPath.parent_path();
+			if (!parentPath.empty())
+			{
+				std::error_code errorCode;
+				std::filesystem::create_directories(parentPath, errorCode);
+				if (errorCode)
+				{
+					return false;
+				}
+			}
+
 			// 改行変換をランタイムへ任せず、保存形式を常にCRLFへ固定する。
-			std::ofstream file(
-				NarrowPath(path),
-				std::ios::binary | std::ios::trunc);
+			std::ofstream file{
+				outputPath,
+				std::ios::binary | std::ios::trunc };
 			if (!file.is_open())
 			{
 				return false;

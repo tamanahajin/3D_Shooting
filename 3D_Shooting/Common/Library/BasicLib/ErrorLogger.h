@@ -4,6 +4,8 @@
 
 #include <cstdio>
 #include <cwchar>
+#include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -38,21 +40,12 @@ namespace shooting {
 					return;
 				}
 
-				wchar_t* lastSlash = wcsrchr(modulePath, L'\\');
-				if (!lastSlash)
-				{
-					return;
-				}
-				*(lastSlash + 1) = L'\0';
-
-				wchar_t logDirectory[MAX_PATH] = {};
-				if (swprintf_s(logDirectory, L"%sErrorLogs", modulePath) < 0)
-				{
-					return;
-				}
-
-				if (!CreateDirectoryW(logDirectory, nullptr) &&
-					GetLastError() != ERROR_ALREADY_EXISTS)
+				const std::filesystem::path moduleFilePath(modulePath);
+				const std::filesystem::path logDirectory =
+					moduleFilePath.parent_path() / L"ErrorLogs";
+				std::error_code errorCode;
+				std::filesystem::create_directories(logDirectory, errorCode);
+				if (errorCode)
 				{
 					return;
 				}
@@ -60,17 +53,17 @@ namespace shooting {
 				SYSTEMTIME localTime = {};
 				GetLocalTime(&localTime);
 
-				wchar_t logPath[MAX_PATH] = {};
+				wchar_t logFileName[MAX_PATH] = {};
 				if (swprintf_s(
-					logPath,
-					L"%s\\Error_%04u%02u%02u.log",
-					logDirectory,
+					logFileName,
+					L"Error_%04u%02u%02u.log",
 					localTime.wYear,
 					localTime.wMonth,
 					localTime.wDay) < 0)
 				{
 					return;
 				}
+				const std::filesystem::path logPath = logDirectory / logFileName;
 
 				std::ostringstream entry;
 				entry << "\r\n[" << localTime.wYear << '-';
@@ -92,27 +85,15 @@ namespace shooting {
 					<< "Message: " << message << "\r\n";
 
 				const std::string text = entry.str();
-				const HANDLE file = CreateFileW(
+				std::ofstream file(
 					logPath,
-					FILE_APPEND_DATA,
-					FILE_SHARE_READ,
-					nullptr,
-					OPEN_ALWAYS,
-					FILE_ATTRIBUTE_NORMAL,
-					nullptr);
-				if (file == INVALID_HANDLE_VALUE)
+					std::ios::binary | std::ios::app);
+				if (!file)
 				{
 					return;
 				}
 
-				DWORD written = 0;
-				WriteFile(
-					file,
-					text.data(),
-					static_cast<DWORD>(text.size()),
-					&written,
-					nullptr);
-				CloseHandle(file);
+				file.write(text.data(), static_cast<std::streamsize>(text.size()));
 			}
 			catch (...)
 			{

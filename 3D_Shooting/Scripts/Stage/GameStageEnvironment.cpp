@@ -7,6 +7,7 @@
 #include "Project.h"
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <random>
 #include <map>
 
@@ -382,44 +383,11 @@ namespace shooting {
 		}
 
 
-		std::string NarrowPath(const std::wstring& path)
-		{
-			if (path.empty())
-			{
-				return std::string();
-			}
-
-			const int requiredSize = WideCharToMultiByte(
-				CP_ACP,
-				0,
-				path.c_str(),
-				-1,
-				nullptr,
-				0,
-				nullptr,
-				nullptr);
-			if (requiredSize <= 1)
-			{
-				return std::string();
-			}
-
-			std::string result(static_cast<size_t>(requiredSize - 1), '\0');
-			WideCharToMultiByte(
-				CP_ACP,
-				0,
-				path.c_str(),
-				-1,
-				&result[0],
-				requiredSize,
-				nullptr,
-				nullptr);
-			return result;
-		}
-
 		std::vector<std::vector<int>> LoadCsvGrid(const std::wstring& relativePath)
 		{
 			std::vector<std::vector<int>> rows;
-			std::ifstream file(NarrowPath(App::GetRelativeAssetsDir() + relativePath));
+			std::ifstream file{
+				std::filesystem::path(App::GetRelativeAssetsDir()) / relativePath };
 			if (!file.is_open())
 			{
 				return rows;

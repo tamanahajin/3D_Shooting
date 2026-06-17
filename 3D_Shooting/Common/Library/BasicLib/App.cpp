@@ -2,6 +2,8 @@
 
 #include "ErrorLogger.h"
 
+#include <filesystem>
+
 #if defined(_DEBUG)
 #include "ImGuiLayer.h"
 #endif
@@ -55,16 +57,8 @@ namespace shooting {
 		//相対パスにすると、ファイルダイアログでカレントパスが狂うので
 		//絶対パス指定
 		wchar_t Modulebuff[MAX_PATH];
-		wchar_t Drivebuff[_MAX_DRIVE];
-		wchar_t Dirbuff[_MAX_DIR];
-		wchar_t FileNamebuff[_MAX_FNAME];
-		wchar_t Extbuff[_MAX_EXT];
 
 		::ZeroMemory(Modulebuff, sizeof(Modulebuff));
-		::ZeroMemory(Drivebuff, sizeof(Drivebuff));
-		::ZeroMemory(Dirbuff, sizeof(Dirbuff));
-		::ZeroMemory(FileNamebuff, sizeof(FileNamebuff));
-		::ZeroMemory(Extbuff, sizeof(Extbuff));
 
 		//モジュール名（プログラムファイル名）を得る
 		if (!::GetModuleFileName(nullptr, Modulebuff, sizeof(Modulebuff)))
@@ -72,63 +66,40 @@ namespace shooting {
 			throw std::runtime_error("モジュールが取得できません。");
 		}
 		m_wstrModulePath = Modulebuff;
-		//モジュール名から、各ブロックに分ける
-		_wsplitpath_s(Modulebuff,
-					  Drivebuff, _MAX_DRIVE,
-					  Dirbuff, _MAX_DIR,
-					  FileNamebuff, _MAX_FNAME,
-					  Extbuff, _MAX_EXT);
-
-		//ドライブ名の取得
-		m_wstrDir = Drivebuff;
-		//ディレクトリ名の取得
-		m_wstrDir += Dirbuff;
-		//mediaディレクトリを探す
-		m_wstrMediaDir = m_wstrDir;
-		m_wstrMediaDir += L"media";
-		//まず、実行ファイルと同じディレクトリを探す
-		DWORD RetCode;
-		RetCode = GetFileAttributes(m_wstrMediaDir.c_str());
-		if (RetCode == 0xFFFFFFFF)
+		// 実行ファイルの親ディレクトリを基準に、mediaやAssetsの場所を解決する。
+		const std::filesystem::path moduleDirectory =
+			std::filesystem::path(m_wstrModulePath).parent_path();
+		m_wstrDir = moduleDirectory.wstring() + L"\\";
+		// mediaディレクトリを探す。存在確認はWin32属性ではなくfilesystemで行う。
+		const std::filesystem::path exeMediaDirectory = moduleDirectory / L"media";
+		if (std::filesystem::is_directory(exeMediaDirectory))
 		{
-			//失敗した
-			m_wstrMediaDir = m_wstrDir;
-			m_wstrMediaDir += L"..\\media";
-			RetCode = GetFileAttributes(m_wstrMediaDir.c_str());
-			if (RetCode == 0xFFFFFFFF)
-			{
-				//再び失敗した
-				throw std::runtime_error("mediaディレクトリを確認できません。");
-			}
-			else
-			{
-				m_wstrMediaDir += L"\\";
-				//相対パスの設定
-				m_wstrRelativeMediaDir = L"..\\media\\";
-			}
+			m_wstrMediaDir = exeMediaDirectory.wstring() + L"\\";
+			m_wstrRelativeMediaDir = L"media\\";
 		}
 		else
 		{
-			m_wstrMediaDir += L"\\";
-			//相対パスの設定
-			m_wstrRelativeMediaDir = L"media\\";
+			const std::filesystem::path parentMediaDirectory = moduleDirectory / L"..\\media";
+			if (!std::filesystem::is_directory(parentMediaDirectory))
+			{
+				throw std::runtime_error("mediaディレクトリを確認できません。");
+			}
+
+			m_wstrMediaDir = parentMediaDirectory.wstring() + L"\\";
+			m_wstrRelativeMediaDir = L"..\\media\\";
 		}
 		m_wstrShadersDir = m_wstrMediaDir + L"Shaders\\";
 		m_wstrRelativeShadersDir = m_wstrRelativeMediaDir + L"Shaders\\";
 		//Assetsディレクトリを探す
 		m_wstrRelativeAssetsDir = L"..\\3D_Shooting\\Assets";
-		//相対ディレクトリを探す
-		RetCode = GetFileAttributes(m_wstrRelativeAssetsDir.c_str());
-		if (RetCode == 0xFFFFFFFF)
+		if (std::filesystem::is_directory(std::filesystem::path(m_wstrRelativeAssetsDir)))
 		{
-			//失敗した
-			//アセットディレクトリをメディアディレクトリにする
-			m_wstrRelativeAssetsDir = m_wstrRelativeMediaDir;
+			m_wstrRelativeAssetsDir += L"\\";
 		}
 		else
 		{
-			//成功した
-			m_wstrRelativeAssetsDir += L"\\";
+			// Assetsが見つからない配布環境では、従来どおりmedia側を参照する。
+			m_wstrRelativeAssetsDir = m_wstrRelativeMediaDir;
 		}
 		//乱数の初期化
 		srand((unsigned)time(nullptr));

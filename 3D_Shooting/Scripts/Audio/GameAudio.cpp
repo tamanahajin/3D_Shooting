@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "Audio/GameAudio.h"
 
+#include <filesystem>
+
 namespace shooting {
 
 	GameAudio& GameAudio::Instance()
@@ -283,14 +285,12 @@ namespace shooting {
 
 		for (const auto root : kRoots)
 		{
-			std::wstring path = root;
-			path += category;
-			path += L"\\";
-			path += fileName;
+			const std::filesystem::path path =
+				std::filesystem::path(root) / category / fileName;
 
-			if (::GetFileAttributesW(path.c_str()) != INVALID_FILE_ATTRIBUTES)
+			if (std::filesystem::is_regular_file(path))
 			{
-				return path;
+				return path.wstring();
 			}
 		}
 

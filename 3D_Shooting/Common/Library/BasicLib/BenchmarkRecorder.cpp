@@ -1,13 +1,14 @@
 ﻿#include "stdafx.h"
 #include "BenchmarkRecorder.h"
 
+#include <filesystem>
 #include <iomanip>
 #include <numeric>
 
 namespace shooting {
 	namespace
 	{
-		constexpr const char* kBenchmarkOutputDirectory = "BenchmarkResults";
+		constexpr const wchar_t* kBenchmarkOutputDirectory = L"BenchmarkResults";
 		constexpr double kBenchmarkNotificationSeconds = 2.0;
 
 		double CalculateAverage(const std::vector<double>& values)
@@ -260,9 +261,11 @@ namespace shooting {
 
 	void BenchmarkRecorder::WriteSummaryCsv(const BenchmarkSummary& summary)
 	{
-		CreateDirectoryA(kBenchmarkOutputDirectory, nullptr);
+		// ベンチマーク結果の保存先は毎回必要になるため、filesystemで安全に作成しておく。
+		std::error_code errorCode;
+		std::filesystem::create_directories(kBenchmarkOutputDirectory, errorCode);
 
-		std::ofstream file(summary.outputPath);
+		std::ofstream file{ std::filesystem::path(summary.outputPath) };
 		if (!file)
 		{
 			std::wstring message = L"Benchmark CSV write failed: " + ToWideString(summary.outputPath) + L"\n";
@@ -296,18 +299,20 @@ namespace shooting {
 		SYSTEMTIME time{};
 		GetLocalTime(&time);
 
-		char path[MAX_PATH] = {};
+		char fileName[MAX_PATH] = {};
 		sprintf_s(
-			path,
-			"%s\\benchmark_%04d%02d%02d_%02d%02d%02d.csv",
-			kBenchmarkOutputDirectory,
+			fileName,
+			"benchmark_%04d%02d%02d_%02d%02d%02d.csv",
 			time.wYear,
 			time.wMonth,
 			time.wDay,
 			time.wHour,
 			time.wMinute,
 			time.wSecond);
-		return path;
+
+		const std::filesystem::path outputPath =
+			std::filesystem::path(kBenchmarkOutputDirectory) / fileName;
+		return outputPath.string();
 	}
 
 	std::string BenchmarkRecorder::GetBuildName()

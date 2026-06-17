@@ -1,6 +1,7 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 #include <cwctype>
+#include <filesystem>
 
 namespace shooting {
 
@@ -24,17 +25,6 @@ namespace shooting {
 		bool Contains(const std::wstring& value, const std::wstring& pattern)
 		{
 			return value.find(pattern) != std::wstring::npos;
-		}
-
-		bool EndsWithFbx(const std::wstring& fileName)
-		{
-			const auto lower = ToLower(fileName);
-			const std::wstring extension = L".fbx";
-			if (lower.length() < extension.length())
-			{
-				return false;
-			}
-			return lower.compare(lower.length() - extension.length(), extension.length(), extension) == 0;
 		}
 
 		std::wstring RemoveExtension(const std::wstring& path)
@@ -198,34 +188,48 @@ namespace shooting {
 
 		void CollectFbxFiles(const std::wstring& directory, const std::wstring& relativePrefix, std::vector<std::wstring>& files)
 		{
-			const std::wstring search = directory + L"\\*";
-			WIN32_FIND_DATAW findData{};
-			HANDLE handle = FindFirstFileW(search.c_str(), &findData);
-			if (handle == INVALID_HANDLE_VALUE)
+			const std::filesystem::path root(directory);
+			std::error_code errorCode;
+			if (!std::filesystem::is_directory(root, errorCode) || errorCode)
 			{
 				return;
 			}
 
-			do
+			std::filesystem::recursive_directory_iterator it(
+				root,
+				std::filesystem::directory_options::skip_permission_denied,
+				errorCode);
+			const std::filesystem::recursive_directory_iterator end;
+			for (; it != end; it.increment(errorCode))
 			{
-				const std::wstring name = findData.cFileName;
-				if (name == L"." || name == L"..")
+				if (errorCode)
+				{
+					errorCode.clear();
+					continue;
+				}
+
+				if (!it->is_regular_file(errorCode) || errorCode)
+				{
+					errorCode.clear();
+					continue;
+				}
+
+				if (ToLower(it->path().extension().wstring()) != L".fbx")
 				{
 					continue;
 				}
 
-				const bool isDirectory = (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-				if (isDirectory)
+				const std::filesystem::path relativePath =
+					std::filesystem::relative(it->path(), root, errorCode);
+				if (errorCode)
 				{
-					CollectFbxFiles(directory + L"\\" + name, relativePrefix + name + L"/", files);
+					errorCode.clear();
+					continue;
 				}
-				else if (EndsWithFbx(name))
-				{
-					files.push_back(relativePrefix + name);
-				}
-			} while (FindNextFileW(handle, &findData));
 
-			FindClose(handle);
+				// リソースキーやカテゴリ判定は'/'区切り前提なのでgeneric形式で揃える。
+				files.push_back(relativePrefix + relativePath.generic_wstring());
+			}
 		}
 	}
 

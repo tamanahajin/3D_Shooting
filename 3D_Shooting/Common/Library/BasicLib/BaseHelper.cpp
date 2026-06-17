@@ -18,6 +18,8 @@
 
 #include "stdafx.h"
 
+#include <filesystem>
+
 namespace shooting {
 	//--------------------------------------------------------------------------------------
 	///	Dx12ShaderHelper
@@ -43,9 +45,7 @@ namespace shooting {
 						L"Dx12ShaderResource::CreateShaderFlomCso()"
 					);
 				}
-				DWORD RetCode;
-				RetCode = GetFileAttributes(fileName.c_str());
-				if (RetCode == -1)
+				if (!std::filesystem::is_regular_file(std::filesystem::path(fileName)))
 				{
 					throw BaseException(
 						L"ファイルが存在しません\n",

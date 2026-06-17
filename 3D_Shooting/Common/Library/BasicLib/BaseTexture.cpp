@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 
+#include <filesystem>
+
 namespace shooting {
 
 	/*!
@@ -24,34 +26,15 @@ namespace shooting {
 				L"BaseTexture::CreateBaseTexture()"
 			);
 		}
-		DWORD retCode;
-		retCode = GetFileAttributes(fileName.c_str());
-		if (retCode == -1) {
+		if (!std::filesystem::is_regular_file(std::filesystem::path(fileName))) {
 			throw BaseException(
 				L"ファイルが存在しません\n",
 				fileName,
 				L"\nBaseTexture::CreateBaseTexture()"
 			);
 		}
-		//テクスチャ作成
-		//ファイル拡張子の調査
-		wchar_t Drivebuff[_MAX_DRIVE];
-		wchar_t Dirbuff[_MAX_DIR];
-		wchar_t FileNamebuff[_MAX_FNAME];
-		wchar_t Extbuff[_MAX_EXT];
-
-		::ZeroMemory(Drivebuff, sizeof(Drivebuff));
-		::ZeroMemory(Dirbuff, sizeof(Dirbuff));
-		::ZeroMemory(FileNamebuff, sizeof(FileNamebuff));
-		::ZeroMemory(Extbuff, sizeof(Extbuff));
-
-		_wsplitpath_s(fileName.c_str(),
-			Drivebuff, _MAX_DRIVE,
-			Dirbuff, _MAX_DIR,
-			FileNamebuff, _MAX_FNAME,
-			Extbuff, _MAX_EXT);
-
-		std::wstring extStr = Extbuff;
+		// filesystem::pathから拡張子を取得し、手動のパス分解を避ける。
+		std::wstring extStr = std::filesystem::path(fileName).extension().wstring();
 
 		std::shared_ptr<BaseTexture> ptrTexture = std::shared_ptr<BaseTexture>(new BaseTexture());
 		TexMetadata matadata;

@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <sstream>
@@ -604,7 +605,7 @@ namespace shooting {
 		JsonValue& outValue,
 		std::string& outError)
 	{
-		std::ifstream file(path, std::ios::binary);
+		std::ifstream file{ std::filesystem::path(path), std::ios::binary };
 		if (!file)
 		{
 			outError = "JSONファイルを開けません。";

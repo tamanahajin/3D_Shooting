@@ -640,7 +640,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;$(ProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -666,7 +666,7 @@ copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\T
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir)Shader;$(ProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>

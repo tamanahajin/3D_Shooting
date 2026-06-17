@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -12,22 +13,6 @@ namespace shooting {
 	namespace
 	{
 		const wchar_t* kStagePropPlacementCsv = L"Stage/stage_props.csv";
-
-		std::string NarrowPath(const std::wstring& path)
-		{
-			const int requiredSize = WideCharToMultiByte(
-				CP_ACP, 0, path.c_str(), -1, nullptr, 0, nullptr, nullptr);
-			if (requiredSize <= 1)
-			{
-				return std::string();
-			}
-
-			std::string result(static_cast<size_t>(requiredSize), '\0');
-			WideCharToMultiByte(
-				CP_ACP, 0, path.c_str(), -1, &result[0], requiredSize, nullptr, nullptr);
-			result.pop_back();
-			return result;
-		}
 
 		std::wstring WidenUtf8(const std::string& value)
 		{
@@ -153,18 +138,14 @@ namespace shooting {
 		outPlacements.clear();
 		outErrorMessage.clear();
 
-		const DWORD attributes = GetFileAttributesW(path.c_str());
-		if (attributes == INVALID_FILE_ATTRIBUTES)
+		std::error_code errorCode;
+		if (!std::filesystem::exists(std::filesystem::path(path), errorCode))
 		{
-			const DWORD error = GetLastError();
-			if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
-			{
-				// 配置物CSVがまだ無いステージは、配置物0件として編集を開始できるようにする。
-				return true;
-			}
+			// 配置物CSVがまだ無いステージは、配置物0件として編集を開始できるようにする。
+			return !errorCode;
 		}
 
-		std::ifstream file(NarrowPath(path), std::ios::binary);
+		std::ifstream file{ std::filesystem::path(path), std::ios::binary };
 		if (!file.is_open())
 		{
 			outErrorMessage = "Stage prop CSV open failed.";
@@ -300,10 +281,23 @@ namespace shooting {
 				return left.modelName < right.modelName;
 			});
 
+		const std::filesystem::path outputPath(path);
+		const std::filesystem::path parentPath = outputPath.parent_path();
+		if (!parentPath.empty())
+		{
+			std::error_code errorCode;
+			std::filesystem::create_directories(parentPath, errorCode);
+			if (errorCode)
+			{
+				outErrorMessage = "Stage prop CSV save directory create failed.";
+				return false;
+			}
+		}
+
 		// 改行をCRLFへ固定し、Visual Studioで行末不整合の警告が出ないようにする。
-		std::ofstream file(
-			NarrowPath(path),
-			std::ios::binary | std::ios::trunc);
+		std::ofstream file{
+			outputPath,
+			std::ios::binary | std::ios::trunc };
 		if (!file.is_open())
 		{
 			outErrorMessage = "Stage prop CSV save failed.";

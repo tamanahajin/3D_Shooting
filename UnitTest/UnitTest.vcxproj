@@ -170,6 +170,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(GameProjectDir)Common;$(GameProjectDir)Common\Library;$(GameProjectDir)Common\Library\BasicLib;$(GameProjectDir)Common\Library\StandardLib;$(GameProjectDir)Common\Library\StandardLib\Objects;$(GameProjectDir)Common\Library\StandardLib\Components;$(GameProjectDir);$(GameProjectDir)Common\DirectXTex;$(GameProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(GameProjectDir)Common\lib\$(Configuration);$(GameProjectDir)Common\PhysX\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
