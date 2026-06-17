@@ -675,4 +675,3 @@ namespace shooting {
 	};
 
 }
-//end basecross

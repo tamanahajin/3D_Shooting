@@ -8,6 +8,11 @@
 // PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 //
 //*********************************************************
+/*!
+@file BaseDevice.h
+@brief デバイスの基本クラス
+@brief DirectX12などのグラフィックスAPIに依存する具体的なデバイス実装の基底クラスとして機能
+*/
 
 #pragma once
 #include "stdafx.h"
@@ -19,10 +24,6 @@ namespace shooting {
 	class BaseScene;
 	class Scene;
 
-	/// <summary>
-	/// デバイスの基本クラスを表します。
-	/// DirectX12などのグラフィックスAPIに依存する具体的なデバイス実装の基底クラスとして機能
-	/// </summary>
 	class BaseDevice : public PrimDevice
 	{
 	public:

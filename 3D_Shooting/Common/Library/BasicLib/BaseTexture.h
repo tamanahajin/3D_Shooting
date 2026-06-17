@@ -52,4 +52,3 @@ namespace shooting {
 		static std::shared_ptr<BaseTexture> CreateTextureFlomFile(ID3D12GraphicsCommandList* pCommandList, const std::wstring& falsename);
 	};
 }
-//end basecross

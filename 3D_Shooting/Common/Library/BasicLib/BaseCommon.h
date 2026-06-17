@@ -11,7 +11,7 @@
 
 /*!
 @file BaseCommon.h
-@brief 構造体宣言等
+@brief BaseSceneや描画コンポーネントが参照する共通定義置き場
 @copyright WiZ Tamura Hiroki,Yamanoi Yasushi MIT License (MIT).
  MIT License URL: https://opensource.org/license/mit
 */
@@ -23,10 +23,6 @@ namespace shooting {
 
 	static const UINT NumNullSrvs = 2; // Null descriptors at the start of the heap.
 
-	// Currently the rendering code can only handle a single point light.
-	static const UINT NumLights = 1; // Keep this in sync with "ShadowsAndScenePass.hlsl".
-
-	// Command list submissions from main thread.
 	static const int CommandListCount = 3;
 	static const int CommandListPre = 0;
 	static const int CommandListMid = 1;
