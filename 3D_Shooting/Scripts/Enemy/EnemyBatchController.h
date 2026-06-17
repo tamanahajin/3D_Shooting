@@ -92,26 +92,26 @@ namespace shooting {
 		};
 
 		// GameStageがこのコントローラを所有する
-		std::weak_ptr<GameStage> m_GameStage;
+		std::weak_ptr<GameStage> m_gameStage;
 		// 敵本体の状態配列。EnemyCollisionProxyやEnemyInstancedRendererはこの配列を参照する。
-		std::vector<EnemyState> m_Enemies;
+		std::vector<EnemyState> m_enemies;
 		// 使用を終えた敵状態のインデックス。新しい敵はここからスロットを取得して再利用する。
-		std::vector<size_t> m_FreeEnemyIndices;
+		std::vector<size_t> m_freeEnemyIndices;
 		// 死亡済み敵のコリジョンプロキシを再利用するためのプール。
-		std::vector<std::shared_ptr<EnemyCollisionProxy>> m_CollisionProxyPool;
+		std::vector<std::shared_ptr<EnemyCollisionProxy>> m_collisionProxyPool;
 		// 各敵の分離力を一時保存する。全敵位置を使うため、OnUpdate冒頭でまとめて計算する。
-		std::vector<Vec3> m_SeparationForces;
+		std::vector<Vec3> m_separationForces;
 		// 敵同士の分離計算を軽くするための空間グリッド。
-		std::map<long long, std::vector<size_t>> m_CellMap;
-		float m_CellSize = 2.0f;
-		float m_SeparationRange = 2.0f;
-		float m_MoveSpeedMultiplier = 1.0f;
+		std::map<long long, std::vector<size_t>> m_cellMap;
+		float m_cellSize = 2.0f;
+		float m_separationRange = 2.0f;
+		float m_moveSpeedMultiplier = 1.0f;
 
 		/*!
 		@brief 空間グリッドのセル座標を一意なキーへ変換する
 		@param x セルX座標
 		@param z セルZ座標
-		@return m_CellMap で使う64bitキー
+		@return m_cellMap で使う64bitキー
 		*/
 		long long MakeCellKey(int x, int z) const;
 		/*!
@@ -287,7 +287,7 @@ namespace shooting {
 		@brief 現在の移動速度倍率を取得する
 		@return 移動速度倍率
 		*/
-		float GetMoveSpeedMultiplier() const { return m_MoveSpeedMultiplier; }
+		float GetMoveSpeedMultiplier() const { return m_moveSpeedMultiplier; }
 		/*!
 		@brief 指定敵へダメージを適用する
 		@param index 対象敵のインデックス

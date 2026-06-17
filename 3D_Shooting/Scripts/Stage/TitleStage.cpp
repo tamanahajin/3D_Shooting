@@ -31,10 +31,10 @@ namespace shooting {
 		const Col4& fallbackColor,
 		float rotationSpeed) :
 		GameObject(stage),
-		m_ModelKey(modelKey),
-		m_MaterialPrefix(materialPrefix),
-		m_FallbackColor(fallbackColor),
-		m_RotationSpeed(rotationSpeed)
+		m_modelKey(modelKey),
+		m_materialPrefix(materialPrefix),
+		m_fallbackColor(fallbackColor),
+		m_rotationSpeed(rotationSpeed)
 	{
 		m_transParam = param;
 	}
@@ -49,19 +49,19 @@ namespace shooting {
 		draw->SetOwnShadowActive(true);
 		draw->SetLightingEnabled(true);
 
-		const auto& meshes = BaseScene::Get()->GetModelMesh(m_ModelKey);
+		const auto& meshes = BaseScene::Get()->GetModelMesh(m_modelKey);
 		if (!meshes.empty())
 		{
 			draw->AddBaseModelMesh(meshes);
 			for (size_t i = 0; i < meshes.size(); ++i)
 			{
-				draw->AddBaseMaterial(m_MaterialPrefix + std::to_wstring(i));
+				draw->AddBaseMaterial(m_materialPrefix + std::to_wstring(i));
 			}
 		}
 		else
 		{
 			draw->AddBaseMesh(L"DEFAULT_SPHERE");
-			draw->SetDiffuseColor(m_FallbackColor);
+			draw->SetDiffuseColor(m_fallbackColor);
 			draw->SetLightingEnabled(false);
 			draw->SetOwnShadowActive(false);
 		}
@@ -69,7 +69,7 @@ namespace shooting {
 
 	void TitleStaticModel::OnUpdate(double elapsedTime)
 	{
-		if (std::fabs(m_RotationSpeed) <= 0.0001f)
+		if (std::fabs(m_rotationSpeed) <= 0.0001f)
 		{
 			return;
 		}
@@ -81,7 +81,7 @@ namespace shooting {
 		}
 
 		const Vec3 rotation = transform->GetRotation();
-		transform->SetRotation(rotation.x, rotation.y + (m_RotationSpeed * static_cast<float>(elapsedTime)), rotation.z);
+		transform->SetRotation(rotation.x, rotation.y + (m_rotationSpeed * static_cast<float>(elapsedTime)), rotation.z);
 	}
 
 	TitleSkinnedModel::TitleSkinnedModel(
@@ -93,11 +93,11 @@ namespace shooting {
 		AnimState animState,
 		float rotationSpeed) :
 		GameObject(stage),
-		m_MeshKey(meshKey),
-		m_TextureKey(textureKey),
-		m_ModelOffset(modelOffset),
-		m_AnimState(animState),
-		m_RotationSpeed(rotationSpeed)
+		m_meshKey(meshKey),
+		m_textureKey(textureKey),
+		m_modelOffset(modelOffset),
+		m_animState(animState),
+		m_rotationSpeed(rotationSpeed)
 	{
 		m_transParam = param;
 	}
@@ -110,22 +110,22 @@ namespace shooting {
 		auto draw = AddComponent<BcPNTBoneDraw>();
 		draw->SetFogEnabled(true);
 		draw->SetOwnShadowActive(true);
-		draw->AddBaseMesh(m_MeshKey);
-		draw->AddBaseTexture(m_TextureKey);
-		draw->SetModelOffset(m_ModelOffset);
+		draw->AddBaseMesh(m_meshKey);
+		draw->AddBaseTexture(m_textureKey);
+		draw->SetModelOffset(m_modelOffset);
 
 		auto shadow = AddComponent<ShadowMap>();
-		shadow->AddBaseMesh(m_MeshKey);
-		shadow->SetModelOffset(m_ModelOffset);
+		shadow->AddBaseMesh(m_meshKey);
+		shadow->SetModelOffset(m_modelOffset);
 
 		auto anim = GetBehavior<AnimationStateBehavior>();
-		anim->SetFallbackMeshKey(m_MeshKey);
-		anim->ChangeAnimation(m_AnimState, true);
+		anim->SetFallbackMeshKey(m_meshKey);
+		anim->ChangeAnimation(m_animState, true);
 	}
 
 	void TitleSkinnedModel::OnUpdate(double elapsedTime)
 	{
-		if (std::fabs(m_RotationSpeed) <= 0.0001f)
+		if (std::fabs(m_rotationSpeed) <= 0.0001f)
 		{
 			return;
 		}
@@ -137,7 +137,7 @@ namespace shooting {
 		}
 
 		const Vec3 rotation = transform->GetRotation();
-		transform->SetRotation(rotation.x, rotation.y + (m_RotationSpeed * static_cast<float>(elapsedTime)), rotation.z);
+		transform->SetRotation(rotation.x, rotation.y + (m_rotationSpeed * static_cast<float>(elapsedTime)), rotation.z);
 	}
 
 	void TitleStage::OnCreate()
@@ -185,9 +185,9 @@ namespace shooting {
 
 	void TitleStage::OnUpdate(double elapsedTime)
 	{
-		m_Time += elapsedTime;
+		m_time += elapsedTime;
 
-		const float sway = std::sin(static_cast<float>(m_Time) * kTitleCameraSwaySpeed) * kTitleCameraSwayWidth;
+		const float sway = std::sin(static_cast<float>(m_time) * kTitleCameraSwaySpeed) * kTitleCameraSwayWidth;
 		m_camera->SetAt(kTitleCameraAtBase + Vec3(sway * 0.25f, 0.0f, 0.0f));
 		m_camera->SetEye(kTitleCameraEyeBase + Vec3(sway, 0.0f, 0.0f));
 	}

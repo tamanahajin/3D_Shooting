@@ -74,7 +74,7 @@ namespace shooting {
 	*/
 	void EnemyBatchController::ShowDamageNumber(size_t index, const DamageInfo& info)
 	{
-		if (info.m_Damage <= 0 || index >= m_Enemies.size())
+		if (info.m_Damage <= 0 || index >= m_enemies.size())
 		{
 			return;
 		}
@@ -82,8 +82,8 @@ namespace shooting {
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 		if (gameStage)
 		{
-			Vec3 damagePosition = m_Enemies[index].position;
-			damagePosition.y += m_Enemies[index].status.damageNumberOffsetY;
+			Vec3 damagePosition = m_enemies[index].position;
+			damagePosition.y += m_enemies[index].status.damageNumberOffsetY;
 			gameStage->SpawnDamageNumber(damagePosition, info.m_Damage);
 		}
 	}
@@ -139,12 +139,12 @@ namespace shooting {
 	*/
 	bool EnemyBatchController::ApplyDamage(size_t index, const DamageInfo& info)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return false;
 		}
 
-		auto& enemy = m_Enemies[index];
+		auto& enemy = m_enemies[index];
 		// 着地後の死亡が確定している敵は、別の攻撃で撃破数やダメージを重複計上しない。
 		if (!enemy.active || enemy.isDead || enemy.delayDeathUntilLanding || info.m_Damage <= 0)
 		{
@@ -153,7 +153,7 @@ namespace shooting {
 
 		// 総ダメージには残りHPを超えたオーバーキル分を含めない。
 		const int appliedDamage = std::min(enemy.hp, info.m_Damage);
-		if (auto gameStage = m_GameStage.lock())
+		if (auto gameStage = m_gameStage.lock())
 		{
 			gameStage->RecordDamageDealt(appliedDamage);
 		}
@@ -196,12 +196,12 @@ namespace shooting {
 	*/
 	void EnemyBatchController::AddKnockback(size_t index, const Vec3& velocity)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return;
 		}
 
-		auto& enemy = m_Enemies[index];
+		auto& enemy = m_enemies[index];
 		if (!enemy.active || enemy.isDead)
 		{
 			return;
@@ -228,12 +228,12 @@ namespace shooting {
 	*/
 	void EnemyBatchController::AddRandomRotation(size_t index)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return;
 		}
 
-		auto& enemy = m_Enemies[index];
+		auto& enemy = m_enemies[index];
 		if (!enemy.active || enemy.isDead)
 		{
 			return;
@@ -271,12 +271,12 @@ namespace shooting {
 	*/
 	void EnemyBatchController::NotifyGroundCollision(size_t index, const CollisionPair& pair)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return;
 		}
 
-		auto& enemy = m_Enemies[index];
+		auto& enemy = m_enemies[index];
 		if (!enemy.active)
 		{
 			return;

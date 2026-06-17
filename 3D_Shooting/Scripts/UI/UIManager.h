@@ -204,8 +204,8 @@ namespace shooting {
 		std::vector<ButtonCommand> m_buttons;
 		std::vector<OverlayCommand> m_backgroundOverlays;
 		std::vector<OverlayCommand> m_overlays;
-		std::unordered_set<std::wstring> m_PreviousHoveredButtonIds;
-		std::unordered_set<std::wstring> m_CurrentHoveredButtonIds;
+		std::unordered_set<std::wstring> m_previousHoveredButtonIds;
+		std::unordered_set<std::wstring> m_currentHoveredButtonIds;
 	};
 
 }

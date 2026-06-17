@@ -11,7 +11,7 @@ namespace shooting {
 		m_controller(controller),
 		m_randomEngine(std::random_device{}())
 	{
-		m_StatusByKind[EnemyKind::Default] = EnemyStatus();
+		m_statusByKind[EnemyKind::Default] = EnemyStatus();
 	}
 
 	/*!
@@ -45,7 +45,7 @@ namespace shooting {
 	*/
 	void EnemyFactory::SetStatus(EnemyKind kind, const EnemyStatus& status)
 	{
-		m_StatusByKind[kind] = status;
+		m_statusByKind[kind] = status;
 	}
 
 	/*!
@@ -55,14 +55,14 @@ namespace shooting {
 	*/
 	EnemyStatus EnemyFactory::GetStatus(EnemyKind kind) const
 	{
-		auto it = m_StatusByKind.find(kind);
-		if (it != m_StatusByKind.end())
+		auto it = m_statusByKind.find(kind);
+		if (it != m_statusByKind.end())
 		{
 			return it->second;
 		}
 
-		auto defaultIt = m_StatusByKind.find(EnemyKind::Default);
-		if (defaultIt != m_StatusByKind.end())
+		auto defaultIt = m_statusByKind.find(EnemyKind::Default);
+		if (defaultIt != m_statusByKind.end())
 		{
 			return defaultIt->second;
 		}

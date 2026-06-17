@@ -139,7 +139,7 @@ namespace shooting {
 		std::weak_ptr<EnemyBatchController> m_controller;
 		std::weak_ptr<EnemySpawnPositionResolver> m_spawnPositionResolver;
 		std::mt19937 m_randomEngine;
-		std::map<EnemyKind, EnemyStatus> m_StatusByKind;
+		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
 		/*!
 		@brief 地形と配置物を考慮して生成候補を検証する

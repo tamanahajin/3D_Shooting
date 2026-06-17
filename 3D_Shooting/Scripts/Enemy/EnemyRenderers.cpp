@@ -113,7 +113,7 @@ namespace shooting {
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyBatchController>& controller) :
 		GameObject(stage),
-		m_Controller(controller)
+		m_controller(controller)
 	{
 	}
 
@@ -124,10 +124,10 @@ namespace shooting {
 	*/
 	void EnemyInstancedRenderer::OnCreate()
 	{
-		m_Draw = AddComponent<InstancedSkinnedDraw>();
-		m_Draw->SetMeshKey(L"ENEMY_MODEL_SKINNED");
-		m_Draw->SetTextureKey(L"CHARACTER_TEXTURE_SKINNED");
-		m_Draw->SetOwnShadowActive(false);
+		m_draw = AddComponent<InstancedSkinnedDraw>();
+		m_draw->SetMeshKey(L"ENEMY_MODEL_SKINNED");
+		m_draw->SetTextureKey(L"CHARACTER_TEXTURE_SKINNED");
+		m_draw->SetOwnShadowActive(false);
 
 		AddTag(L"EnemyRenderer");
 	}
@@ -140,23 +140,23 @@ namespace shooting {
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
 
-		if (!m_RenderingEnabled || !m_Draw)
+		if (!m_renderingEnabled || !m_draw)
 		{
 			return;
 		}
 
-		auto controller = m_Controller.lock();
+		auto controller = m_controller.lock();
 		if (controller)
 		{
-			controller->FillInstanceSources(m_InstanceSources, m_ModelOffset);
+			controller->FillInstanceSources(m_instanceSources, m_modelOffset);
 		}
 		else
 		{
-			m_InstanceSources.clear();
+			m_instanceSources.clear();
 		}
 
-		m_Draw->SetInstances(m_InstanceSources);
-		m_Draw->BuildInstanceBuffer();
+		m_draw->SetInstances(m_instanceSources);
+		m_draw->BuildInstanceBuffer();
 	}
 
 	/*!
@@ -165,21 +165,21 @@ namespace shooting {
 	*/
 	void EnemyInstancedRenderer::SetRenderingEnabled(bool enabled)
 	{
-		if (m_RenderingEnabled == enabled)
+		if (m_renderingEnabled == enabled)
 		{
 			return;
 		}
 
-		m_RenderingEnabled = enabled;
+		m_renderingEnabled = enabled;
 		SetUpdateActive(enabled);
 		SetDrawActive(enabled);
 
-		if (!enabled && m_Draw)
+		if (!enabled && m_draw)
 		{
 			// 無効化した瞬間に古いインスタンスが残らないよう、描画用バッファも空にしておく。
-			m_InstanceSources.clear();
-			m_Draw->SetInstances(m_InstanceSources);
-			m_Draw->BuildInstanceBuffer();
+			m_instanceSources.clear();
+			m_draw->SetInstances(m_instanceSources);
+			m_draw->BuildInstanceBuffer();
 		}
 	}
 
@@ -202,11 +202,11 @@ namespace shooting {
 		SetBatchUpdateManaged(true);
 		SetShadowActive(false);
 
-		m_Draw = AddComponent<BcPNTBoneDraw>();
-		m_Draw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
-		m_Draw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
-		m_Draw->SetOwnShadowActive(false);
-		m_Draw->SetModelOffset(Vec3(0.0f, 0.0f, 0.0f));
+		m_draw = AddComponent<BcPNTBoneDraw>();
+		m_draw->AddBaseMesh(L"ENEMY_MODEL_SKINNED");
+		m_draw->AddBaseTexture(L"CHARACTER_TEXTURE_SKINNED");
+		m_draw->SetOwnShadowActive(false);
+		m_draw->SetModelOffset(Vec3(0.0f, 0.0f, 0.0f));
 
 		AddTag(L"EnemyIndividualDrawProxy");
 		SetRenderingEnabled(false);
@@ -231,10 +231,10 @@ namespace shooting {
 			transform->SetPosition(position);
 		}
 
-		if (m_Draw)
+		if (m_draw)
 		{
-			m_Draw->SetAnimationIndex(source.animationIndex);
-			m_Draw->UpdateAnimation(static_cast<double>(source.animationTime));
+			m_draw->SetAnimationIndex(source.animationIndex);
+			m_draw->UpdateAnimation(static_cast<double>(source.animationTime));
 		}
 
 		SetRenderingEnabled(true);
@@ -269,7 +269,7 @@ namespace shooting {
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyBatchController>& controller) :
 		GameObject(stage),
-		m_Controller(controller)
+		m_controller(controller)
 	{
 	}
 
@@ -282,7 +282,7 @@ namespace shooting {
 	{
 		SetDrawActive(false);
 		SetShadowActive(false);
-		SetUpdateActive(m_RenderingEnabled);
+		SetUpdateActive(m_renderingEnabled);
 		AddTag(L"EnemyRenderer");
 		AddTag(L"EnemyIndividualRenderer");
 	}
@@ -299,28 +299,28 @@ namespace shooting {
 			return;
 		}
 
-		while (m_DrawProxies.size() < requiredCount)
+		while (m_drawProxies.size() < requiredCount)
 		{
 			auto proxy = stage->AddGameObject<EnemyIndividualDrawProxy>();
-			m_DrawProxies.push_back(proxy);
+			m_drawProxies.push_back(proxy);
 		}
 
-		if (m_DrawProxies.size() <= requiredCount)
+		if (m_drawProxies.size() <= requiredCount)
 		{
 			return;
 		}
 
 		// 敵が死亡して描画数が減った場合は、余った通常描画プロキシをステージから外す。
 		// 配列側の敵インデックスとは対応させず、表示する順番だけを詰め直す。
-		for (size_t i = requiredCount; i < m_DrawProxies.size(); ++i)
+		for (size_t i = requiredCount; i < m_drawProxies.size(); ++i)
 		{
-			if (m_DrawProxies[i])
+			if (m_drawProxies[i])
 			{
-				m_DrawProxies[i]->SetRenderingEnabled(false);
-				stage->RemoveGameObject(m_DrawProxies[i]);
+				m_drawProxies[i]->SetRenderingEnabled(false);
+				stage->RemoveGameObject(m_drawProxies[i]);
 			}
 		}
-		m_DrawProxies.resize(requiredCount);
+		m_drawProxies.resize(requiredCount);
 	}
 
 	/*!
@@ -329,7 +329,7 @@ namespace shooting {
 	void EnemyIndividualRenderer::ClearDrawProxies()
 	{
 		auto stage = GetStage(false);
-		for (auto& proxy : m_DrawProxies)
+		for (auto& proxy : m_drawProxies)
 		{
 			if (!proxy)
 			{
@@ -342,7 +342,7 @@ namespace shooting {
 				stage->RemoveGameObject(proxy);
 			}
 		}
-		m_DrawProxies.clear();
+		m_drawProxies.clear();
 	}
 
 	/*!
@@ -353,30 +353,30 @@ namespace shooting {
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
 
-		if (!m_RenderingEnabled)
+		if (!m_renderingEnabled)
 		{
 			return;
 		}
 
-		auto controller = m_Controller.lock();
+		auto controller = m_controller.lock();
 		if (controller)
 		{
-			controller->FillInstanceSources(m_InstanceSources, m_ModelOffset);
+			controller->FillInstanceSources(m_instanceSources, m_modelOffset);
 		}
 		else
 		{
-			m_InstanceSources.clear();
+			m_instanceSources.clear();
 		}
 
-		ResizeDrawProxies(m_InstanceSources.size());
-		const size_t drawCount = (m_InstanceSources.size() < m_DrawProxies.size())
-			? m_InstanceSources.size()
-			: m_DrawProxies.size();
+		ResizeDrawProxies(m_instanceSources.size());
+		const size_t drawCount = (m_instanceSources.size() < m_drawProxies.size())
+			? m_instanceSources.size()
+			: m_drawProxies.size();
 		for (size_t i = 0; i < drawCount; ++i)
 		{
-			if (m_DrawProxies[i])
+			if (m_drawProxies[i])
 			{
-				m_DrawProxies[i]->ApplyInstanceSource(m_InstanceSources[i]);
+				m_drawProxies[i]->ApplyInstanceSource(m_instanceSources[i]);
 			}
 		}
 	}
@@ -387,19 +387,19 @@ namespace shooting {
 	*/
 	void EnemyIndividualRenderer::SetRenderingEnabled(bool enabled)
 	{
-		if (m_RenderingEnabled == enabled)
+		if (m_renderingEnabled == enabled)
 		{
 			return;
 		}
 
-		m_RenderingEnabled = enabled;
+		m_renderingEnabled = enabled;
 		SetUpdateActive(enabled);
 		SetDrawActive(false);
 		SetShadowActive(false);
 
 		if (!enabled)
 		{
-			m_InstanceSources.clear();
+			m_instanceSources.clear();
 			ClearDrawProxies();
 		}
 	}
@@ -414,9 +414,9 @@ namespace shooting {
 	void EnemyBatchController::FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const
 	{
 		outSources.clear();
-		outSources.reserve(m_Enemies.size());
+		outSources.reserve(m_enemies.size());
 
-		for (const auto& enemy : m_Enemies)
+		for (const auto& enemy : m_enemies)
 		{
 			if (!enemy.active)
 			{

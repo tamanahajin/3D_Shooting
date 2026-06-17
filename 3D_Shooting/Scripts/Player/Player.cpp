@@ -33,8 +33,8 @@ namespace shooting {
 		class PlayerSpawnPortal : public GameObject
 		{
 		private:
-			float m_Elapsed = 0.0f;
-			float m_LifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration);
+			float m_elapsed = 0.0f;
+			float m_lifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration);
 
 		public:
 			PlayerSpawnPortal(const std::shared_ptr<Stage>& stage, const TransParam& param)
@@ -60,14 +60,14 @@ namespace shooting {
 
 			void OnUpdate(double elapsedTime) override
 			{
-				m_Elapsed += static_cast<float>(elapsedTime);
+				m_elapsed += static_cast<float>(elapsedTime);
 
 				if (auto draw = GetComponent<WaveEffectDraw>(false))
 				{
-					draw->SetWaveTime(m_Elapsed);
+					draw->SetWaveTime(m_elapsed);
 				}
 
-				if (m_Elapsed >= m_LifeTime)
+				if (m_elapsed >= m_lifeTime)
 				{
 					if (auto stage = GetStage(false))
 					{
@@ -80,8 +80,8 @@ namespace shooting {
 
 	Player::Player(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
-		m_Speed(6.0f),
-		m_IsGround(false)
+		m_speed(6.0f),
+		m_isGround(false)
 	{
 		m_transParam = param;
 	}
@@ -89,8 +89,8 @@ namespace shooting {
 	void Player::StartDeathPresentation()
 	{
 		// ヒットストップ直後に聞こえるよう、死亡SEは実時間タイマーで遅延再生する。
-		m_DeathSoundPending = true;
-		m_DeathSoundDelayTimer = kDeathSoundDelay;
+		m_deathSoundPending = true;
+		m_deathSoundDelayTimer = kDeathSoundDelay;
 		// 死亡SEは残し、インゲームBGMだけを停止してゲームオーバーを明確にする。
 		GameAudio::Instance().StopBgm();
 
@@ -103,16 +103,16 @@ namespace shooting {
 
 	void Player::UpdateDeathSound(double rawElapsedTime)
 	{
-		if (!m_DeathSoundPending)
+		if (!m_deathSoundPending)
 		{
 			return;
 		}
 
-		m_DeathSoundDelayTimer -= rawElapsedTime;
-		if (m_DeathSoundDelayTimer <= 0.0)
+		m_deathSoundDelayTimer -= rawElapsedTime;
+		if (m_deathSoundDelayTimer <= 0.0)
 		{
-			m_DeathSoundPending = false;
-			m_DeathSoundDelayTimer = 0.0;
+			m_deathSoundPending = false;
+			m_deathSoundDelayTimer = 0.0;
 			GameAudio::Instance().PlaySound(GameSoundId::PlayerDead);
 		}
 	}
@@ -132,7 +132,7 @@ namespace shooting {
 		double playbackTimeScale = rawElapsedTime > 1e-8
 			? gameElapsedTime / rawElapsedTime
 			: 1.0;
-		if (m_IsDead)
+		if (m_isDead)
 		{
 			playbackTimeScale *= kDeathAnimationTimeScale;
 		}
@@ -142,11 +142,11 @@ namespace shooting {
 	bool Player::UpdateDeathState()
 	{
 		auto anim = GetBehavior<AnimationStateBehavior>();
-		if (m_IsDead)
+		if (m_isDead)
 		{
 			if (!anim)
 			{
-				m_DeathAnimFinished = true;
+				m_deathAnimFinished = true;
 				return true;
 			}
 
@@ -156,7 +156,7 @@ namespace shooting {
 			}
 			else
 			{
-				m_DeathAnimFinished = true;
+				m_deathAnimFinished = true;
 			}
 			return true;
 		}
@@ -171,8 +171,8 @@ namespace shooting {
 		{
 			health->SetHP(0);
 		}
-		m_IsDead = true;
-		m_DeathAnimFinished = false;
+		m_isDead = true;
+		m_deathAnimFinished = false;
 		StartDeathPresentation();
 		if (anim)
 		{
@@ -183,7 +183,7 @@ namespace shooting {
 
 	bool Player::UpdateSpawnIntroState(double elapsedTime)
 	{
-		if (!m_SpawnIntroActive)
+		if (!m_spawnIntroActive)
 		{
 			return false;
 		}
@@ -198,9 +198,9 @@ namespace shooting {
 		UpdateSpawnIntro(elapsedTime);
 
 		// 登場演出中は戦闘処理を止めるため、前フレームの爆弾プレビューも明示的に消す。
-		if (m_BombPreview)
+		if (m_bombPreview)
 		{
-			m_BombPreview->SetPreviewInput(
+			m_bombPreview->SetPreviewInput(
 				false,
 				Vec3(0.0f, 0.0f, 0.0f),
 				Vec3(0.0f, 0.0f, 0.0f),
@@ -215,7 +215,7 @@ namespace shooting {
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		if (anim && (!anim->IsPlayingAttack() || anim->IsFinished()))
 		{
-			if (!m_IsGround)
+			if (!m_isGround)
 			{
 				anim->ChangeAnimation(AnimState::Jump);
 			}
@@ -229,7 +229,7 @@ namespace shooting {
 			}
 		}
 
-		m_InputHandler.PushHandle(GetThis<Player>());
+		m_inputHandler.PushHandle(GetThis<Player>());
 		MovePlayer(static_cast<float>(elapsedTime));
 		ResolveSlopeCollision(elapsedTime);
 
@@ -239,7 +239,7 @@ namespace shooting {
 		}
 
 		// 次フレームは衝突処理で接地を再確認する。
-		m_IsGround = false;
+		m_isGround = false;
 	}
 
 	void Player::OnUpdate(double elapsedTime)
@@ -355,7 +355,7 @@ namespace shooting {
 		if (angle.length() > 0.0f)
 		{
 			auto pos = GetComponent<Transform>()->GetPosition();
-			pos += angle * elapsedTime * m_Speed;
+			pos += angle * elapsedTime * m_speed;
 			GetComponent<Transform>()->SetPosition(pos);
 		}
 		//回転の計算
@@ -376,7 +376,7 @@ namespace shooting {
 		GetStage()->SetSharedGameObject(L"Player", GetThis<Player>());
 
 		auto ptrTransform = GetComponent<Transform>();
-		//ptrTransform->SetPosition(m_StartPos);
+		//ptrTransform->SetPosition(m_startPos);
 		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
@@ -408,15 +408,15 @@ namespace shooting {
 		//透明処理
 		SetAlphaActive(false);
 		//カメラを得る
-		m_MainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
-		m_CollisionManager = GetStage()->GetCollisionManager();
+		m_mainCamera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera());
+		m_collisionManager = GetStage()->GetCollisionManager();
 
-		if (m_MainCamera)
+		if (m_mainCamera)
 		{
 			//MainCameraである
 			//MainCameraに注目するオブジェクト（プレイヤー）の設定
-			m_MainCamera->SetTargetObject(GetThis<GameObject>());
-			m_MainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
+			m_mainCamera->SetTargetObject(GetThis<GameObject>());
+			m_mainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
 		}
 
 		AddTag(L"Player");
@@ -453,8 +453,8 @@ namespace shooting {
 				return;
 			}
 
-			self->m_IsDead = true;
-			self->m_DeathAnimFinished = false;
+			self->m_isDead = true;
+			self->m_deathAnimFinished = false;
 			self->StartDeathPresentation();
 
 			auto anim = self->GetBehavior<AnimationStateBehavior>();
@@ -464,16 +464,16 @@ namespace shooting {
 		// ダメージエフェクト
 		auto damageEffect = AddComponent<DamageEffect>();
 
-		m_BombPreview = AddComponent<BombAimPreview>();
-		m_BombPreview->SetTuning(GetBombTuning());
-		m_BombPreview->SetMaxRange(20.0f); // 最大到達距離を設定
+		m_bombPreview = AddComponent<BombAimPreview>();
+		m_bombPreview->SetTuning(GetBombTuning());
+		m_bombPreview->SetMaxRange(20.0f); // 最大到達距離を設定
 
 		BeginSpawnIntro();
 	}
 
 	void Player::SetSpawnIntroCharacterVisible(bool visible)
 	{
-		m_SpawnIntroCharacterVisible = visible;
+		m_spawnIntroCharacterVisible = visible;
 		SetDrawActive(visible);
 		SetShadowActive(visible);
 	}
@@ -486,13 +486,13 @@ namespace shooting {
 			return;
 		}
 
-		m_SpawnIntroActive = true;
-		m_SpawnIntroSePlayed = false;
-		m_SpawnIntroTimer = 0.0;
-		m_SpawnIntroEndPosition = transform->GetPosition();
-		m_SpawnIntroStartPosition = m_SpawnIntroEndPosition - (kSpawnIntroWalkDirection * kSpawnIntroWalkDistance);
-		m_SpawnIntroStartPosition.y = m_SpawnIntroEndPosition.y;
-		transform->SetPosition(m_SpawnIntroStartPosition);
+		m_spawnIntroActive = true;
+		m_spawnIntroSePlayed = false;
+		m_spawnIntroTimer = 0.0;
+		m_spawnIntroEndPosition = transform->GetPosition();
+		m_spawnIntroStartPosition = m_spawnIntroEndPosition - (kSpawnIntroWalkDirection * kSpawnIntroWalkDistance);
+		m_spawnIntroStartPosition.y = m_spawnIntroEndPosition.y;
+		transform->SetPosition(m_spawnIntroStartPosition);
 
 		SetSpawnIntroCharacterVisible(false);
 
@@ -500,10 +500,10 @@ namespace shooting {
 		{
 			util->RotToHead(kSpawnIntroWalkDirection, 1.0f);
 		}
-		UpdateSpawnIntroCamera(m_SpawnIntroStartPosition);
+		UpdateSpawnIntroCamera(m_spawnIntroStartPosition);
 
 		TransParam portalParam;
-		portalParam.position = m_SpawnIntroStartPosition - (kSpawnIntroWalkDirection * kSpawnIntroPortalBackOffset)
+		portalParam.position = m_spawnIntroStartPosition - (kSpawnIntroWalkDirection * kSpawnIntroPortalBackOffset)
 			+ Vec3(0.0f, kSpawnIntroPortalHeight, 0.0f);
 		portalParam.scale = Vec3(kSpawnIntroPortalScale, kSpawnIntroPortalScale, kSpawnIntroPortalScale);
 		portalParam.quaternion.rotationRollPitchYawFromVector(Vec3(XM_PIDIV2, 0.0f, 0.0f));
@@ -519,28 +519,28 @@ namespace shooting {
 
 	bool Player::UpdateSpawnIntro(double elapsedTime)
 	{
-		if (!m_SpawnIntroActive)
+		if (!m_spawnIntroActive)
 		{
 			return false;
 		}
 
-		m_SpawnIntroTimer += elapsedTime;
-		const double walkTimer = m_SpawnIntroTimer - kSpawnIntroPortalOnlyDuration;
+		m_spawnIntroTimer += elapsedTime;
+		const double walkTimer = m_spawnIntroTimer - kSpawnIntroPortalOnlyDuration;
 
 		if (walkTimer < 0.0)
 		{
 			SetSpawnIntroCharacterVisible(false);
-			UpdateSpawnIntroCamera(m_SpawnIntroStartPosition);
+			UpdateSpawnIntroCamera(m_spawnIntroStartPosition);
 			return true;
 		}
 
-		if (!m_SpawnIntroCharacterVisible)
+		if (!m_spawnIntroCharacterVisible)
 		{
-			if (!m_SpawnIntroSePlayed)
+			if (!m_spawnIntroSePlayed)
 			{
 				// BeginSpawnIntro()は画面遷移中にも呼ばれるため、SEは実際にキャラが出始める瞬間まで遅らせる。
 				GameAudio::Instance().PlaySound(GameSoundId::Wormhole);
-				m_SpawnIntroSePlayed = true;
+				m_spawnIntroSePlayed = true;
 			}
 
 			SetSpawnIntroCharacterVisible(true);
@@ -558,7 +558,7 @@ namespace shooting {
 		auto transform = GetComponent<Transform>(false);
 		if (transform)
 		{
-			const Vec3 position = m_SpawnIntroStartPosition + (m_SpawnIntroEndPosition - m_SpawnIntroStartPosition) * t;
+			const Vec3 position = m_spawnIntroStartPosition + (m_spawnIntroEndPosition - m_spawnIntroStartPosition) * t;
 			transform->SetPosition(position);
 			UpdateSpawnIntroCamera(position);
 		}
@@ -573,13 +573,13 @@ namespace shooting {
 			return true;
 		}
 
-		m_SpawnIntroActive = false;
+		m_spawnIntroActive = false;
 		SetSpawnIntroCharacterVisible(true);
-		m_IsGround = true;
+		m_isGround = true;
 
 		if (transform)
 		{
-			transform->SetPosition(m_SpawnIntroEndPosition);
+			transform->SetPosition(m_spawnIntroEndPosition);
 		}
 
 		if (auto gravity = GetComponent<Gravity>(false))
@@ -593,11 +593,11 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Idle);
 		}
 
-		if (m_MainCamera)
+		if (m_mainCamera)
 		{
 			// 登場カメラの位置・角度を通常追従カメラへ引き継いでから解除する。
 			// 単純に SetSpawnIntroView(false) だけ行うと、通常カメラが持っていた古い角度に戻ってしまう。
-			m_MainCamera->FinishSpawnIntroViewAndResumeFollow();
+			m_mainCamera->FinishSpawnIntroViewAndResumeFollow();
 		}
 
 		return false;
@@ -605,7 +605,7 @@ namespace shooting {
 
 	void Player::UpdateSpawnIntroCamera(const Vec3& playerPosition)
 	{
-		if (!m_MainCamera)
+		if (!m_mainCamera)
 		{
 			return;
 		}
@@ -615,16 +615,16 @@ namespace shooting {
 		const Vec3 eye = playerPosition
 			+ (kSpawnIntroWalkDirection * kSpawnIntroCameraDistance)
 			+ Vec3(0.0f, kSpawnIntroCameraHeight, 0.0f);
-		m_MainCamera->SetSpawnIntroView(true, eye, at);
+		m_mainCamera->SetSpawnIntroView(true, eye, at);
 	}
 
 	void Player::OnPushA()
 	{
-		if (m_IsGround)
+		if (m_isGround)
 		{
 			auto grav = GetComponent<Gravity>();
 			grav->StartJump(Vec3(0, 4.0f, 0));
-			m_IsGround = false;
+			m_isGround = false;
 		}
 	}
 
@@ -649,7 +649,7 @@ namespace shooting {
 		groundState.footOffset = capsule
 			? capsule->GetMakedRadius() + (capsule->GetMakedHeight() * 0.5f)
 			: 0.35f;
-		groundState.wasGrounded = m_IsGround;
+		groundState.wasGrounded = m_isGround;
 		groundState.elapsedTime = static_cast<float>(elapsedTime);
 
 		auto gravity = GetComponent<Gravity>(false);
@@ -675,7 +675,7 @@ namespace shooting {
 		}
 
 		transform->SetPosition(groundState.position);
-		m_IsGround = groundState.isGrounded;
+		m_isGround = groundState.isGrounded;
 
 		if (gravity)
 		{
@@ -685,7 +685,7 @@ namespace shooting {
 
 	void Player::OnUpdate2(double elapsedTime)
 	{
-		if (m_SpawnIntroActive)
+		if (m_spawnIntroActive)
 		{
 			return;
 		}
@@ -756,13 +756,13 @@ namespace shooting {
 	{
 		auto gravity = GetComponent<Gravity>(false);
 		Vec3 gravityVelocity = gravity ? gravity->GetGravityVelocity() : Vec3(0.0f, 0.0f, 0.0f);
-		bool isGrounded = m_IsGround;
+		bool isGrounded = m_isGround;
 		if (!TryApplyGroundCollision(pair, gravityVelocity, isGrounded))
 		{
 			return;
 		}
 
-		m_IsGround = isGrounded;
+		m_isGround = isGrounded;
 		if (gravity)
 		{
 			gravity->SetGravityVelocity(gravityVelocity);

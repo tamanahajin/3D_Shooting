@@ -26,10 +26,10 @@ namespace shooting {
 			bool active = false; // 「プール的に使用中か」
 		};
 
-		std::vector<BulletSlot> m_BulletSlots;
-		std::vector<uint32_t>   m_FreeIndices;
+		std::vector<BulletSlot> m_bulletSlots;
+		std::vector<uint32_t>   m_freeIndices;
 
-		static constexpr size_t POOL_SIZE = 100;
+		static constexpr size_t poolSize = 100;
 
 	public:
 		explicit BulletPool(const std::shared_ptr<Stage>& stagePtr)
@@ -40,12 +40,12 @@ namespace shooting {
 
 		void OnCreate() override
 		{
-			m_BulletSlots.reserve(POOL_SIZE);
+			m_bulletSlots.reserve(poolSize);
 
 			auto stagePtr = GetStage();
 			if (!stagePtr) return;
 
-			for (size_t i = 0; i < POOL_SIZE; ++i)
+			for (size_t i = 0; i < poolSize; ++i)
 			{
 				TransParam initParam;
 				initParam.position = Vec3(0.0f, -100.0f, 0.0f);
@@ -63,8 +63,8 @@ namespace shooting {
 				slot.bullet = bullet;
 				slot.active = false;
 
-				m_BulletSlots.push_back(std::move(slot));
-				m_FreeIndices.push_back(static_cast<uint32_t>(i));
+				m_bulletSlots.push_back(std::move(slot));
+				m_freeIndices.push_back(static_cast<uint32_t>(i));
 			}
 		}
 
@@ -74,9 +74,9 @@ namespace shooting {
 		/// </summary>
 		void OnUpdate(double /*elapsedTime*/) override
 		{
-			for (size_t i = 0; i < m_BulletSlots.size(); ++i)
+			for (size_t i = 0; i < m_bulletSlots.size(); ++i)
 			{
-				auto& slot = m_BulletSlots[i];
+				auto& slot = m_bulletSlots[i];
 				if (!slot.active || !slot.bullet) continue;
 
 				// 弾が終了していれば回収
@@ -95,18 +95,18 @@ namespace shooting {
 						trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
 					}
 
-					m_FreeIndices.push_back(static_cast<uint32_t>(i));
+					m_freeIndices.push_back(static_cast<uint32_t>(i));
 				}
 			}
 		}
 
 		void AllClear() override
 		{
-			m_FreeIndices.clear();
+			m_freeIndices.clear();
 
-			for (size_t i = 0; i < m_BulletSlots.size(); ++i)
+			for (size_t i = 0; i < m_bulletSlots.size(); ++i)
 			{
-				auto& slot = m_BulletSlots[i];
+				auto& slot = m_bulletSlots[i];
 				if (!slot.bullet) continue;
 
 				slot.active = false;
@@ -120,7 +120,7 @@ namespace shooting {
 					trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
 				}
 
-				m_FreeIndices.push_back(static_cast<uint32_t>(i));
+				m_freeIndices.push_back(static_cast<uint32_t>(i));
 			}
 		}
 
@@ -137,12 +137,12 @@ namespace shooting {
 			auto stagePtr = GetStage();
 			if (!stagePtr) return;
 
-			if (!m_FreeIndices.empty())
+			if (!m_freeIndices.empty())
 			{
-				const uint32_t index = m_FreeIndices.back();
-				m_FreeIndices.pop_back();
+				const uint32_t index = m_freeIndices.back();
+				m_freeIndices.pop_back();
 
-				auto& slot = m_BulletSlots[index];
+				auto& slot = m_bulletSlots[index];
 				slot.active = true;
 
 				if (auto trans = slot.bullet->GetComponent<Transform>())
@@ -176,7 +176,7 @@ namespace shooting {
 			BulletSlot slot;
 			slot.bullet = bullet;
 			slot.active = true;
-			m_BulletSlots.push_back(std::move(slot));
+			m_bulletSlots.push_back(std::move(slot));
 		}
 	};
 

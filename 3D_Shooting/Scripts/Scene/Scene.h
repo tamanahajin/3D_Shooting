@@ -18,30 +18,30 @@ namespace shooting {
 
 	class Scene : public BaseScene
 	{
-		SimpleConstant m_ConstantBuffer;
-		size_t m_ConstantBufferIndex;
+		SimpleConstant m_constantBuffer;
+		size_t m_constantBufferIndex;
 		std::shared_ptr<BaseMesh> m_mesh;
 		double m_totalTime;
 		TransParam m_param;
 		std::shared_ptr<Camera> m_camera;
 		std::shared_ptr<LightSet> m_lightSet;
 		UIManager m_uiManager;
-		bool m_CursorVisible = true;
+		bool m_cursorVisible = true;
 
-		GameState m_GameState = GameState::Title;
-		double m_LastSurvivalTime = 0.0;
-		int m_LastDefeatedEnemyCount = 0;
-		int m_LastReachedWave = 0;
-		long long m_LastTotalDamageDealt = 0;
-		int m_LastBestExplosionKills = 0;
-		int m_TitleMenuIndex = 0;
-		double m_TitleTime = 0.0;
-		bool m_OptionOpen = false;
-		bool m_WaitingForOptionMouseRelease = false;
-		int m_OptionDraggingSlider = -1;
-		ScreenTransition m_ScreenTransition;
-		StageEditor m_StageEditor;
-		bool m_StageEditorReloadRequested = false;
+		GameState m_gameState = GameState::Title;
+		double m_lastSurvivalTime = 0.0;
+		int m_lastDefeatedEnemyCount = 0;
+		int m_lastReachedWave = 0;
+		long long m_lastTotalDamageDealt = 0;
+		int m_lastBestExplosionKills = 0;
+		int m_titleMenuIndex = 0;
+		double m_titleTime = 0.0;
+		bool m_optionOpen = false;
+		bool m_waitingForOptionMouseRelease = false;
+		int m_optionDraggingSlider = -1;
+		ScreenTransition m_screenTransition;
+		StageEditor m_stageEditor;
+		bool m_stageEditorReloadRequested = false;
 
 	public:
 		Scene(UINT frameCount, PrimDevice* pPrimDevice);

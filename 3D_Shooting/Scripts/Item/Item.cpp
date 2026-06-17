@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -17,7 +17,7 @@ namespace shooting {
 		const std::shared_ptr<Stage>& stagePtr,
 		const TransParam& param) :
 		GameObject(stagePtr),
-		m_BasePosition(param.position)
+		m_basePosition(param.position)
 	{
 		m_transParam = param;
 	}
@@ -40,15 +40,15 @@ namespace shooting {
 
 	void BaseItem::OnUpdate(double elapsedTime)
 	{
-		m_Time += static_cast<float>(elapsedTime);
+		m_time += static_cast<float>(elapsedTime);
 
 		auto transform = GetComponent<Transform>(false);
 		if (transform)
 		{
-			Vec3 position = m_BasePosition;
-			position.y += std::sin(m_Time * 2.2f) * 0.05f;
+			Vec3 position = m_basePosition;
+			position.y += std::sin(m_time * 2.2f) * 0.05f;
 			transform->SetPosition(position);
-			transform->SetRotation(0.0f, m_Time * 1.6f, 0.0f);
+			transform->SetRotation(0.0f, m_time * 1.6f, 0.0f);
 		}
 
 		OnUpdateItem(elapsedTime);
@@ -77,7 +77,7 @@ namespace shooting {
 
 	bool BaseItem::TryPickupBy(const std::shared_ptr<GameObject>& collector)
 	{
-		if (m_Consumed || !CanPickupBy(collector))
+		if (m_consumed || !CanPickupBy(collector))
 		{
 			return false;
 		}
@@ -100,7 +100,7 @@ namespace shooting {
 
 	void BaseItem::Consume()
 	{
-		m_Consumed = true;
+		m_consumed = true;
 		SetDrawActive(false);
 		SetUpdateActive(false);
 		SetShadowActive(false);
@@ -122,7 +122,7 @@ namespace shooting {
 		const TransParam& param,
 		float healRate) :
 		BaseItem(stagePtr, param),
-		m_HealRate(healRate)
+		m_healRate(healRate)
 	{
 	}
 
@@ -177,7 +177,7 @@ namespace shooting {
 			return false;
 		}
 
-		int healAmount = static_cast<int>(std::ceil(static_cast<float>(health->GetMaxHP()) * m_HealRate));
+		int healAmount = static_cast<int>(std::ceil(static_cast<float>(health->GetMaxHP()) * m_healRate));
 		if (healAmount < 1)
 		{
 			healAmount = 1;
@@ -196,7 +196,7 @@ namespace shooting {
 		const TransParam& param,
 		int bombGrantCount) :
 		BaseItem(stagePtr, param),
-		m_BombGrantCount(bombGrantCount)
+		m_bombGrantCount(bombGrantCount)
 	{
 	}
 
@@ -245,12 +245,12 @@ namespace shooting {
 	bool BombItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)
 	{
 		auto player = std::dynamic_pointer_cast<Player>(collector);
-		if (!player || m_BombGrantCount <= 0)
+		if (!player || m_bombGrantCount <= 0)
 		{
 			return false;
 		}
 
-		player->AddBombAmmo(m_BombGrantCount);
+		player->AddBombAmmo(m_bombGrantCount);
 		return true;
 	}
 

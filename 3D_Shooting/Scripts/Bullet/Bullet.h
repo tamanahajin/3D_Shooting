@@ -11,13 +11,13 @@ namespace shooting {
 	class DefaultBullet : public IBullet
 	{
 	private:
-		float  m_Speed = 15.0f;
-		bool   m_IsActive = false;
+		float  m_speed = 15.0f;
+		bool   m_isActive = false;
 
 		// 寿命（秒）
-		double m_LifeTime = 5.0;
+		double m_lifeTime = 5.0;
 		// 経過時間（秒）
-		double m_ElapsedTime = 0.0;
+		double m_elapsedTime = 0.0;
 
 	public:
 		DefaultBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
@@ -33,7 +33,7 @@ namespace shooting {
 		/// </summary>
 		virtual void ResetForSpawn() noexcept override
 		{
-			m_ElapsedTime = 0.0;
+			m_elapsedTime = 0.0;
 			SetActive(true);
 		}
 
@@ -60,45 +60,44 @@ namespace shooting {
 	{
 	private:
 		// 飛翔速度（DefaultBulletの速度とは別扱いにしている）
-		float  m_Speed = 10.0f;
+		float  m_speed = 10.0f;
 
 		// 爆発までの時間
-		// 定数
-		const double FUSE_TIME = 3.0f;
-		double m_FuseTime = FUSE_TIME;
+		const double m_defaultFuseTime = 3.0;
+		double m_fuseTime = m_defaultFuseTime;
 
-		Vec3  m_Velocity = Vec3(0, 0, 0);
-		Vec3  m_Gravity = Vec3(0, -9.8f, 0);
-		Vec3  m_TargetPos = Vec3(0, 0, 0);
-		Vec3  m_TargetNormal = Vec3(0, 1, 0);
-		bool  m_HasTarget = false;
-		bool  m_HasTargetSurface = false;
-		float m_ArcHeight = 1.5f;
-		Vec3  m_StartPos = Vec3(0, 0, 0);   // p0（発射時位置）
-		Vec3  m_V0 = Vec3(0, 0, 0);   // v0（発射時初速）
-		float m_FlyTime = 0.0f;          // 発射からの経過 t
-		float m_TotalT = 0.0f;          // 目標到達に必要な T
-		bool  m_UseBallistic = false;     // ターゲット弾道を使うか
-		bool  m_UseGeneratedGroundImpact = true;
-		float m_ArcHeightPerDistXZ = 0.0f;
+		Vec3  m_velocity = Vec3(0, 0, 0);
+		Vec3  m_gravity = Vec3(0, -9.8f, 0);
+		Vec3  m_targetPos = Vec3(0, 0, 0);
+		Vec3  m_targetNormal = Vec3(0, 1, 0);
+		bool  m_hasTarget = false;
+		bool  m_hasTargetSurface = false;
+		float m_arcHeight = 1.5f;
+		Vec3  m_startPos = Vec3(0, 0, 0);   // p0（発射時位置）
+		Vec3  m_v0 = Vec3(0, 0, 0);   // v0（発射時初速）
+		float m_flyTime = 0.0f;          // 発射からの経過 t
+		float m_totalT = 0.0f;          // 目標到達に必要な T
+		bool  m_useBallistic = false;     // ターゲット弾道を使うか
+		bool  m_useGeneratedGroundImpact = true;
+		float m_arcHeightPerDistXZ = 0.0f;
 
 		// 爆発状態
-		bool   m_Exploding = false;
-		double m_ExplosionDuration = 0.08; // 爆風が有効な時間
-		double m_ExplosionTimer = 0.0;
+		bool   m_exploding = false;
+		double m_explosionDuration = 0.08; // 爆風が有効な時間
+		double m_explosionTimer = 0.0;
 
 		// 爆風のスケール（Transform.Scale）
-		float  m_ExplosionScale = 3.0f;
+		float  m_explosionScale = 3.0f;
 
 		// 範囲ダメージ
-		int    m_ExplosionDamage = 10;
+		int    m_explosionDamage = 10;
 
 		// 爆発中の多重ヒット防止
-		std::unordered_set<const GameObject*> m_HitOnce;
+		std::unordered_set<const GameObject*> m_hitOnce;
 		// この爆弾1個で死亡が確定した敵数。BEST EXPLOSION の更新に使う。
-		int m_ExplosionKillCount = 0;
+		int m_explosionKillCount = 0;
 
-		bool SolveBallistic_ApexHeight(
+		bool SolveBallisticApexHeight(
 			const Vec3& p0, const Vec3& p1,
 			const Vec3& gravity, float arcHeight,
 			Vec3& outV0, float& outT
@@ -127,26 +126,26 @@ namespace shooting {
 		// ----- Bom -----
 		void SetTarget(const Vec3& target)
 		{
-			m_TargetPos = target;
-			m_TargetNormal = Vec3(0, 1, 0);
-			m_HasTarget = true;
-			m_HasTargetSurface = false;
+			m_targetPos = target;
+			m_targetNormal = Vec3(0, 1, 0);
+			m_hasTarget = true;
+			m_hasTargetSurface = false;
 		}
 
 		void SetAimFromPreview(const Vec3& target, const BombTuning& t, const Vec3& targetNormal, bool hasTargetSurface)
 		{
-			m_TargetPos = target;
-			m_TargetNormal = targetNormal;
-			m_HasTarget = true;
-			m_HasTargetSurface = hasTargetSurface;
+			m_targetPos = target;
+			m_targetNormal = targetNormal;
+			m_hasTarget = true;
+			m_hasTargetSurface = hasTargetSurface;
 
-			m_ArcHeight = t.arcHeightBase;
-			m_Gravity = t.gravity;
-			m_ArcHeightPerDistXZ = t.arcHeightPerDistXZ;
+			m_arcHeight = t.arcHeightBase;
+			m_gravity = t.gravity;
+			m_arcHeightPerDistXZ = t.arcHeightPerDistXZ;
 
 			// CollisionSphere の半径が「scale * 0.5」仕様なので、
 			// radius を合わせたいなら scale = radius * 2 にするのが基本。
-			m_ExplosionScale = t.explosionRadius * 2.0f;
+			m_explosionScale = t.explosionRadius * 2.0f;
 		}
 
 		// ----- GameObject -----

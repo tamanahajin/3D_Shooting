@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -14,9 +14,9 @@ namespace shooting {
 			CoveredCallback onCovered,
 			const D2D1_COLOR_F& color = D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f));
 		void Update(double elapsedTime);
-		bool IsActive() const { return m_Phase != Phase::None; }
+		bool IsActive() const { return m_phase != Phase::None; }
 		bool IsInputBlocked() const { return IsActive(); }
-		float GetAlpha() const { return m_Alpha; }
+		float GetAlpha() const { return m_alpha; }
 		D2D1_COLOR_F GetOverlayColor() const;
 
 	private:
@@ -29,13 +29,13 @@ namespace shooting {
 
 		void Finish();
 
-		Phase m_Phase = Phase::None;
-		float m_Timer = 0.0f;
-		float m_FadeOutSeconds = 0.0f;
-		float m_FadeInSeconds = 0.0f;
-		float m_Alpha = 0.0f;
-		D2D1_COLOR_F m_Color = D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f);
-		CoveredCallback m_OnCovered;
+		Phase m_phase = Phase::None;
+		float m_timer = 0.0f;
+		float m_fadeOutSeconds = 0.0f;
+		float m_fadeInSeconds = 0.0f;
+		float m_alpha = 0.0f;
+		D2D1_COLOR_F m_color = D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f);
+		CoveredCallback m_onCovered;
 	};
 
 }

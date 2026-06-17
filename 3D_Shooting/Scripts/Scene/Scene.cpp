@@ -413,12 +413,12 @@ namespace shooting {
 
 	void Scene::SetMouseCursorVisible(bool visible)
 	{
-		if (m_CursorVisible == visible)
+		if (m_cursorVisible == visible)
 		{
 			return;
 		}
 
-		m_CursorVisible = visible;
+		m_cursorVisible = visible;
 
 		if (visible)
 		{
@@ -601,15 +601,15 @@ namespace shooting {
 
 	void Scene::StartTitle()
 	{
-		if (m_StageEditor.IsActive())
+		if (m_stageEditor.IsActive())
 		{
 			auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
 			if (gameStage)
 			{
-				m_StageEditor.Exit(*gameStage);
+				m_stageEditor.Exit(*gameStage);
 			}
 		}
-		m_StageEditorReloadRequested = false;
+		m_stageEditorReloadRequested = false;
 		SetFogEnabled(true);
 
 		auto& benchmark = BenchmarkRecorder::Instance();
@@ -619,12 +619,12 @@ namespace shooting {
 		}
 		benchmark.ClearNotification();
 
-		m_OptionOpen = false;
-		m_WaitingForOptionMouseRelease = false;
-		m_OptionDraggingSlider = kOptionSliderNone;
-		m_GameState = GameState::Title;
-		m_TitleMenuIndex = 0;
-		m_TitleTime = 0.0;
+		m_optionOpen = false;
+		m_waitingForOptionMouseRelease = false;
+		m_optionDraggingSlider = kOptionSliderNone;
+		m_gameState = GameState::Title;
+		m_titleMenuIndex = 0;
+		m_titleTime = 0.0;
 
 		SetMouseCursorVisible(true);
 
@@ -633,21 +633,21 @@ namespace shooting {
 
 	void Scene::StartGame()
 	{
-		m_StageEditorReloadRequested = false;
+		m_stageEditorReloadRequested = false;
 		SetFogEnabled(true);
 
 		// ベンチマークはインゲーム中だけ扱う。前ステートの通知は新しいプレイへ持ち越さない。
 		BenchmarkRecorder::Instance().ClearNotification();
 
-		m_OptionOpen = false;
-		m_WaitingForOptionMouseRelease = false;
-		m_OptionDraggingSlider = kOptionSliderNone;
-		m_LastSurvivalTime = 0.0;
-		m_LastDefeatedEnemyCount = 0;
-		m_LastReachedWave = 0;
-		m_LastTotalDamageDealt = 0;
-		m_LastBestExplosionKills = 0;
-		m_GameState = GameState::Playing;
+		m_optionOpen = false;
+		m_waitingForOptionMouseRelease = false;
+		m_optionDraggingSlider = kOptionSliderNone;
+		m_lastSurvivalTime = 0.0;
+		m_lastDefeatedEnemyCount = 0;
+		m_lastReachedWave = 0;
+		m_lastTotalDamageDealt = 0;
+		m_lastBestExplosionKills = 0;
+		m_gameState = GameState::Playing;
 
 		SetMouseCursorVisible(false);
 		// インゲームBGMはGameStage側でプレイヤー登場演出が終わった後に開始する。
@@ -659,15 +659,15 @@ namespace shooting {
 	void Scene::EnterStageEditor()
 	{
 #if defined(_DEBUG)
-		if (m_GameState != GameState::Playing ||
-			m_OptionOpen ||
-			m_ScreenTransition.IsInputBlocked())
+		if (m_gameState != GameState::Playing ||
+			m_optionOpen ||
+			m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
 
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
-		if (!gameStage || !m_StageEditor.Enter(*gameStage))
+		if (!gameStage || !m_stageEditor.Enter(*gameStage))
 		{
 			return;
 		}
@@ -679,7 +679,7 @@ namespace shooting {
 			benchmark.Stop(true);
 		}
 
-		m_StageEditorReloadRequested = false;
+		m_stageEditorReloadRequested = false;
 		SetFogEnabled(false);
 		SetMouseCursorVisible(true);
 #endif
@@ -688,7 +688,7 @@ namespace shooting {
 	void Scene::ExitStageEditor()
 	{
 #if defined(_DEBUG)
-		if (!m_StageEditor.IsActive())
+		if (!m_stageEditor.IsActive())
 		{
 			return;
 		}
@@ -696,16 +696,16 @@ namespace shooting {
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
 		if (gameStage)
 		{
-			m_StageEditor.Exit(*gameStage);
+			m_stageEditor.Exit(*gameStage);
 		}
 
 		const auto& input = App::GetInputDevice();
 		// エディタを閉じたクリックが射撃や爆弾入力へ流れないよう、ボタンの解放を待つ。
-		m_WaitingForOptionMouseRelease =
+		m_waitingForOptionMouseRelease =
 			input.MouseDown(VK_LBUTTON) ||
 			input.MouseDown(VK_RBUTTON) ||
 			input.MouseDown(VK_MBUTTON);
-		m_StageEditorReloadRequested = false;
+		m_stageEditorReloadRequested = false;
 		SetFogEnabled(true);
 		SetMouseCursorVisible(false);
 #endif
@@ -714,27 +714,27 @@ namespace shooting {
 	void Scene::ReloadStageForEditor()
 	{
 #if defined(_DEBUG)
-		if (!m_StageEditor.IsActive())
+		if (!m_stageEditor.IsActive())
 		{
-			m_StageEditorReloadRequested = false;
+			m_stageEditorReloadRequested = false;
 			return;
 		}
 
 		// 描画中にステージを破棄しないよう、ImGuiからの要求を次のUpdateで処理する。
 		auto gameStage = ResetActiveStage<GameStage>(App::GetD3D12Device());
-		m_StageEditor.OnStageReloaded(*gameStage);
-		m_StageEditorReloadRequested = false;
+		m_stageEditor.OnStageReloaded(*gameStage);
+		m_stageEditorReloadRequested = false;
 #endif
 	}
 
 	void Scene::RequestStartGame()
 	{
-		if (m_GameState != GameState::Title || m_ScreenTransition.IsInputBlocked())
+		if (m_gameState != GameState::Title || m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
 
-		m_ScreenTransition.Start(
+		m_screenTransition.Start(
 			kSceneTransitionFadeOutSeconds,
 			kSceneTransitionFadeInSeconds,
 			[this]()
@@ -745,12 +745,12 @@ namespace shooting {
 
 	void Scene::RequestStartTitle()
 	{
-		if (m_ScreenTransition.IsInputBlocked())
+		if (m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
 
-		m_ScreenTransition.Start(
+		m_screenTransition.Start(
 			kSceneTransitionFadeOutSeconds,
 			kSceneTransitionFadeInSeconds,
 			[this]()
@@ -761,13 +761,13 @@ namespace shooting {
 
 	void Scene::RequestExitGame()
 	{
-		if (m_ScreenTransition.IsInputBlocked())
+		if (m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
 
 		// EXIT直後に終了すると決定音が聞こえる前にアプリが閉じるため、フェードアウト後に終了する。
-		m_ScreenTransition.Start(
+		m_screenTransition.Start(
 			kSceneTransitionFadeOutSeconds,
 			kSceneTransitionFadeInSeconds,
 			[]()
@@ -780,7 +780,7 @@ namespace shooting {
 	{
 		GameAudio::Instance().PlaySound(GameSoundId::Decide);
 
-		if (m_TitleMenuIndex == 0)
+		if (m_titleMenuIndex == 0)
 		{
 			RequestStartGame();
 		}
@@ -793,12 +793,12 @@ namespace shooting {
 	void Scene::SetTitleMenuIndex(int index, bool playCursorMoveSound)
 	{
 		index = bsmUtil::Clamp(index, 0, 1);
-		if (m_TitleMenuIndex == index)
+		if (m_titleMenuIndex == index)
 		{
 			return;
 		}
 
-		m_TitleMenuIndex = index;
+		m_titleMenuIndex = index;
 		if (playCursorMoveSound)
 		{
 			GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
@@ -807,16 +807,16 @@ namespace shooting {
 
 	void Scene::OpenOptionMenu()
 	{
-		if (m_OptionOpen || m_ScreenTransition.IsInputBlocked())
+		if (m_optionOpen || m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
 
-		m_OptionOpen = true;
-		m_OptionDraggingSlider = kOptionSliderNone;
+		m_optionOpen = true;
+		m_optionDraggingSlider = kOptionSliderNone;
 		GameAudio::Instance().PlaySound(GameSoundId::Decide);
 
-		if (m_GameState == GameState::Playing)
+		if (m_gameState == GameState::Playing)
 		{
 			SetMouseCursorVisible(true);
 		}
@@ -824,20 +824,20 @@ namespace shooting {
 
 	void Scene::CloseOptionMenu()
 	{
-		if (!m_OptionOpen)
+		if (!m_optionOpen)
 		{
 			return;
 		}
 
-		m_OptionOpen = false;
-		m_OptionDraggingSlider = kOptionSliderNone;
+		m_optionOpen = false;
+		m_optionDraggingSlider = kOptionSliderNone;
 		GameAudio::Instance().PlaySound(GameSoundId::Cancel);
 
-		if (m_GameState == GameState::Playing)
+		if (m_gameState == GameState::Playing)
 		{
 			const auto& input = App::GetInputDevice();
 			// UIを閉じたクリックが射撃入力へ流れないよう、押されているボタンの解放を待つ。
-			m_WaitingForOptionMouseRelease =
+			m_waitingForOptionMouseRelease =
 				input.MouseDown(VK_LBUTTON) ||
 				input.MouseDown(VK_RBUTTON) ||
 				input.MouseDown(VK_MBUTTON);
@@ -847,7 +847,7 @@ namespace shooting {
 
 	void Scene::UpdateOptionInput()
 	{
-		if (!m_OptionOpen || m_ScreenTransition.IsInputBlocked())
+		if (!m_optionOpen || m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
@@ -873,11 +873,11 @@ namespace shooting {
 
 		if (input.MousePressed(VK_LBUTTON) && IsMouseInRect(hitRect))
 		{
-			m_OptionDraggingSlider = sliderIndex;
+			m_optionDraggingSlider = sliderIndex;
 		}
 
 		float value = currentValue;
-		if (m_OptionDraggingSlider == sliderIndex && input.MouseDown(VK_LBUTTON))
+		if (m_optionDraggingSlider == sliderIndex && input.MouseDown(VK_LBUTTON))
 		{
 			const float width = trackRight - trackLeft;
 			if (width > 0.0f)
@@ -886,9 +886,9 @@ namespace shooting {
 			}
 		}
 
-		if (m_OptionDraggingSlider == sliderIndex && input.MouseReleased(VK_LBUTTON))
+		if (m_optionDraggingSlider == sliderIndex && input.MouseReleased(VK_LBUTTON))
 		{
-			m_OptionDraggingSlider = kOptionSliderNone;
+			m_optionDraggingSlider = kOptionSliderNone;
 		}
 
 		return value;
@@ -896,13 +896,13 @@ namespace shooting {
 
 	void Scene::UpdateTitleInput()
 	{
-		if (m_OptionOpen)
+		if (m_optionOpen)
 		{
 			UpdateOptionInput();
 			return;
 		}
 
-		if (m_ScreenTransition.IsInputBlocked())
+		if (m_screenTransition.IsInputBlocked())
 		{
 			return;
 		}
@@ -932,7 +932,7 @@ namespace shooting {
 	void Scene::DrawOptionButton()
 	{
 		UIButtonBehavior behavior;
-		behavior.enabled = !m_ScreenTransition.IsInputBlocked();
+		behavior.enabled = !m_screenTransition.IsInputBlocked();
 		// 開閉時は決定音とキャンセル音を使い分けるため、ボタン共通の決定音は鳴らさない。
 		behavior.playClickSound = false;
 
@@ -948,7 +948,7 @@ namespace shooting {
 
 		if (optionButton.clicked)
 		{
-			if (m_OptionOpen)
+			if (m_optionOpen)
 			{
 				CloseOptionMenu();
 			}
@@ -1005,7 +1005,7 @@ namespace shooting {
 			sliderSize);
 
 		UIButtonBehavior exitButtonBehavior;
-		exitButtonBehavior.enabled = !m_ScreenTransition.IsInputBlocked();
+		exitButtonBehavior.enabled = !m_screenTransition.IsInputBlocked();
 		auto exitButton = m_uiManager.AddButton(
 			L"EXIT",
 			UIAnchor::Center,
@@ -1024,9 +1024,9 @@ namespace shooting {
 
 	void Scene::RenderUIWithTransition(UILayer& uiLayer)
 	{
-		if (m_ScreenTransition.GetAlpha() > 0.0f)
+		if (m_screenTransition.GetAlpha() > 0.0f)
 		{
-			m_uiManager.AddFullscreenOverlay(m_ScreenTransition.GetOverlayColor());
+			m_uiManager.AddFullscreenOverlay(m_screenTransition.GetOverlayColor());
 		}
 
 		m_uiManager.Render(uiLayer);
@@ -1058,9 +1058,9 @@ namespace shooting {
 
 		m_uiManager.BeginFrame();
 
-		if (m_GameState == GameState::Title)
+		if (m_gameState == GameState::Title)
 		{
-			if (m_OptionOpen)
+			if (m_optionOpen)
 			{
 				DrawOptionMenu(*uiLayer);
 				DrawOptionButton();
@@ -1069,8 +1069,8 @@ namespace shooting {
 				return;
 			}
 
-			const bool inputBlocked = m_ScreenTransition.IsInputBlocked();
-			const float titleBob = std::sin(static_cast<float>(m_TitleTime) * 1.8f) * 10.0f;
+			const bool inputBlocked = m_screenTransition.IsInputBlocked();
+			const float titleBob = std::sin(static_cast<float>(m_titleTime) * 1.8f) * 10.0f;
 			const D2D1_COLOR_F selectedColor = D2D1::ColorF(1.0f, 0.86f, 0.12f, 1.0f);
 			const D2D1_COLOR_F normalColor = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.92f);
 			const D2D1_COLOR_F buttonBaseColor = D2D1::ColorF(0.04f, 0.05f, 0.06f, 0.74f);
@@ -1097,7 +1097,7 @@ namespace shooting {
 				menuSize,
 				buttonBaseColor,
 				buttonHoverColor,
-				m_TitleMenuIndex == 0 ? selectedColor : normalColor,
+				m_titleMenuIndex == 0 ? selectedColor : normalColor,
 				titleButtonBehavior);
 
 			auto exitButton = m_uiManager.AddButton(
@@ -1107,7 +1107,7 @@ namespace shooting {
 				menuSize,
 				buttonBaseColor,
 				buttonHoverColor,
-				m_TitleMenuIndex == 1 ? selectedColor : normalColor,
+				m_titleMenuIndex == 1 ? selectedColor : normalColor,
 				titleButtonBehavior);
 
 			if (startButton.hovered)
@@ -1136,7 +1136,7 @@ namespace shooting {
 			return;
 		}
 
-		if (m_GameState == GameState::Result)
+		if (m_gameState == GameState::Result)
 		{
 			const D2D1_COLOR_F white = D2D1::ColorF(D2D1::ColorF::White);
 			const D2D1_COLOR_F red = D2D1::ColorF(0.92f, 0.12f, 0.10f, 1.0f);
@@ -1163,7 +1163,7 @@ namespace shooting {
 				white,
 				22.0f);
 
-			const int survivalSeconds = static_cast<int>(m_LastSurvivalTime);
+			const int survivalSeconds = static_cast<int>(m_lastSurvivalTime);
 			wchar_t survivalText[32];
 			swprintf_s(
 				survivalText,
@@ -1199,9 +1199,9 @@ namespace shooting {
 					28.0f);
 			};
 
-			addResultRow(L"総撃破数", std::to_wstring(m_LastDefeatedEnemyCount), -42.0f);
-			addResultRow(L"到達ウェーブ", std::to_wstring(m_LastReachedWave), 4.0f);
-			addResultRow(L"与えた総ダメージ", std::to_wstring(m_LastTotalDamageDealt), 50.0f);
+			addResultRow(L"総撃破数", std::to_wstring(m_lastDefeatedEnemyCount), -42.0f);
+			addResultRow(L"到達ウェーブ", std::to_wstring(m_lastReachedWave), 4.0f);
+			addResultRow(L"与えた総ダメージ", std::to_wstring(m_lastTotalDamageDealt), 50.0f);
 
 			m_uiManager.AddText(
 				L"BEST EXPLOSION",
@@ -1216,7 +1216,7 @@ namespace shooting {
 			swprintf_s(
 				bestExplosionText,
 				L"1 BOMB / %d KILLS",
-				m_LastBestExplosionKills);
+				m_lastBestExplosionKills);
 			m_uiManager.AddText(
 				bestExplosionText,
 				UIAnchor::Center,
@@ -1227,7 +1227,7 @@ namespace shooting {
 				34.0f);
 
 			UIButtonBehavior titleButtonBehavior;
-			titleButtonBehavior.enabled = !m_ScreenTransition.IsInputBlocked();
+			titleButtonBehavior.enabled = !m_screenTransition.IsInputBlocked();
 			auto titleButton = m_uiManager.AddButton(
 				L"TITLE",
 				UIAnchor::Center,
@@ -1251,7 +1251,7 @@ namespace shooting {
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(m_activeStage);
 		if (!gameStage)
 		{
-			if (m_ScreenTransition.GetAlpha() > 0.0f)
+			if (m_screenTransition.GetAlpha() > 0.0f)
 			{
 				RenderUIWithTransition(*uiLayer);
 			}
@@ -1263,7 +1263,7 @@ namespace shooting {
 		}
 
 #if defined(_DEBUG)
-		if (m_StageEditor.IsActive())
+		if (m_stageEditor.IsActive())
 		{
 			uiLayer->SetCrosshairEnabled(false);
 			RenderUIWithTransition(*uiLayer);
@@ -1275,7 +1275,7 @@ namespace shooting {
 		auto player = gameStage->GetSharedGameObjectEx<Player>(L"Player", false);
 		auto hp = player ? player->GetComponent<Health>() : nullptr;
 
-		if (m_OptionOpen)
+		if (m_optionOpen)
 		{
 			DrawOptionMenu(*uiLayer);
 			DrawOptionButton();
@@ -1464,7 +1464,7 @@ namespace shooting {
 	void Scene::UpdateImGui()
 	{
 #if defined(_DEBUG)
-		if (m_GameState != GameState::Playing || !m_StageEditor.IsActive())
+		if (m_gameState != GameState::Playing || !m_stageEditor.IsActive())
 		{
 			return;
 		}
@@ -1476,12 +1476,12 @@ namespace shooting {
 			return;
 		}
 
-		if (m_StageEditor.DrawImGui(
+		if (m_stageEditor.DrawImGui(
 				*gameStage,
 				static_cast<float>(device->GetWidth()),
 				static_cast<float>(device->GetHeight())))
 		{
-			m_StageEditorReloadRequested = true;
+			m_stageEditorReloadRequested = true;
 		}
 #endif
 	}
@@ -1489,11 +1489,11 @@ namespace shooting {
 	void Scene::Update(double elapsedTime)
 	{
 		s_elapsedTime = elapsedTime;
-		m_TitleTime += elapsedTime;
-		m_ScreenTransition.Update(elapsedTime);
+		m_titleTime += elapsedTime;
+		m_screenTransition.Update(elapsedTime);
 		GameAudio::Instance().Update();
 
-		if (m_GameState == GameState::Title)
+		if (m_gameState == GameState::Title)
 		{
 			if (!m_activeStage)
 			{
@@ -1501,7 +1501,7 @@ namespace shooting {
 			}
 
 			UpdateTitleInput();
-			if (m_GameState != GameState::Title)
+			if (m_gameState != GameState::Title)
 			{
 				if (m_activeStage)
 				{
@@ -1511,7 +1511,7 @@ namespace shooting {
 				return;
 			}
 
-			if (m_GameState == GameState::Title && m_activeStage)
+			if (m_gameState == GameState::Title && m_activeStage)
 			{
 				m_activeStage->UpdateStage();
 				UpdateConstantBuffers();
@@ -1520,16 +1520,16 @@ namespace shooting {
 			return;
 		}
 
-		if (m_GameState == GameState::Playing)
+		if (m_gameState == GameState::Playing)
 		{
 			if (m_activeStage)
 			{
 #if defined(_DEBUG)
-				if (!m_OptionOpen &&
-					!m_ScreenTransition.IsInputBlocked() &&
+				if (!m_optionOpen &&
+					!m_screenTransition.IsInputBlocked() &&
 					App::GetInputDevice().KeyPressed(VK_F3))
 				{
-					if (m_StageEditor.IsActive())
+					if (m_stageEditor.IsActive())
 					{
 						ExitStageEditor();
 					}
@@ -1543,13 +1543,13 @@ namespace shooting {
 					return;
 				}
 
-				if (m_StageEditor.IsActive())
+				if (m_stageEditor.IsActive())
 				{
 					if (App::GetInputDevice().KeyPressed(VK_ESCAPE))
 					{
 						ExitStageEditor();
 					}
-					else if (m_StageEditorReloadRequested)
+					else if (m_stageEditorReloadRequested)
 					{
 						ReloadStageForEditor();
 					}
@@ -1561,7 +1561,7 @@ namespace shooting {
 				}
 #endif
 
-				if (m_OptionOpen)
+				if (m_optionOpen)
 				{
 					UpdateOptionInput();
 					UpdateConstantBuffers();
@@ -1569,14 +1569,14 @@ namespace shooting {
 					return;
 				}
 
-				if (m_WaitingForOptionMouseRelease)
+				if (m_waitingForOptionMouseRelease)
 				{
 					const auto& input = App::GetInputDevice();
 					if (!input.MouseDown(VK_LBUTTON) &&
 						!input.MouseDown(VK_RBUTTON) &&
 						!input.MouseDown(VK_MBUTTON))
 					{
-						m_WaitingForOptionMouseRelease = false;
+						m_waitingForOptionMouseRelease = false;
 					}
 
 					// 解放を検出したフレームも更新せず、次フレームからゲーム入力を受け付ける。
@@ -1609,12 +1609,12 @@ namespace shooting {
 					benchmark.ClearNotification();
 
 					// GameStageはこの後更新を止めるため、リザルト用の値をここで確定する。
-					m_LastSurvivalTime = gameStage->GetSurvivalTime();
-					m_LastDefeatedEnemyCount = gameStage->GetDefeatedEnemyCount();
-					m_LastReachedWave = gameStage->GetCurrentWave();
-					m_LastTotalDamageDealt = gameStage->GetTotalDamageDealt();
-					m_LastBestExplosionKills = gameStage->GetBestExplosionKills();
-					m_GameState = GameState::Result;
+					m_lastSurvivalTime = gameStage->GetSurvivalTime();
+					m_lastDefeatedEnemyCount = gameStage->GetDefeatedEnemyCount();
+					m_lastReachedWave = gameStage->GetCurrentWave();
+					m_lastTotalDamageDealt = gameStage->GetTotalDamageDealt();
+					m_lastBestExplosionKills = gameStage->GetBestExplosionKills();
+					m_gameState = GameState::Result;
 
 					SetMouseCursorVisible(true);
 				}
@@ -1625,7 +1625,7 @@ namespace shooting {
 			return;
 		}
 
-		if (m_GameState == GameState::Result)
+		if (m_gameState == GameState::Result)
 		{
 			if (m_activeStage)
 			{

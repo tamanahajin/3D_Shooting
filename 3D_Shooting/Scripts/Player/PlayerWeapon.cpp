@@ -241,7 +241,7 @@ namespace shooting {
 		const std::shared_ptr<Stage>& stagePtr,
 		const std::shared_ptr<Player>& player) :
 		GameObject(stagePtr),
-		m_Player(player)
+		m_player(player)
 	{
 		m_transParam.position = Vec3(0.0f, -100.0f, 0.0f);
 	}
@@ -275,18 +275,18 @@ namespace shooting {
 
 	bool PlayerWeapon::TryUpdateFromPlayerHand()
 	{
-		auto player = m_Player.lock();
+		auto player = m_player.lock();
 		if (!player || !player->IsUpdateActive() || player->IsDead())
 		{
 			// 死亡モーション中は手のソケットを更新せず、武器の見た目だけを非表示にする。
-			m_HasStableTransform = false;
+			m_hasStableTransform = false;
 			return false;
 		}
 
 		if (!player->IsSpawnIntroCharacterVisible())
 		{
 			// キャラ本体を消している登場待機中は、武器だけが先に見えないようにする。
-			m_HasStableTransform = false;
+			m_hasStableTransform = false;
 			return false;
 		}
 
@@ -313,8 +313,8 @@ namespace shooting {
 
 		auto playerTransform = player->GetComponent<Transform>(false);
 		Vec3 playerDelta(0.0f, 0.0f, 0.0f);
-		Vec3 expectedStablePosition = m_StablePosition;
-		if (m_HasStableTransform && playerTransform)
+		Vec3 expectedStablePosition = m_stablePosition;
+		if (m_hasStableTransform && playerTransform)
 		{
 			playerDelta = playerTransform->GetPosition() - playerTransform->GetBeforePosition();
 			expectedStablePosition += playerDelta;
@@ -324,8 +324,8 @@ namespace shooting {
 		const bool isIdle = anim && anim->GetCurrentState() == AnimState::Idle;
 		const bool playerTeleported = playerDelta.length() > 1.0f;
 		const bool jumpedInIdle =
-			m_HasStableTransform &&
-			m_StableTransformIsIdle &&
+			m_hasStableTransform &&
+			m_stableTransformIsIdle &&
 			isIdle &&
 			!playerTeleported &&
 			(invalidCandidate ||
@@ -334,10 +334,10 @@ namespace shooting {
 		if (jumpedInIdle)
 		{
 			// Idleモーションの不安定なソケット値を採用せず、前フレーム位置へ移動量だけ加える。
-			weaponTransform->SetScale(m_StableScale);
-			weaponTransform->SetQuaternion(m_StableRotation);
+			weaponTransform->SetScale(m_stableScale);
+			weaponTransform->SetQuaternion(m_stableRotation);
 			weaponTransform->SetPosition(expectedStablePosition);
-			m_StablePosition = expectedStablePosition;
+			m_stablePosition = expectedStablePosition;
 			return true;
 		}
 
@@ -350,11 +350,11 @@ namespace shooting {
 		weaponTransform->SetQuaternion(candidateRotation);
 		weaponTransform->SetPosition(candidatePosition);
 
-		m_HasStableTransform = true;
-		m_StableTransformIsIdle = isIdle;
-		m_StableScale = candidateScale;
-		m_StableRotation = candidateRotation;
-		m_StablePosition = candidatePosition;
+		m_hasStableTransform = true;
+		m_stableTransformIsIdle = isIdle;
+		m_stableScale = candidateScale;
+		m_stableRotation = candidateRotation;
+		m_stablePosition = candidatePosition;
 		return true;
 	}
 

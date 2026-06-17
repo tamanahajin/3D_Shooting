@@ -11,10 +11,10 @@ namespace shooting {
 
 	SeekObject::SeekObject(const std::shared_ptr<Stage>& StagePtr, const Vec3& startPos) :
 		GameObject(StagePtr),
-		m_StartPos(startPos),
-		m_StateChangeSize(5.0f),
-		m_Force(0),
-		m_Velocity(0)
+		m_startPos(startPos),
+		m_stateChangeSize(5.0f),
+		m_force(0),
+		m_velocity(0)
 	{
 		m_transParam.position = startPos;
 	}
@@ -27,18 +27,18 @@ namespace shooting {
 			duration = 0.001;
 		}
 
-		m_DamageFlashDuration = duration;
-		m_DamageFlashTimer = duration;
+		m_damageFlashDuration = duration;
+		m_damageFlashTimer = duration;
 	}
 
 	float SeekObject::GetDamageFlashValue() const
 	{
-		if (m_DamageFlashDuration <= 0.0 || m_DamageFlashTimer <= 0.0)
+		if (m_damageFlashDuration <= 0.0 || m_damageFlashTimer <= 0.0)
 		{
 			return 0.0f;
 		}
 
-		double value = m_DamageFlashTimer / m_DamageFlashDuration;
+		double value = m_damageFlashTimer / m_damageFlashDuration;
 		if (value < 0.0)
 		{
 			value = 0.0;
@@ -77,7 +77,7 @@ namespace shooting {
 	void SeekObject::OnCreate()
 	{
 		auto ptrTransform = GetComponent<Transform>();
-		ptrTransform->SetPosition(m_StartPos);
+		ptrTransform->SetPosition(m_startPos);
 		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 		SetBatchUpdateManaged(true);
@@ -96,8 +96,8 @@ namespace shooting {
 
 		auto ptrGra = AddComponent<Gravity>();
 		//分離行動をつける
-		auto PtrSep = GetBehavior<SeparationSteering>();
-		PtrSep->SetGameObjectGroup(group);
+		auto separationSteering = GetBehavior<SeparationSteering>();
+		separationSteering->SetGameObjectGroup(group);
 		
 		// 描画は EnemyInstancedRenderer でまとめて行う
 
@@ -138,18 +138,18 @@ namespace shooting {
 
 			self->ShowDamageNumber(info);
 			self->StartDamageFlash(0.2);
-			self->m_IsDead = true;
-			self->m_DeathAnimFinished = false;
+			self->m_isDead = true;
+			self->m_deathAnimFinished = false;
 
 			auto anim = self->GetBehavior<AnimationStateBehavior>();
 			anim->ChangeAnimation(AnimState::Dead);
 		};
 
 		// ステートマシン
-		m_StateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
-		m_StateMachine->ChangeState(SeekFarState::Instance());
+		m_stateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
+		m_stateMachine->ChangeState(SeekFarState::Instance());
 
-		m_SteeringUpdateTimer = (double)((reinterpret_cast<std::uintptr_t>(this) & 3)) * 0.0125;
+		m_steeringUpdateTimer = (double)((reinterpret_cast<std::uintptr_t>(this) & 3)) * 0.0125;
 	}
 
 
@@ -174,7 +174,7 @@ namespace shooting {
 
 	void SeekObject::RotateToVelocity(float lerpFact)
 	{
-		if (lerpFact <= 0.0f || bsmUtil::lengthSqr(m_Velocity) <= 1e-6f)
+		if (lerpFact <= 0.0f || bsmUtil::lengthSqr(m_velocity) <= 1e-6f)
 		{
 			return;
 		}
@@ -185,7 +185,7 @@ namespace shooting {
 			return;
 		}
 
-		Vec3 direction = m_Velocity;
+		Vec3 direction = m_velocity;
 		direction.y = 0.0f;
 		if (bsmUtil::lengthSqr(direction) <= 1e-6f)
 		{
@@ -212,17 +212,17 @@ namespace shooting {
 
 	void SeekObject::UpdateBatched(double elapsedTime, const Vec3& targetPosition, const Vec3& separationForce)
 	{
-		if (m_DamageFlashTimer > 0.0)
+		if (m_damageFlashTimer > 0.0)
 		{
-			m_DamageFlashTimer -= elapsedTime;
-			if (m_DamageFlashTimer < 0.0)
+			m_damageFlashTimer -= elapsedTime;
+			if (m_damageFlashTimer < 0.0)
 			{
-				m_DamageFlashTimer = 0.0;
+				m_damageFlashTimer = 0.0;
 			}
 		}
 
 		auto anim = GetBehavior<AnimationStateBehavior>();
-		if (m_IsDead)
+		if (m_isDead)
 		{
 			if (anim->GetCurrentState() != AnimState::Dead)
 			{
@@ -234,7 +234,7 @@ namespace shooting {
 
 			if (anim->IsFinished())
 			{
-				m_DeathAnimFinished = true;
+				m_deathAnimFinished = true;
 				SetDrawActive(false);
 				SetUpdateActive(false);
 				RemoveTag(L"Enemy");
@@ -244,7 +244,7 @@ namespace shooting {
 			return;
 		}
 
-		if (!m_IsGround)
+		if (!m_isGround)
 		{
 			anim->ChangeAnimation(AnimState::Fall);
 		}
@@ -253,17 +253,17 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Sprint);
 		}
 
-		m_SteeringUpdateTimer -= elapsedTime;
-		if (m_SteeringUpdateTimer <= 0.0)
+		m_steeringUpdateTimer -= elapsedTime;
+		if (m_steeringUpdateTimer <= 0.0)
 		{
-			m_SteeringUpdateTimer += m_SteeringUpdateInterval;
-			if (m_SteeringUpdateTimer < 0.0)
+			m_steeringUpdateTimer += m_steeringUpdateInterval;
+			if (m_steeringUpdateTimer < 0.0)
 			{
-				m_SteeringUpdateTimer = 0.0;
+				m_steeringUpdateTimer = 0.0;
 			}
 
 			auto transform = GetComponent<Transform>(false);
-			Vec3 position = transform ? transform->GetPosition() : m_StartPos;
+			Vec3 position = transform ? transform->GetPosition() : m_startPos;
 			Vec3 toTarget = targetPosition - position;
 			toTarget.y = 0.0f;
 
@@ -271,14 +271,14 @@ namespace shooting {
 			if (bsmUtil::lengthSqr(toTarget) > 1e-6f)
 			{
 				toTarget.normalize();
-				seekForce = toTarget * 5.0f - m_Velocity;
+				seekForce = toTarget * 5.0f - m_velocity;
 			}
 
 			Vec3 separation = separationForce;
 			separation.y = 0.0f;
-			m_Force = Vec3(0.0f, 0.0f, 0.0f);
-			Steering::AccumulateForce(m_Force, seekForce, 20.0f);
-			Steering::AccumulateForce(m_Force, separation, 20.0f);
+			m_force = Vec3(0.0f, 0.0f, 0.0f);
+			Steering::AccumulateForce(m_force, seekForce, 20.0f);
+			Steering::AccumulateForce(m_force, separation, 20.0f);
 		}
 
 		ApplyForce(elapsedTime);
@@ -286,7 +286,7 @@ namespace shooting {
 		anim->OnUpdate(elapsedTime);
 		RotateToVelocity(0.35f);
 
-		m_IsGround = false;
+		m_isGround = false;
 	}
 
 	//操作
@@ -296,17 +296,17 @@ namespace shooting {
 		{
 			return;
 		}
-		if (m_DamageFlashTimer > 0.0)
+		if (m_damageFlashTimer > 0.0)
 		{
-			m_DamageFlashTimer -= elapsedTime;
-			if (m_DamageFlashTimer < 0.0)
+			m_damageFlashTimer -= elapsedTime;
+			if (m_damageFlashTimer < 0.0)
 			{
-				m_DamageFlashTimer = 0.0;
+				m_damageFlashTimer = 0.0;
 			}
 		}
 
 		auto anim = GetBehavior<AnimationStateBehavior>();
-		if (m_IsDead)
+		if (m_isDead)
 		{
 			if (anim->GetCurrentState() != AnimState::Dead)
 			{
@@ -314,7 +314,7 @@ namespace shooting {
 			}
 			else if (anim->IsFinished())
 			{
-				m_DeathAnimFinished = true;
+				m_deathAnimFinished = true;
 				SetDrawActive(false);
 				SetUpdateActive(false);
 				RemoveTag(L"Enemy");
@@ -324,7 +324,7 @@ namespace shooting {
 			return;
 		}
 
-		if (!m_IsGround)
+		if (!m_isGround)
 		{
 			anim->ChangeAnimation(AnimState::Fall);
 		}
@@ -333,15 +333,15 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Sprint);
 		}
 
-		m_SteeringUpdateTimer -= elapsedTime;
+		m_steeringUpdateTimer -= elapsedTime;
 
 		// 操舵計算は20Hzだけ
-		if (m_SteeringUpdateTimer <= 0.0)
+		if (m_steeringUpdateTimer <= 0.0)
 		{
-			m_SteeringUpdateTimer += m_SteeringUpdateInterval;
+			m_steeringUpdateTimer += m_steeringUpdateInterval;
 
-			m_Force = Vec3(0);
-			m_StateMachine->Update(); // この中で SetForce / ApplyForce される
+			m_force = Vec3(0);
+			m_stateMachine->Update(); // この中で SetForce / ApplyForce される
 		}
 		else
 		{
@@ -350,14 +350,14 @@ namespace shooting {
 		}
 
 		// 向き更新は velocity ベース
-		if (bsmUtil::lengthSqr(m_Velocity) > 1e-6f)
+		if (bsmUtil::lengthSqr(m_velocity) > 1e-6f)
 		{
 			auto ptrUtil = GetBehavior<UtilBehavior>();
-			ptrUtil->RotToHead(m_Velocity, 0.35f);
+			ptrUtil->RotToHead(m_velocity, 0.35f);
 		}
 
 		// 地面判定をリセット
-		m_IsGround = false;
+		m_isGround = false;
 	}
 
 	void SeekObject::OnCollisionEnter(const CollisionPair& pair)
@@ -377,7 +377,7 @@ namespace shooting {
 		// これより大きい = より水平に近い面 = 地面とみなす
 		if (pair.m_SrcHitNormal.y > 0.7f)
 		{
-			m_IsGround = true;
+			m_isGround = true;
 
 			// 重力速度をリセット（地面に着地）
 			auto grav = GetComponent<Gravity>();
@@ -406,11 +406,11 @@ namespace shooting {
 	void SeekObject::ApplyForce(double elapsedTime)
 	{
 		const float dt = static_cast<float>(elapsedTime);
-		m_Velocity += m_Force * dt;
-		m_Velocity.y = 0.0f;
+		m_velocity += m_force * dt;
+		m_velocity.y = 0.0f;
 		auto ptrTrans = GetComponent<Transform>();
 		auto pos = ptrTrans->GetPosition();
-		pos += m_Velocity * dt;
+		pos += m_velocity * dt;
 		ptrTrans->SetPosition(pos);
 	}
 

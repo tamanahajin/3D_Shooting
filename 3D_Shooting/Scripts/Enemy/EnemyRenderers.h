@@ -23,11 +23,11 @@ namespace shooting {
 	class EnemyInstancedRenderer : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_Controller;
-		std::shared_ptr<InstancedSkinnedDraw> m_Draw;
-		std::vector<SkinnedInstanceSource> m_InstanceSources;
-		Vec3 m_ModelOffset = Vec3(0.0f, -0.35f, 0.0f);
-		bool m_RenderingEnabled = true;
+		std::weak_ptr<EnemyBatchController> m_controller;
+		std::shared_ptr<InstancedSkinnedDraw> m_draw;
+		std::vector<SkinnedInstanceSource> m_instanceSources;
+		Vec3 m_modelOffset = Vec3(0.0f, -0.35f, 0.0f);
+		bool m_renderingEnabled = true;
 
 	public:
 		/*!
@@ -63,7 +63,7 @@ namespace shooting {
 		@brief 現在インスタンシング描画が有効かを取得する
 		@return 有効なら true
 		*/
-		bool IsRenderingEnabled() const { return m_RenderingEnabled; }
+		bool IsRenderingEnabled() const { return m_renderingEnabled; }
 	};
 
 	/*!
@@ -72,7 +72,7 @@ namespace shooting {
 	class EnemyIndividualDrawProxy : public GameObject
 	{
 	private:
-		std::shared_ptr<BcPNTBoneDraw> m_Draw;
+		std::shared_ptr<BcPNTBoneDraw> m_draw;
 
 	public:
 		/*!
@@ -107,11 +107,11 @@ namespace shooting {
 	class EnemyIndividualRenderer : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_Controller;
-		std::vector<std::shared_ptr<EnemyIndividualDrawProxy>> m_DrawProxies;
-		std::vector<SkinnedInstanceSource> m_InstanceSources;
-		Vec3 m_ModelOffset = Vec3(0.0f, -0.35f, 0.0f);
-		bool m_RenderingEnabled = false;
+		std::weak_ptr<EnemyBatchController> m_controller;
+		std::vector<std::shared_ptr<EnemyIndividualDrawProxy>> m_drawProxies;
+		std::vector<SkinnedInstanceSource> m_instanceSources;
+		Vec3 m_modelOffset = Vec3(0.0f, -0.35f, 0.0f);
+		bool m_renderingEnabled = false;
 
 		/*!
 		@brief 描画に必要なプロキシ数を揃える
@@ -157,7 +157,7 @@ namespace shooting {
 		@brief 現在通常描画経路が有効かを取得する
 		@return 有効なら true
 		*/
-		bool IsRenderingEnabled() const { return m_RenderingEnabled; }
+		bool IsRenderingEnabled() const { return m_renderingEnabled; }
 	};
 
 }

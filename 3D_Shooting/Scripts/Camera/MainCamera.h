@@ -8,79 +8,79 @@ namespace shooting {
 	class MainCamera : public PerspecCamera {
 	private:
 		// StageがCameraを所有するため、逆方向は弱参照にして循環所有を防ぐ。
-		std::weak_ptr<Stage> m_Stage;
+		std::weak_ptr<Stage> m_stage;
 		// 目標となるオブジェクト
-		std::weak_ptr<GameObject> m_TargetObject;
+		std::weak_ptr<GameObject> m_targetObject;
 		// 目標を追いかける際の補間値
-		float m_ToTargetLerp;
+		float m_toTargetLerp;
 		// 目標から視点を調整する位置ベクトル
-		Vec3 m_TargetToAt;
-		float m_RadY;
-		float m_RadXZ;
+		Vec3 m_targetToAt;
+		float m_radY;
+		float m_radXZ;
 		// カメラの上下スピード
-		float m_CameraUpDownSpeed;
+		float m_cameraUpDownSpeed;
 		// カメラを下げる下限角度
-		float m_CameraUnderRot;
+		float m_cameraUnderRot;
 		// 腕（EyeとAtの距離）の長さの設定
-		float m_ArmLen;
-		float m_MaxArm;
-		float m_MinArm;
+		float m_armLen;
+		float m_maxArm;
+		float m_minArm;
 		// ズームスピード
-		float m_ZoomSpeed;
+		float m_zoomSpeed;
 		// 回転スピード
-		float m_RotSpeed;
+		float m_rotSpeed;
 		// 左右スティック変更のモード
-		bool m_LRBaseMode;
+		bool m_lrBaseMode;
 		// 上下スティック変更のモード
-		bool m_UDBaseMode;
-		bool  m_MouseLook = true;
-		bool  m_CursorLocked = false;
-		int   m_ShowCursorCount = 0;
-		POINT m_SaveCursorPos{};
+		bool m_udBaseMode;
+		bool  m_mouseLook = true;
+		bool  m_cursorLocked = false;
+		int   m_showCursorCount = 0;
+		POINT m_saveCursorPos{};
 		// rad / pixel（好みで調整） 1px動かした時に何ラジアン回るか
-		float m_MouseSens = 0.0015f;
+		float m_mouseSens = 0.0015f;
 		// アーム長の増減量
-		float m_WheelSens = 0.6f;
-		// m_CameraUnderRot と同等
-		float m_PitchMin = -XM_PI * (80.0f / 180.0f); // -80deg
-		float m_PitchMax = XM_PI * (80.0f / 180.0f); // +80deg
-		POINT m_PrevMouse{};
-		bool  m_HasPrevMouse = false;
-		float m_CameraColRadius = 0.30f;     // 太さ（0.2～0.4くらいで調整）
-		float m_CameraColMargin = 0.05f;     // 壁から少し離す
-		float m_PushInRate = 0.40f;          // 壁に当たった時の追従（大きいほど速い）
-		float m_ReturnRate = 0.15f;          // 壁が無い時の戻り（小さいほどゆっくり）
-		float m_ArmLenCurrent = 5.0f;      // 実際に使う距離（壁で縮む）
-		float m_CameraColProbeStartOffset = 0.85f; // 注視点直近の接触でカメラが不要にズームしないよう、少し離れた位置から判定を始める
-		float m_CamRadius = 0.45f;         // カメラの太さ（SphereCast半径）
-		float m_CamSkin = 0.08f;           // めり込み防止の余白
-		float m_PushInRatio = 0.35f;       // 壁に当たった時（寄る）割合
-		float m_PullOutRatio = 0.15f;      // 壁から離れる時（戻る）割合
-		bool m_SpawnIntroViewActive = false;
-		Vec3 m_SpawnIntroEye = Vec3(0.0f, 0.0f, 0.0f);
-		Vec3 m_SpawnIntroAt = Vec3(0.0f, 0.0f, 0.0f);
-		float m_ShakeIntensity = 0.0f;
-		float m_ShakeDuration = 0.0f;
-		float m_ShakeTimeRemaining = 0.0f;
-		float m_ShakeElapsedTime = 0.0f;
-		Vec3 m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
+		float m_wheelSens = 0.6f;
+		// m_cameraUnderRot と同等
+		float m_pitchMin = -XM_PI * (80.0f / 180.0f); // -80deg
+		float m_pitchMax = XM_PI * (80.0f / 180.0f); // +80deg
+		POINT m_prevMouse{};
+		bool  m_hasPrevMouse = false;
+		float m_cameraColRadius = 0.30f;     // 太さ（0.2～0.4くらいで調整）
+		float m_cameraColMargin = 0.05f;     // 壁から少し離す
+		float m_pushInRate = 0.40f;          // 壁に当たった時の追従（大きいほど速い）
+		float m_returnRate = 0.15f;          // 壁が無い時の戻り（小さいほどゆっくり）
+		float m_armLenCurrent = 5.0f;      // 実際に使う距離（壁で縮む）
+		float m_cameraColProbeStartOffset = 0.85f; // 注視点直近の接触でカメラが不要にズームしないよう、少し離れた位置から判定を始める
+		float m_camRadius = 0.45f;         // カメラの太さ（SphereCast半径）
+		float m_camSkin = 0.08f;           // めり込み防止の余白
+		float m_pushInRatio = 0.35f;       // 壁に当たった時（寄る）割合
+		float m_pullOutRatio = 0.15f;      // 壁から離れる時（戻る）割合
+		bool m_spawnIntroViewActive = false;
+		Vec3 m_spawnIntroEye = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_spawnIntroAt = Vec3(0.0f, 0.0f, 0.0f);
+		float m_shakeIntensity = 0.0f;
+		float m_shakeDuration = 0.0f;
+		float m_shakeTimeRemaining = 0.0f;
+		float m_shakeElapsedTime = 0.0f;
+		Vec3 m_lastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 
-		std::weak_ptr<CollisionManager> m_CollisionManager;
+		std::weak_ptr<CollisionManager> m_collisionManager;
 		Vec3 UpdateCameraShake(float elapsedTime);
 	public:
 		MainCamera(const std::shared_ptr<Stage>& stage);
 		//MainCamera();
-		MainCamera(float ArmLen);
+		MainCamera(float armLen);
 		virtual ~MainCamera();
 
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief カメラの位置を設定する
-		@param[in]	Eye	カメラ位置
+		@param[in]	eye	カメラ位置
 		@return	なし
 		*/
 		//--------------------------------------------------------------------------------------
-		virtual void SetEye(const Vec3& Eye)override;
+		virtual void SetEye(const Vec3& eye)override;
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief カメラの位置を設定する
@@ -101,11 +101,11 @@ namespace shooting {
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	カメラの目標オブジェクトを設定する
-		@param[in]	Obj	カメラの目標オブジェクト
+		@param[in]	obj	カメラの目標オブジェクト
 		@return	なし
 		*/
 		//--------------------------------------------------------------------------------------
-		void SetTargetObject(const std::shared_ptr<GameObject>& Obj);
+		void SetTargetObject(const std::shared_ptr<GameObject>& obj);
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief	オブジェクトを追いかける場合の補間値を得る
@@ -312,11 +312,11 @@ namespace shooting {
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief カメラの視点を設定する
-		@param[in]	At	視点位置
+		@param[in]	at	視点位置
 		@return	なし
 		*/
 		//--------------------------------------------------------------------------------------
-		virtual void SetAt(const Vec3& At)override;
+		virtual void SetAt(const Vec3& at)override;
 		//--------------------------------------------------------------------------------------
 		/*!
 		@brief カメラの視点を設定する

@@ -34,12 +34,12 @@ namespace shooting {
 	class PlayerWeapon : public GameObject
 	{
 	private:
-		std::weak_ptr<Player> m_Player;
-		bool m_HasStableTransform = false;
-		bool m_StableTransformIsIdle = false;
-		Vec3 m_StablePosition = Vec3(0.0f, 0.0f, 0.0f);
-		Vec3 m_StableScale = Vec3(1.0f, 1.0f, 1.0f);
-		Quat m_StableRotation = Quat();
+		std::weak_ptr<Player> m_player;
+		bool m_hasStableTransform = false;
+		bool m_stableTransformIsIdle = false;
+		Vec3 m_stablePosition = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_stableScale = Vec3(1.0f, 1.0f, 1.0f);
+		Quat m_stableRotation = Quat();
 
 		bool TryUpdateFromPlayerHand();
 

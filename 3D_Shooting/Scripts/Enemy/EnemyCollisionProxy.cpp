@@ -15,7 +15,7 @@ namespace shooting {
 	@brief 敵1体分のコリジョンプロキシを生成する
 	@param stage 所属するステージ
 	@param controller 敵本体の状態を持つバッチコントローラ
-	@param enemyIndex m_Enemies 内の対応インデックス
+	@param enemyIndex m_enemies 内の対応インデックス
 	@param startPosition 初期位置
 	@param status 当たり判定サイズとモデルスケールを含む敵設定
 	*/
@@ -26,13 +26,13 @@ namespace shooting {
 		const Vec3& startPosition,
 		const EnemyStatus& status) :
 		GameObject(stage),
-		m_Controller(controller),
-		m_EnemyIndex(enemyIndex),
-		m_StartPosition(startPosition),
-		m_ModelScale(status.modelScale),
-		m_CollisionRadius(status.collisionRadius),
-		m_CollisionHeight(status.collisionHeight),
-		m_InUse(true)
+		m_controller(controller),
+		m_enemyIndex(enemyIndex),
+		m_startPosition(startPosition),
+		m_modelScale(status.modelScale),
+		m_collisionRadius(status.collisionRadius),
+		m_collisionHeight(status.collisionHeight),
+		m_inUse(true)
 	{
 		m_transParam.position = startPosition;
 	}
@@ -51,14 +51,14 @@ namespace shooting {
 		SetShadowActive(false);
 
 		auto transform = GetComponent<Transform>();
-		transform->SetPosition(m_StartPosition);
-		transform->SetScale(m_ModelScale);
+		transform->SetPosition(m_startPosition);
+		transform->SetScale(m_modelScale);
 		transform->SetRotation(0.0f, 0.0f, 0.0f);
 
 		auto collision = AddComponent<CollisionCapsule>();
 		collision->SetDebugDraw(false);
-		collision->SetMakedRadius(m_CollisionRadius);
-		collision->SetMakedHeight(m_CollisionHeight);
+		collision->SetMakedRadius(m_collisionRadius);
+		collision->SetMakedHeight(m_collisionHeight);
 		collision->AddExcludeCollisionTag(L"Enemy");
 		collision->AddExcludeCollisionTag(L"Floor");
 
@@ -71,7 +71,7 @@ namespace shooting {
 	/*!
 	@brief プールから取り出したプロキシを新しい敵に割り当てる
 	@param controller 敵本体の状態を持つバッチコントローラ
-	@param enemyIndex m_Enemies 内の対応インデックス
+	@param enemyIndex m_enemies 内の対応インデックス
 	@param startPosition 初期位置
 	@param status 当たり判定サイズとモデルスケールを含む敵設定
 
@@ -84,13 +84,13 @@ namespace shooting {
 		const Vec3& startPosition,
 		const EnemyStatus& status)
 	{
-		m_Controller = controller;
-		m_EnemyIndex = enemyIndex;
-		m_StartPosition = startPosition;
-		m_ModelScale = status.modelScale;
-		m_CollisionRadius = status.collisionRadius;
-		m_CollisionHeight = status.collisionHeight;
-		m_InUse = true;
+		m_controller = controller;
+		m_enemyIndex = enemyIndex;
+		m_startPosition = startPosition;
+		m_modelScale = status.modelScale;
+		m_collisionRadius = status.collisionRadius;
+		m_collisionHeight = status.collisionHeight;
+		m_inUse = true;
 
 		SetUpdateActive(true);
 		SetDrawActive(false);
@@ -99,8 +99,8 @@ namespace shooting {
 		auto transform = GetComponent<Transform>(false);
 		if (transform)
 		{
-			transform->SetPosition(m_StartPosition);
-			transform->SetScale(m_ModelScale);
+			transform->SetPosition(m_startPosition);
+			transform->SetScale(m_modelScale);
 			transform->SetRotation(0.0f, 0.0f, 0.0f);
 			transform->SetToBefore();
 		}
@@ -110,8 +110,8 @@ namespace shooting {
 		{
 			collision->SetUpdateActive(true);
 			collision->SetDebugDraw(false);
-			collision->SetMakedRadius(m_CollisionRadius);
-			collision->SetMakedHeight(m_CollisionHeight);
+			collision->SetMakedRadius(m_collisionRadius);
+			collision->SetMakedHeight(m_collisionHeight);
 			collision->WakeUp();
 		}
 
@@ -129,9 +129,9 @@ namespace shooting {
 	*/
 	void EnemyCollisionProxy::DeactivateForPool()
 	{
-		m_InUse = false;
-		m_Controller.reset();
-		m_EnemyIndex = 0;
+		m_inUse = false;
+		m_controller.reset();
+		m_enemyIndex = 0;
 
 		RemoveTag(L"Enemy");
 		SetUpdateActive(false);
@@ -153,7 +153,7 @@ namespace shooting {
 	*/
 	void EnemyCollisionProxy::HandleCollision(const CollisionPair& pair)
 	{
-		if (!m_InUse)
+		if (!m_inUse)
 		{
 			return;
 		}
@@ -172,10 +172,10 @@ namespace shooting {
 
 		if (otherObject->FindTag(L"Floor"))
 		{
-			auto controller = m_Controller.lock();
+			auto controller = m_controller.lock();
 			if (controller)
 			{
-				controller->NotifyGroundCollision(m_EnemyIndex, pair);
+				controller->NotifyGroundCollision(m_enemyIndex, pair);
 			}
 			return;
 		}
@@ -242,13 +242,13 @@ namespace shooting {
 	*/
 	bool EnemyCollisionProxy::ApplyDamage(const DamageInfo& info)
 	{
-		if (!m_InUse)
+		if (!m_inUse)
 		{
 			return false;
 		}
 
-		auto controller = m_Controller.lock();
-		return controller ? controller->ApplyDamage(m_EnemyIndex, info) : false;
+		auto controller = m_controller.lock();
+		return controller ? controller->ApplyDamage(m_enemyIndex, info) : false;
 	}
 
 	/*!
@@ -257,15 +257,15 @@ namespace shooting {
 	*/
 	void EnemyCollisionProxy::AddKnockback(const Vec3& velocity)
 	{
-		if (!m_InUse)
+		if (!m_inUse)
 		{
 			return;
 		}
 
-		auto controller = m_Controller.lock();
+		auto controller = m_controller.lock();
 		if (controller)
 		{
-			controller->AddKnockback(m_EnemyIndex, velocity);
+			controller->AddKnockback(m_enemyIndex, velocity);
 		}
 	}
 
@@ -275,13 +275,13 @@ namespace shooting {
 	*/
 	bool EnemyCollisionProxy::IsAlive() const
 	{
-		if (!m_InUse)
+		if (!m_inUse)
 		{
 			return false;
 		}
 
-		auto controller = m_Controller.lock();
-		return controller ? controller->IsEnemyAlive(m_EnemyIndex) : false;
+		auto controller = m_controller.lock();
+		return controller ? controller->IsEnemyAlive(m_enemyIndex) : false;
 	}
 }
 

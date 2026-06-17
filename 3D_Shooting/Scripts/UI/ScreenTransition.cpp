@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ScreenTransition.h"
 
 namespace shooting {
@@ -19,49 +19,49 @@ namespace shooting {
 		CoveredCallback onCovered,
 		const D2D1_COLOR_F& color)
 	{
-		m_Phase = Phase::FadeOut;
-		m_Timer = 0.0f;
-		m_FadeOutSeconds = bsmUtil::Max(0.001f, fadeOutSeconds);
-		m_FadeInSeconds = bsmUtil::Max(0.001f, fadeInSeconds);
-		m_Alpha = 0.0f;
-		m_Color = color;
-		m_OnCovered = std::move(onCovered);
+		m_phase = Phase::FadeOut;
+		m_timer = 0.0f;
+		m_fadeOutSeconds = bsmUtil::Max(0.001f, fadeOutSeconds);
+		m_fadeInSeconds = bsmUtil::Max(0.001f, fadeInSeconds);
+		m_alpha = 0.0f;
+		m_color = color;
+		m_onCovered = std::move(onCovered);
 	}
 
 	void ScreenTransition::Update(double elapsedTime)
 	{
-		if (m_Phase == Phase::None)
+		if (m_phase == Phase::None)
 		{
 			return;
 		}
 
-		m_Timer += static_cast<float>(elapsedTime);
+		m_timer += static_cast<float>(elapsedTime);
 
-		if (m_Phase == Phase::FadeOut)
+		if (m_phase == Phase::FadeOut)
 		{
-			m_Alpha = Clamp01(m_Timer / m_FadeOutSeconds);
-			if (m_Timer < m_FadeOutSeconds)
+			m_alpha = Clamp01(m_timer / m_fadeOutSeconds);
+			if (m_timer < m_fadeOutSeconds)
 			{
 				return;
 			}
 
-			m_Alpha = 1.0f;
-			if (m_OnCovered)
+			m_alpha = 1.0f;
+			if (m_onCovered)
 			{
-				auto callback = std::move(m_OnCovered);
-				m_OnCovered = nullptr;
+				auto callback = std::move(m_onCovered);
+				m_onCovered = nullptr;
 				callback();
 			}
 
-			m_Phase = Phase::FadeIn;
-			m_Timer = 0.0f;
+			m_phase = Phase::FadeIn;
+			m_timer = 0.0f;
 			return;
 		}
 
-		if (m_Phase == Phase::FadeIn)
+		if (m_phase == Phase::FadeIn)
 		{
-			m_Alpha = 1.0f - Clamp01(m_Timer / m_FadeInSeconds);
-			if (m_Timer >= m_FadeInSeconds)
+			m_alpha = 1.0f - Clamp01(m_timer / m_fadeInSeconds);
+			if (m_timer >= m_fadeInSeconds)
 			{
 				Finish();
 			}
@@ -70,17 +70,17 @@ namespace shooting {
 
 	D2D1_COLOR_F ScreenTransition::GetOverlayColor() const
 	{
-		D2D1_COLOR_F color = m_Color;
-		color.a *= m_Alpha;
+		D2D1_COLOR_F color = m_color;
+		color.a *= m_alpha;
 		return color;
 	}
 
 	void ScreenTransition::Finish()
 	{
-		m_Phase = Phase::None;
-		m_Timer = 0.0f;
-		m_Alpha = 0.0f;
-		m_OnCovered = nullptr;
+		m_phase = Phase::None;
+		m_timer = 0.0f;
+		m_alpha = 0.0f;
+		m_onCovered = nullptr;
 	}
 
 }

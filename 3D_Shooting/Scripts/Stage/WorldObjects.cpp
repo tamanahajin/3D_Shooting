@@ -459,8 +459,8 @@ namespace shooting {
 		const std::wstring& meshKey,
 		const std::wstring& materialPrefix) :
 		GameObject(stage),
-		m_MeshKey(meshKey),
-		m_MaterialPrefix(materialPrefix)
+		m_meshKey(meshKey),
+		m_materialPrefix(materialPrefix)
 	{
 		m_transParam = param;
 	}
@@ -472,13 +472,13 @@ namespace shooting {
 
 		auto ptrDraw = AddComponent<BcPNTStaticDraw>();
 
-		const auto& meshes = BaseScene::Get()->GetModelMesh(m_MeshKey);
+		const auto& meshes = BaseScene::Get()->GetModelMesh(m_meshKey);
 		ptrDraw->AddBaseModelMesh(meshes);
 
 		for (size_t i = 0; i < meshes.size(); ++i)
 		{
 			ptrDraw->AddBaseMaterial(
-				m_MaterialPrefix + std::to_wstring(i)
+				m_materialPrefix + std::to_wstring(i)
 			);
 		}
 
@@ -491,9 +491,9 @@ namespace shooting {
 		const std::wstring& materialPrefix,
 		const std::vector<Mat4x4>& instanceWorlds) :
 		GameObject(stage),
-		m_MeshKey(meshKey),
-		m_MaterialPrefix(materialPrefix),
-		m_InstanceWorlds(instanceWorlds)
+		m_meshKey(meshKey),
+		m_materialPrefix(materialPrefix),
+		m_instanceWorlds(instanceWorlds)
 	{
 	}
 
@@ -503,9 +503,9 @@ namespace shooting {
 	{
 		auto ptrDraw = AddComponent<InstancedStaticDraw>();
 
-		ptrDraw->SetMeshKey(m_MeshKey);
-		ptrDraw->SetMaterialPrefix(m_MaterialPrefix);
-		ptrDraw->SetInstanceWorlds(m_InstanceWorlds);
+		ptrDraw->SetMeshKey(m_meshKey);
+		ptrDraw->SetMaterialPrefix(m_materialPrefix);
+		ptrDraw->SetInstanceWorlds(m_instanceWorlds);
 		ptrDraw->SetBaseColorOverride(Col4(0.627f, 0.659f, 0.788f, 1.0f));
 		ptrDraw->SetUseMaterialTexture(false);
 		ptrDraw->SetLightingEnabled(true);
@@ -524,28 +524,28 @@ namespace shooting {
 		const std::wstring& materialPrefix,
 		const std::vector<Mat4x4>& instanceWorlds) :
 		GameObject(stage),
-		m_MeshKey(meshKey),
-		m_MaterialPrefix(materialPrefix),
-		m_InstanceWorlds(instanceWorlds)
+		m_meshKey(meshKey),
+		m_materialPrefix(materialPrefix),
+		m_instanceWorlds(instanceWorlds)
 	{
 	}
 
 	StageObjectInstancedRenderer::~StageObjectInstancedRenderer() {}
     void StageObjectInstancedRenderer::RefreshShadowInstances(bool force)
     {
-        const auto* def = FindStageObjectDefByKey(m_MeshKey);
+        const auto* def = FindStageObjectDefByKey(m_meshKey);
         if (!ShouldCastStageObjectShadow(def))
         {
             // 影を落とさない種類は shadow 用 buffer を空にして、shadow pass 自体も無効化する。
-            if (force || !m_ShadowInstanceWorlds.empty())
+            if (force || !m_shadowInstanceWorlds.empty())
             {
-                m_ShadowInstanceWorlds.clear();
+                m_shadowInstanceWorlds.clear();
                 SetShadowActive(false);
-                if (m_Draw)
+                if (m_draw)
                 {
-                    m_Draw->SetCastShadowActive(false);
-                    m_Draw->SetShadowInstanceWorlds(m_ShadowInstanceWorlds);
-                    m_Draw->BuildShadowInstanceBuffer();
+                    m_draw->SetCastShadowActive(false);
+                    m_draw->SetShadowInstanceWorlds(m_shadowInstanceWorlds);
+                    m_draw->BuildShadowInstanceBuffer();
                 }
             }
             return;
@@ -554,24 +554,24 @@ namespace shooting {
         auto camera = GetCamera();
         const Vec3 currentAt = camera ? camera->GetAt() : Vec3(0.0f, 0.0f, 0.0f);
         // 注視点がほぼ動いていない間は、前回作った shadow 用インスタンス配列を使い回す。
-        if (!force && m_ShadowCullInitialized &&
-            !HasStageObjectShadowCullCenterMoved(currentAt, m_LastShadowCullAt))
+        if (!force && m_shadowCullInitialized &&
+            !HasStageObjectShadowCullCenterMoved(currentAt, m_lastShadowCullAt))
         {
             return;
         }
 
-        m_LastShadowCullAt = currentAt;
-        m_ShadowCullInitialized = true;
+        m_lastShadowCullAt = currentAt;
+        m_shadowCullInitialized = true;
         // ここで shadow pass 専用にカリング済み配列を作り、GPU へ渡す instance buffer を軽くする。
-        m_ShadowInstanceWorlds = BuildStageObjectShadowInstanceWorlds(def, m_InstanceWorlds, camera, GetLightSet());
+        m_shadowInstanceWorlds = BuildStageObjectShadowInstanceWorlds(def, m_instanceWorlds, camera, GetLightSet());
 
-        const bool castShadow = !m_ShadowInstanceWorlds.empty();
+        const bool castShadow = !m_shadowInstanceWorlds.empty();
         SetShadowActive(castShadow);
-        if (m_Draw)
+        if (m_draw)
         {
-            m_Draw->SetCastShadowActive(castShadow);
-            m_Draw->SetShadowInstanceWorlds(m_ShadowInstanceWorlds);
-            m_Draw->BuildShadowInstanceBuffer();
+            m_draw->SetCastShadowActive(castShadow);
+            m_draw->SetShadowInstanceWorlds(m_shadowInstanceWorlds);
+            m_draw->BuildShadowInstanceBuffer();
         }
     }
 
@@ -583,15 +583,15 @@ namespace shooting {
 
     void StageObjectInstancedRenderer::OnCreate()
     {
-        m_Draw = AddComponent<InstancedStaticDraw>();
-        auto ptrDraw = m_Draw;
-        ptrDraw->SetMeshKey(m_MeshKey);
-        ptrDraw->SetMaterialPrefix(m_MaterialPrefix);
-        ptrDraw->SetInstanceWorlds(m_InstanceWorlds);
+        m_draw = AddComponent<InstancedStaticDraw>();
+        auto ptrDraw = m_draw;
+        ptrDraw->SetMeshKey(m_meshKey);
+        ptrDraw->SetMaterialPrefix(m_materialPrefix);
+        ptrDraw->SetInstanceWorlds(m_instanceWorlds);
         ptrDraw->SetUseMaterialTexture(true);
         ptrDraw->SetLightingEnabled(true);
 
-        const auto* def = FindStageObjectDefByKey(m_MeshKey);
+        const auto* def = FindStageObjectDefByKey(m_meshKey);
         const bool receiveShadow = ShouldReceiveStageObjectShadow(def);
         if (ShouldUseStageObjectShadowProxy(def))
         {
@@ -610,9 +610,9 @@ namespace shooting {
         if (ShouldCreateStageObjectCollision(def))
         {
             StageObjectLocalBounds bounds;
-            if (TryGetStageObjectLocalBounds(m_MeshKey, bounds))
+            if (TryGetStageObjectLocalBounds(m_meshKey, bounds))
             {
-                for (const auto& instanceWorld : m_InstanceWorlds)
+                for (const auto& instanceWorld : m_instanceWorlds)
                 {
                     AddStageObjectCollisionInstance(GetStage(), def, bounds, instanceWorld);
                 }
@@ -626,7 +626,7 @@ namespace shooting {
 		const TransParam& param,
 		const Vec3& collisionSize) :
 		GameObject(stage),
-		m_CollisionSize(collisionSize)
+		m_collisionSize(collisionSize)
 	{
 		m_transParam = param;
 	}
@@ -638,9 +638,9 @@ namespace shooting {
 		auto ptrColl = AddComponent<CollisionObb>();
 		ptrColl->SetDebugDraw(false);
 		ptrColl->SetMakedSize(
-			m_CollisionSize.x,
-			m_CollisionSize.y,
-			m_CollisionSize.z);
+			m_collisionSize.x,
+			m_collisionSize.y,
+			m_collisionSize.z);
 		ptrColl->SetFixed(true);
 
 		SetAlphaActive(false);
@@ -655,8 +655,8 @@ namespace shooting {
 		float radius,
 		float height) :
 		GameObject(stage),
-		m_Radius(radius),
-		m_Height(height)
+		m_radius(radius),
+		m_height(height)
 	{
 		m_transParam = param;
 	}
@@ -667,8 +667,8 @@ namespace shooting {
 	{
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
-		ptrColl->SetMakedRadius(m_Radius);
-		ptrColl->SetMakedHeight(m_Height);
+		ptrColl->SetMakedRadius(m_radius);
+		ptrColl->SetMakedHeight(m_height);
 		ptrColl->SetFixed(true);
 
 		SetAlphaActive(false);
@@ -708,7 +708,7 @@ namespace shooting {
 		const TransParam& param,
 		const Vec3& collisionSize) :
 		GameObject(stage),
-		m_CollisionSize(collisionSize)
+		m_collisionSize(collisionSize)
 	{
 		m_transParam = param;
 	}
@@ -720,9 +720,9 @@ namespace shooting {
 		auto ptrColl = AddComponent<CollisionObb>();
 		ptrColl->SetDebugDraw(false);
 		ptrColl->SetMakedSize(
-			m_CollisionSize.x,
-			m_CollisionSize.y,
-			m_CollisionSize.z);
+			m_collisionSize.x,
+			m_collisionSize.y,
+			m_collisionSize.z);
 		ptrColl->SetFixed(true);
 
 		AddTag(L"Floor");

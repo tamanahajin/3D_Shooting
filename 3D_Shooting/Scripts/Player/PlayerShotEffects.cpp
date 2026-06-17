@@ -133,12 +133,12 @@ namespace shooting {
 		class MuzzleFlashEffect : public GameObject
 		{
 		private:
-			std::weak_ptr<Player> m_Player;
-			Vec3 m_FallbackPosition;
-			Vec3 m_FallbackForward;
-			std::wstring m_MeshKey;
-			float m_Elapsed = 0.0f;
-			float m_CurrentScale = kMuzzleFlashStartScale;
+			std::weak_ptr<Player> m_player;
+			Vec3 m_fallbackPosition;
+			Vec3 m_fallbackForward;
+			std::wstring m_meshKey;
+			float m_elapsed = 0.0f;
+			float m_currentScale = kMuzzleFlashStartScale;
 
 			void UpdateFollowTransform(float scale)
 			{
@@ -148,13 +148,13 @@ namespace shooting {
 					return;
 				}
 
-				if (auto player = m_Player.lock())
+				if (auto player = m_player.lock())
 				{
 					PlayerWeaponMuzzleTransform muzzleTransform;
 					if (ResolveMuzzleTransform(
 						player,
-						m_FallbackPosition,
-						m_FallbackForward,
+						m_fallbackPosition,
+						m_fallbackForward,
 						muzzleTransform))
 					{
 						const TransParam followParam =
@@ -176,10 +176,10 @@ namespace shooting {
 				const Vec3& fallbackForward,
 				const std::wstring& meshKey) :
 				GameObject(stage),
-				m_Player(player),
-				m_FallbackPosition(fallbackPosition),
-				m_FallbackForward(fallbackForward),
-				m_MeshKey(meshKey)
+				m_player(player),
+				m_fallbackPosition(fallbackPosition),
+				m_fallbackForward(fallbackForward),
+				m_meshKey(meshKey)
 			{
 				m_transParam = param;
 			}
@@ -192,7 +192,7 @@ namespace shooting {
 				SetShadowActive(false);
 
 				auto draw = AddComponent<SpPNTStaticDraw>();
-				draw->AddBaseMesh(m_MeshKey);
+				draw->AddBaseMesh(m_meshKey);
 				draw->AddBaseTexture(kShotEffectTextureKey);
 				draw->SetOwnShadowActive(false);
 				draw->SetEmissive(Col4(2.0f, 1.25f, 0.35f, 1.0f));
@@ -202,11 +202,11 @@ namespace shooting {
 
 			void OnUpdate(double elapsedTime) override
 			{
-				m_Elapsed += static_cast<float>(elapsedTime);
-				const float t = bsmUtil::Clamp(m_Elapsed / kMuzzleFlashLifeTime, 0.0f, 1.0f);
+				m_elapsed += static_cast<float>(elapsedTime);
+				const float t = bsmUtil::Clamp(m_elapsed / kMuzzleFlashLifeTime, 0.0f, 1.0f);
 				const float scale = bsmUtil::Lerp(kMuzzleFlashStartScale, kMuzzleFlashEndScale, t);
 				const float fade = 1.0f - t;
-				m_CurrentScale = scale;
+				m_currentScale = scale;
 				UpdateFollowTransform(scale);
 
 				if (auto draw = GetComponent<SpPNTStaticDraw>(false))
@@ -215,7 +215,7 @@ namespace shooting {
 					draw->SetDiffuse(Col4(1.0f, 0.82f, 0.28f, 0.95f * fade));
 				}
 
-				if (m_Elapsed >= kMuzzleFlashLifeTime)
+				if (m_elapsed >= kMuzzleFlashLifeTime)
 				{
 					if (auto stage = GetStage(false))
 					{
@@ -228,18 +228,18 @@ namespace shooting {
 			{
 				UNREFERENCED_PARAMETER(elapsedTime);
 				// 描画直前にも追従し、プレイヤー更新後の最新ソケット位置へ合わせる。
-				UpdateFollowTransform(m_CurrentScale);
+				UpdateFollowTransform(m_currentScale);
 			}
 		};
 
 		class BulletTracerEffect : public GameObject
 		{
 		private:
-			Vec3 m_Start;
-			Vec3 m_Direction;
-			float m_Distance = 0.0f;
-			float m_Elapsed = 0.0f;
-			float m_LifeTime = kBulletTracerLifeTimeMin;
+			Vec3 m_start;
+			Vec3 m_direction;
+			float m_distance = 0.0f;
+			float m_elapsed = 0.0f;
+			float m_lifeTime = kBulletTracerLifeTimeMin;
 
 			void UpdateTracerTransform(float t)
 			{
@@ -251,17 +251,17 @@ namespace shooting {
 
 				// 全距離を一本の線にせず、短い線分を前方へ高速移動させて弾速感を出す。
 				const float segmentLength =
-					bsmUtil::Min(kBulletTracerLength, bsmUtil::Max(0.05f, m_Distance));
+					bsmUtil::Min(kBulletTracerLength, bsmUtil::Max(0.05f, m_distance));
 				const float startCenter =
-					bsmUtil::Min(m_Distance * 0.5f, kBulletTracerStartOffset + segmentLength * 0.5f);
+					bsmUtil::Min(m_distance * 0.5f, kBulletTracerStartOffset + segmentLength * 0.5f);
 				const float endCenter =
-					bsmUtil::Max(startCenter, m_Distance - segmentLength * 0.5f);
+					bsmUtil::Max(startCenter, m_distance - segmentLength * 0.5f);
 				const float centerDistance = bsmUtil::Lerp(startCenter, endCenter, t);
 				const float width = kBulletTracerWidth * bsmUtil::Lerp(1.0f, 0.65f, t);
 
-				transform->SetPosition(m_Start + m_Direction * centerDistance);
+				transform->SetPosition(m_start + m_direction * centerDistance);
 				transform->SetQuaternion(
-					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Direction));
+					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_direction));
 				transform->SetScale(Vec3(width, width, segmentLength));
 			}
 
@@ -272,7 +272,7 @@ namespace shooting {
 				const Vec3& end,
 				const Vec3& fallbackForward) :
 				GameObject(stage),
-				m_Start(start)
+				m_start(start)
 			{
 				Vec3 delta = end - start;
 				if (delta.length() <= 1e-5f || delta.isNaN() || delta.isInfinite())
@@ -282,11 +282,11 @@ namespace shooting {
 						Vec3(0.0f, 0.0f, 1.0f));
 				}
 
-				m_Distance = bsmUtil::Max(0.05f, delta.length());
-				m_Direction = delta;
-				m_Direction.normalize();
-				m_LifeTime = bsmUtil::Clamp(
-					m_Distance / kBulletTracerSpeed,
+				m_distance = bsmUtil::Max(0.05f, delta.length());
+				m_direction = delta;
+				m_direction.normalize();
+				m_lifeTime = bsmUtil::Clamp(
+					m_distance / kBulletTracerSpeed,
 					kBulletTracerLifeTimeMin,
 					kBulletTracerLifeTimeMax);
 			}
@@ -310,8 +310,8 @@ namespace shooting {
 
 			void OnUpdate(double elapsedTime) override
 			{
-				m_Elapsed += static_cast<float>(elapsedTime);
-				const float t = bsmUtil::Clamp(m_Elapsed / m_LifeTime, 0.0f, 1.0f);
+				m_elapsed += static_cast<float>(elapsedTime);
+				const float t = bsmUtil::Clamp(m_elapsed / m_lifeTime, 0.0f, 1.0f);
 				const float fade = 1.0f - t;
 				UpdateTracerTransform(t);
 
@@ -321,7 +321,7 @@ namespace shooting {
 					draw->SetDiffuse(Col4(1.0f, 0.9f, 0.35f, 0.82f * fade));
 				}
 
-				if (m_Elapsed >= m_LifeTime)
+				if (m_elapsed >= m_lifeTime)
 				{
 					if (auto stage = GetStage(false))
 					{
@@ -334,9 +334,9 @@ namespace shooting {
 		class BulletImpactSparkEffect : public GameObject
 		{
 		private:
-			Vec3 m_Point;
-			Vec3 m_Normal;
-			float m_Elapsed = 0.0f;
+			Vec3 m_point;
+			Vec3 m_normal;
+			float m_elapsed = 0.0f;
 
 			void UpdateSparkTransform(float t)
 			{
@@ -346,10 +346,10 @@ namespace shooting {
 					return;
 				}
 
-				transform->SetPosition(m_Point + m_Normal * kBulletImpactSparkSurfaceOffset);
+				transform->SetPosition(m_point + m_normal * kBulletImpactSparkSurfaceOffset);
 				// メッシュのローカル+Zを着弾面法線へ向ける。
 				transform->SetQuaternion(
-					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Normal));
+					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_normal));
 				const float scale = bsmUtil::Lerp(
 					kBulletImpactSparkStartScale,
 					kBulletImpactSparkEndScale,
@@ -363,16 +363,16 @@ namespace shooting {
 				const Vec3& point,
 				const Vec3& normal) :
 				GameObject(stage),
-				m_Point(point),
-				m_Normal(NormalizeOrFallback(normal, Vec3(0.0f, 1.0f, 0.0f)))
+				m_point(point),
+				m_normal(NormalizeOrFallback(normal, Vec3(0.0f, 1.0f, 0.0f)))
 			{
-				m_transParam.position = m_Point + m_Normal * kBulletImpactSparkSurfaceOffset;
+				m_transParam.position = m_point + m_normal * kBulletImpactSparkSurfaceOffset;
 				m_transParam.scale = Vec3(
 					kBulletImpactSparkStartScale,
 					kBulletImpactSparkStartScale,
 					kBulletImpactSparkStartScale);
 				m_transParam.quaternion =
-					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_Normal);
+					bsmUtil::MakeFromToQuat(Vec3(0.0f, 0.0f, 1.0f), m_normal);
 			}
 
 			void OnCreate() override
@@ -394,9 +394,9 @@ namespace shooting {
 
 			void OnUpdate(double elapsedTime) override
 			{
-				m_Elapsed += static_cast<float>(elapsedTime);
+				m_elapsed += static_cast<float>(elapsedTime);
 				const float t =
-					bsmUtil::Clamp(m_Elapsed / kBulletImpactSparkLifeTime, 0.0f, 1.0f);
+					bsmUtil::Clamp(m_elapsed / kBulletImpactSparkLifeTime, 0.0f, 1.0f);
 				const float fade = 1.0f - t;
 				UpdateSparkTransform(t);
 
@@ -406,7 +406,7 @@ namespace shooting {
 					draw->SetDiffuse(Col4(1.0f, 0.78f, 0.22f, 0.82f * fade));
 				}
 
-				if (m_Elapsed >= kBulletImpactSparkLifeTime)
+				if (m_elapsed >= kBulletImpactSparkLifeTime)
 				{
 					if (auto stage = GetStage(false))
 					{

@@ -31,7 +31,7 @@ namespace shooting {
 	void EnemyBatchController::OnCreate()
 	{
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
-		m_GameStage = gameStage;
+		m_gameStage = gameStage;
 		SetDrawActive(false);
 		SetShadowActive(false);
 		if (gameStage)
@@ -58,19 +58,19 @@ namespace shooting {
 	@return 割り当てられた敵スロットのインデックス
 
 	死亡済みスロットがあれば EnemyState 全体を初期値から上書きして再利用する。
-	空きがない場合だけ m_Enemies を拡張し、当たり判定は EnemyCollisionProxy へ割り当てる。
+	空きがない場合だけ m_enemies を拡張し、当たり判定は EnemyCollisionProxy へ割り当てる。
 	*/
 	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
 	{
-		size_t index = m_Enemies.size();
-		if (!m_FreeEnemyIndices.empty())
+		size_t index = m_enemies.size();
+		if (!m_freeEnemyIndices.empty())
 		{
-			index = m_FreeEnemyIndices.back();
-			m_FreeEnemyIndices.pop_back();
+			index = m_freeEnemyIndices.back();
+			m_freeEnemyIndices.pop_back();
 		}
 		else
 		{
-			m_Enemies.emplace_back();
+			m_enemies.emplace_back();
 		}
 
 		// 再利用スロットには前の敵の速度、死亡状態、演出タイマーなどが残っている。
@@ -88,12 +88,12 @@ namespace shooting {
 		enemy.maxHp = status.maxHp > 0 ? status.maxHp : 1;
 		enemy.hp = enemy.maxHp;
 
-		m_Enemies[index] = enemy;
+		m_enemies[index] = enemy;
 
 		// 当たり判定だけは軽量なGameObjectとして残し、描画やAI状態はm_Enemies側でまとめて扱う。
 		// 生成スパイクを抑えるため、死亡済みプロキシがあれば再利用する。
 		auto proxy = AcquireCollisionProxy(index, startPosition, enemy.status);
-		m_Enemies[index].proxy = proxy;
+		m_enemies[index].proxy = proxy;
 		SyncProxyTransform(index);
 		return index;
 	}
@@ -107,13 +107,13 @@ namespace shooting {
 	*/
 	void EnemyBatchController::PrewarmCollisionProxyPool(int count)
 	{
-		auto gameStage = m_GameStage.lock();
+		auto gameStage = m_gameStage.lock();
 		if (count <= 0 || !gameStage)
 		{
 			return;
 		}
 
-		const int missingCount = count - static_cast<int>(m_CollisionProxyPool.size());
+		const int missingCount = count - static_cast<int>(m_collisionProxyPool.size());
 		if (missingCount <= 0)
 		{
 			return;
@@ -138,7 +138,7 @@ namespace shooting {
 	*/
 	void EnemyBatchController::SetMoveSpeedMultiplier(float multiplier)
 	{
-		m_MoveSpeedMultiplier = bsmUtil::Max(0.1f, multiplier);
+		m_moveSpeedMultiplier = bsmUtil::Max(0.1f, multiplier);
 	}
 
 	/*!
@@ -150,12 +150,12 @@ namespace shooting {
 	*/
 	void EnemyBatchController::SyncProxyTransform(size_t index)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return;
 		}
 
-		auto proxy = m_Enemies[index].proxy.lock();
+		auto proxy = m_enemies[index].proxy.lock();
 		if (!proxy)
 		{
 			return;
@@ -167,9 +167,9 @@ namespace shooting {
 			return;
 		}
 
-		transform->SetPosition(m_Enemies[index].position);
-		transform->SetQuaternion(m_Enemies[index].rotation);
-		transform->SetScale(m_Enemies[index].status.modelScale);
+		transform->SetPosition(m_enemies[index].position);
+		transform->SetQuaternion(m_enemies[index].rotation);
+		transform->SetScale(m_enemies[index].status.modelScale);
 	}
 
 	/*!
@@ -187,10 +187,10 @@ namespace shooting {
 		const Vec3& startPosition,
 		const EnemyStatus& status)
 	{
-		while (!m_CollisionProxyPool.empty())
+		while (!m_collisionProxyPool.empty())
 		{
-			auto proxy = m_CollisionProxyPool.back();
-			m_CollisionProxyPool.pop_back();
+			auto proxy = m_collisionProxyPool.back();
+			m_collisionProxyPool.pop_back();
 			if (!proxy)
 			{
 				continue;
@@ -200,7 +200,7 @@ namespace shooting {
 			return proxy;
 		}
 
-		auto gameStage = m_GameStage.lock();
+		auto gameStage = m_gameStage.lock();
 		if (!gameStage)
 		{
 			return nullptr;
@@ -225,7 +225,7 @@ namespace shooting {
 		}
 
 		proxy->DeactivateForPool();
-		m_CollisionProxyPool.push_back(proxy);
+		m_collisionProxyPool.push_back(proxy);
 	}
 
 	/*!
@@ -237,12 +237,12 @@ namespace shooting {
 	*/
 	void EnemyBatchController::RemoveEnemyProxy(size_t index)
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return;
 		}
 
-		auto& enemy = m_Enemies[index];
+		auto& enemy = m_enemies[index];
 		if (!enemy.active)
 		{
 			return;
@@ -257,7 +257,7 @@ namespace shooting {
 		enemy.active = false;
 		enemy.deathAnimFinished = true;
 		enemy.proxy.reset();
-		m_FreeEnemyIndices.push_back(index);
+		m_freeEnemyIndices.push_back(index);
 	}
 
 	/*!
@@ -267,12 +267,12 @@ namespace shooting {
 	*/
 	bool EnemyBatchController::IsEnemyAlive(size_t index) const
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return false;
 		}
 
-		const auto& enemy = m_Enemies[index];
+		const auto& enemy = m_enemies[index];
 		return enemy.active && !enemy.isDead && enemy.hp > 0;
 	}
 
@@ -283,7 +283,7 @@ namespace shooting {
 	int EnemyBatchController::GetAliveEnemyCount() const
 	{
 		int count = 0;
-		for (const auto& enemy : m_Enemies)
+		for (const auto& enemy : m_enemies)
 		{
 			if (enemy.active && !enemy.isDead && enemy.hp > 0)
 			{
@@ -295,11 +295,11 @@ namespace shooting {
 
 	/*!
 	@brief 現在確保されている敵状態スロット数を取得する
-	@return 再利用待ちの空きスロットを含む m_Enemies の要素数
+	@return 再利用待ちの空きスロットを含む m_enemies の要素数
 	*/
 	int EnemyBatchController::GetTotalEnemyCount() const
 	{
-		return static_cast<int>(m_Enemies.size());
+		return static_cast<int>(m_enemies.size());
 	}
 }
 

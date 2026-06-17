@@ -56,27 +56,27 @@ namespace shooting {
 
 	void GameStage::RequestHitStop(double duration, double timeScale)
 	{
-		m_HitStop.Request(duration, timeScale);
+		m_hitStop.Request(duration, timeScale);
 	}
 
 	double GameStage::GetGameDeltaTime(double rawDeltaTime) const
 	{
-		return m_HitStop.Apply(rawDeltaTime);
+		return m_hitStop.Apply(rawDeltaTime);
 	}
 
 	void GameStage::RecordDamageDealt(int damage)
 	{
 		if (damage > 0)
 		{
-			m_TotalDamageDealt += damage;
+			m_totalDamageDealt += damage;
 		}
 	}
 
 	void GameStage::RecordExplosionKills(int killCount)
 	{
-		if (killCount > m_BestExplosionKills)
+		if (killCount > m_bestExplosionKills)
 		{
-			m_BestExplosionKills = killCount;
+			m_bestExplosionKills = killCount;
 		}
 	}
 
@@ -109,7 +109,7 @@ namespace shooting {
 		auto player = GetSharedGameObjectEx<Player>(L"Player", false);
 		if (player && !player->IsSpawnIntroActive() && !player->IsDead())
 		{
-			m_SurvivalTime += elapsedTime;
+			m_survivalTime += elapsedTime;
 		}
 
 		bool benchmarkStartedThisFrame = false;
@@ -143,10 +143,10 @@ namespace shooting {
 
 		// ヒットストップの残り時間はゲーム内時間ではなく実時間で減らす。
 		// ここで更新しておくと、敵・プレイヤー・弾は次フレームから GetGameDeltaTime() 経由で遅くなる。
-		m_HitStop.Update(elapsedTime);
+		m_hitStop.Update(elapsedTime);
 		ApplyDebugRuntimeSettings();
 
-		if (m_WaitingInitialWaveUntilPlayerIntroEnds)
+		if (m_waitingInitialWaveUntilPlayerIntroEnds)
 		{
 			StartInitialWaveAfterPlayerIntro();
 		}
@@ -233,7 +233,7 @@ namespace shooting {
 			return;
 		}
 
-		m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		m_waitingInitialWaveUntilPlayerIntroEnds = false;
 		m_waveController.SetNextWaveNumber(GameDebugSettingsStore::Get().startWave);
 		// インゲームBGMは登場演出が終わってから開始する。
 		GameAudio::Instance().PlayBgm(GameBgmId::InGame);
@@ -329,7 +329,7 @@ namespace shooting {
 		CreateEnemyRenderers(enemyController);
 		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
 		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。
-		m_WaitingInitialWaveUntilPlayerIntroEnds = true;
+		m_waitingInitialWaveUntilPlayerIntroEnds = true;
 
 		// 弾管理
 		AddGameObject<BulletManager>();

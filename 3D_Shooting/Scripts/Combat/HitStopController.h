@@ -6,9 +6,9 @@ namespace shooting {
 	class HitStopController
 	{
 	private:
-		double m_Timer = 0.0;
-		double m_TimeScale = 1.0;
-		bool m_RequestedThisFrame = false;
+		double m_timer = 0.0;
+		double m_timeScale = 1.0;
+		bool m_requestedThisFrame = false;
 
 	public:
 		void Request(double duration, double timeScale)
@@ -19,44 +19,44 @@ namespace shooting {
 			}
 
 			timeScale = bsmUtil::Clamp(timeScale, 0.0, 1.0);
-			m_Timer = bsmUtil::Max(m_Timer, duration);
-			m_TimeScale = bsmUtil::Min(m_TimeScale, timeScale);
-			m_RequestedThisFrame = true;
+			m_timer = bsmUtil::Max(m_timer, duration);
+			m_timeScale = bsmUtil::Min(m_timeScale, timeScale);
+			m_requestedThisFrame = true;
 		}
 
 		void Update(double rawDeltaTime)
 		{
-			if (m_Timer <= 0.0)
+			if (m_timer <= 0.0)
 			{
-				m_TimeScale = 1.0;
-				m_RequestedThisFrame = false;
+				m_timeScale = 1.0;
+				m_requestedThisFrame = false;
 				return;
 			}
 
 			// リクエストされた同じフレームで減算すると、実際に止まる前に効果時間が短くなる。
 			// 次フレームから rawDeltaTime で減らすことで、最初の停止フレームを確実に残す。
-			if (m_RequestedThisFrame)
+			if (m_requestedThisFrame)
 			{
-				m_RequestedThisFrame = false;
+				m_requestedThisFrame = false;
 				return;
 			}
 
-			m_Timer -= rawDeltaTime;
-			if (m_Timer <= 0.0)
+			m_timer -= rawDeltaTime;
+			if (m_timer <= 0.0)
 			{
-				m_Timer = 0.0;
-				m_TimeScale = 1.0;
+				m_timer = 0.0;
+				m_timeScale = 1.0;
 			}
 		}
 
 		double Apply(double rawDeltaTime) const
 		{
-			return rawDeltaTime * m_TimeScale;
+			return rawDeltaTime * m_timeScale;
 		}
 
 		bool IsActive() const
 		{
-			return m_Timer > 0.0;
+			return m_timer > 0.0;
 		}
 	};
 }

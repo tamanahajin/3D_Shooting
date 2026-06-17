@@ -17,8 +17,8 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	class Floor : public GameObject {
 	private:
-		std::wstring m_MeshKey;
-		std::wstring m_MaterialPrefix;
+		std::wstring m_meshKey;
+		std::wstring m_materialPrefix;
 
 	public:
 		Floor(
@@ -31,8 +31,8 @@ namespace shooting {
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
 
-		const std::wstring& GetMeshKey() const { return m_MeshKey; }
-		const std::wstring& GetMaterialPrefix() const { return m_MaterialPrefix; }
+		const std::wstring& GetMeshKey() const { return m_meshKey; }
+		const std::wstring& GetMaterialPrefix() const { return m_materialPrefix; }
 	};
 
 	class SkyDome : public GameObject
@@ -47,9 +47,9 @@ namespace shooting {
 	class FloorInstancedRenderer : public GameObject
 	{
 	private:
-		std::wstring m_MeshKey;
-		std::wstring m_MaterialPrefix;
-		std::vector<Mat4x4> m_InstanceWorlds;
+		std::wstring m_meshKey;
+		std::wstring m_materialPrefix;
+		std::vector<Mat4x4> m_instanceWorlds;
 
 	public:
 		FloorInstancedRenderer(
@@ -65,16 +65,16 @@ namespace shooting {
 	class StageObjectInstancedRenderer : public GameObject
 	{
 	private:
-		std::wstring m_MeshKey;
-		std::wstring m_MaterialPrefix;
-		std::vector<Mat4x4> m_InstanceWorlds;
+		std::wstring m_meshKey;
+		std::wstring m_materialPrefix;
+		std::vector<Mat4x4> m_instanceWorlds;
 		// 通常描画用とは別に、shadow pass で描く範囲内インスタンスだけを保持する。
-		std::vector<Mat4x4> m_ShadowInstanceWorlds;
+		std::vector<Mat4x4> m_shadowInstanceWorlds;
 		// shadow 用インスタンス buffer を更新するため、作成した描画コンポーネントを保持する。
-		std::shared_ptr<InstancedStaticDraw> m_Draw;
+		std::shared_ptr<InstancedStaticDraw> m_draw;
 		// カメラ注視点が大きく動いたときだけ shadow 用配列を再構築するための状態。
-		Vec3 m_LastShadowCullAt;
-		bool m_ShadowCullInitialized = false;
+		Vec3 m_lastShadowCullAt;
+		bool m_shadowCullInitialized = false;
 
 		// shadow map 範囲内のインスタンスだけに絞り、描画コンポーネントへ反映する。
 		void RefreshShadowInstances(bool force);
@@ -95,7 +95,7 @@ namespace shooting {
 	class StageCollisionBox : public GameObject
 	{
 	private:
-		Vec3 m_CollisionSize;
+		Vec3 m_collisionSize;
 
 	public:
 		StageCollisionBox(
@@ -111,8 +111,8 @@ namespace shooting {
 	class StageCollisionCapsule : public GameObject
 	{
 	private:
-		float m_Radius;
-		float m_Height;
+		float m_radius;
+		float m_height;
 
 	public:
 		StageCollisionCapsule(
@@ -145,7 +145,7 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	class FloorCollision : public GameObject {
 	private:
-		Vec3 m_CollisionSize;
+		Vec3 m_collisionSize;
 
 	public:
 		FloorCollision(
@@ -192,20 +192,20 @@ namespace shooting {
 		double m_totalTime;
 
 		//ステートマシーン
-		std::unique_ptr< StateMachine<SeekObject> >  m_StateMachine;
-		Vec3 m_StartPos;
-		float m_StateChangeSize;
+		std::unique_ptr< StateMachine<SeekObject> >  m_stateMachine;
+		Vec3 m_startPos;
+		float m_stateChangeSize;
 		//フォース
-		Vec3 m_Force;
+		Vec3 m_force;
 		//速度
-		Vec3 m_Velocity;
-		double m_SteeringUpdateTimer = 0.0;
-		double m_SteeringUpdateInterval = 0.05;
-		bool m_IsGround = false;
-		bool m_IsDead = false;
-		bool m_DeathAnimFinished = false;
-		double m_DamageFlashTimer = 0.0;
-		double m_DamageFlashDuration = 0.2;
+		Vec3 m_velocity;
+		double m_steeringUpdateTimer = 0.0;
+		double m_steeringUpdateInterval = 0.05;
+		bool m_isGround = false;
+		bool m_isDead = false;
+		bool m_deathAnimFinished = false;
+		double m_damageFlashTimer = 0.0;
+		double m_damageFlashDuration = 0.2;
 
 		void CheckGroundCollision(const CollisionPair& pair);
 		void ShowDamageNumber(const DamageInfo& info);
@@ -219,31 +219,31 @@ namespace shooting {
 		//アクセサ
 		const std::unique_ptr<StateMachine<SeekObject>>& GetStateMachine()
 		{
-			return m_StateMachine;
+			return m_stateMachine;
 		}
 		float GetStateChangeSize() const
 		{
-			return m_StateChangeSize;
+			return m_stateChangeSize;
 		}
 		const Vec3& GetForce()const
 		{
-			return m_Force;
+			return m_force;
 		}
 		void SetForce(const Vec3& f)
 		{
-			m_Force = f;
+			m_force = f;
 		}
 		void AddForce(const Vec3& f)
 		{
-			m_Force += f;
+			m_force += f;
 		}
 		const Vec3& GetVelocity()const
 		{
-			return m_Velocity;
+			return m_velocity;
 		}
 		void SetVelocity(const Vec3& v)
 		{
-			m_Velocity = v;
+			m_velocity = v;
 		}
 		void ApplyForce();
 		void ApplyForce(double elapsedTime);

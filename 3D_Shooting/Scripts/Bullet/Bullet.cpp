@@ -20,7 +20,7 @@ namespace shooting {
 		// Transformの初期値を先に設定したい場合はここで保管する
 		m_transParam = param;
 
-		m_IsActive = false;
+		m_isActive = false;
 	}
 
 	void DefaultBullet::OnCreate()
@@ -56,7 +56,7 @@ namespace shooting {
 
 	void DefaultBullet::OnUpdate(double elapsedTime)
 	{
-		if (!m_IsActive) return;
+		if (!m_isActive) return;
 
 		if (auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false)))
 		{
@@ -64,8 +64,8 @@ namespace shooting {
 		}
 
 		// 寿命
-		m_ElapsedTime += elapsedTime;
-		if (m_ElapsedTime >= m_LifeTime)
+		m_elapsedTime += elapsedTime;
+		if (m_elapsedTime >= m_lifeTime)
 		{
 			SetActive(false);
 			SetUpdateActive(false);
@@ -77,23 +77,23 @@ namespace shooting {
 		{
 			auto& param = ptrTrans->GetTransParam();
 			Vec3 forward = ptrTrans->GetForward();
-			param.position += forward * m_Speed * static_cast<float>(elapsedTime);
+			param.position += forward * m_speed * static_cast<float>(elapsedTime);
 		}
 	}
 
 	bool DefaultBullet::IsActive() const noexcept
 	{
-		return m_IsActive;
+		return m_isActive;
 	}
 
 	void DefaultBullet::SetActive(bool active) noexcept
 	{
-		m_IsActive = active;
+		m_isActive = active;
 	}
 
 	void DefaultBullet::OnCollisionEnter(const CollisionPair& pair)
 	{
-		if (!m_IsActive) return;
+		if (!m_isActive) return;
 
 		auto other = pair.m_Dest.lock();
 		if (!other) return;
@@ -183,7 +183,7 @@ namespace shooting {
 		}
 
 		auto dmg = AddComponent<DamageDealer>();
-		dmg->SetDamage(m_ExplosionDamage);
+		dmg->SetDamage(m_explosionDamage);
 		dmg->SetDestroyOnHit(false);
 
 		if (auto col = GetComponent<Collision>(false))
@@ -202,11 +202,11 @@ namespace shooting {
 			elapsedTime = gameStage->GetGameDeltaTime(elapsedTime);
 		}
 
-		if (!m_Exploding)
+		if (!m_exploding)
 		{
 			// 飛行中（信管）
-			m_FuseTime -= elapsedTime;
-			if (m_FuseTime <= 0.0)
+			m_fuseTime -= elapsedTime;
+			if (m_fuseTime <= 0.0)
 			{
 				StartExplosion(nullptr);
 				return;
@@ -218,20 +218,20 @@ namespace shooting {
 			auto& tp = trans->GetTransParam();
 			const Vec3 previousPosition = tp.position;
 
-			if (m_UseBallistic)
+			if (m_useBallistic)
 			{
 				// 発射からの経過 t
-				m_FlyTime += static_cast<float>(elapsedTime);
+				m_flyTime += static_cast<float>(elapsedTime);
 
 				// 弾道式：p(t)=p0+v0*t+0.5*g*t^2
-				const float t = m_FlyTime;
-				tp.position = m_StartPos + (m_V0 * t) + (m_Gravity * (0.5f * t * t));
+				const float t = m_flyTime;
+				tp.position = m_startPos + (m_v0 * t) + (m_gravity * (0.5f * t * t));
 
 				// 現在速度：v(t)=v0+g*t（必要なら）
-				m_Velocity = m_V0 + (m_Gravity * t);
+				m_velocity = m_v0 + (m_gravity * t);
 
 				Vec3 impactPosition;
-				if (m_UseGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, impactPosition))
+				if (m_useGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, impactPosition))
 				{
 					tp.position = impactPosition;
 					StartExplosion(nullptr);
@@ -240,9 +240,9 @@ namespace shooting {
 
 				// --- 重要： 「プレビュー終点」 と一致させるコツ ---
 				// プレビューは 0..T で描画して終了なので、弾側も T で終了または着弾させる
-				if (m_FlyTime >= m_TotalT)
+				if (m_flyTime >= m_totalT)
 				{
-					tp.position = m_TargetPos;   // 最後ぴったりと合わせる
+					tp.position = m_targetPos;   // 最後ぴったりと合わせる
 					StartExplosion(nullptr);     // 着弾で爆発（不要ならコメントアウトして停止など）
 					return;
 				}
@@ -251,11 +251,11 @@ namespace shooting {
 			{
 				// ターゲットなし：従来の直進（+重力）でもOK
 				const float dt = static_cast<float>(elapsedTime);
-				m_Velocity += m_Gravity * dt;
-				tp.position += m_Velocity * dt;
+				m_velocity += m_gravity * dt;
+				tp.position += m_velocity * dt;
 
 				Vec3 directImpactPosition;
-				if (m_UseGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, directImpactPosition))
+				if (m_useGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, directImpactPosition))
 				{
 					tp.position = directImpactPosition;
 					StartExplosion(nullptr);
@@ -265,8 +265,8 @@ namespace shooting {
 		}
 		else
 		{
-			m_ExplosionTimer -= elapsedTime;
-			if (m_ExplosionTimer <= 0.0)
+			m_explosionTimer -= elapsedTime;
+			if (m_explosionTimer <= 0.0)
 			{
 				SetActive(false);
 				SetUpdateActive(false);
@@ -286,7 +286,7 @@ namespace shooting {
 
 		if (otherObj->FindTag(L"Player")) return;
 
-		if (!m_Exploding)
+		if (!m_exploding)
 		{
 			// 飛行中に何かに当たったら即爆発
 			StartExplosion(otherObj);
@@ -301,7 +301,7 @@ namespace shooting {
 	{
 		// 爆発セット後場合 Enter だけでは不十分なときある。
 		// 連続衝突イベントの仕様次第で Execute の方が確実ならここで処理する。
-		if (m_Exploding)
+		if (m_exploding)
 		{
 			OnCollisionEnter(pair);
 		}
@@ -309,14 +309,14 @@ namespace shooting {
 
 	void BombBullet::StartExplosion(const std::shared_ptr<GameObject>& firstHit)
 	{
-		if (m_Exploding) return;
+		if (m_exploding) return;
 
 		GameAudio::Instance().PlaySound(GameSoundId::BombExplode);
 
-		m_Exploding = true;
-		m_ExplosionTimer = m_ExplosionDuration;
-		m_Velocity = Vec3(0, 0, 0);
-		m_HitOnce.clear();
+		m_exploding = true;
+		m_explosionTimer = m_explosionDuration;
+		m_velocity = Vec3(0, 0, 0);
+		m_hitOnce.clear();
 
 		Vec3 explosionPos(0.0f, 0.0f, 0.0f);
 
@@ -324,7 +324,7 @@ namespace shooting {
 		if (auto trans = GetComponent<Transform>())
 		{
 			explosionPos = trans->GetPosition();
-			trans->SetScale(Vec3(m_ExplosionScale, m_ExplosionScale, m_ExplosionScale));
+			trans->SetScale(Vec3(m_explosionScale, m_explosionScale, m_explosionScale));
 		}
 
 		if (auto camera = std::dynamic_pointer_cast<MainCamera>(GetStage()->GetCamera()))
@@ -350,7 +350,7 @@ namespace shooting {
 
 			auto fx = GetStage()->AddGameObject<ExplosionEffect>(fxParam);
 			fx->SetLifeTime(0.2f);
-			fx->SetScaleRange(0.15f, bsmUtil::Max(1.4f, m_ExplosionScale * 0.9f));
+			fx->SetScaleRange(0.15f, bsmUtil::Max(1.4f, m_explosionScale * 0.9f));
 			fx->SetTextureKey(L"EXPLOSION_FIRE_TX");
 		}
 
@@ -367,14 +367,14 @@ namespace shooting {
 		if (!target) return;
 
 		// 多重ヒット防止
-		if (m_HitOnce.find(target.get()) != m_HitOnce.end())
+		if (m_hitOnce.find(target.get()) != m_hitOnce.end())
 		{
 			return;
 		}
-		m_HitOnce.insert(target.get());
+		m_hitOnce.insert(target.get());
 
 		DamageInfo info;
-		int dmg = m_ExplosionDamage;
+		int dmg = m_explosionDamage;
 		if (auto dd = GetComponent<DamageDealer>(false))
 		{
 			dmg = dd->GetDamage();
@@ -399,8 +399,8 @@ namespace shooting {
 				if (defeatedByThisExplosion)
 				{
 					// 同じ爆弾の累計撃破数が伸びるたび、ステージ側の最高記録を更新する。
-					++m_ExplosionKillCount;
-					gameStage->RecordExplosionKills(m_ExplosionKillCount);
+					++m_explosionKillCount;
+					gameStage->RecordExplosionKills(m_explosionKillCount);
 				}
 			}
 
@@ -425,7 +425,7 @@ namespace shooting {
 				}
 
 				knockbackDir.normalize();
-				float maxKnockbackDist = m_ExplosionScale * 0.5f;
+				float maxKnockbackDist = m_explosionScale * 0.5f;
 				float strength = 1.15f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
 				strength = bsmUtil::Max(strength, 0.45f);
 				Vec3 knockbackVelocity = knockbackDir * (10.0f * strength);
@@ -473,7 +473,7 @@ namespace shooting {
 					knockbackDir.normalize();
 					
 					// 距離に応じて威力を調整（近いほど強い）
-					float maxKnockbackDist = m_ExplosionScale * 0.5f; // 爆発半径
+					float maxKnockbackDist = m_explosionScale * 0.5f; // 爆発半径
 					float strength = 1.0f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
 					strength = bsmUtil::Max(strength, 0.3f);
 					
@@ -548,7 +548,7 @@ namespace shooting {
 		return true;
 	}
 
-	bool BombBullet::SolveBallistic_ApexHeight(
+	bool BombBullet::SolveBallisticApexHeight(
 		const Vec3& p0, const Vec3& p1,
 		const Vec3& gravity, float arcHeight,
 		Vec3& outV0, float& outT) const
@@ -564,13 +564,13 @@ namespace shooting {
 		const float vY0 = std::sqrt(2.0f * g * h0);
 		const float tUp = vY0 / g;
 		const float tDown = std::sqrt(2.0f * h1 / g);
-		const float T = bsmUtil::Max(0.001f, tUp + tDown);
+		const float totalTime = bsmUtil::Max(0.001f, tUp + tDown);
 
 		const Vec3 deltaXZ(p1.x - p0.x, 0.0f, p1.z - p0.z);
-		const Vec3 vXZ = deltaXZ * (1.0f / T);
+		const Vec3 vXZ = deltaXZ * (1.0f / totalTime);
 
 		outV0 = Vec3(vXZ.x, vY0, vXZ.z);
-		outT = T;
+		outT = totalTime;
 		return true;
 	}
 
@@ -578,72 +578,72 @@ namespace shooting {
 	{
 		DefaultBullet::ResetForSpawn();
 
-		m_FuseTime = FUSE_TIME;
-		m_Exploding = false;
-		m_ExplosionTimer = 0.0;
-		m_HitOnce.clear();
-		m_ExplosionKillCount = 0;
+		m_fuseTime = m_defaultFuseTime;
+		m_exploding = false;
+		m_explosionTimer = 0.0;
+		m_hitOnce.clear();
+		m_explosionKillCount = 0;
 
-		m_FlyTime = 0.0f;
-		m_TotalT = 0.0f;
-		m_UseBallistic = false;
-		m_UseGeneratedGroundImpact = true;
+		m_flyTime = 0.0f;
+		m_totalT = 0.0f;
+		m_useBallistic = false;
+		m_useGeneratedGroundImpact = true;
 
 		auto trans = GetComponent<Transform>();
 		if (!trans)
 		{
-			m_HasTarget = false;
-			m_HasTargetSurface = false;
+			m_hasTarget = false;
+			m_hasTargetSurface = false;
 			return;
 		}
 
 		// 発射時の起点 p0
-		m_StartPos = trans->GetTransParam().position;
+		m_startPos = trans->GetTransParam().position;
 
 		// ターゲットなければ信管で直進
-		if (!m_HasTarget)
+		if (!m_hasTarget)
 		{
-			m_V0 = trans->GetForward() * m_Speed;
-			m_Velocity = m_V0;
+			m_v0 = trans->GetForward() * m_speed;
+			m_velocity = m_v0;
 			return;
 		}
 
-		m_UseGeneratedGroundImpact = !m_HasTargetSurface || m_TargetNormal.y > 0.45f;
-		if (m_UseGeneratedGroundImpact)
+		m_useGeneratedGroundImpact = !m_hasTargetSurface || m_targetNormal.y > 0.45f;
+		if (m_useGeneratedGroundImpact)
 		{
-			m_TargetPos = SnapTargetToStageGround(m_TargetPos);
+			m_targetPos = SnapTargetToStageGround(m_targetPos);
 		}
 
-		const Vec3 deltaXZ(m_TargetPos.x - m_StartPos.x, 0.0f, m_TargetPos.z - m_StartPos.z);
+		const Vec3 deltaXZ(m_targetPos.x - m_startPos.x, 0.0f, m_targetPos.z - m_startPos.z);
 		const float distXZ = deltaXZ.length();
-		const float arcHeight = m_ArcHeight + distXZ * m_ArcHeightPerDistXZ;
+		const float arcHeight = m_arcHeight + distXZ * m_arcHeightPerDistXZ;
 
 		// ターゲット弾道（プレビューと同一計算）
 		Vec3 v0;
-		float T = 0.0f;
-		if (SolveBallistic_ApexHeight(m_StartPos, m_TargetPos, m_Gravity, arcHeight, v0, T))
+		float totalTime = 0.0f;
+		if (SolveBallisticApexHeight(m_startPos, m_targetPos, m_gravity, arcHeight, v0, totalTime))
 		{
-			m_V0 = v0;
-			m_TotalT = T;
-			m_UseBallistic = true;
+			m_v0 = v0;
+			m_totalT = totalTime;
+			m_useBallistic = true;
 
 			// 初速（向き回転などに使うなら）
-			m_Velocity = m_V0;
+			m_velocity = m_v0;
 
 			// ターゲットに到達する前に信管が切れないよう信管
 			// （着弾に爆発させないなら、この信管は事実上不要）
-			m_FuseTime = bsmUtil::Max(m_FuseTime, (double)T + 0.2);
+			m_fuseTime = bsmUtil::Max(m_fuseTime, static_cast<double>(totalTime) + 0.2);
 		}
 		else
 		{
 			// 解けなかったら従来の直進にフォールバック
-			m_V0 = trans->GetForward() * m_Speed;
-			m_Velocity = m_V0;
-			m_UseBallistic = false;
+			m_v0 = trans->GetForward() * m_speed;
+			m_velocity = m_v0;
+			m_useBallistic = false;
 		}
 
 		// 繰り返し時の防止
-		m_HasTarget = false;
-		m_HasTargetSurface = false;
+		m_hasTarget = false;
+		m_hasTargetSurface = false;
 	}
 }

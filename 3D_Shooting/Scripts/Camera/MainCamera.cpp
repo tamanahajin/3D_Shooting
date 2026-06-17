@@ -14,52 +14,52 @@ namespace shooting {
 	//--------------------------------------------------------------------------------------
 	MainCamera::MainCamera(const std::shared_ptr<Stage>& stage) :
 		PerspecCamera(),
-		m_Stage(stage),
-		m_ToTargetLerp(1.0f),
-		m_TargetToAt(0, 0, 0),
-		m_RadY(0.5f),
-		m_RadXZ(0),
-		m_CameraUpDownSpeed(0.5f),
-		m_CameraUnderRot(0.1f),
-		m_ArmLen(5.0f),
-		m_MaxArm(20.0f),
-		m_MinArm(2.0f),
-		m_RotSpeed(1.0f),
-		m_ZoomSpeed(0.1f),
-		m_LRBaseMode(true),
-		m_UDBaseMode(true)
+		m_stage(stage),
+		m_toTargetLerp(1.0f),
+		m_targetToAt(0, 0, 0),
+		m_radY(0.5f),
+		m_radXZ(0),
+		m_cameraUpDownSpeed(0.5f),
+		m_cameraUnderRot(0.1f),
+		m_armLen(5.0f),
+		m_maxArm(20.0f),
+		m_minArm(2.0f),
+		m_rotSpeed(1.0f),
+		m_zoomSpeed(0.1f),
+		m_lrBaseMode(true),
+		m_udBaseMode(true)
 	{
-		m_ArmLenCurrent = m_ArmLen;
+		m_armLenCurrent = m_armLen;
 	}
 
-	MainCamera::MainCamera(float ArmLen) :
+	MainCamera::MainCamera(float armLen) :
 		PerspecCamera(),
-		m_ToTargetLerp(1.0f),
-		m_TargetToAt(0, 0, 0),
-		m_RadY(0.5f),
-		m_RadXZ(0),
-		m_CameraUpDownSpeed(0.5f),
-		m_CameraUnderRot(0.1f),
-		m_ArmLen(5.0f),
-		m_MaxArm(20.0f),
-		m_MinArm(2.0f),
-		m_RotSpeed(1.0f),
-		m_ZoomSpeed(0.1f),
-		m_LRBaseMode(true),
-		m_UDBaseMode(true)
+		m_toTargetLerp(1.0f),
+		m_targetToAt(0, 0, 0),
+		m_radY(0.5f),
+		m_radXZ(0),
+		m_cameraUpDownSpeed(0.5f),
+		m_cameraUnderRot(0.1f),
+		m_armLen(5.0f),
+		m_maxArm(20.0f),
+		m_minArm(2.0f),
+		m_rotSpeed(1.0f),
+		m_zoomSpeed(0.1f),
+		m_lrBaseMode(true),
+		m_udBaseMode(true)
 	{
-		m_ArmLen = ArmLen;
+		m_armLen = armLen;
 		auto eye = GetEye();
-		eye.y = m_ArmLen;
+		eye.y = m_armLen;
 		SetEye(eye);
 	}
 
 	MainCamera::~MainCamera() {}
 
 	//アクセサ
-	void MainCamera::SetEye(const Vec3& Eye)
+	void MainCamera::SetEye(const Vec3& eye)
 	{
-		PerspecCamera::SetEye(Eye);
+		PerspecCamera::SetEye(eye);
 		//UpdateArmLengh();
 	}
 	void MainCamera::SetEye(float x, float y, float z)
@@ -71,132 +71,132 @@ namespace shooting {
 
 	std::shared_ptr<GameObject> MainCamera::GetTargetObject() const
 	{
-		if (!m_TargetObject.expired())
+		if (!m_targetObject.expired())
 		{
-			return m_TargetObject.lock();
+			return m_targetObject.lock();
 		}
 		return nullptr;
 	}
 
-	void MainCamera::SetTargetObject(const std::shared_ptr<GameObject>& Obj)
+	void MainCamera::SetTargetObject(const std::shared_ptr<GameObject>& obj)
 	{
-		m_TargetObject = Obj;
+		m_targetObject = obj;
 	}
 
 	float MainCamera::GetToTargetLerp() const
 	{
-		return m_ToTargetLerp;
+		return m_toTargetLerp;
 	}
 	void MainCamera::SetToTargetLerp(float f)
 	{
-		m_ToTargetLerp = f;
+		m_toTargetLerp = f;
 	}
 
 	float MainCamera::GetArmLengh() const
 	{
-		return m_ArmLen;
+		return m_armLen;
 	}
 
 	void MainCamera::UpdateArmLengh()
 	{
 		auto vec = GetEye() - GetAt();
-		m_ArmLen = bsmUtil::length(vec);
-		if (m_ArmLen >= m_MaxArm)
+		m_armLen = bsmUtil::length(vec);
+		if (m_armLen >= m_maxArm)
 		{
 			//m_MaxArm以上離れないようにする
-			m_ArmLen = m_MaxArm;
+			m_armLen = m_maxArm;
 		}
-		if (m_ArmLen <= m_MinArm)
+		if (m_armLen <= m_minArm)
 		{
 			//m_MinArm以下近づかないようにする
-			m_ArmLen = m_MinArm;
+			m_armLen = m_minArm;
 		}
 	}
 
 	float MainCamera::GetMaxArm() const
 	{
-		return m_MaxArm;
+		return m_maxArm;
 
 	}
 	void MainCamera::SetMaxArm(float f)
 	{
-		m_MaxArm = f;
+		m_maxArm = f;
 	}
 	float MainCamera::GetMinArm() const
 	{
-		return m_MinArm;
+		return m_minArm;
 	}
 	void MainCamera::SetMinArm(float f)
 	{
-		m_MinArm = f;
+		m_minArm = f;
 	}
 
 	float MainCamera::GetRotSpeed() const
 	{
-		return m_RotSpeed;
+		return m_rotSpeed;
 
 	}
 	void MainCamera::SetRotSpeed(float f)
 	{
-		m_RotSpeed = abs(f);
+		m_rotSpeed = abs(f);
 	}
 
 	Vec3 MainCamera::GetTargetToAt() const
 	{
-		return m_TargetToAt;
+		return m_targetToAt;
 
 	}
 	void MainCamera::SetTargetToAt(const Vec3& v)
 	{
-		m_TargetToAt = v;
+		m_targetToAt = v;
 	}
 
 	bool MainCamera::GetLRBaseMode() const
 	{
-		return m_LRBaseMode;
+		return m_lrBaseMode;
 
 	}
 	bool MainCamera::IsLRBaseMode() const
 	{
-		return m_LRBaseMode;
+		return m_lrBaseMode;
 
 	}
 	void MainCamera::SetLRBaseMode(bool b)
 	{
-		m_LRBaseMode = b;
+		m_lrBaseMode = b;
 	}
 	bool MainCamera::GetUDBaseMode() const
 	{
-		return m_UDBaseMode;
+		return m_udBaseMode;
 
 	}
 	bool MainCamera::IsUDBaseMode() const
 	{
-		return m_UDBaseMode;
+		return m_udBaseMode;
 	}
 	void MainCamera::SetUDBaseMode(bool b)
 	{
-		m_UDBaseMode = b;
+		m_udBaseMode = b;
 
 	}
 
 	void MainCamera::SetSpawnIntroView(bool active, const Vec3& eye, const Vec3& at)
 	{
-		m_SpawnIntroViewActive = active;
-		m_SpawnIntroEye = eye;
-		m_SpawnIntroAt = at;
+		m_spawnIntroViewActive = active;
+		m_spawnIntroEye = eye;
+		m_spawnIntroAt = at;
 
 		if (active)
 		{
-			PerspecCamera::SetAt(m_SpawnIntroAt);
-			PerspecCamera::SetEye(m_SpawnIntroEye);
+			PerspecCamera::SetAt(m_spawnIntroAt);
+			PerspecCamera::SetEye(m_spawnIntroEye);
 		}
 	}
 
 	void MainCamera::FinishSpawnIntroViewAndResumeFollow()
 	{
-		const Vec3 eye = m_SpawnIntroEye;
-		const Vec3 at = m_SpawnIntroAt;
+		const Vec3 eye = m_spawnIntroEye;
+		const Vec3 at = m_spawnIntroAt;
 		Vec3 arm = eye - at;
 		const float armLen = bsmUtil::length(arm);
 
@@ -204,20 +204,20 @@ namespace shooting {
 		{
 			arm.normalize();
 
-			// 通常カメラは m_RadY / m_RadXZ / m_ArmLen から毎フレーム Eye を作り直す。
+			// 通常カメラは m_radY / m_radXZ / m_armLen から毎フレーム Eye を作り直す。
 			// そのため、固定解除前に登場カメラの Eye-At ベクトルを通常カメラの内部値へ逆算しておく。
-			m_ArmLen = bsmUtil::Clamp(armLen, m_MinArm, m_MaxArm);
-			m_ArmLenCurrent = m_ArmLen;
-			m_RadY = std::asin(bsmUtil::Clamp(arm.y, -1.0f, 1.0f));
+			m_armLen = bsmUtil::Clamp(armLen, m_minArm, m_maxArm);
+			m_armLenCurrent = m_armLen;
+			m_radY = std::asin(bsmUtil::Clamp(arm.y, -1.0f, 1.0f));
 
 			// 通常カメラの水平基準は「-Z方向を yaw 回転した向き」なので、
 			// 現在の水平向きから yaw を逆算して、登場時の角度をそのまま引き継ぐ。
-			m_RadXZ = std::atan2(-arm.x, -arm.z);
+			m_radXZ = std::atan2(-arm.x, -arm.z);
 		}
 
 		PerspecCamera::SetAt(at);
 		PerspecCamera::SetEye(eye);
-		m_SpawnIntroViewActive = false;
+		m_spawnIntroViewActive = false;
 
 		// 演出中はマウス追従を止めていたため、復帰1フレーム目の大きなdeltaで
 		// カメラが跳ねないようにカーソル状態を同期する。
@@ -242,7 +242,7 @@ namespace shooting {
 		}
 
 		// 前フレームで加えたシェイクを除いた注視点を使い、距離計算が揺れ自体に影響されないようにする。
-		const Vec3 baseAt = GetAt() - m_LastShakeOffset;
+		const Vec3 baseAt = GetAt() - m_lastShakeOffset;
 		const float distance = bsmUtil::length(baseAt - worldPosition);
 		if (!std::isfinite(distance) || distance >= maxDistance)
 		{
@@ -252,40 +252,40 @@ namespace shooting {
 		const float distanceRate =
 			1.0f - bsmUtil::Clamp(distance / maxDistance, 0.0f, 1.0f);
 		const float appliedIntensity = intensity * distanceRate;
-		m_ShakeIntensity = bsmUtil::Min(
-			m_ShakeIntensity + appliedIntensity,
+		m_shakeIntensity = bsmUtil::Min(
+			m_shakeIntensity + appliedIntensity,
 			kMaximumCameraShakeIntensity);
-		m_ShakeDuration = bsmUtil::Max(m_ShakeDuration, duration);
-		m_ShakeTimeRemaining = bsmUtil::Max(m_ShakeTimeRemaining, duration);
+		m_shakeDuration = bsmUtil::Max(m_shakeDuration, duration);
+		m_shakeTimeRemaining = bsmUtil::Max(m_shakeTimeRemaining, duration);
 	}
 
 	Vec3 MainCamera::UpdateCameraShake(float elapsedTime)
 	{
-		if (m_ShakeTimeRemaining <= 0.0f ||
-			m_ShakeDuration <= 0.0f ||
-			m_ShakeIntensity <= 0.0f)
+		if (m_shakeTimeRemaining <= 0.0f ||
+			m_shakeDuration <= 0.0f ||
+			m_shakeIntensity <= 0.0f)
 		{
-			m_ShakeIntensity = 0.0f;
-			m_ShakeDuration = 0.0f;
-			m_ShakeTimeRemaining = 0.0f;
-			m_ShakeElapsedTime = 0.0f;
+			m_shakeIntensity = 0.0f;
+			m_shakeDuration = 0.0f;
+			m_shakeTimeRemaining = 0.0f;
+			m_shakeElapsedTime = 0.0f;
 			return Vec3(0.0f, 0.0f, 0.0f);
 		}
 
 		const float safeElapsedTime = bsmUtil::Max(elapsedTime, 0.0f);
-		m_ShakeElapsedTime += safeElapsedTime;
-		m_ShakeTimeRemaining = bsmUtil::Max(
+		m_shakeElapsedTime += safeElapsedTime;
+		m_shakeTimeRemaining = bsmUtil::Max(
 			0.0f,
-			m_ShakeTimeRemaining - safeElapsedTime);
+			m_shakeTimeRemaining - safeElapsedTime);
 
 		// 残り時間の二乗で減衰させ、爆発直後は強く、終了間際は滑らかに静止させる。
 		const float remainingRate = bsmUtil::Clamp(
-			m_ShakeTimeRemaining / m_ShakeDuration,
+			m_shakeTimeRemaining / m_shakeDuration,
 			0.0f,
 			1.0f);
 		const float amplitude =
-			m_ShakeIntensity * remainingRate * remainingRate;
-		const float phase = m_ShakeElapsedTime;
+			m_shakeIntensity * remainingRate * remainingRate;
+		const float phase = m_shakeElapsedTime;
 
 		// 軸ごとに異なる周波数を使い、単純な往復運動に見えない揺れを作る。
 		const Vec3 offset(
@@ -293,22 +293,22 @@ namespace shooting {
 			std::sin((phase * 83.0f) + 1.7f) * amplitude * 0.65f,
 			std::sin((phase * 53.0f) + 3.1f) * amplitude * 0.45f);
 
-		if (m_ShakeTimeRemaining <= 0.0f)
+		if (m_shakeTimeRemaining <= 0.0f)
 		{
-			m_ShakeIntensity = 0.0f;
-			m_ShakeDuration = 0.0f;
-			m_ShakeElapsedTime = 0.0f;
+			m_shakeIntensity = 0.0f;
+			m_shakeDuration = 0.0f;
+			m_shakeElapsedTime = 0.0f;
 		}
 		return offset;
 	}
 
 
-	void MainCamera::SetAt(const Vec3& At)
+	void MainCamera::SetAt(const Vec3& at)
 	{
-		PerspecCamera::SetAt(At);
+		PerspecCamera::SetAt(at);
 		Vec3 armVec = GetEye() - GetAt();
 		armVec.normalize();
-		armVec *= m_ArmLen;
+		armVec *= m_armLen;
 		Vec3 newEye = GetAt() + armVec;
 		PerspecCamera::SetEye(newEye);
 	}
@@ -317,7 +317,7 @@ namespace shooting {
 		PerspecCamera::SetAt(x, y, z);
 		Vec3 armVec = GetEye() - GetAt();
 		armVec.normalize();
-		armVec *= m_ArmLen;
+		armVec *= m_armLen;
 		Vec3 newEye = GetAt() + armVec;
 		PerspecCamera::SetEye(newEye);
 
@@ -395,7 +395,7 @@ namespace shooting {
 
 	void MainCamera::BeginMouseLook()
 	{
-		if (m_CursorLocked) return;
+		if (m_cursorLocked) return;
 
 		HWND hwnd = App::GetHwnd();
 
@@ -405,33 +405,33 @@ namespace shooting {
 		::SetCapture(hwnd);
 
 		// 現在位置を保存（解除時に戻したい場合）
-		::GetCursorPos(&m_SaveCursorPos);
+		::GetCursorPos(&m_saveCursorPos);
 
 		// カーソル非表示 + ウィンドウ内に制限
-		SetCursorVisible(false, m_ShowCursorCount);
+		SetCursorVisible(false, m_showCursorCount);
 		ClipCursorToClient(hwnd, true);
 
 		// 中央へ移動（初回delta暴れ防止）
 		POINT c = GetClientCenterInScreen(hwnd);
 		::SetCursorPos(c.x, c.y);
 
-		m_CursorLocked = true;
+		m_cursorLocked = true;
 	}
 
 	void MainCamera::EndMouseLook()
 	{
-		if (!m_CursorLocked) return;
+		if (!m_cursorLocked) return;
 
 		HWND hwnd = App::GetHwnd();
 
 		::ReleaseCapture();
 		ClipCursorToClient(hwnd, false);
-		SetCursorVisible(true, m_ShowCursorCount);
+		SetCursorVisible(true, m_showCursorCount);
 
 		// 保存した位置へ戻す（不要なら消してOK）
-		::SetCursorPos(m_SaveCursorPos.x, m_SaveCursorPos.y);
+		::SetCursorPos(m_saveCursorPos.x, m_saveCursorPos.y);
 
-		m_CursorLocked = false;
+		m_cursorLocked = false;
 	}
 
 	// pivot -> desiredEye の移動を「半径radiusの球」としてスイープし、当たったら手前に寄せたEyeを返す
@@ -480,7 +480,7 @@ namespace shooting {
 		// ここでは“最初に当たった時刻”だけ欲しい（当たり面の法線は不要）
 
 		// ヒット候補が見つかったときに、そのヒット時刻で更新するラムダ
-		auto ConsiderHitTime = [&](float t)
+		auto considerHitTime = [&](float t)
 			{
 				if (!std::isfinite(t)) return;
 				t = bsmUtil::Clamp(t, 0.0f, dt);
@@ -531,11 +531,11 @@ namespace shooting {
 				SPHERE destBefore = csp->GetBeforeSphere();
 				if (HitTest::SPHERE_SPHERE(camBefore, destBefore))
 				{
-					ConsiderHitTime(0.0f);
+					considerHitTime(0.0f);
 					continue;
 				}
 				if (HitTest::CollisionTestSphereSphere(camBefore, spanVel, destBefore, 0, dt, hitTime))
-					ConsiderHitTime(hitTime);
+					considerHitTime(hitTime);
 			}
 			else if (auto ccap = obj->GetComponent<CollisionCapsule>(false))
 			{
@@ -543,11 +543,11 @@ namespace shooting {
 				Vec3 dummy;
 				if (HitTest::SPHERE_CAPSULE(camBefore, dest0, dummy))
 				{
-					ConsiderHitTime(0.0f);
+					considerHitTime(0.0f);
 					continue;
 				}
 				if (HitTest::CollisionTestSphereCapsule(camBefore, spanVel, dest0, 0, dt, hitTime))
-					ConsiderHitTime(hitTime);
+					considerHitTime(hitTime);
 			}
 			else if (auto cobb = obj->GetComponent<CollisionObb>(false))
 			{
@@ -555,11 +555,11 @@ namespace shooting {
 				Vec3 dummy;
 				if (HitTest::SPHERE_OBB(camBefore, dest0, dummy))
 				{
-					ConsiderHitTime(0.0f);
+					considerHitTime(0.0f);
 					continue;
 				}
 				if (HitTest::CollisionTestSphereObb(camBefore, spanVel, dest0, 0, dt, hitTime))
-					ConsiderHitTime(hitTime);
+					considerHitTime(hitTime);
 			}
 			else if (auto crect = obj->GetComponent<CollisionRect>(false))
 			{
@@ -567,11 +567,11 @@ namespace shooting {
 				Vec3 dummy;
 				if (HitTest::SPHERE_COLRECT(camBefore, dest0, dummy))
 				{
-					ConsiderHitTime(0.0f);
+					considerHitTime(0.0f);
 					continue;
 				}
 				if (HitTest::CollisionTestSphereRect(camBefore, spanVel, dest0, 0, dt, hitTime))
-					ConsiderHitTime(hitTime);
+					considerHitTime(hitTime);
 			}
 		}
 
@@ -599,31 +599,31 @@ namespace shooting {
 
 	void MainCamera::OnCreate()
 	{
-		auto stage = m_Stage.lock();
+		auto stage = m_stage.lock();
 		if (stage)
 		{
-			m_CollisionManager = stage->GetCollisionManager();
+			m_collisionManager = stage->GetCollisionManager();
 		}
 	}
 
 	void MainCamera::OnUpdate(double elapsedTime)
 	{
-		if (m_SpawnIntroViewActive)
+		if (m_spawnIntroViewActive)
 		{
 			// 登場カメラ固定が有効な間は、通常のマウス追従カメラを止めて正面カメラ位置を維持する。
 			// 演出終了後も解除しなければ、この最終位置のままゲームを続けられる。
-			PerspecCamera::SetAt(m_SpawnIntroAt);
-			PerspecCamera::SetEye(m_SpawnIntroEye);
-			m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
+			PerspecCamera::SetAt(m_spawnIntroAt);
+			PerspecCamera::SetEye(m_spawnIntroEye);
+			m_lastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 			PerspecCamera::OnUpdate(elapsedTime);
 			return;
 		}
 
 		//前回のターンからの時間
 		// 前フレームのシェイクを除去してから通常追従を計算し、揺れの位置が累積しないようにする。
-		Vec3 newEye = GetEye() - m_LastShakeOffset;
-		Vec3 newAt = GetAt() - m_LastShakeOffset;
-		m_LastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 newEye = GetEye() - m_lastShakeOffset;
+		Vec3 newAt = GetAt() - m_lastShakeOffset;
+		m_lastShakeOffset = Vec3(0.0f, 0.0f, 0.0f);
 		//計算に使うための腕角度（ベクトル）
 		Vec3 armVec = newEye - newAt;
 		//正規化しておく
@@ -632,7 +632,7 @@ namespace shooting {
 		auto& input = App::GetInputDevice();
 		HWND hwnd = App::GetHwnd();
 
-		if (m_MouseLook)
+		if (m_mouseLook)
 		{
 			BeginMouseLook();
 
@@ -645,14 +645,14 @@ namespace shooting {
 			float dy = float(d.y);
 
 			// yaw（左右）
-			if (IsLRBaseMode())  m_RadXZ += (dx)*m_MouseSens * m_RotSpeed;
-			else                m_RadXZ += (-dx) * m_MouseSens * m_RotSpeed;
+			if (IsLRBaseMode())  m_radXZ += (dx)*m_mouseSens * m_rotSpeed;
+			else                m_radXZ += (-dx) * m_mouseSens * m_rotSpeed;
 
-			if (std::abs(m_RadXZ) >= XM_2PI) m_RadXZ = 0.0f;
+			if (std::abs(m_radXZ) >= XM_2PI) m_radXZ = 0.0f;
 
 			// pitch（上下）
-			if (IsUDBaseMode())  m_RadY += (dy)*m_MouseSens * m_CameraUpDownSpeed;
-			else                m_RadY += (-dy) * m_MouseSens * m_CameraUpDownSpeed;
+			if (IsUDBaseMode())  m_radY += (dy)*m_mouseSens * m_cameraUpDownSpeed;
+			else                m_radY += (-dy) * m_mouseSens * m_cameraUpDownSpeed;
 
 			// 使用後に中央へ戻す（これで無限回転）
 			//POINT c = GetClientCenterInScreen(hwnd);
@@ -667,33 +667,33 @@ namespace shooting {
 
 
 		// pitch制限
-		m_RadY = bsmUtil::Clamp(m_RadY, m_PitchMin, m_PitchMax);
+		m_radY = bsmUtil::Clamp(m_radY, m_pitchMin, m_pitchMax);
 
 		// ホイールでズーム（上で寄る）
 		const int wheel = input.GetMouseWheelDelta();
 		if (wheel != 0)
 		{
-			m_ArmLen -= (wheel / 120.0f) * m_ZoomSpeed;
-			m_ArmLen = bsmUtil::Clamp(m_ArmLen, m_MinArm, m_MaxArm);
+			m_armLen -= (wheel / 120.0f) * m_zoomSpeed;
+			m_armLen = bsmUtil::Clamp(m_armLen, m_minArm, m_maxArm);
 		}
 
-		armVec.y = sin(m_RadY);
+		armVec.y = sin(m_radY);
 
 		Quat qtXZ;
-		qtXZ.rotationAxis(Vec3(0, 1.0f, 0), m_RadXZ);
+		qtXZ.rotationAxis(Vec3(0, 1.0f, 0), m_radXZ);
 		qtXZ.normalize();
 
-		Mat4x4 Mat;
-		Mat.strTransformation(
+		Mat4x4 mat;
+		mat.strTransformation(
 			Vec3(1.0f, 1.0f, 1.0f),
 			Vec3(0.0f, 0.0f, -1.0f),
 			qtXZ
 		);
 
-		Vec3 posXZ = Mat.transInMatrix();
+		Vec3 posXZ = mat.transInMatrix();
 
-		const float s = std::sin(m_RadY);
-		const float c = std::cos(m_RadY);
+		const float s = std::sin(m_radY);
+		const float c = std::cos(m_radY);
 
 		armVec.x = posXZ.x * c;
 		armVec.z = posXZ.z * c;
@@ -704,18 +704,18 @@ namespace shooting {
 		if (ptrTarget)
 		{
 			Vec3 toAt = ptrTarget->GetComponent<Transform>()->GetWorldMatrix().transInMatrix();
-			toAt += m_TargetToAt;
+			toAt += m_targetToAt;
 			newAt = Lerp::CalculateLerp(newAt, toAt, 0, 1.0f, 1.0, Lerp::Linear);
 		}
 
-		//Vec3 toEye = newAt + armVec * m_ArmLen;
-		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
+		//Vec3 toEye = newAt + armVec * m_armLen;
+		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_toTargetLerp, Lerp::Linear);
 
-		float desiredArm = bsmUtil::Clamp(m_ArmLen, m_MinArm, m_MaxArm);
+		float desiredArm = bsmUtil::Clamp(m_armLen, m_minArm, m_maxArm);
 		float targetArm = desiredArm;
 		bool hitNow = false;
 
-		auto cm = m_CollisionManager.lock();
+		auto cm = m_collisionManager.lock();
 		auto isCameraPathBlocked = [&](const Vec3& candidateEye, RaycastHit* outHit) -> bool
 			{
 				if (!cm)
@@ -734,7 +734,7 @@ namespace shooting {
 				// プレイヤーのすぐ近くから太いSphereCastを始めると、壁や木に密着しただけで
 				// 「カメラが塞がれた」と判定されるため、少し離した位置から遮蔽を調べる。
 				const float probeStartOffset = bsmUtil::Clamp(
-					m_CameraColProbeStartOffset,
+					m_cameraColProbeStartOffset,
 					0.0f,
 					bsmUtil::Max(0.0f, probeLen - 0.01f));
 				const float probeDistance = probeLen - probeStartOffset;
@@ -748,7 +748,7 @@ namespace shooting {
 					newAt + probeVec * probeStartOffset,
 					probeVec,
 					probeDistance,
-					m_CameraColRadius,
+					m_cameraColRadius,
 					hit,
 					ptrTarget,
 					{ L"Bullet", L"Bomb", L"Enemy", L"EnemyProxy", L"Item", L"HpRecoveryItem", L"BombItem" });
@@ -766,31 +766,31 @@ namespace shooting {
 			if (isCameraPathBlocked(centerEye, &hit))
 			{
 				// カメラ経路が塞がれている場合は、壁の少し手前まで距離を縮める。
-				const Vec3 safeEye = hit.m_Point + hit.m_Normal * (m_CameraColRadius + m_CameraColMargin);
+				const Vec3 safeEye = hit.m_Point + hit.m_Normal * (m_cameraColRadius + m_cameraColMargin);
 				float safeArm = bsmUtil::dot(safeEye - newAt, armVec);
-				targetArm = bsmUtil::Clamp(safeArm, m_MinArm, desiredArm);
+				targetArm = bsmUtil::Clamp(safeArm, m_minArm, desiredArm);
 				hitNow = true;
 			}
 		}
 
 		// “縮む” と “戻る” で速度を変える:contentReference[oaicite:3]{index=3}
-		//const float rate = (targetArm < m_ArmLenCurrent) ? m_PushInRate : m_ReturnRate;
-		//m_ArmLenCurrent += (targetArm - m_ArmLenCurrent) * rate;
-		//m_ArmLenCurrent = bsmUtil::Clamp(m_ArmLenCurrent, m_MinArm, m_MaxArm);
+		//const float rate = (targetArm < m_armLenCurrent) ? m_pushInRate : m_returnRate;
+		//m_armLenCurrent += (targetArm - m_armLenCurrent) * rate;
+		//m_armLenCurrent = bsmUtil::Clamp(m_armLenCurrent, m_minArm, m_maxArm);
 
-		if (targetArm < m_ArmLenCurrent)
+		if (targetArm < m_armLenCurrent)
 		{
 			// 壁に当たって縮む時は即座に
-			m_ArmLenCurrent = targetArm;
+			m_armLenCurrent = targetArm;
 		}
 		else
 		{
 			// 壁が無い（戻る）時だけゆっくり
-			m_ArmLenCurrent += (targetArm - m_ArmLenCurrent) * m_ReturnRate;
+			m_armLenCurrent += (targetArm - m_armLenCurrent) * m_returnRate;
 		}
-		m_ArmLenCurrent = bsmUtil::Clamp(m_ArmLenCurrent, m_MinArm, m_MaxArm);
+		m_armLenCurrent = bsmUtil::Clamp(m_armLenCurrent, m_minArm, m_maxArm);
 
-		Vec3 toEye = newAt + armVec * m_ArmLenCurrent;
+		Vec3 toEye = newAt + armVec * m_armLenCurrent;
 
 		if (hitNow)  // SphereCastが当たったフラグ
 		{
@@ -798,18 +798,18 @@ namespace shooting {
 		}
 		else
 		{
-			newEye = Lerp::CalculateLerp(newEye, toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
+			newEye = Lerp::CalculateLerp(newEye, toEye, 0, 1.0f, m_toTargetLerp, Lerp::Linear);
 		}
 
-		// 既存の Eye lerp は残してOK（好みで m_ToTargetLerp=1 にしても良い）
-		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_ToTargetLerp, Lerp::Linear);
+		// 既存の Eye lerp は残してOK（好みで m_toTargetLerp=1 にしても良い）
+		//newEye = Lerp::CalculateLerp(GetEye(), toEye, 0, 1.0f, m_toTargetLerp, Lerp::Linear);
 
 		// EyeとAtへ同じ量を加えることで照準方向を維持し、画面全体だけを揺らす。
-		m_LastShakeOffset = UpdateCameraShake(static_cast<float>(elapsedTime));
+		m_lastShakeOffset = UpdateCameraShake(static_cast<float>(elapsedTime));
 
 		// SetAtがEyeを動かす実装だとガタつくので、ベースを直接呼ぶ。
-		PerspecCamera::SetAt(newAt + m_LastShakeOffset);
-		PerspecCamera::SetEye(newEye + m_LastShakeOffset);
+		PerspecCamera::SetAt(newAt + m_lastShakeOffset);
+		PerspecCamera::SetEye(newEye + m_lastShakeOffset);
 		PerspecCamera::OnUpdate(elapsedTime);
 	}
 }

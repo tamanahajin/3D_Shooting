@@ -12,7 +12,7 @@ namespace shooting {
 	class BulletManager : public GameObject
 	{
 	private:
-		std::vector<std::unique_ptr<IBulletPool>> m_Pools;
+		std::vector<std::unique_ptr<IBulletPool>> m_pools;
 
 	public:
 		explicit BulletManager(const std::shared_ptr<Stage>& stagePtr);
@@ -40,19 +40,19 @@ namespace shooting {
 		{
 			const int typeId = GetTypeId<BulletT>();
 
-			if (m_Pools.size() <= static_cast<std::size_t>(typeId))
+			if (m_pools.size() <= static_cast<std::size_t>(typeId))
 			{
-				m_Pools.resize(static_cast<std::size_t>(typeId) + 1);
+				m_pools.resize(static_cast<std::size_t>(typeId) + 1);
 			}
 
-			if (!m_Pools[typeId])
+			if (!m_pools[typeId])
 			{
 				auto p = std::make_unique<BulletPool<BulletT>>(GetStage());
 				p->OnCreate(); // 事前生成
-				m_Pools[typeId] = std::move(p);
+				m_pools[typeId] = std::move(p);
 			}
 
-			return static_cast<BulletPool<BulletT>*>(m_Pools[typeId].get());
+			return static_cast<BulletPool<BulletT>*>(m_pools[typeId].get());
 		}
 
 		// テンプレの発射API

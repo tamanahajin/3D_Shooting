@@ -20,7 +20,7 @@ namespace shooting {
 
 	void BulletManager::OnUpdate(double elapsedTime)
 	{
-		for (auto& pool : m_Pools)
+		for (auto& pool : m_pools)
 		{
 			if (pool) { pool->OnUpdate(elapsedTime); } // Poolは回収だけ担当
 		}

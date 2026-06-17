@@ -59,38 +59,38 @@ namespace shooting {
 			return;
 		}
 
-		m_BombAmmo += amount;
-		m_CurrentBullet = BulletType::Bomb;
+		m_bombAmmo += amount;
+		m_currentBullet = BulletType::Bomb;
 	}
 
 	void Player::UpdateCombat(double elapsedTime, bool hitStopActive)
 	{
-		m_ShotCool -= elapsedTime;
+		m_shotCool -= elapsedTime;
 
-		if (m_CurrentBullet == BulletType::Bomb && m_BombAmmo <= 0)
+		if (m_currentBullet == BulletType::Bomb && m_bombAmmo <= 0)
 		{
-			m_CurrentBullet = BulletType::Default;
+			m_currentBullet = BulletType::Default;
 		}
 
 		const auto& input = App::GetInputDevice();
 		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
-		const bool canFire = !hitStopActive && fireInput && m_ShotCool <= 0.0;
+		const bool canFire = !hitStopActive && fireInput && m_shotCool <= 0.0;
 		const bool bombMode = IsBombMode();
-		auto collisionManager = m_CollisionManager.lock();
+		auto collisionManager = m_collisionManager.lock();
 
 		PlayerBombAim bombAim;
-		if (bombMode && m_BombPreview && m_MainCamera && collisionManager)
+		if (bombMode && m_bombPreview && m_mainCamera && collisionManager)
 		{
 			bombAim = PlayerAimResolver::ResolveBombAim(
 				GetThis<Player>(),
-				m_MainCamera,
+				m_mainCamera,
 				collisionManager,
-				m_BombPreview->GetMaxRange());
+				m_bombPreview->GetMaxRange());
 		}
 
-		if (m_BombPreview)
+		if (m_bombPreview)
 		{
-			m_BombPreview->SetPreviewInput(
+			m_bombPreview->SetPreviewInput(
 				bombMode && bombAim.isValid,
 				bombAim.start,
 				bombAim.aimPoint,
@@ -112,14 +112,14 @@ namespace shooting {
 			return;
 		}
 
-		if (!m_MainCamera || !collisionManager)
+		if (!m_mainCamera || !collisionManager)
 		{
 			return;
 		}
 
 		const PlayerNormalShotAim normalAim = PlayerAimResolver::ResolveNormalShot(
 			GetThis<Player>(),
-			m_MainCamera,
+			m_mainCamera,
 			collisionManager,
 			kNormalShotRange);
 		if (normalAim.isValid)
@@ -154,7 +154,7 @@ namespace shooting {
 	{
 		auto bulletManager =
 			GetStage()->GetSharedGameObjectEx<BulletManager>(L"BulletManager", false);
-		if (!bulletManager || !m_BombPreview)
+		if (!bulletManager || !m_bombPreview)
 		{
 			return;
 		}
@@ -163,7 +163,7 @@ namespace shooting {
 		const Vec3 target = aim.aimPoint;
 		const Vec3 hitNormal = aim.hitNormal;
 		const bool hasHit = aim.hasHit;
-		const BombTuning tuning = m_BombPreview->GetTuning();
+		const BombTuning tuning = m_bombPreview->GetTuning();
 		bulletManager->FireEx<BombBullet>(
 			aim.start,
 			aim.rotation,
@@ -174,12 +174,12 @@ namespace shooting {
 			});
 
 		GameAudio::Instance().PlaySound(GameSoundId::BombThrow);
-		m_ShotCool = kBombShotCooldown;
-		--m_BombAmmo;
-		if (m_BombAmmo <= 0)
+		m_shotCool = kBombShotCooldown;
+		--m_bombAmmo;
+		if (m_bombAmmo <= 0)
 		{
-			m_BombAmmo = 0;
-			m_CurrentBullet = BulletType::Default;
+			m_bombAmmo = 0;
+			m_currentBullet = BulletType::Default;
 		}
 
 		FaceAttackTarget(aim.aimPoint);
@@ -198,7 +198,7 @@ namespace shooting {
 		}
 
 		FaceAttackTarget(aim.aimPoint);
-		m_ShotCool = kNormalShotCooldown;
+		m_shotCool = kNormalShotCooldown;
 
 		Vec3 shotForward = aim.aimPoint - aim.muzzle;
 		if (shotForward.length() > 1e-6f)

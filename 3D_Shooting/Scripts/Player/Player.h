@@ -51,37 +51,37 @@ namespace shooting {
 		/*! @brief 解決済みの照準結果を使って通常弾を発射する */
 		void FireNormalShot(const PlayerNormalShotAim& aim);
 		//入力ハンドラー
-		InputHandler<Player> m_InputHandler;
+		InputHandler<Player> m_inputHandler;
 		//スピード
-		float m_Speed;
+		float m_speed;
 		// 地面にいるかどうか
-		bool m_IsGround;
+		bool m_isGround;
 		// 弾発射間隔
-		double m_ShotCool = 0.0;
-		std::shared_ptr<MainCamera> m_MainCamera;
+		double m_shotCool = 0.0;
+		std::shared_ptr<MainCamera> m_mainCamera;
 		// CollisionManager側も空間分割ノードからPlayerを保持するため、弱参照にして循環所有を防ぐ。
-		std::weak_ptr<CollisionManager> m_CollisionManager;
+		std::weak_ptr<CollisionManager> m_collisionManager;
 
 		// 地面衝突判定の共通処理
 		void CheckGroundCollision(const CollisionPair& pair);
 		void CheckItemPickup(const CollisionPair& pair);
 		void ResolveSlopeCollision(double elapsedTime);
 		// 現在の弾タイプ
-		BulletType m_CurrentBullet = BulletType::Default;
-		int m_BombAmmo = 0;
+		BulletType m_currentBullet = BulletType::Default;
+		int m_bombAmmo = 0;
 
-		std::shared_ptr<BombAimPreview> m_BombPreview;
+		std::shared_ptr<BombAimPreview> m_bombPreview;
 
-		bool m_IsDead = false;
-		bool m_DeathAnimFinished = false;
-		bool m_DeathSoundPending = false;
-		double m_DeathSoundDelayTimer = 0.0;
-		bool m_SpawnIntroActive = false;
-		bool m_SpawnIntroCharacterVisible = true;
-		bool m_SpawnIntroSePlayed = false;
-		double m_SpawnIntroTimer = 0.0;
-		Vec3 m_SpawnIntroStartPosition = Vec3(0.0f, 0.0f, 0.0f);
-		Vec3 m_SpawnIntroEndPosition = Vec3(0.0f, 0.0f, 0.0f);
+		bool m_isDead = false;
+		bool m_deathAnimFinished = false;
+		bool m_deathSoundPending = false;
+		double m_deathSoundDelayTimer = 0.0;
+		bool m_spawnIntroActive = false;
+		bool m_spawnIntroCharacterVisible = true;
+		bool m_spawnIntroSePlayed = false;
+		double m_spawnIntroTimer = 0.0;
+		Vec3 m_spawnIntroStartPosition = Vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_spawnIntroEndPosition = Vec3(0.0f, 0.0f, 0.0f);
 	public:
 		Player(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~Player() {}
@@ -100,13 +100,13 @@ namespace shooting {
 		void OnPushB() {}
 
 		void AddBombAmmo(int amount);
-		int GetBombAmmo() const { return m_BombAmmo; }
-		bool IsBombMode() const { return m_CurrentBullet == BulletType::Bomb && m_BombAmmo > 0; }
+		int GetBombAmmo() const { return m_bombAmmo; }
+		bool IsBombMode() const { return m_currentBullet == BulletType::Bomb && m_bombAmmo > 0; }
 
-		bool IsDead() const { return m_IsDead; }
-		bool IsDeathAnimationFinished() const { return m_DeathAnimFinished; }
-		bool IsSpawnIntroActive() const { return m_SpawnIntroActive; }
-		bool IsSpawnIntroCharacterVisible() const { return m_SpawnIntroCharacterVisible; }
+		bool IsDead() const { return m_isDead; }
+		bool IsDeathAnimationFinished() const { return m_deathAnimFinished; }
+		bool IsSpawnIntroActive() const { return m_spawnIntroActive; }
+		bool IsSpawnIntroCharacterVisible() const { return m_spawnIntroCharacterVisible; }
 	};
 
 }

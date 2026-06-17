@@ -11,7 +11,7 @@
 namespace shooting {
 
 	/*!
-	@brief 空間グリッドのセル座標を m_CellMap 用のキーへ変換する
+	@brief 空間グリッドのセル座標を m_cellMap 用のキーへ変換する
 	@param x セルX座標
 	@param z セルZ座標
 	@return 2次元セルを表す64bitキー
@@ -29,30 +29,30 @@ namespace shooting {
 	@brief 敵同士の分離計算に使う空間グリッドを作る
 
 	敵数が増えても全組み合わせ比較を避けるため、現在位置からセル座標を求めて
-	m_CellMap に敵インデックスを登録する。
+	m_cellMap に敵インデックスを登録する。
 	*/
 	void EnemyBatchController::BuildSpatialGrid()
 	{
 		// 敵同士の分離計算で全組み合わせを見ると重くなるため、
 		// 毎フレーム「近くにいる可能性がある敵」だけを引ける簡易グリッドを作る。
-		m_CellMap.clear();
-		if (m_CellSize <= 0.0f)
+		m_cellMap.clear();
+		if (m_cellSize <= 0.0f)
 		{
-			m_CellSize = 1.0f;
+			m_cellSize = 1.0f;
 		}
 
-		for (size_t i = 0; i < m_Enemies.size(); ++i)
+		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
-			const auto& enemy = m_Enemies[i];
+			const auto& enemy = m_enemies[i];
 			// 死亡済み・非アクティブの敵は移動にも分離にも参加させない。
 			if (!enemy.active || enemy.isDead)
 			{
 				continue;
 			}
 
-			const int cellX = static_cast<int>(floorf(enemy.position.x / m_CellSize));
-			const int cellZ = static_cast<int>(floorf(enemy.position.z / m_CellSize));
-			m_CellMap[MakeCellKey(cellX, cellZ)].push_back(i);
+			const int cellX = static_cast<int>(floorf(enemy.position.x / m_cellSize));
+			const int cellZ = static_cast<int>(floorf(enemy.position.z / m_cellSize));
+			m_cellMap[MakeCellKey(cellX, cellZ)].push_back(i);
 		}
 	}
 
@@ -65,15 +65,15 @@ namespace shooting {
 	*/
 	Vec3 EnemyBatchController::CalculateSeparation(size_t index) const
 	{
-		if (index >= m_Enemies.size())
+		if (index >= m_enemies.size())
 		{
 			return Vec3(0.0f, 0.0f, 0.0f);
 		}
 
-		const Vec3 myPos = m_Enemies[index].position;
-		const int cellX = static_cast<int>(floorf(myPos.x / m_CellSize));
-		const int cellZ = static_cast<int>(floorf(myPos.z / m_CellSize));
-		const float rangeSq = m_SeparationRange * m_SeparationRange;
+		const Vec3 myPos = m_enemies[index].position;
+		const int cellX = static_cast<int>(floorf(myPos.x / m_cellSize));
+		const int cellZ = static_cast<int>(floorf(myPos.z / m_cellSize));
+		const float rangeSq = m_separationRange * m_separationRange;
 		Vec3 steeringForce(0.0f, 0.0f, 0.0f);
 
 		// 自分がいるセルと周囲8セルだけを見れば、分離範囲内の敵はほぼ拾える。
@@ -82,21 +82,21 @@ namespace shooting {
 		{
 			for (int x = -1; x <= 1; ++x)
 			{
-				auto it = m_CellMap.find(MakeCellKey(cellX + x, cellZ + z));
-				if (it == m_CellMap.end())
+				auto it = m_cellMap.find(MakeCellKey(cellX + x, cellZ + z));
+				if (it == m_cellMap.end())
 				{
 					continue;
 				}
 
 				for (const auto otherIndex : it->second)
 				{
-					if (otherIndex == index || otherIndex >= m_Enemies.size())
+					if (otherIndex == index || otherIndex >= m_enemies.size())
 					{
 						continue;
 					}
 
 					// 水平方向だけで押し合う。Yを含めると段差や落下中に不自然な浮き沈みが出やすい。
-					Vec3 toAgent = myPos - m_Enemies[otherIndex].position;
+					Vec3 toAgent = myPos - m_enemies[otherIndex].position;
 					toAgent.y = 0.0f;
 					const float distSq = bsmUtil::lengthSqr(toAgent);
 					if (distSq <= 1e-6f || distSq > rangeSq)
@@ -165,7 +165,7 @@ namespace shooting {
 	*/
 	bool EnemyBatchController::ResolveGeneratedGround(EnemyState& enemy, double elapsedTime)
 	{
-		auto gameStage = m_GameStage.lock();
+		auto gameStage = m_gameStage.lock();
 		if (!gameStage)
 		{
 			return false;
@@ -231,12 +231,12 @@ namespace shooting {
 		// この関数が敵バッチの主更新。処理順は「目標取得 → 分離力計算 → 各敵の移動/接地/同期」。
 		ScopedBenchmarkTimer benchmarkTimer(BenchmarkSection::EnemyUpdate);
 
-		if (m_Enemies.empty())
+		if (m_enemies.empty())
 		{
 			return;
 		}
 
-		auto gameStage = m_GameStage.lock();
+		auto gameStage = m_gameStage.lock();
 		if (!gameStage)
 		{
 			return;
@@ -258,22 +258,22 @@ namespace shooting {
 		}
 
 		// 分離力は全敵の現在位置を使うため、各敵更新に入る前にまとめて計算しておく。
-		m_SeparationForces.assign(m_Enemies.size(), Vec3(0.0f, 0.0f, 0.0f));
+		m_separationForces.assign(m_enemies.size(), Vec3(0.0f, 0.0f, 0.0f));
 		BuildSpatialGrid();
-		for (size_t i = 0; i < m_Enemies.size(); ++i)
+		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
-			if (m_Enemies[i].active && !m_Enemies[i].isDead)
+			if (m_enemies[i].active && !m_enemies[i].isDead)
 			{
-				m_SeparationForces[i] = CalculateSeparation(i);
+				m_separationForces[i] = CalculateSeparation(i);
 			}
 		}
 
 		const float dt = static_cast<float>(elapsedTime);
 		const Vec3 gravity(0.0f, -9.8f, 0.0f);
-		for (size_t i = 0; i < m_Enemies.size(); ++i)
+		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
 			// ここから先は1体分の状態更新。GameObjectを増やさず配列上の状態だけを進める。
-			auto& enemy = m_Enemies[i];
+			auto& enemy = m_enemies[i];
 			if (!enemy.active)
 			{
 				continue;
@@ -401,10 +401,10 @@ namespace shooting {
 					{
 						// 目標速度との差分を力として使う簡易Seek。現在速度を引くので急加速しすぎない。
 						toTarget.normalize();
-						seekForce = toTarget * (enemy.status.moveSpeed * m_MoveSpeedMultiplier) - enemy.velocity;
+						seekForce = toTarget * (enemy.status.moveSpeed * m_moveSpeedMultiplier) - enemy.velocity;
 					}
 
-					Vec3 separation = m_SeparationForces[i];
+					Vec3 separation = m_separationForces[i];
 					separation.y = 0.0f;
 					enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 					// 追跡と分離を同じ上限内で積む。分離が強すぎて追跡不能になるのを避ける。
@@ -485,9 +485,9 @@ namespace shooting {
 
 		// CollisionManager側で押し戻された結果を、次フレームの配列更新に反映する。
 		// バッチ本体とプロキシのTransformがずれると、弾や床との当たり判定位置が古くなる。
-		for (size_t i = 0; i < m_Enemies.size(); ++i)
+		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
-			auto& enemy = m_Enemies[i];
+			auto& enemy = m_enemies[i];
 			if (!enemy.active)
 			{
 				continue;

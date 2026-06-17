@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 
 namespace shooting {
@@ -6,9 +6,9 @@ namespace shooting {
 	class BaseItem : public GameObject
 	{
 	private:
-		Vec3 m_BasePosition;
-		float m_Time = 0.0f;
-		bool m_Consumed = false;
+		Vec3 m_basePosition;
+		float m_time = 0.0f;
+		bool m_consumed = false;
 
 		void TryPickup(const CollisionPair& pair);
 		void Consume();
@@ -30,7 +30,7 @@ namespace shooting {
 		virtual void OnUpdate(double elapsedTime) override;
 
 		bool TryPickupBy(const std::shared_ptr<GameObject>& collector);
-		bool IsConsumed() const { return m_Consumed; }
+		bool IsConsumed() const { return m_consumed; }
 
 		virtual void OnCollisionEnter(const CollisionPair& pair) override;
 		virtual void OnCollisionExecute(const CollisionPair& pair) override;
@@ -39,7 +39,7 @@ namespace shooting {
 	class HpRecoveryItem : public BaseItem
 	{
 	private:
-		float m_HealRate;
+		float m_healRate;
 
 	protected:
 		virtual bool ApplyItemEffect(const std::shared_ptr<GameObject>& collector) override;
@@ -56,7 +56,7 @@ namespace shooting {
 	class BombItem : public BaseItem
 	{
 	private:
-		int m_BombGrantCount;
+		int m_bombGrantCount;
 
 	protected:
 		virtual bool ApplyItemEffect(const std::shared_ptr<GameObject>& collector) override;

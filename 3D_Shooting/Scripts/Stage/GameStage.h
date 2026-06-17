@@ -98,16 +98,16 @@ namespace shooting {
 		StageSpawnBounds m_stageSpawnBounds;
 		// アイテム出現用乱数。CreateItemsでステージ開始ごとにシードを入れる。
 		std::mt19937 m_itemSpawnRandom;
-		HitStopController m_HitStop;
+		HitStopController m_hitStop;
 		std::shared_ptr<EnemyInstancedRenderer> m_enemyInstancedRenderer;
 		std::shared_ptr<EnemyIndividualRenderer> m_enemyIndividualRenderer;
 		bool m_enemyRendererUsesInstancing = true;
 		// 初回ウェーブだけ、プレイヤー登場演出の完了を待ってから開始する。
-		bool m_WaitingInitialWaveUntilPlayerIntroEnds = false;
+		bool m_waitingInitialWaveUntilPlayerIntroEnds = false;
 		// リザルト表示用の1プレイ分の集計値。
-		double m_SurvivalTime = 0.0;
-		long long m_TotalDamageDealt = 0;
-		int m_BestExplosionKills = 0;
+		double m_survivalTime = 0.0;
+		long long m_totalDamageDealt = 0;
+		int m_bestExplosionKills = 0;
 
 		void CreateItems();
 		void MaintainRecoveryItems();
@@ -161,17 +161,17 @@ namespace shooting {
 		@brief プレイヤーが操作可能になってから死亡するまでの生存時間を取得する
 		@return 生存時間（秒）
 		*/
-		double GetSurvivalTime() const { return m_SurvivalTime; }
+		double GetSurvivalTime() const { return m_survivalTime; }
 		/*!
 		@brief 敵へ実際に与えた総ダメージを取得する
 		@return オーバーキル分を除いた総ダメージ
 		*/
-		long long GetTotalDamageDealt() const { return m_TotalDamageDealt; }
+		long long GetTotalDamageDealt() const { return m_totalDamageDealt; }
 		/*!
 		@brief 爆弾1個で死亡が確定した敵数の最高記録を取得する
 		@return 1回の爆発による最大撃破数
 		*/
-		int GetBestExplosionKills() const { return m_BestExplosionKills; }
+		int GetBestExplosionKills() const { return m_bestExplosionKills; }
 		/*!
 		@brief 敵へ実際に与えたダメージを総ダメージへ加算する
 		@param damage 加算するダメージ
@@ -187,7 +187,7 @@ namespace shooting {
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }
 		void RequestHitStop(double duration, double timeScale);
 		double GetGameDeltaTime(double rawDeltaTime) const;
-		bool IsHitStopActive() const { return m_HitStop.IsActive(); }
+		bool IsHitStopActive() const { return m_hitStop.IsActive(); }
 
 		void AddSlopeCollision(
 			const Vec3& startCenter,

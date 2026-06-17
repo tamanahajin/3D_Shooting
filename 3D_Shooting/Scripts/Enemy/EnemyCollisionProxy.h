@@ -22,13 +22,13 @@ namespace shooting {
 	class EnemyCollisionProxy : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_Controller;
-		size_t m_EnemyIndex = 0;
-		Vec3 m_StartPosition;
-		Vec3 m_ModelScale = Vec3(0.01f, 0.01f, 0.01f);
-		float m_CollisionRadius = 0.2f;
-		float m_CollisionHeight = 0.3f;
-		bool m_InUse = true;
+		std::weak_ptr<EnemyBatchController> m_controller;
+		size_t m_enemyIndex = 0;
+		Vec3 m_startPosition;
+		Vec3 m_modelScale = Vec3(0.01f, 0.01f, 0.01f);
+		float m_collisionRadius = 0.2f;
+		float m_collisionHeight = 0.3f;
+		bool m_inUse = true;
 
 		/*!
 		@brief 衝突相手を判定し、接地・弾・爆弾の処理をコントローラへ転送する
@@ -41,7 +41,7 @@ namespace shooting {
 		@brief 敵プロキシを生成する
 		@param stage 所属するステージ
 		@param controller 本体状態を持つ敵バッチコントローラ
-		@param enemyIndex m_Enemies 内の対象インデックス
+		@param enemyIndex m_enemies 内の対象インデックス
 		@param startPosition 生成位置
 		@param status 当たり判定サイズとモデルスケールを含む敵設定
 		*/
@@ -60,7 +60,7 @@ namespace shooting {
 		/*!
 		@brief プールから取り出したプロキシを新しい敵に割り当てる
 		@param controller 本体状態を持つ敵バッチコントローラ
-		@param enemyIndex m_Enemies 内の対象インデックス
+		@param enemyIndex m_enemies 内の対象インデックス
 		@param startPosition 初期位置
 		@param status 当たり判定サイズとモデルスケールを含む敵設定
 
@@ -79,7 +79,7 @@ namespace shooting {
 		@brief 現在敵に割り当てられているかを取得する
 		@return 使用中なら true
 		*/
-		bool IsInUse() const { return m_InUse; }
+		bool IsInUse() const { return m_inUse; }
 		/*!
 		@brief 衝突開始時の処理を共通ハンドラへ渡す
 		@param pair 衝突情報
@@ -93,9 +93,9 @@ namespace shooting {
 
 		/*!
 		@brief 対応する敵配列インデックスを取得する
-		@return m_Enemies 内のインデックス
+		@return m_enemies 内のインデックス
 		*/
-		size_t GetEnemyIndex() const { return m_EnemyIndex; }
+		size_t GetEnemyIndex() const { return m_enemyIndex; }
 		/*!
 		@brief このプロキシに対応する敵へダメージを適用する
 		@param info ダメージ量、攻撃者、吹っ飛び死亡遅延などの情報

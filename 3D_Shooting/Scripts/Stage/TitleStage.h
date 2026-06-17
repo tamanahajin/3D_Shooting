@@ -6,7 +6,7 @@ namespace shooting {
 	class TitleStage : public GameStage
 	{
 	private:
-		double m_Time = 0.0;
+		double m_time = 0.0;
 
 		void CreateTitleActors();
 
@@ -27,10 +27,10 @@ namespace shooting {
 	class TitleStaticModel : public GameObject
 	{
 	private:
-		std::wstring m_ModelKey;
-		std::wstring m_MaterialPrefix;
-		Col4 m_FallbackColor = Col4(1.0f);
-		float m_RotationSpeed = 0.0f;
+		std::wstring m_modelKey;
+		std::wstring m_materialPrefix;
+		Col4 m_fallbackColor = Col4(1.0f);
+		float m_rotationSpeed = 0.0f;
 
 	public:
 		TitleStaticModel(
@@ -49,11 +49,11 @@ namespace shooting {
 	class TitleSkinnedModel : public GameObject
 	{
 	private:
-		std::wstring m_MeshKey;
-		std::wstring m_TextureKey;
-		Vec3 m_ModelOffset;
-		AnimState m_AnimState = AnimState::Idle;
-		float m_RotationSpeed = 0.0f;
+		std::wstring m_meshKey;
+		std::wstring m_textureKey;
+		Vec3 m_modelOffset;
+		AnimState m_animState = AnimState::Idle;
+		float m_rotationSpeed = 0.0f;
 
 	public:
 		TitleSkinnedModel(

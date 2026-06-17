@@ -6,8 +6,8 @@ namespace shooting {
 	void UIManager::BeginFrame()
 	{
 		// 前フレームのホバー状態を残し、ボタンに入った瞬間だけ効果音を鳴らせるようにする。
-		m_PreviousHoveredButtonIds.swap(m_CurrentHoveredButtonIds);
-		m_CurrentHoveredButtonIds.clear();
+		m_previousHoveredButtonIds.swap(m_currentHoveredButtonIds);
+		m_currentHoveredButtonIds.clear();
 
 		m_texts.clear();
 		m_bars.clear();
@@ -185,9 +185,9 @@ namespace shooting {
 			return;
 		}
 
-		m_CurrentHoveredButtonIds.insert(buttonId);
+		m_currentHoveredButtonIds.insert(buttonId);
 		if (playHoverSound &&
-			m_PreviousHoveredButtonIds.find(buttonId) == m_PreviousHoveredButtonIds.end())
+			m_previousHoveredButtonIds.find(buttonId) == m_previousHoveredButtonIds.end())
 		{
 			GameAudio::Instance().PlaySound(GameSoundId::CursorMove);
 		}
