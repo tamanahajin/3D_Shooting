@@ -9,6 +9,13 @@
 
 namespace shooting {
 
+	/*!
+	@brief 
+	@param  pCommandList
+	@param  fileName
+	@param  mapHandle
+	@return 
+	*/
 	std::shared_ptr<BaseTexture>  BaseTexture::CreateBaseTextureFromFilePrim(ID3D12GraphicsCommandList* pCommandList,
 		const std::wstring& fileName, const CD3DX12_CPU_DESCRIPTOR_HANDLE& mapHandle) {
 		if (fileName == L"") {
@@ -110,7 +117,7 @@ namespace shooting {
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-				D3D12_RESOURCE_STATE_COMMON,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(ptrTexture->m_textureUploadHeap.GetAddressOf())),
 			L"テクスチャのアップロードヒープ作成に失敗しました\n",
