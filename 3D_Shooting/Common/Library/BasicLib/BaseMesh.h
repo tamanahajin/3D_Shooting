@@ -239,6 +239,37 @@ namespace shooting {
 
 		std::shared_ptr<BaseAssimp> m_BaseAssimp;
 
+		static UINT CalcMeshBufferSizeOrThrow(
+			const wchar_t* bufferName,
+			size_t elementSize,
+			size_t elementCount)
+		{
+			// D3D12のBuffer(0)は不正なリソース記述になるため、APIへ渡す前に原因を明確にする。
+			if (elementCount == 0)
+			{
+				std::wstring message = bufferName;
+				message += L"が空です。";
+				throw BaseException(
+					message,
+					L"要素数: 0",
+					L"BaseMesh::CreateBaseMesh()"
+				);
+			}
+
+			if (elementSize == 0 || elementCount > static_cast<size_t>(UINT_MAX) / elementSize)
+			{
+				std::wstring message = bufferName;
+				message += L"のサイズが大きすぎます。";
+				throw BaseException(
+					message,
+					L"要素数: " + std::to_wstring(elementCount),
+					L"BaseMesh::CreateBaseMesh()"
+				);
+			}
+
+			return static_cast<UINT>(elementSize * elementCount);
+		}
+
 	protected:
 		BaseMesh() :m_BaseAssimp(nullptr) {}
 	public:
@@ -351,7 +382,11 @@ namespace shooting {
 			//デバイスの取得
 			auto device = App::GetD3D12Device();
 			std::shared_ptr<BaseMesh> ptrMesh = std::shared_ptr<BaseMesh>(new BaseMesh());
-			UINT vertexBufferSize = (UINT)(sizeof(T) * vertices.size());
+			UINT vertexBufferSize = CalcMeshBufferSizeOrThrow(
+				L"頂点バッファ",
+				sizeof(T),
+				vertices.size()
+			);
 			//頂点バッファの作成
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
@@ -415,7 +450,11 @@ namespace shooting {
 			//デバイスの取得
 			auto device = App::GetD3D12Device();
 			std::shared_ptr<BaseMesh> ptrMesh = std::shared_ptr<BaseMesh>(new BaseMesh());
-			UINT vertexBufferSize = (UINT)(sizeof(T) * vertices.size());
+			UINT vertexBufferSize = CalcMeshBufferSizeOrThrow(
+				L"頂点バッファ",
+				sizeof(T),
+				vertices.size()
+			);
 			//頂点バッファの作成
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
@@ -464,7 +503,11 @@ namespace shooting {
 			//頂点数の設定
 			ptrMesh->m_numVertices = static_cast<UINT>(vertices.size());
 			//インデックスバッファの作成
-			UINT indexBufferSize = static_cast<UINT>(sizeof(uint32_t) * indices.size());
+			UINT indexBufferSize = CalcMeshBufferSizeOrThrow(
+				L"インデックスバッファ",
+				sizeof(uint32_t),
+				indices.size()
+			);
 			{
 				ThrowIfFailedEx(device->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
