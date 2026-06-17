@@ -7,7 +7,7 @@ namespace shooting {
 	@brief 敵バッチコントローラを指定して生成する
 	@param controller 敵生成先のバッチコントローラ
 	*/
-	WaveController::WaveController(const std::shared_ptr<EnemyBatchController>& controller) :
+	WaveController::WaveController(const std::shared_ptr<EnemyController>& controller) :
 		WaveController()
 	{
 		SetController(controller);
@@ -17,7 +17,7 @@ namespace shooting {
 	@brief 敵生成先のバッチコントローラを設定する
 	@param controller 敵生成先のバッチコントローラ
 	*/
-	void WaveController::SetController(const std::shared_ptr<EnemyBatchController>& controller)
+	void WaveController::SetController(const std::shared_ptr<EnemyController>& controller)
 	{
 		m_controller = controller;
 		WaveEnemyFactory(controller);
@@ -138,7 +138,7 @@ namespace shooting {
 		spawnDesc.settings.maxAttempts = m_settings.maxSpawnAttempts;
 
 		controller->SetMoveSpeedMultiplier(GetAppliedEnemySpeedMultiplierForWave(m_currentWave));
-		QueueEnemyBatch(spawnDesc);
+		QueueEnemy(spawnDesc);
 		ProcessPendingEnemySpawns();
 	}
 
@@ -160,7 +160,7 @@ namespace shooting {
 	@param kind 敵種別
 	@return 実際に生成できた敵数
 	*/
-	int WaveController::CreateEnemyBatch(
+	int WaveController::CreateEnemy(
 		const Vec3& center,
 		int count,
 		const EnemyFactory::SpawnSettings& settings,
@@ -191,9 +191,9 @@ namespace shooting {
 
 	/*!
 	@brief 現在の敵バッチコントローラを取得する
-	@return 有効なら EnemyBatchController、無効なら nullptr
+	@return 有効なら EnemyController、無効なら nullptr
 	*/
-	std::shared_ptr<EnemyBatchController> WaveController::GetController() const
+	std::shared_ptr<EnemyController> WaveController::GetController() const
 	{
 		return m_controller.lock();
 	}
@@ -204,7 +204,7 @@ namespace shooting {
 
 	保持している敵種別ごとのステータスも、Factory 側へ再同期する。
 	*/
-	void WaveController::WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller)
+	void WaveController::WaveEnemyFactory(const std::shared_ptr<EnemyController>& controller)
 	{
 		if (!controller)
 		{
@@ -234,7 +234,7 @@ namespace shooting {
 	ステータスをここで固定しておくと、生成が複数フレームに分かれても
 	同じウェーブ内の敵設定が途中で変わらない。
 	*/
-	void WaveController::QueueEnemyBatch(const EnemyFactory::SpawnBatchDesc& desc)
+	void WaveController::QueueEnemy(const EnemyFactory::SpawnBatchDesc& desc)
 	{
 		if (desc.count <= 0)
 		{

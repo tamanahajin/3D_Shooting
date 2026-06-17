@@ -1,5 +1,5 @@
 ﻿/*!
-@file EnemyBatchMovement.cpp
+@file EnemyMovement.cpp
 @brief 敵バッチの移動、分離、地形追従
 敵同士の簡易分離はグリッドで近傍だけを見て軽量化する。
 このファイルでは追跡、重力、坂や高台の地形解決もまとめて行う。
@@ -16,7 +16,7 @@ namespace shooting {
 	@param z セルZ座標
 	@return 2次元セルを表す64bitキー
 	*/
-	long long EnemyBatchController::MakeCellKey(int x, int z) const
+	long long EnemyController::MakeCellKey(int x, int z) const
 	{
 		// 空間グリッドのセル座標をmapのキーにするため、X/Zを1つの64bit値へ詰める。
 		// 負の座標もunsigned経由でビット列として扱うことで、ステージ中心をまたいでも同じ計算で管理できる。
@@ -31,7 +31,7 @@ namespace shooting {
 	敵数が増えても全組み合わせ比較を避けるため、現在位置からセル座標を求めて
 	m_cellMap に敵インデックスを登録する。
 	*/
-	void EnemyBatchController::BuildSpatialGrid()
+	void EnemyController::BuildSpatialGrid()
 	{
 		// 敵同士の分離計算で全組み合わせを見ると重くなるため、
 		// 毎フレーム「近くにいる可能性がある敵」だけを引ける簡易グリッドを作る。
@@ -63,7 +63,7 @@ namespace shooting {
 
 	自分のセルと周囲8セルだけを調べ、近い敵ほど強く押し返す。
 	*/
-	Vec3 EnemyBatchController::CalculateSeparation(size_t index) const
+	Vec3 EnemyController::CalculateSeparation(size_t index) const
 	{
 		if (index >= m_enemies.size())
 		{
@@ -120,7 +120,7 @@ namespace shooting {
 
 	上下方向の速度は向きに使わず、見た目のY軸回転だけを調整する。
 	*/
-	void EnemyBatchController::RotateToVelocity(EnemyState& enemy, float lerpFact)
+	void EnemyController::RotateToVelocity(EnemyState& enemy, float lerpFact)
 	{
 		// 見た目の向きだけを移動方向へ寄せる。移動ベクトルがほぼゼロなら向きを維持する。
 		if (lerpFact <= 0.0f || bsmUtil::lengthSqr(enemy.velocity) <= 1e-6f)
@@ -163,7 +163,7 @@ namespace shooting {
 	敵バッチ側の状態を StageGroundResolveState へ詰め替え、
 	StageGroundResolver の共通処理で段差・坂・床高さを解決する。
 	*/
-	bool EnemyBatchController::ResolveGeneratedGround(EnemyState& enemy, double elapsedTime)
+	bool EnemyController::ResolveGeneratedGround(EnemyState& enemy, double elapsedTime)
 	{
 		auto gameStage = m_gameStage.lock();
 		if (!gameStage)
@@ -226,7 +226,7 @@ namespace shooting {
 	1フレーム内で追跡目標取得、分離力計算、通常移動またはノックバック、
 	地形解決、アニメーション、プロキシ同期の順に処理する。
 	*/
-	void EnemyBatchController::OnUpdate(double elapsedTime)
+	void EnemyController::OnUpdate(double elapsedTime)
 	{
 		// この関数が敵バッチの主更新。処理順は「目標取得 → 分離力計算 → 各敵の移動/接地/同期」。
 		ScopedBenchmarkTimer benchmarkTimer(BenchmarkSection::EnemyUpdate);
@@ -479,7 +479,7 @@ namespace shooting {
 	CollisionManager が押し戻した位置を次フレームのバッチ更新に反映し、
 	配列状態と当たり判定位置のずれを防ぐ。
 	*/
-	void EnemyBatchController::OnUpdate2(double elapsedTime)
+	void EnemyController::OnUpdate2(double elapsedTime)
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
 

@@ -10,20 +10,20 @@
 
 namespace shooting {
 
-	class EnemyBatchController;
+	class EnemyController;
 	class EnemyIndividualDrawProxy;
 	class BcPNTBoneDraw;
 
 	/*!
 	@brief 敵バッチをまとめて描画するインスタンシング描画オブジェクト
 
-	EnemyBatchController から描画用インスタンス配列を受け取り、
+	EnemyController から描画用インスタンス配列を受け取り、
 	InstancedSkinnedDraw へ渡す。敵1体ごとの GameObject 描画は行わない。
 	*/
 	class EnemyInstancedRenderer : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemyController> m_controller;
 		std::shared_ptr<InstancedSkinnedDraw> m_draw;
 		std::vector<SkinnedInstanceSource> m_instanceSources;
 		Vec3 m_modelOffset = Vec3(0.0f, -0.35f, 0.0f);
@@ -42,7 +42,7 @@ namespace shooting {
 		*/
 		EnemyInstancedRenderer(
 			const std::shared_ptr<Stage>& stage,
-			const std::shared_ptr<EnemyBatchController>& controller);
+			const std::shared_ptr<EnemyController>& controller);
 		virtual ~EnemyInstancedRenderer();
 		/*!
 		@brief 描画コンポーネントと敵描画タグを初期化する
@@ -50,7 +50,7 @@ namespace shooting {
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
 		/*!
-		@brief EnemyBatchController の状態を描画インスタンスへ反映する
+		@brief EnemyController の状態を描画インスタンスへ反映する
 		@param elapsedTime 経過時間。この処理では使用しない
 		*/
 		virtual void OnUpdate2(double elapsedTime) override;
@@ -88,7 +88,7 @@ namespace shooting {
 		virtual void OnUpdate(double elapsedTime) override {}
 		/*!
 		@brief インスタンス描画用データを通常描画用 Transform とアニメーションへ反映する
-		@param source EnemyBatchController が作成した描画用データ
+		@param source EnemyController が作成した描画用データ
 		*/
 		void ApplyInstanceSource(const SkinnedInstanceSource& source);
 		/*!
@@ -101,13 +101,13 @@ namespace shooting {
 	/*!
 	@brief 敵を1体ずつ通常描画するレンダラー
 
-	EnemyBatchController の描画用データを、敵数分の EnemyIndividualDrawProxy へ同期する。
+	EnemyController の描画用データを、敵数分の EnemyIndividualDrawProxy へ同期する。
 	インスタンシングを使わない比較動画用の描画経路。
 	*/
 	class EnemyIndividualRenderer : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemyController> m_controller;
 		std::vector<std::shared_ptr<EnemyIndividualDrawProxy>> m_drawProxies;
 		std::vector<SkinnedInstanceSource> m_instanceSources;
 		Vec3 m_modelOffset = Vec3(0.0f, -0.35f, 0.0f);
@@ -136,7 +136,7 @@ namespace shooting {
 		*/
 		EnemyIndividualRenderer(
 			const std::shared_ptr<Stage>& stage,
-			const std::shared_ptr<EnemyBatchController>& controller);
+			const std::shared_ptr<EnemyController>& controller);
 		virtual ~EnemyIndividualRenderer();
 		/*!
 		@brief レンダラー本体のタグと初期無効状態を設定する
@@ -144,7 +144,7 @@ namespace shooting {
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override {}
 		/*!
-		@brief EnemyBatchController の状態を通常描画プロキシへ反映する
+		@brief EnemyController の状態を通常描画プロキシへ反映する
 		@param elapsedTime 経過時間。この処理では使用しない
 		*/
 		virtual void OnUpdate2(double elapsedTime) override;

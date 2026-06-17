@@ -2,7 +2,7 @@
 @file EnemyCollisionProxy.cpp
 @brief 敵1体分の軽量コリジョンプロキシ
 
-敵の本体状態はEnemyBatchControllerの配列で持つ。
+敵の本体状態はEnemyControllerの配列で持つ。
 ここでは衝突イベントだけを受けて、対象indexの敵へダメージや接地情報を転送する。
 */
 
@@ -21,7 +21,7 @@ namespace shooting {
 	*/
 	EnemyCollisionProxy::EnemyCollisionProxy(
 		const std::shared_ptr<Stage>& stage,
-		const std::shared_ptr<EnemyBatchController>& controller,
+		const std::shared_ptr<EnemyController>& controller,
 		size_t enemyIndex,
 		const Vec3& startPosition,
 		const EnemyStatus& status) :
@@ -79,7 +79,7 @@ namespace shooting {
 	この関数では既存プロキシを再利用し、敵配列への参照と当たり判定サイズだけを更新する。
 	*/
 	void EnemyCollisionProxy::ResetForEnemy(
-		const std::shared_ptr<EnemyBatchController>& controller,
+		const std::shared_ptr<EnemyController>& controller,
 		size_t enemyIndex,
 		const Vec3& startPosition,
 		const EnemyStatus& status)

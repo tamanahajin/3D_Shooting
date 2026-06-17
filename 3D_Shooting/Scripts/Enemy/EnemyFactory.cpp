@@ -7,7 +7,7 @@ namespace shooting {
 	@brief 敵ファクトリを生成する
 	@param controller 敵の登録先コントローラ
 	*/
-	EnemyFactory::EnemyFactory(const std::shared_ptr<EnemyBatchController>& controller) :
+	EnemyFactory::EnemyFactory(const std::shared_ptr<EnemyController>& controller) :
 		m_controller(controller),
 		m_randomEngine(std::random_device{}())
 	{
@@ -18,7 +18,7 @@ namespace shooting {
 	@brief 敵の登録先コントローラを差し替える
 	@param controller 敵の登録先コントローラ
 	*/
-	void EnemyFactory::SetController(const std::shared_ptr<EnemyBatchController>& controller)
+	void EnemyFactory::SetController(const std::shared_ptr<EnemyController>& controller)
 	{
 		m_controller = controller;
 	}
@@ -130,7 +130,7 @@ namespace shooting {
 			return static_cast<size_t>(-1);
 		}
 
-		// 敵の実体はEnemyBatchControllerの配列に追加する。
+		// 敵の実体はEnemyControllerの配列に追加する。
 		// 今後、敵種別ごとのモデル差分が必要になったら、このswitchに分岐を追加する。
 		switch (kind)
 		{
@@ -145,7 +145,7 @@ namespace shooting {
 	@param desc 生成バッチ情報
 	@return 実際に生成できた敵数
 
-	先に生成位置を抽選してから、同じステータスでまとめて EnemyBatchController へ登録する。
+	先に生成位置を抽選してから、同じステータスでまとめて EnemyController へ登録する。
 	*/
 	int EnemyFactory::CreateEnemiesAround(const SpawnBatchDesc& desc)
 	{
@@ -168,7 +168,7 @@ namespace shooting {
 	@param processedCount これまでに処理した敵数。今回分だけ増える
 	@return 今回実際に生成できた敵数
 
-	ウェーブ開始時の負荷を分散するため、位置抽選と EnemyBatchController への登録を
+	ウェーブ開始時の負荷を分散するため、位置抽選と EnemyController への登録を
 	maxProcessCount 体ぶんだけ進める。acceptedPositions は同じ生成バッチ内で共有し、
 	フレームをまたいでも敵同士の最低距離チェックが効くようにする。
 	*/

@@ -7,7 +7,7 @@
 
 namespace shooting {
 
-	class EnemyBatchController;
+	class EnemyController;
 	class EnemyIndividualRenderer;
 	class EnemyInstancedRenderer;
 	class ItemFactory;
@@ -113,7 +113,7 @@ namespace shooting {
 		void MaintainRecoveryItems();
 		void MaintainBombItems();
 		void ApplyDebugRuntimeSettings();
-		void CreateEnemyRenderers(const std::shared_ptr<EnemyBatchController>& controller);
+		void CreateEnemyRenderers(const std::shared_ptr<EnemyController>& controller);
 		void ApplyEnemyRendererMode(bool useInstancing);
 		// 初回ウェーブ開始待ち中に呼び、登場演出が終わっていればウェーブ1を開始する。
 		void StartInitialWaveAfterPlayerIntro();
@@ -130,7 +130,7 @@ namespace shooting {
 			float& outHeight) const;
 		bool IsItemSpawnPositionFree(const Vec3& position, float radius) const;
 		void ClearStageSpawnBlockers();
-		std::shared_ptr<EnemyBatchController> GetEnemyController() const;
+		std::shared_ptr<EnemyController> GetEnemyController() const;
 		Vec3 GetEnemySpawnCenter() const;
 		void ClearGroundLookup();
 		int GetGroundLookupCoord(float value) const;

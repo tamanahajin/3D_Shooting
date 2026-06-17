@@ -33,10 +33,10 @@ namespace shooting {
 		}
 	}
 
-	std::shared_ptr<EnemyBatchController> GameStage::GetEnemyController() const
+	std::shared_ptr<EnemyController> GameStage::GetEnemyController() const
 	{
-		auto controllerObject = GetSharedGameObject(L"EnemyBatchController", false);
-		return std::dynamic_pointer_cast<EnemyBatchController>(controllerObject);
+		auto controllerObject = GetSharedGameObject(L"EnemyController", false);
+		return std::dynamic_pointer_cast<EnemyController>(controllerObject);
 	}
 
 	Vec3 GameStage::GetEnemySpawnCenter() const
@@ -80,7 +80,7 @@ namespace shooting {
 		}
 	}
 
-	void GameStage::CreateEnemyRenderers(const std::shared_ptr<EnemyBatchController>& controller)
+	void GameStage::CreateEnemyRenderers(const std::shared_ptr<EnemyController>& controller)
 	{
 		m_enemyInstancedRenderer = AddGameObject<EnemyInstancedRenderer>(controller);
 		m_enemyIndividualRenderer = AddGameObject<EnemyIndividualRenderer>(controller);
@@ -258,7 +258,7 @@ namespace shooting {
 		settings.minSpacing = 2.5f;
 		settings.maxAttempts = 50;
 
-		m_waveController.CreateEnemyBatch(Vec3(0.0f, 0.0f, 0.0f), 40, settings);
+		m_waveController.CreateEnemy(Vec3(0.0f, 0.0f, 0.0f), 40, settings);
 	}
 
 	int GameStage::GetAliveEnemyCount() const
@@ -321,7 +321,7 @@ namespace shooting {
 		auto player = AddGameObject<Player>(param);
 		AddGameObject<PlayerWeapon>(player);
 		// 敵
-		auto enemyController = AddGameObject<EnemyBatchController>();
+		auto enemyController = AddGameObject<EnemyController>();
 		m_waveController.SetEnemySpawnPositionResolver(GetThis<GameStage>());
 		m_waveController.SetController(enemyController);
 		const int prewarmWave = GameDebugSettingsStore::Get().startWave > 0 ? GameDebugSettingsStore::Get().startWave : 1;

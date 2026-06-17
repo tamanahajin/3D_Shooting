@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Libs">
@@ -283,16 +283,16 @@
     <ClCompile Include="Scripts\Stage\Character.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Enemy\EnemyBatchAnimation.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyAnimation.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Enemy\EnemyBatchCombat.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyCombat.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Enemy\EnemyBatchController.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyController.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Enemy\EnemyBatchMovement.cpp">
+    <ClCompile Include="Scripts\Enemy\EnemyMovement.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Enemy\EnemyCollisionProxy.cpp">
@@ -582,7 +582,7 @@
     <ClInclude Include="DebugSettings.h">
       <Filter>Scripts\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Enemy\EnemyBatchController.h">
+    <ClInclude Include="Scripts\Enemy\EnemyController.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Enemy\EnemyCollisionProxy.h">

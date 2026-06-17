@@ -14,7 +14,7 @@
 
 namespace shooting {
 
-	class EnemyBatchController;
+	class EnemyController;
 
 	/*!
 	@brief ウェーブ進行と敵生成数に関する設定
@@ -56,13 +56,13 @@ namespace shooting {
 		@brief 敵バッチコントローラを指定して生成する
 		@param controller 敵生成先のバッチコントローラ
 		*/
-		explicit WaveController(const std::shared_ptr<EnemyBatchController>& controller);
+		explicit WaveController(const std::shared_ptr<EnemyController>& controller);
 
 		/*!
 		@brief 敵生成先のバッチコントローラを設定する
 		@param controller 敵生成先のバッチコントローラ
 		*/
-		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
+		void SetController(const std::shared_ptr<EnemyController>& controller);
 		/*!
 		@brief 敵生成位置の検証先を設定する
 		@param resolver ステージ固有の生成位置解決処理
@@ -111,7 +111,7 @@ namespace shooting {
 		@param kind 敵種別
 		@return 実際に生成できた敵数
 		*/
-		int CreateEnemyBatch(
+		int CreateEnemy(
 			const Vec3& center,
 			int count,
 			const EnemyFactory::SpawnSettings& settings,
@@ -215,7 +215,7 @@ namespace shooting {
 		int m_totalEnemyCount = 0;
 		int m_currentWave = 0;
 		double m_waveTimer = 0.0;
-		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemyController> m_controller;
 		std::weak_ptr<EnemySpawnPositionResolver> m_enemySpawnPositionResolver;
 		std::shared_ptr<EnemyFactory> m_enemyFactory;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
@@ -223,19 +223,19 @@ namespace shooting {
 
 		/*!
 		@brief 現在の敵バッチコントローラを取得する
-		@return 有効なら EnemyBatchController、無効なら nullptr
+		@return 有効なら EnemyController、無効なら nullptr
 		*/
-		std::shared_ptr<EnemyBatchController> GetController() const;
+		std::shared_ptr<EnemyController> GetController() const;
 		/*!
 		@brief EnemyFactory を作成または更新する
 		@param controller 敵生成先のバッチコントローラ
 		*/
-		void WaveEnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
+		void WaveEnemyFactory(const std::shared_ptr<EnemyController>& controller);
 		/*!
 		@brief 敵生成バッチを分割生成キューへ積む
 		@param desc 生成バッチ情報
 		*/
-		void QueueEnemyBatch(const EnemyFactory::SpawnBatchDesc& desc);
+		void QueueEnemy(const EnemyFactory::SpawnBatchDesc& desc);
 		/*!
 		@brief 分割生成キューを1フレームぶん進める
 		*/

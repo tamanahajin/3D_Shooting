@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -25,10 +25,10 @@
     <ClCompile Include="Scripts\Stage\Character.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp" />
     <ClCompile Include="Common\Library\BasicLib\JsonLoader.cpp" />
-    <ClCompile Include="Scripts\Enemy\EnemyBatchAnimation.cpp" />
-    <ClCompile Include="Scripts\Enemy\EnemyBatchCombat.cpp" />
-    <ClCompile Include="Scripts\Enemy\EnemyBatchController.cpp" />
-    <ClCompile Include="Scripts\Enemy\EnemyBatchMovement.cpp" />
+    <ClCompile Include="Scripts\Enemy\EnemyAnimation.cpp" />
+    <ClCompile Include="Scripts\Enemy\EnemyCombat.cpp" />
+    <ClCompile Include="Scripts\Enemy\EnemyController.cpp" />
+    <ClCompile Include="Scripts\Enemy\EnemyMovement.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyCollisionProxy.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyFactory.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyRenderers.cpp" />
@@ -132,7 +132,7 @@
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h" />
     <ClInclude Include="Common\Library\BasicLib\JsonLoader.h" />
     <ClInclude Include="DebugSettings.h" />
-    <ClInclude Include="Scripts\Enemy\EnemyBatchController.h" />
+    <ClInclude Include="Scripts\Enemy\EnemyController.h" />
     <ClInclude Include="Scripts\Enemy\EnemyCollisionProxy.h" />
     <ClInclude Include="Scripts\Enemy\EnemyFactory.h" />
     <ClInclude Include="Scripts\Enemy\EnemyRenderers.h" />

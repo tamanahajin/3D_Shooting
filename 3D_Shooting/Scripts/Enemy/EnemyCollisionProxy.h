@@ -11,18 +11,18 @@
 namespace shooting {
 
 	struct DamageInfo;
-	class EnemyBatchController;
+	class EnemyController;
 
 	/*!
 	@brief 敵1体分の軽量コリジョンプロキシ
 
-	敵の描画・AI・HPは EnemyBatchController の配列で管理し、
+	敵の描画・AI・HPは EnemyController の配列で管理し、
 	このクラスは CollisionManager に参加するための Transform と Collision だけを持つ。
 	*/
 	class EnemyCollisionProxy : public GameObject
 	{
 	private:
-		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemyController> m_controller;
 		size_t m_enemyIndex = 0;
 		Vec3 m_startPosition;
 		Vec3 m_modelScale = Vec3(0.01f, 0.01f, 0.01f);
@@ -47,7 +47,7 @@ namespace shooting {
 		*/
 		EnemyCollisionProxy(
 			const std::shared_ptr<Stage>& stage,
-			const std::shared_ptr<EnemyBatchController>& controller,
+			const std::shared_ptr<EnemyController>& controller,
 			size_t enemyIndex,
 			const Vec3& startPosition,
 			const EnemyStatus& status);
@@ -67,7 +67,7 @@ namespace shooting {
 		GameObject と CollisionCapsule は作り直さず、参照先と Transform だけを差し替える。
 		*/
 		void ResetForEnemy(
-			const std::shared_ptr<EnemyBatchController>& controller,
+			const std::shared_ptr<EnemyController>& controller,
 			size_t enemyIndex,
 			const Vec3& startPosition,
 			const EnemyStatus& status);

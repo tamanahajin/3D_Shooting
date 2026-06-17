@@ -1,5 +1,5 @@
 ﻿/*!
-@file EnemyBatchController.h
+@file EnemyController.h
 @brief 敵バッチ管理
 */
 
@@ -22,7 +22,7 @@ namespace shooting {
 	大量の敵を GameObject として個別更新せず、位置・速度・HP・アニメーションを
 	配列でまとめて更新する。衝突だけは EnemyCollisionProxy に分離する。
 	*/
-	class EnemyBatchController : public GameObject
+	class EnemyController : public GameObject
 	{
 	private:
 		// 1体の敵に必要な実行時状態。
@@ -237,8 +237,8 @@ namespace shooting {
 		@brief 敵バッチコントローラを生成する
 		@param stage 所属するステージ
 		*/
-		explicit EnemyBatchController(const std::shared_ptr<Stage>& stage);
-		virtual ~EnemyBatchController();
+		explicit EnemyController(const std::shared_ptr<Stage>& stage);
+		virtual ~EnemyController();
 		/*!
 		@brief 共有オブジェクト登録と初期状態を設定する
 		*/

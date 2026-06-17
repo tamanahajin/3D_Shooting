@@ -1,5 +1,5 @@
 ﻿/*!
-@file EnemyBatchCombat.cpp
+@file EnemyCombat.cpp
 @brief 敵バッチのダメージ、死亡、ノックバック処理
 HPや被弾演出の状態はEnemyStateに集約し、物理プロキシからはindex指定でここへ転送する。
 */
@@ -28,7 +28,7 @@ namespace shooting {
 
 	HP、移動力、ノックバック、遅延死亡フラグをリセットし、死亡アニメーションを先頭から再生する。
 	*/
-	void EnemyBatchController::KillEnemy(EnemyState& enemy)
+	void EnemyController::KillEnemy(EnemyState& enemy)
 	{
 		if (enemy.isDead)
 		{
@@ -57,7 +57,7 @@ namespace shooting {
 	@brief 落下死ラインを超えた敵を死亡させる
 	@param enemy 対象敵の状態
 	*/
-	void EnemyBatchController::KillByFall(EnemyState& enemy)
+	void EnemyController::KillByFall(EnemyState& enemy)
 	{
 		if (enemy.position.y >= kFallDeathY)
 		{
@@ -72,7 +72,7 @@ namespace shooting {
 	@param index 対象敵のインデックス
 	@param info ダメージ情報
 	*/
-	void EnemyBatchController::ShowDamageNumber(size_t index, const DamageInfo& info)
+	void EnemyController::ShowDamageNumber(size_t index, const DamageInfo& info)
 	{
 		if (info.m_Damage <= 0 || index >= m_enemies.size())
 		{
@@ -95,7 +95,7 @@ namespace shooting {
 
 	実座標は動かさず、描画用の位置補正と傾きに使う方向だけを決める。
 	*/
-	void EnemyBatchController::StartHitPush(EnemyState& enemy, const DamageInfo& info)
+	void EnemyController::StartHitPush(EnemyState& enemy, const DamageInfo& info)
 	{
 		enemy.hitPushDuration = enemy.status.hitPushDuration;
 		enemy.hitPushDistance = enemy.status.hitPushDistance;
@@ -137,7 +137,7 @@ namespace shooting {
 
 	爆弾などで死亡遅延が指定された場合は、HPを一時的に1へ戻して着地後に死亡させる。
 	*/
-	bool EnemyBatchController::ApplyDamage(size_t index, const DamageInfo& info)
+	bool EnemyController::ApplyDamage(size_t index, const DamageInfo& info)
 	{
 		if (index >= m_enemies.size())
 		{
@@ -194,7 +194,7 @@ namespace shooting {
 
 	通常の追跡速度は弱め、一定時間はAI制御よりノックバックを優先する。
 	*/
-	void EnemyBatchController::AddKnockback(size_t index, const Vec3& velocity)
+	void EnemyController::AddKnockback(size_t index, const Vec3& velocity)
 	{
 		if (index >= m_enemies.size())
 		{
@@ -226,7 +226,7 @@ namespace shooting {
 	主に爆発で吹っ飛ぶときに使用する。
 	移動方向を表す enemy.rotation は書き換えず、描画用の knockbackSpinRotation だけを更新する。
 	*/
-	void EnemyBatchController::AddRandomRotation(size_t index)
+	void EnemyController::AddRandomRotation(size_t index)
 	{
 		if (index >= m_enemies.size())
 		{
@@ -269,7 +269,7 @@ namespace shooting {
 
 	CollisionManager 側の床押し戻し結果を、バッチ配列側の接地状態と重力速度へ戻す。
 	*/
-	void EnemyBatchController::NotifyGroundCollision(size_t index, const CollisionPair& pair)
+	void EnemyController::NotifyGroundCollision(size_t index, const CollisionPair& pair)
 	{
 		if (index >= m_enemies.size())
 		{

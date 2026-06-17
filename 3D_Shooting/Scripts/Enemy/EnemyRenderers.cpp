@@ -2,7 +2,7 @@
 @file EnemyRenderers.cpp
 @brief 敵のインスタンシング描画と比較用個別描画
 
-EnemyBatchControllerが保持する敵配列から描画用データだけを受け取り、InstancedSkinnedDrawに渡す。
+EnemyControllerが保持する敵配列から描画用データだけを受け取り、InstancedSkinnedDrawに渡す。
 */
 
 #include "stdafx.h"
@@ -111,7 +111,7 @@ namespace shooting {
 	*/
 	EnemyInstancedRenderer::EnemyInstancedRenderer(
 		const std::shared_ptr<Stage>& stage,
-		const std::shared_ptr<EnemyBatchController>& controller) :
+		const std::shared_ptr<EnemyController>& controller) :
 		GameObject(stage),
 		m_controller(controller)
 	{
@@ -214,7 +214,7 @@ namespace shooting {
 
 	/*!
 	@brief インスタンス描画用データを通常描画用 Transform とアニメーションへ反映する
-	@param source EnemyBatchController が作成した描画用データ
+	@param source EnemyController が作成した描画用データ
 	*/
 	void EnemyIndividualDrawProxy::ApplyInstanceSource(const SkinnedInstanceSource& source)
 	{
@@ -267,7 +267,7 @@ namespace shooting {
 	*/
 	EnemyIndividualRenderer::EnemyIndividualRenderer(
 		const std::shared_ptr<Stage>& stage,
-		const std::shared_ptr<EnemyBatchController>& controller) :
+		const std::shared_ptr<EnemyController>& controller) :
 		GameObject(stage),
 		m_controller(controller)
 	{
@@ -411,7 +411,7 @@ namespace shooting {
 
 	被弾押され演出はここで描画用行列にだけ反映し、敵の実座標やコリジョンには影響させない。
 	*/
-	void EnemyBatchController::FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const
+	void EnemyController::FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const
 	{
 		outSources.clear();
 		outSources.reserve(m_enemies.size());

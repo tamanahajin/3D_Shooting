@@ -8,6 +8,6 @@
 
 namespace shooting {
 
-	// 実装は責務ごとに WorldObjects.cpp / EnemyBatchController.cpp / SeekObject.cpp へ分割しています。
+	// 実装は責務ごとに WorldObjects.cpp / EnemyController.cpp / SeekObject.cpp へ分割しています。
 
 }

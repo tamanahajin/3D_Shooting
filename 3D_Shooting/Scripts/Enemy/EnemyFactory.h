@@ -14,7 +14,7 @@
 
 namespace shooting {
 
-	class EnemyBatchController;
+	class EnemyController;
 
 	/*!
 	@brief 敵の種類
@@ -30,7 +30,7 @@ namespace shooting {
 	@brief 敵生成の責務を持つクラス
 
 	GameStage は「いつ・何体出すか」だけを決め、
-	生成位置の抽選と EnemyBatchController への登録はこのクラスに集約する。
+	生成位置の抽選と EnemyController への登録はこのクラスに集約する。
 	*/
 	class EnemyFactory
 	{
@@ -68,13 +68,13 @@ namespace shooting {
 		@brief 敵ファクトリを生成する
 		@param controller 敵を登録するバッチコントローラ
 		*/
-		explicit EnemyFactory(const std::shared_ptr<EnemyBatchController>& controller);
+		explicit EnemyFactory(const std::shared_ptr<EnemyController>& controller);
 
 		/*!
 		@brief 敵登録先のバッチコントローラを差し替える
 		@param controller 敵を登録するバッチコントローラ
 		*/
-		void SetController(const std::shared_ptr<EnemyBatchController>& controller);
+		void SetController(const std::shared_ptr<EnemyController>& controller);
 		/*!
 		@brief 敵生成位置の検証先を設定する
 		@param resolver ステージ固有の生成位置解決処理
@@ -82,7 +82,7 @@ namespace shooting {
 		void SetSpawnPositionResolver(const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
 		/*!
 		@brief 現在の登録先が有効かを判定する
-		@return 有効な EnemyBatchController を参照している場合は true
+		@return 有効な EnemyController を参照している場合は true
 		*/
 		bool IsValid() const;
 
@@ -136,7 +136,7 @@ namespace shooting {
 			int& processedCount);
 
 	private:
-		std::weak_ptr<EnemyBatchController> m_controller;
+		std::weak_ptr<EnemyController> m_controller;
 		std::weak_ptr<EnemySpawnPositionResolver> m_spawnPositionResolver;
 		std::mt19937 m_randomEngine;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;

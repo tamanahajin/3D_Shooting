@@ -28,7 +28,7 @@
 #include "Scripts/Stage/StagePropPlacement.h"
 #include "Scripts/Stage/Character.h"
 #include "Scripts/Enemy/EnemyStatus.h"
-#include "Scripts/Enemy/EnemyBatchController.h"
+#include "Scripts/Enemy/EnemyController.h"
 #include "Scripts/Enemy/EnemyCollisionProxy.h"
 #include "Scripts/Enemy/EnemyRenderers.h"
 #include "Scripts/Enemy/EnemyFactory.h"

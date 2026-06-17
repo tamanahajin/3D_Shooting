@@ -1,5 +1,5 @@
 ﻿/*!
-@file EnemyBatchController.cpp
+@file EnemyController.cpp
 @brief 敵バッチ管理の基本ライフサイクル
 
 敵は大量生成されるため、1体ごとのGameObject更新を避けて、このクラスの配列で状態をまとめて更新する。
@@ -15,12 +15,12 @@ namespace shooting {
 	@brief 敵バッチコントローラを生成する
 	@param stage 所属するステージ
 	*/
-	EnemyBatchController::EnemyBatchController(const std::shared_ptr<Stage>& stage) :
+	EnemyController::EnemyController(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
 	}
 
-	EnemyBatchController::~EnemyBatchController() {}
+	EnemyController::~EnemyController() {}
 
 	/*!
 	@brief ステージ参照と共有オブジェクト登録を初期化する
@@ -28,7 +28,7 @@ namespace shooting {
 	敵バッチ本体は描画しないため、描画と shadow を無効化する。
 	他のオブジェクトは共有キーからこのコントローラを取得する。
 	*/
-	void EnemyBatchController::OnCreate()
+	void EnemyController::OnCreate()
 	{
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 		m_gameStage = gameStage;
@@ -36,9 +36,9 @@ namespace shooting {
 		SetShadowActive(false);
 		if (gameStage)
 		{
-			gameStage->SetSharedGameObject(L"EnemyBatchController", GetThis<GameObject>());
+			gameStage->SetSharedGameObject(L"EnemyController", GetThis<GameObject>());
 		}
-		AddTag(L"EnemyBatchController");
+		AddTag(L"EnemyController");
 	}
 
 	/*!
@@ -46,7 +46,7 @@ namespace shooting {
 	@param startPosition 生成位置
 	@return 追加された敵のインデックス
 	*/
-	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition)
+	size_t EnemyController::AddEnemy(const Vec3& startPosition)
 	{
 		return AddEnemy(startPosition, EnemyStatus());
 	}
@@ -60,7 +60,7 @@ namespace shooting {
 	死亡済みスロットがあれば EnemyState 全体を初期値から上書きして再利用する。
 	空きがない場合だけ m_enemies を拡張し、当たり判定は EnemyCollisionProxy へ割り当てる。
 	*/
-	size_t EnemyBatchController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
+	size_t EnemyController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
 	{
 		size_t index = m_enemies.size();
 		if (!m_freeEnemyIndices.empty())
@@ -105,7 +105,7 @@ namespace shooting {
 	生成スパイクの主因は EnemyCollisionProxy の GameObject と CollisionCapsule 作成が
 	Wave開始フレームに集中すること。先に非アクティブ状態で作っておけば、Wave中は再設定だけで済む。
 	*/
-	void EnemyBatchController::PrewarmCollisionProxyPool(int count)
+	void EnemyController::PrewarmCollisionProxyPool(int count)
 	{
 		auto gameStage = m_gameStage.lock();
 		if (count <= 0 || !gameStage)
@@ -124,7 +124,7 @@ namespace shooting {
 		for (int i = 0; i < missingCount; ++i)
 		{
 			auto proxy = gameStage->AddGameObject<EnemyCollisionProxy>(
-				GetThis<EnemyBatchController>(),
+				GetThis<EnemyController>(),
 				0,
 				pooledPosition,
 				defaultStatus);
@@ -136,7 +136,7 @@ namespace shooting {
 	@brief 全敵に適用する移動速度倍率を設定する
 	@param multiplier 速度倍率。0.1未満は0.1に丸める
 	*/
-	void EnemyBatchController::SetMoveSpeedMultiplier(float multiplier)
+	void EnemyController::SetMoveSpeedMultiplier(float multiplier)
 	{
 		m_moveSpeedMultiplier = bsmUtil::Max(0.1f, multiplier);
 	}
@@ -148,7 +148,7 @@ namespace shooting {
 	CollisionManager はプロキシの Transform を参照するため、
 	バッチ配列で更新した結果を毎フレームここで戻す。
 	*/
-	void EnemyBatchController::SyncProxyTransform(size_t index)
+	void EnemyController::SyncProxyTransform(size_t index)
 	{
 		if (index >= m_enemies.size())
 		{
@@ -182,7 +182,7 @@ namespace shooting {
 	EnemyCollisionProxy は Transform と CollisionCapsule を持つため、毎回 AddGameObject すると
 	Wave開始時にコンポーネント生成コストが集中する。プールに戻したものを優先して再利用する。
 	*/
-	std::shared_ptr<EnemyCollisionProxy> EnemyBatchController::AcquireCollisionProxy(
+	std::shared_ptr<EnemyCollisionProxy> EnemyController::AcquireCollisionProxy(
 		size_t index,
 		const Vec3& startPosition,
 		const EnemyStatus& status)
@@ -196,7 +196,7 @@ namespace shooting {
 				continue;
 			}
 
-			proxy->ResetForEnemy(GetThis<EnemyBatchController>(), index, startPosition, status);
+			proxy->ResetForEnemy(GetThis<EnemyController>(), index, startPosition, status);
 			return proxy;
 		}
 
@@ -207,7 +207,7 @@ namespace shooting {
 		}
 
 		return gameStage->AddGameObject<EnemyCollisionProxy>(
-			GetThis<EnemyBatchController>(),
+			GetThis<EnemyController>(),
 			index,
 			startPosition,
 			status);
@@ -217,7 +217,7 @@ namespace shooting {
 	@brief 使用済みプロキシをプールへ戻す
 	@param proxy 戻すプロキシ
 	*/
-	void EnemyBatchController::ReleaseCollisionProxy(const std::shared_ptr<EnemyCollisionProxy>& proxy)
+	void EnemyController::ReleaseCollisionProxy(const std::shared_ptr<EnemyCollisionProxy>& proxy)
 	{
 		if (!proxy)
 		{
@@ -235,7 +235,7 @@ namespace shooting {
 	配列要素を詰めると既存プロキシの index がずれるため、要素は残して空きインデックスとして記録する。
 	同じ敵を二重に返却しないよう、すでに非アクティブな場合は何もしない。
 	*/
-	void EnemyBatchController::RemoveEnemyProxy(size_t index)
+	void EnemyController::RemoveEnemyProxy(size_t index)
 	{
 		if (index >= m_enemies.size())
 		{
@@ -265,7 +265,7 @@ namespace shooting {
 	@param index 対象敵のインデックス
 	@return 生存中なら true
 	*/
-	bool EnemyBatchController::IsEnemyAlive(size_t index) const
+	bool EnemyController::IsEnemyAlive(size_t index) const
 	{
 		if (index >= m_enemies.size())
 		{
@@ -280,7 +280,7 @@ namespace shooting {
 	@brief 生存敵数を数える
 	@return active かつ死亡していない敵の数
 	*/
-	int EnemyBatchController::GetAliveEnemyCount() const
+	int EnemyController::GetAliveEnemyCount() const
 	{
 		int count = 0;
 		for (const auto& enemy : m_enemies)
@@ -297,7 +297,7 @@ namespace shooting {
 	@brief 現在確保されている敵状態スロット数を取得する
 	@return 再利用待ちの空きスロットを含む m_enemies の要素数
 	*/
-	int EnemyBatchController::GetTotalEnemyCount() const
+	int EnemyController::GetTotalEnemyCount() const
 	{
 		return static_cast<int>(m_enemies.size());
 	}
