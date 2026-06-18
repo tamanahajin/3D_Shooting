@@ -30,6 +30,7 @@ namespace shooting {
 			std::wstring materialPrefix;
 			std::vector<Mat4x4> worlds;
 		};
+
 		struct FixedStageObjectPlacement
 		{
 			const wchar_t* modelName;
@@ -39,7 +40,6 @@ namespace shooting {
 			float scaleMultiplier;
 			float occupancyRadius;
 		};
-
 
 		struct StageLayoutGrid
 		{
@@ -105,107 +105,6 @@ namespace shooting {
 		// 自然物の岩/石だけを一時停止するためのフラグ。戻す場合はtrueにする。
 		const bool kEnableScatteredRockObjects = false;
 		const float kSlopeCollisionStartCenterZOffset = -2.5f;
-		const int kRecoveryItemTargetCount = 3;
-		const int kItemMaxSpawnAttempts = 240;
-		const float kItemSpawnHalf = 24.0f;
-		const float kItemSpawnRadius = 1.25f;
-		const float kItemGroundOffset = 0.35f;
-		const float kHpRecoveryItemScale = 0.08f;
-		const float kHpRecoveryItemDepthScale = 0.04f;
-		const int kBombItemTargetCount = 2;
-		const int kBombItemGrantCount = 5;
-		const float kBombItemScale = 0.018f;
-
-		enum class ItemSpawnPattern
-		{
-			WideArea,
-			CenterRing,
-			OuterRing,
-			CrossLane,
-			Diagonal,
-			CornerPocket,
-			Count
-		};
-
-		float RandomRange(std::mt19937& gen, float minValue, float maxValue)
-		{
-			std::uniform_real_distribution<float> dist(minValue, maxValue);
-			return dist(gen);
-		}
-
-		float RandomSign(std::mt19937& gen)
-		{
-			std::uniform_int_distribution<int> dist(0, 1);
-			return dist(gen) == 0 ? -1.0f : 1.0f;
-		}
-
-		float ClampItemSpawnCoord(float value)
-		{
-			if (value < -kItemSpawnHalf)
-			{
-				return -kItemSpawnHalf;
-			}
-			if (value > kItemSpawnHalf)
-			{
-				return kItemSpawnHalf;
-			}
-			return value;
-		}
-
-		Vec3 MakeItemSpawnCandidate(ItemSpawnPattern pattern, std::mt19937& gen)
-		{
-			switch (pattern)
-			{
-			case ItemSpawnPattern::CenterRing:
-			{
-				// 中央から少し離れたリング。プレイヤー初期位置を避けつつ、拾いに行きやすい範囲に出す。
-				const float angle = RandomRange(gen, 0.0f, XM_2PI);
-				const float radius = RandomRange(gen, 7.0f, 14.5f);
-				return Vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
-			}
-			case ItemSpawnPattern::OuterRing:
-			{
-				// 外周寄り。敵から逃げた先にも補給が出るように、端の近くを狙う。
-				const float angle = RandomRange(gen, 0.0f, XM_2PI);
-				const float radius = RandomRange(gen, 15.5f, 22.5f);
-				return Vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
-			}
-			case ItemSpawnPattern::CrossLane:
-			{
-				// X/Z方向の移動ライン上。完全ランダムだけだと偏るため、通り道にも候補を作る。
-				const bool horizontal = RandomSign(gen) > 0.0f;
-				const float longPos = RandomRange(gen, -kItemSpawnHalf * 0.9f, kItemSpawnHalf * 0.9f);
-				const float laneOffset = RandomRange(gen, -4.0f, 4.0f);
-				return horizontal
-					? Vec3(longPos, 0.0f, laneOffset)
-					: Vec3(laneOffset, 0.0f, longPos);
-			}
-			case ItemSpawnPattern::Diagonal:
-			{
-				// 対角線寄り。ステージを斜めに横切る時にも拾える位置を増やす。
-				const float t = RandomRange(gen, -kItemSpawnHalf * 0.85f, kItemSpawnHalf * 0.85f);
-				const float offset = RandomRange(gen, -3.5f, 3.5f);
-				const bool rising = RandomSign(gen) > 0.0f;
-				const float z = rising ? t + offset : -t + offset;
-				return Vec3(ClampItemSpawnCoord(t), 0.0f, ClampItemSpawnCoord(z));
-			}
-			case ItemSpawnPattern::CornerPocket:
-			{
-				// 四隅寄り。外周リングだけでは角に出にくいので、角付近の候補を明示的に作る。
-				const float x = RandomSign(gen) * RandomRange(gen, kItemSpawnHalf * 0.55f, kItemSpawnHalf * 0.92f);
-				const float z = RandomSign(gen) * RandomRange(gen, kItemSpawnHalf * 0.55f, kItemSpawnHalf * 0.92f);
-				return Vec3(x, 0.0f, z);
-			}
-			case ItemSpawnPattern::WideArea:
-			default:
-				// 従来と同じ正方形ランダム。追加パターンが失敗した時の汎用候補にもなる。
-				return Vec3(
-					RandomRange(gen, -kItemSpawnHalf, kItemSpawnHalf),
-					0.0f,
-					RandomRange(gen, -kItemSpawnHalf, kItemSpawnHalf));
-			}
-		}
-
 		// FBXごとの基準スケールに配置倍率を掛け、スケール→回転→移動の順でワールド行列を作る。
 		Mat4x4 MakeStageObjectWorld(
 			const StageObjectDef& def,
@@ -1652,13 +1551,8 @@ namespace shooting {
 		AddStageSpawnBlocker(Vec3(0.0f, 0.0f, 0.0f), 5.0f);
 		AddHeightVariationSpawnBlockers(*this);
 
-		// プレイヤー初期位置、アイテム、坂周辺を先に予約し、自然物が重ならないようにする。
+		// プレイヤー初期位置と坂周辺を先に予約し、自然物が重ならないようにする。
 		occupied.push_back({ Vec3(0.0f, 0.0f, 0.0f), 5.0f });
-		occupied.push_back({ Vec3(2.5f, 0.0f, 2.0f), 1.7f });
-		occupied.push_back({ Vec3(-4.0f, 0.0f, 3.5f), 1.7f });
-		occupied.push_back({ Vec3(6.0f, 0.0f, -2.5f), 1.7f });
-		occupied.push_back({ Vec3(-7.5f, 0.0f, -5.0f), 1.7f });
-		occupied.push_back({ Vec3(10.0f, 0.0f, 4.0f), 1.7f });
 		AddHeightVariationOccupancy(occupied);
 
 		// 手動配置を先に占有登録し、後から生成するランダム自然物との重なりを防ぐ。
@@ -1782,7 +1676,7 @@ namespace shooting {
 		return true;
 	}
 
-	bool GameStage::TryResolveEnemySpawnGroundHeight(
+	bool GameStage::TryResolveStageSpawnGroundHeight(
 		const Vec3& position,
 		float clearanceRadius,
 		float& outHeight) const
@@ -1825,7 +1719,7 @@ namespace shooting {
 		}
 
 		// 坂の連続した高さ変化は許可し、高台の端や側面のような急な高低差だけを棄却する。
-		// 敵の足元全体を確認することで、中心点だけが表面にある状態で内部へ食い込むのを防ぐ。
+		// 生成対象の足元全体を確認することで、中心点だけが表面にある状態で内部へ食い込むのを防ぐ。
 		const float maxFootprintHeightDifference = 0.75f;
 		if (maxHeight - minHeight > maxFootprintHeightDifference)
 		{
@@ -1851,195 +1745,73 @@ namespace shooting {
 			position.z <= m_stageSpawnBounds.maxZ - radius;
 	}
 
-	bool GameStage::IsItemSpawnPositionFree(const Vec3& position, float radius) const
+	std::optional<Vec3> GameStage::ResolveStageSpawnPosition(
+		const StageSpawnPositionRequest& request) const
 	{
-		if (!IsStageSpawnPositionFree(position, radius, StageSpawnTarget::Item))
-		{
-			return false;
-		}
-
-		auto overlaps = [&](const Vec3& otherPosition, float otherRadius)
-		{
-			const float dx = position.x - otherPosition.x;
-			const float dz = position.z - otherPosition.z;
-			const float minDistance = radius + otherRadius;
-			return (dx * dx + dz * dz) < (minDistance * minDistance);
-		};
-
-		for (const auto& obj : GetGameObjectVec())
-		{
-			auto item = std::dynamic_pointer_cast<BaseItem>(obj);
-			if (!item || item->IsConsumed())
-			{
-				continue;
-			}
-
-			auto transform = item->GetComponent<Transform>(false);
-			if (transform && overlaps(transform->GetWorldPosition(), kItemSpawnRadius))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	bool GameStage::TryResolveEnemySpawnPosition(
-		const EnemySpawnPositionRequest& request,
-		Vec3& outPosition) const
-	{
+		// 生成候補を「地形表面に乗る位置」へ補正してから、
+		// 外周壁の内側とステージ配置物の占有範囲を確認する。
 		if (!bsmUtil::IsFiniteVec3(request.candidatePosition) ||
 			request.clearanceRadius < 0.0f ||
 			request.groundFootOffset < 0.0f)
 		{
-			return false;
+			return std::nullopt;
 		}
 
 		float groundHeight = 0.0f;
-		if (!TryResolveEnemySpawnGroundHeight(
+		if (!TryResolveStageSpawnGroundHeight(
 				request.candidatePosition,
 				request.clearanceRadius,
 				groundHeight))
 		{
-			return false;
+			return std::nullopt;
 		}
 
 		Vec3 resolvedPosition = request.candidatePosition;
 		resolvedPosition.y = groundHeight + request.groundFootOffset;
 		if (!IsInsideStageSpawnBounds(resolvedPosition, request.clearanceRadius))
 		{
-			return false;
+			return std::nullopt;
 		}
 		if (!IsStageSpawnPositionFree(
 				resolvedPosition,
 				request.clearanceRadius,
-				StageSpawnTarget::Enemy))
+				request.target))
 		{
-			return false;
+			return std::nullopt;
 		}
 
-		outPosition = resolvedPosition;
-		return true;
+		return resolvedPosition;
 	}
 
-	bool GameStage::TryFindItemSpawnPosition(Vec3& outPosition)
+	bool GameStage::TryResolveEnemySpawnPosition(
+		const EnemySpawnPositionRequest& request,
+		Vec3& outPosition) const
 	{
-		const int patternCount = static_cast<int>(ItemSpawnPattern::Count);
-		std::uniform_int_distribution<int> patternOffsetDist(0, patternCount - 1);
-		const int patternOffset = patternOffsetDist(m_itemSpawnRandom);
+		StageSpawnPositionRequest stageRequest;
+		stageRequest.candidatePosition = request.candidatePosition;
+		stageRequest.clearanceRadius = request.clearanceRadius;
+		stageRequest.groundFootOffset = request.groundFootOffset;
+		stageRequest.target = StageSpawnTarget::Enemy;
 
-		for (int attempt = 0; attempt < kItemMaxSpawnAttempts; ++attempt)
+		if (auto resolvedPosition = ResolveStageSpawnPosition(stageRequest))
 		{
-			// 毎回同じパターン順にすると配置が固定化しやすいので、開始位置だけ乱数でずらす。
-			const auto pattern = static_cast<ItemSpawnPattern>((attempt + patternOffset) % patternCount);
-			Vec3 candidate = MakeItemSpawnCandidate(pattern, m_itemSpawnRandom);
-
-			float groundHeight = 0.0f;
-			if (TryGetSlopeGroundHeight(candidate, groundHeight))
-			{
-				candidate.y = groundHeight;
-			}
-			candidate.y += kItemGroundOffset;
-
-			if (!IsItemSpawnPositionFree(candidate, kItemSpawnRadius))
-			{
-				continue;
-			}
-
-			outPosition = candidate;
+			outPosition = *resolvedPosition;
 			return true;
 		}
 
 		return false;
 	}
 
-	void GameStage::EnsureItemFactory()
+	std::optional<Vec3> GameStage::ResolveItemSpawnPosition(
+		const ItemSpawnPositionRequest& request) const
 	{
-		auto stage = GetThis<Stage>();
-		if (!m_itemFactory)
-		{
-			m_itemFactory = std::make_shared<ItemFactory>(stage);
-		}
-		else
-		{
-			m_itemFactory->SetStage(stage);
-		}
-	}
+		StageSpawnPositionRequest stageRequest;
+		stageRequest.candidatePosition = request.candidatePosition;
+		stageRequest.clearanceRadius = request.clearanceRadius;
+		stageRequest.groundFootOffset = request.groundFootOffset;
+		stageRequest.target = StageSpawnTarget::Item;
 
-	void GameStage::MaintainRecoveryItems()
-	{
-		EnsureItemFactory();
-		if (!m_itemFactory || !m_itemFactory->IsValid())
-		{
-			return;
-		}
-
-		int activeCount = m_itemFactory->CountActiveItems(ItemKind::HpRecovery);
-		while (activeCount < kRecoveryItemTargetCount)
-		{
-			Vec3 spawnPosition;
-			if (!TryFindItemSpawnPosition(spawnPosition))
-			{
-				break;
-			}
-
-			ItemFactory::SpawnDesc spawnDesc;
-			spawnDesc.kind = ItemKind::HpRecovery;
-			spawnDesc.position = spawnPosition;
-			spawnDesc.scale = Vec3(kHpRecoveryItemScale, kHpRecoveryItemScale, kHpRecoveryItemDepthScale);
-
-			if (!m_itemFactory->CreateItem(spawnDesc))
-			{
-				break;
-			}
-			++activeCount;
-		}
-	}
-
-
-	void GameStage::MaintainBombItems()
-	{
-		EnsureItemFactory();
-		if (!m_itemFactory || !m_itemFactory->IsValid())
-		{
-			return;
-		}
-
-		int activeCount = m_itemFactory->CountActiveItems(ItemKind::Bomb);
-		while (activeCount < kBombItemTargetCount)
-		{
-			Vec3 spawnPosition;
-			if (!TryFindItemSpawnPosition(spawnPosition))
-			{
-				break;
-			}
-
-			ItemFactory::SpawnDesc spawnDesc;
-			spawnDesc.kind = ItemKind::Bomb;
-			spawnDesc.position = spawnPosition;
-			spawnDesc.scale = Vec3(kBombItemScale, kBombItemScale, kBombItemScale);
-			spawnDesc.bombGrantCount = kBombItemGrantCount;
-
-			if (!m_itemFactory->CreateItem(spawnDesc))
-			{
-				break;
-			}
-			++activeCount;
-		}
-	}
-	void GameStage::CreateItems()
-	{
-		std::random_device seedSource;
-		std::seed_seq seed{
-			seedSource(),
-			seedSource(),
-			seedSource(),
-			seedSource()
-		};
-		// 固定シードだと毎回同じ初期配置になるため、ステージ開始ごとに違うシードを使う。
-		m_itemSpawnRandom.seed(seed);
-		MaintainRecoveryItems();
-		MaintainBombItems();
+		return ResolveStageSpawnPosition(stageRequest);
 	}
 
 }

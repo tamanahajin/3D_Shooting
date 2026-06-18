@@ -194,9 +194,9 @@ namespace shooting {
 	BombItem::BombItem(
 		const std::shared_ptr<Stage>& stagePtr,
 		const TransParam& param,
-		int bombGrantCount) :
+		int bombGiveCount) :
 		BaseItem(stagePtr, param),
-		m_bombGrantCount(bombGrantCount)
+		m_bombGiveCount(bombGiveCount)
 	{
 	}
 
@@ -245,12 +245,12 @@ namespace shooting {
 	bool BombItem::ApplyItemEffect(const std::shared_ptr<GameObject>& collector)
 	{
 		auto player = std::dynamic_pointer_cast<Player>(collector);
-		if (!player || m_bombGrantCount <= 0)
+		if (!player || m_bombGiveCount <= 0)
 		{
 			return false;
 		}
 
-		player->AddBombAmmo(m_bombGrantCount);
+		player->AddBombAmmo(m_bombGiveCount);
 		return true;
 	}
 

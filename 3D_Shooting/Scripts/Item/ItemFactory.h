@@ -1,6 +1,12 @@
-﻿#pragma once
+﻿/*!
+@file ItemFactory.h
+@brief どの Item クラスを作るかを担当
+@brief 種類が増えたら、FactoryMethodパターンにしてもいいかも
+*/
+#pragma once
 #include "stdafx.h"
 #include <memory>
+
 
 namespace shooting {
 
@@ -28,7 +34,7 @@ namespace shooting {
 			Quat rotation = Quat();
 			Vec3 scale = Vec3(1.0f, 1.0f, 1.0f);
 			float healRate = 0.25f;
-			int bombGrantCount = 5;
+			int bombGiveCount = 5;
 		};
 
 		explicit ItemFactory(const std::shared_ptr<Stage>& stage);

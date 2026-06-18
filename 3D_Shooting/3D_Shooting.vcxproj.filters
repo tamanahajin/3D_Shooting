@@ -301,6 +301,9 @@
     <ClCompile Include="Scripts\Enemy\EnemyFactory.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Enemy\EnemySpawner.cpp">
+      <Filter>Scripts\Sources\Enemy</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Enemy\EnemyRenderers.cpp">
       <Filter>Scripts\Sources\Enemy</Filter>
     </ClCompile>
@@ -320,6 +323,9 @@
       <Filter>Scripts\Sources\Item</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Item\ItemFactory.cpp">
+      <Filter>Scripts\Sources\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Item\ItemSpawner.cpp">
       <Filter>Scripts\Sources\Item</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Camera\MainCamera.cpp">
@@ -591,6 +597,9 @@
     <ClInclude Include="Scripts\Enemy\EnemyFactory.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Enemy\EnemySpawner.h">
+      <Filter>Scripts\Headers\Enemy</Filter>
+    </ClInclude>
     <ClInclude Include="Scripts\Enemy\EnemyRenderers.h">
       <Filter>Scripts\Headers\Enemy</Filter>
     </ClInclude>
@@ -700,6 +709,9 @@
       <Filter>Scripts\Headers\Item</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Item\ItemFactory.h">
+      <Filter>Scripts\Headers\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Item\ItemSpawner.h">
       <Filter>Scripts\Headers\Item</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Combat\HitStopController.h">

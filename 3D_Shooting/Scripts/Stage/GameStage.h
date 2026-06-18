@@ -1,18 +1,18 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include <unordered_map>
-#include <random>
+#include <optional>
 #include "Scripts/Enemy/WaveController.h"
 #include "Scripts/Combat/HitStopController.h"
+#include "Scripts/Item/ItemSpawner.h"
 
 namespace shooting {
 
 	class EnemyController;
 	class EnemyIndividualRenderer;
 	class EnemyInstancedRenderer;
-	class ItemFactory;
 
-	class GameStage : public Stage, public EnemySpawnPositionResolver
+	class GameStage : public Stage, public EnemySpawnPositionResolver, public ItemSpawnPositionResolver
 	{
 	public:
 		struct DamageNumberEntry
@@ -78,6 +78,16 @@ namespace shooting {
 			Enemy,
 		};
 
+		// 敵とアイテムの生成可能判定を同じ流れで処理するための内部リクエスト。
+		// targetだけを切り替え、地形高さ・外周内・配置物重なりの判定順序は共通化する。
+		struct StageSpawnPositionRequest
+		{
+			Vec3 candidatePosition = Vec3(0.0f, 0.0f, 0.0f);
+			float clearanceRadius = 0.0f;
+			float groundFootOffset = 0.0f;
+			StageSpawnTarget target = StageSpawnTarget::Enemy;
+		};
+
 		struct StageSpawnBounds
 		{
 			float minX = 0.0f;
@@ -88,7 +98,7 @@ namespace shooting {
 		};
 
 		WaveController m_waveController;
-		std::shared_ptr<ItemFactory> m_itemFactory;
+		std::unique_ptr<ItemSpawner> m_itemSpawner;
 		std::vector<DamageNumberEntry> m_damageNumbers;
 		std::vector<SlopeCollisionEntry> m_slopeCollisions;
 		std::vector<PlatformSurfaceEntry> m_platformSurfaces;
@@ -96,8 +106,6 @@ namespace shooting {
 		float m_groundLookupCellSize = 5.0f;
 		std::vector<StageSpawnBlocker> m_stageSpawnBlockers;
 		StageSpawnBounds m_stageSpawnBounds;
-		// アイテム出現用乱数。CreateItemsでステージ開始ごとにシードを入れる。
-		std::mt19937 m_itemSpawnRandom;
 		HitStopController m_hitStop;
 		std::shared_ptr<EnemyInstancedRenderer> m_enemyInstancedRenderer;
 		std::shared_ptr<EnemyIndividualRenderer> m_enemyIndividualRenderer;
@@ -109,26 +117,22 @@ namespace shooting {
 		long long m_totalDamageDealt = 0;
 		int m_bestExplosionKills = 0;
 
-		void CreateItems();
-		void MaintainRecoveryItems();
-		void MaintainBombItems();
 		void ApplyDebugRuntimeSettings();
 		void CreateEnemyRenderers(const std::shared_ptr<EnemyController>& controller);
 		void ApplyEnemyRendererMode(bool useInstancing);
 		// 初回ウェーブ開始待ち中に呼び、登場演出が終わっていればウェーブ1を開始する。
 		void StartInitialWaveAfterPlayerIntro();
-		void EnsureItemFactory();
-		bool TryFindItemSpawnPosition(Vec3& outPosition);
 		bool IsStageSpawnPositionFree(
 			const Vec3& position,
 			float radius,
 			StageSpawnTarget target) const;
 		bool IsInsideStageSpawnBounds(const Vec3& position, float radius) const;
-		bool TryResolveEnemySpawnGroundHeight(
+		bool TryResolveStageSpawnGroundHeight(
 			const Vec3& position,
 			float clearanceRadius,
 			float& outHeight) const;
-		bool IsItemSpawnPositionFree(const Vec3& position, float radius) const;
+		std::optional<Vec3> ResolveStageSpawnPosition(
+			const StageSpawnPositionRequest& request) const;
 		void ClearStageSpawnBlockers();
 		std::shared_ptr<EnemyController> GetEnemyController() const;
 		Vec3 GetEnemySpawnCenter() const;
@@ -230,6 +234,13 @@ namespace shooting {
 		virtual bool TryResolveEnemySpawnPosition(
 			const EnemySpawnPositionRequest& request,
 			Vec3& outPosition) const override;
+		/*!
+		@brief 地形表面へ高さを合わせ、配置物や地形内部を避けてアイテム生成位置を解決する
+		@param request 生成候補とアイテムの占有情報
+		@return 地形表面上の生成可能位置。生成できない場合は std::nullopt
+		*/
+		virtual std::optional<Vec3> ResolveItemSpawnPosition(
+			const ItemSpawnPositionRequest& request) const override;
 
 		virtual void OnCreate() override;
 		virtual void OnUpdate2(double elapsedTime) override;

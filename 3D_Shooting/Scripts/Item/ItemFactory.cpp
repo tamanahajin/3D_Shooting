@@ -35,7 +35,7 @@ namespace shooting {
 		switch (desc.kind)
 		{
 		case ItemKind::Bomb:
-			return stage->AddGameObject<BombItem>(itemParam, desc.bombGrantCount);
+			return stage->AddGameObject<BombItem>(itemParam, desc.bombGiveCount);
 		case ItemKind::HpRecovery:
 		default:
 			return stage->AddGameObject<HpRecoveryItem>(itemParam, desc.healRate);

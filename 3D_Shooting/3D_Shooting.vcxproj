@@ -31,6 +31,7 @@
     <ClCompile Include="Scripts\Enemy\EnemyMovement.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyCollisionProxy.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyFactory.cpp" />
+    <ClCompile Include="Scripts\Enemy\EnemySpawner.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyRenderers.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyWaveConfigLoader.cpp" />
     <ClCompile Include="Scripts\Audio\GameAudio.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="Scripts\Stage\GameStageEnvironment.cpp" />
     <ClCompile Include="Scripts\Item\Item.cpp" />
     <ClCompile Include="Scripts\Item\ItemFactory.cpp" />
+    <ClCompile Include="Scripts\Item\ItemSpawner.cpp" />
     <ClCompile Include="Scripts\Camera\MainCamera.cpp" />
     <ClCompile Include="Scripts\Player\Player.cpp" />
     <ClCompile Include="Scripts\Player\PlayerAimResolver.cpp" />
@@ -135,6 +137,7 @@
     <ClInclude Include="Scripts\Enemy\EnemyController.h" />
     <ClInclude Include="Scripts\Enemy\EnemyCollisionProxy.h" />
     <ClInclude Include="Scripts\Enemy\EnemyFactory.h" />
+    <ClInclude Include="Scripts\Enemy\EnemySpawner.h" />
     <ClInclude Include="Scripts\Enemy\EnemyRenderers.h" />
     <ClInclude Include="Scripts\Enemy\EnemySpawnPositionResolver.h" />
     <ClInclude Include="Scripts\Enemy\EnemyStatus.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="Scripts\Bullet\IBullet.h" />
     <ClInclude Include="Scripts\Item\Item.h" />
     <ClInclude Include="Scripts\Item\ItemFactory.h" />
+    <ClInclude Include="Scripts\Item\ItemSpawner.h" />
     <ClInclude Include="Scripts\Bullet\IBulletPool.h" />
     <ClInclude Include="Scripts\Camera\MainCamera.h" />
     <ClInclude Include="Scripts\Player\Player.h" />

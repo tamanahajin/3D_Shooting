@@ -20,26 +20,26 @@ namespace shooting {
 	void WaveController::SetController(const std::shared_ptr<EnemyController>& controller)
 	{
 		m_controller = controller;
-		WaveEnemyFactory(controller);
+		PrepareEnemySpawner(controller);
 	}
 
 	void WaveController::SetEnemySpawnPositionResolver(
 		const std::shared_ptr<EnemySpawnPositionResolver>& resolver)
 	{
 		m_enemySpawnPositionResolver = resolver;
-		if (m_enemyFactory)
+		if (m_enemySpawner)
 		{
-			m_enemyFactory->SetSpawnPositionResolver(resolver);
+			m_enemySpawner->SetSpawnPositionResolver(resolver);
 		}
 	}
 
 	/*!
 	@brief ウェーブが敵を生成できる状態かを判定する
-	@return 敵生成先と EnemyFactory が有効なら true
+	@return 敵生成先と EnemySpawner が有効なら true
 	*/
 	bool WaveController::IsValid() const
 	{
-		return !m_controller.expired() && m_enemyFactory && m_enemyFactory->IsValid();
+		return !m_controller.expired() && m_enemySpawner && m_enemySpawner->IsValid();
 	}
 
 	/*!
@@ -50,9 +50,9 @@ namespace shooting {
 	void WaveController::SetEnemyStatus(EnemyKind kind, const EnemyStatus& status)
 	{
 		m_statusByKind[kind] = status;
-		if (m_enemyFactory)
+		if (m_enemySpawner)
 		{
-			m_enemyFactory->SetStatus(kind, status);
+			m_enemySpawner->SetStatus(kind, status);
 		}
 	}
 
@@ -119,8 +119,8 @@ namespace shooting {
 			return;
 		}
 
-		WaveEnemyFactory(controller);
-		if (!m_enemyFactory)
+		PrepareEnemySpawner(controller);
+		if (!m_enemySpawner)
 		{
 			return;
 		}
@@ -172,8 +172,8 @@ namespace shooting {
 			return 0;
 		}
 
-		WaveEnemyFactory(controller);
-		if (!m_enemyFactory)
+		PrepareEnemySpawner(controller);
+		if (!m_enemySpawner)
 		{
 			return 0;
 		}
@@ -184,7 +184,7 @@ namespace shooting {
 		spawnDesc.center = center;
 		spawnDesc.settings = settings;
 
-		const int createdCount = m_enemyFactory->CreateEnemiesAround(spawnDesc);
+		const int createdCount = m_enemySpawner->CreateEnemiesAround(spawnDesc);
 		m_totalEnemyCount += createdCount;
 		return createdCount;
 	}
@@ -199,31 +199,31 @@ namespace shooting {
 	}
 
 	/*!
-	@brief EnemyFactory を作成または更新する
+	@brief EnemySpawner を作成または更新する
 	@param controller 敵生成先のバッチコントローラ
 
-	保持している敵種別ごとのステータスも、Factory 側へ再同期する。
+	保持している敵種別ごとのステータスも、Spawner 側へ再同期する。
 	*/
-	void WaveController::WaveEnemyFactory(const std::shared_ptr<EnemyController>& controller)
+	void WaveController::PrepareEnemySpawner(const std::shared_ptr<EnemyController>& controller)
 	{
 		if (!controller)
 		{
 			return;
 		}
 
-		if (!m_enemyFactory)
+		if (!m_enemySpawner)
 		{
-			m_enemyFactory = std::make_shared<EnemyFactory>(controller);
+			m_enemySpawner = std::make_shared<EnemySpawner>(controller);
 		}
 		else
 		{
-			m_enemyFactory->SetController(controller);
+			m_enemySpawner->SetController(controller);
 		}
-		m_enemyFactory->SetSpawnPositionResolver(m_enemySpawnPositionResolver.lock());
+		m_enemySpawner->SetSpawnPositionResolver(m_enemySpawnPositionResolver.lock());
 
 		for (const auto& statusByKind : m_statusByKind)
 		{
-			m_enemyFactory->SetStatus(statusByKind.first, statusByKind.second);
+			m_enemySpawner->SetStatus(statusByKind.first, statusByKind.second);
 		}
 	}
 
@@ -236,20 +236,12 @@ namespace shooting {
 	*/
 	void WaveController::QueueEnemy(const EnemyFactory::SpawnBatchDesc& desc)
 	{
-		if (desc.count <= 0)
+		if (!m_enemySpawner || desc.count <= 0)
 		{
 			return;
 		}
 
-		PendingSpawnBatch batch;
-		batch.desc = desc;
-		if (!batch.desc.overrideStatus)
-		{
-			batch.desc.overrideStatus = true;
-			batch.desc.status = GetEnemyStatus(batch.desc.kind);
-		}
-		batch.acceptedPositions.reserve(static_cast<size_t>(desc.count));
-		m_pendingSpawnBatches.push_back(batch);
+		m_enemySpawner->QueueEnemies(desc);
 	}
 
 	/*!
@@ -259,37 +251,17 @@ namespace shooting {
 	*/
 	void WaveController::ProcessPendingEnemySpawns()
 	{
-		if (!m_enemyFactory || !m_enemyFactory->IsValid())
+		if (!m_enemySpawner)
 		{
 			return;
 		}
 
-		int remainingBudget = GetEnemySpawnPerFrame();
-		while (remainingBudget > 0 && !m_pendingSpawnBatches.empty())
-		{
-			auto& batch = m_pendingSpawnBatches.front();
-			const int processedBefore = batch.processedCount;
-			const int createdCount = m_enemyFactory->CreateEnemiesAroundStep(
-				batch.desc,
-				remainingBudget,
-				batch.acceptedPositions,
-				batch.processedCount);
-			const int processedThisFrame = batch.processedCount - processedBefore;
+		m_totalEnemyCount += m_enemySpawner->ProcessPendingSpawns(GetEnemySpawnPerFrame());
+	}
 
-			m_totalEnemyCount += createdCount;
-
-			if (processedThisFrame <= 0)
-			{
-				// 何も進まない場合は無限ループを避ける。Factoryが無効化された場合などの保険。
-				break;
-			}
-
-			remainingBudget -= processedThisFrame;
-			if (batch.processedCount >= batch.desc.count)
-			{
-				m_pendingSpawnBatches.pop_front();
-			}
-		}
+	bool WaveController::HasPendingEnemySpawns() const
+	{
+		return m_enemySpawner && m_enemySpawner->HasPendingSpawns();
 	}
 
 	/*!

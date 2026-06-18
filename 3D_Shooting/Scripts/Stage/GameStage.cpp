@@ -175,8 +175,10 @@ namespace shooting {
 				}),
 			m_damageNumbers.end());
 
-		MaintainRecoveryItems();
-		MaintainBombItems();
+		if (m_itemSpawner)
+		{
+			m_itemSpawner->ReplenishItems();
+		}
 
 		if (benchmarkEnabled && !benchmarkStartedThisFrame)
 		{
@@ -310,7 +312,10 @@ namespace shooting {
 		// 配置物
 		CreateCoverObjects();
 		// アイテム
-		CreateItems();
+		m_itemSpawner = std::make_unique<ItemSpawner>();
+		m_itemSpawner->SetStage(GetThis<Stage>());
+		m_itemSpawner->SetSpawnPositionResolver(this);
+		m_itemSpawner->CreateInitialItems();
 		// 空
 		AddGameObject<SkyDome>();
 		// プレイヤー
@@ -328,7 +333,6 @@ namespace shooting {
 		enemyController->PrewarmCollisionProxyPool(m_waveController.GetEnemyCountForWave(prewarmWave));
 		CreateEnemyRenderers(enemyController);
 		// 初回ウェーブはプレイヤー登場演出が終わってから開始する。
-		// ここで即生成すると、演出中に敵が画面へ入り込んでしまう。
 		m_waitingInitialWaveUntilPlayerIntroEnds = true;
 
 		// 弾管理

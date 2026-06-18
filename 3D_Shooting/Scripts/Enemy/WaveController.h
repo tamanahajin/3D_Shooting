@@ -6,11 +6,9 @@
 #pragma once
 #include "stdafx.h"
 #include "DebugSettings.h"
-#include "EnemyFactory.h"
-#include <deque>
+#include "EnemySpawner.h"
 #include <memory>
 #include <map>
-#include <vector>
 
 namespace shooting {
 
@@ -41,6 +39,7 @@ namespace shooting {
 
 	GameStage はスポーン中心位置を渡すだけにし、
 	何ウェーブ目か、何体出すか、速度倍率をここに集約する。
+	生成位置抽選と分割生成は EnemySpawner に任せる。
 	*/
 	class WaveController
 	{
@@ -71,7 +70,7 @@ namespace shooting {
 			const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
 		/*!
 		@brief ウェーブが敵を生成できる状態かを判定する
-		@return 敵生成先と EnemyFactory が有効なら true
+		@return 敵生成先と EnemySpawner が有効なら true
 		*/
 		bool IsValid() const;
 		/*!
@@ -198,28 +197,14 @@ namespace shooting {
 		}
 
 	private:
-		/*!
-		@brief フレームをまたいで消化する敵生成バッチ
-
-		生成位置の距離チェックは同じバッチ内の採用済み位置を使うため、
-		acceptedPositions もキュー側で保持する。
-		*/
-		struct PendingSpawnBatch
-		{
-			EnemyFactory::SpawnBatchDesc desc;
-			std::vector<Vec3> acceptedPositions;
-			int processedCount = 0;
-		};
-
 		WaveSettings m_settings;
 		int m_totalEnemyCount = 0;
 		int m_currentWave = 0;
 		double m_waveTimer = 0.0;
 		std::weak_ptr<EnemyController> m_controller;
 		std::weak_ptr<EnemySpawnPositionResolver> m_enemySpawnPositionResolver;
-		std::shared_ptr<EnemyFactory> m_enemyFactory;
+		std::shared_ptr<EnemySpawner> m_enemySpawner;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
-		std::deque<PendingSpawnBatch> m_pendingSpawnBatches;
 
 		/*!
 		@brief 現在の敵バッチコントローラを取得する
@@ -227,10 +212,10 @@ namespace shooting {
 		*/
 		std::shared_ptr<EnemyController> GetController() const;
 		/*!
-		@brief EnemyFactory を作成または更新する
+		@brief EnemySpawner を作成または更新する
 		@param controller 敵生成先のバッチコントローラ
 		*/
-		void WaveEnemyFactory(const std::shared_ptr<EnemyController>& controller);
+		void PrepareEnemySpawner(const std::shared_ptr<EnemyController>& controller);
 		/*!
 		@brief 敵生成バッチを分割生成キューへ積む
 		@param desc 生成バッチ情報
@@ -244,7 +229,7 @@ namespace shooting {
 		@brief 分割生成キューに未生成分が残っているかを判定する
 		@return 未生成分がある場合は true
 		*/
-		bool HasPendingEnemySpawns() const { return !m_pendingSpawnBatches.empty(); }
+		bool HasPendingEnemySpawns() const;
 		/*!
 		@brief 1フレームに生成する敵数を取得する
 		@return 1以上の生成数

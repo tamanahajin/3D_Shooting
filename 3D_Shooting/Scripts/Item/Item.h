@@ -56,7 +56,7 @@ namespace shooting {
 	class BombItem : public BaseItem
 	{
 	private:
-		int m_bombGrantCount;
+		int m_bombGiveCount;
 
 	protected:
 		virtual bool ApplyItemEffect(const std::shared_ptr<GameObject>& collector) override;
@@ -66,7 +66,7 @@ namespace shooting {
 		BombItem(
 			const std::shared_ptr<Stage>& stagePtr,
 			const TransParam& param,
-			int bombGrantCount = 5);
+			int bombGiveCount = 5);
 		virtual ~BombItem() {}
 	};
 

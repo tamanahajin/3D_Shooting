@@ -1,5 +1,7 @@
 root = true
 
+end_of_line = crlf
+
 [*.{cpp,h,hpp,inl}]
 charset = utf-8-bom
 end_of_line = crlf
