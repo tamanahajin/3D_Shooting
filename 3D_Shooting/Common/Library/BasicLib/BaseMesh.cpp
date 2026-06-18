@@ -43,9 +43,14 @@ Assimp::Importer importer;
 
 			m_pScene = m_importer.ReadFile(m_ModelFile, flag);
 			if (nullptr == m_pScene) {
+				std::wstring modelFile;
+				std::wstring assimpError;
+				Util::MBtoWS(m_ModelFile, modelFile);
+				Util::MBtoWS(m_importer.GetErrorString(), assimpError);
 				throw BaseException(
 					L"データの読み込みに失敗しました。",
-					L"BaseAssimp::BaseAssimp()"
+					L"BaseAssimp::BaseAssimp()",
+					L"Model: " + modelFile + L"\r\nAssimp: " + assimpError
 				);
 			}
 			//座標変換の逆行列を初期化

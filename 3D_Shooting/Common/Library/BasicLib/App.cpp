@@ -69,34 +69,63 @@ namespace shooting {
 		// 実行ファイルの親ディレクトリを基準に、mediaやAssetsの場所を解決する。
 		const std::filesystem::path moduleDirectory =
 			std::filesystem::path(m_wstrModulePath).parent_path();
-		m_wstrDir = moduleDirectory.wstring() + L"\\";
+		// Assimpはモデルファイルをマルチバイト文字列で読むため、
+		// 日本語を含む絶対パスを避けられるように相対パスの基準をEXE位置へ固定する。
+		::SetCurrentDirectoryW(moduleDirectory.c_str());
+		auto isDirectory = [](const std::filesystem::path& directory)
+		{
+			std::error_code errorCode;
+			return std::filesystem::is_directory(directory, errorCode);
+		};
+		auto makeDirectoryString = [](const std::filesystem::path& directory)
+		{
+			return directory.lexically_normal().wstring() + L"\\";
+		};
+
+		m_wstrDir = makeDirectoryString(moduleDirectory);
 		// mediaディレクトリを探す。存在確認はWin32属性ではなくfilesystemで行う。
 		const std::filesystem::path exeMediaDirectory = moduleDirectory / L"media";
-		if (std::filesystem::is_directory(exeMediaDirectory))
+		if (isDirectory(exeMediaDirectory))
 		{
-			m_wstrMediaDir = exeMediaDirectory.wstring() + L"\\";
+			m_wstrMediaDir = makeDirectoryString(exeMediaDirectory);
 			m_wstrRelativeMediaDir = L"media\\";
 		}
 		else
 		{
 			const std::filesystem::path parentMediaDirectory = moduleDirectory / L"..\\media";
-			if (!std::filesystem::is_directory(parentMediaDirectory))
+			if (!isDirectory(parentMediaDirectory))
 			{
 				throw std::runtime_error("mediaディレクトリを確認できません。");
 			}
 
-			m_wstrMediaDir = parentMediaDirectory.wstring() + L"\\";
+			m_wstrMediaDir = makeDirectoryString(parentMediaDirectory);
 			m_wstrRelativeMediaDir = L"..\\media\\";
 		}
 		m_wstrShadersDir = m_wstrMediaDir + L"Shaders\\";
 		m_wstrRelativeShadersDir = m_wstrRelativeMediaDir + L"Shaders\\";
-		//Assetsディレクトリを探す
-		m_wstrRelativeAssetsDir = L"..\\3D_Shooting\\Assets";
-		if (std::filesystem::is_directory(std::filesystem::path(m_wstrRelativeAssetsDir)))
+		// Assetsディレクトリを探す。
+		struct DirectoryCandidate
 		{
-			m_wstrRelativeAssetsDir += L"\\";
+			std::filesystem::path fullPath;
+			std::wstring relativePath;
+		};
+		const DirectoryCandidate assetCandidates[] =
+		{
+			{ moduleDirectory / L"Assets", L"Assets\\" },
+			{ moduleDirectory / L"3D_Shooting\\Assets", L"3D_Shooting\\Assets\\" },
+			{ moduleDirectory / L"..\\3D_Shooting\\Assets", L"..\\3D_Shooting\\Assets\\" },
+			{ moduleDirectory / L"..\\Assets", L"..\\Assets\\" },
+		};
+		m_wstrRelativeAssetsDir.clear();
+		for (const auto& candidate : assetCandidates)
+		{
+			if (isDirectory(candidate.fullPath))
+			{
+				m_wstrRelativeAssetsDir = candidate.relativePath;
+				break;
+			}
 		}
-		else
+		if (m_wstrRelativeAssetsDir.empty())
 		{
 			// Assetsが見つからない配布環境では、従来どおりmedia側を参照する。
 			m_wstrRelativeAssetsDir = m_wstrRelativeMediaDir;

@@ -279,8 +279,9 @@ namespace shooting {
 	{
 		static const wchar_t* kRoots[] =
 		{
-			L"..\\3D_Shooting\\Audio\\",
 			L"Audio\\",
+			L"3D_Shooting\\Audio\\",
+			L"..\\3D_Shooting\\Audio\\",
 		};
 
 		for (const auto root : kRoots)
