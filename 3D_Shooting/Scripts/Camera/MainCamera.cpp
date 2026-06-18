@@ -25,7 +25,6 @@ namespace shooting {
 		m_maxArm(20.0f),
 		m_minArm(2.0f),
 		m_rotSpeed(1.0f),
-		m_zoomSpeed(0.1f),
 		m_lrBaseMode(true),
 		m_udBaseMode(true)
 	{
@@ -44,7 +43,6 @@ namespace shooting {
 		m_maxArm(20.0f),
 		m_minArm(2.0f),
 		m_rotSpeed(1.0f),
-		m_zoomSpeed(0.1f),
 		m_lrBaseMode(true),
 		m_udBaseMode(true)
 	{
@@ -668,14 +666,6 @@ namespace shooting {
 
 		// pitch制限
 		m_radY = bsmUtil::Clamp(m_radY, m_pitchMin, m_pitchMax);
-
-		// ホイールでズーム（上で寄る）
-		const int wheel = input.GetMouseWheelDelta();
-		if (wheel != 0)
-		{
-			m_armLen -= (wheel / 120.0f) * m_zoomSpeed;
-			m_armLen = bsmUtil::Clamp(m_armLen, m_minArm, m_maxArm);
-		}
 
 		armVec.y = sin(m_radY);
 

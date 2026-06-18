@@ -918,7 +918,7 @@ namespace shooting {
 			SetTitleMenuIndex(1, true);
 		}
 
-		if (input.KeyPressed(VK_RETURN) || input.KeyPressed(VK_SPACE) || input.KeyPressed('J'))
+		if (input.KeyPressed(VK_RETURN) || input.KeyPressed(VK_SPACE))
 		{
 			ConfirmTitleMenuSelection();
 		}

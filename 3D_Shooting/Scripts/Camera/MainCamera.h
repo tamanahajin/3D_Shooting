@@ -25,8 +25,6 @@ namespace shooting {
 		float m_armLen;
 		float m_maxArm;
 		float m_minArm;
-		// ズームスピード
-		float m_zoomSpeed;
 		// 回転スピード
 		float m_rotSpeed;
 		// 左右スティック変更のモード
@@ -39,8 +37,6 @@ namespace shooting {
 		POINT m_saveCursorPos{};
 		// rad / pixel（好みで調整） 1px動かした時に何ラジアン回るか
 		float m_mouseSens = 0.0015f;
-		// アーム長の増減量
-		float m_wheelSens = 0.6f;
 		// m_cameraUnderRot と同等
 		float m_pitchMin = -XM_PI * (80.0f / 180.0f); // -80deg
 		float m_pitchMax = XM_PI * (80.0f / 180.0f); // +80deg

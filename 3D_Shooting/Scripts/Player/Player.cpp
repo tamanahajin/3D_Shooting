@@ -296,13 +296,13 @@ namespace shooting {
 		// キーボード入力取得
 		const auto& input = App::GetInputDevice();
 
-		// 左右（X）
-		if (input.KeyDown('A') || input.KeyDown(VK_LEFT))  ret.x -= 1.0f;
-		if (input.KeyDown('D') || input.KeyDown(VK_RIGHT)) ret.x += 1.0f;
+		// 通常操作はWASD
+		if (input.KeyDown('A')) ret.x -= 1.0f;
+		if (input.KeyDown('D')) ret.x += 1.0f;
 
 		// 前後（Y）※このクラスでは ret.y を「前(+) / 後(-)」として使う
-		if (input.KeyDown('W') || input.KeyDown(VK_UP))    ret.y += 1.0f;
-		if (input.KeyDown('S') || input.KeyDown(VK_DOWN))  ret.y -= 1.0f;
+		if (input.KeyDown('W')) ret.y += 1.0f;
+		if (input.KeyDown('S')) ret.y -= 1.0f;
 
 		// 斜め移動が速くならないように正規化
 		if (ret.length() > 1.0f)

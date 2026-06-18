@@ -73,7 +73,7 @@ namespace shooting {
 		}
 
 		const auto& input = App::GetInputDevice();
-		const bool fireInput = input.KeyDown(VK_LBUTTON) || input.KeyDown('J');
+		const bool fireInput = input.KeyDown(VK_LBUTTON);
 		const bool canFire = !hitStopActive && fireInput && m_shotCool <= 0.0;
 		const bool bombMode = IsBombMode();
 		auto collisionManager = m_collisionManager.lock();
