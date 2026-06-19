@@ -99,6 +99,10 @@
     <ClCompile Include="Common\Library\StandardLib\Objects\Steering.cpp" />
     <ClCompile Include="Scripts\Stage\GameStage.cpp" />
     <ClCompile Include="Scripts\Stage\GameStageEnvironment.cpp" />
+    <ClCompile Include="Scripts\Stage\GameStageEnvironmentCommon.cpp" />
+    <ClCompile Include="Scripts\Stage\GameStageProps.cpp" />
+    <ClCompile Include="Scripts\Stage\GameStageSpawnResolver.cpp" />
+    <ClCompile Include="Scripts\Stage\GameStageTerrain.cpp" />
     <ClCompile Include="Scripts\Item\Item.cpp" />
     <ClCompile Include="Scripts\Item\ItemFactory.cpp" />
     <ClCompile Include="Scripts\Item\ItemSpawner.cpp" />
@@ -232,6 +236,7 @@
     <ClInclude Include="Scripts\Scene\Scene.h" />
     <ClInclude Include="Scripts\UI\ScreenTransition.h" />
     <ClInclude Include="Scripts\Stage\StageEditor.h" />
+    <ClInclude Include="Scripts\Stage\GameStageEnvironmentCommon.h" />
     <ClInclude Include="Scripts\Stage\StageObjectCatalog.h" />
     <ClInclude Include="Scripts\Stage\StagePropPlacement.h" />
     <ClInclude Include="Scripts\Stage\StageGroundResolver.h" />

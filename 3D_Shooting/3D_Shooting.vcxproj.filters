@@ -316,6 +316,18 @@
     <ClCompile Include="Scripts\Stage\GameStageEnvironment.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Stage\GameStageEnvironmentCommon.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Stage\GameStageProps.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Stage\GameStageSpawnResolver.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Stage\GameStageTerrain.cpp">
+      <Filter>Scripts\Sources\Stage</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Audio\GameAudio.cpp">
       <Filter>Scripts\Sources\Audio</Filter>
     </ClCompile>
@@ -430,6 +442,9 @@
       <Filter>Scripts\Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Stage\StageEditor.h">
+      <Filter>Scripts\Headers\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Stage\GameStageEnvironmentCommon.h">
       <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Stage\StageObjectCatalog.h">
