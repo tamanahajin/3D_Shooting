@@ -42,6 +42,8 @@ namespace shooting {
 		ScreenTransition m_screenTransition;
 		StageEditor m_stageEditor;
 		bool m_stageEditorReloadRequested = false;
+		bool m_hasShownInitialControlGuide = false;
+		double m_initialControlGuideSecondsRemaining = 0.0;
 
 	public:
 		Scene(UINT frameCount, PrimDevice* pPrimDevice);
@@ -64,6 +66,8 @@ namespace shooting {
 		void DrawOptionMenu(UILayer& uiLayer);
 		float UpdateOptionSliderValue(int sliderIndex, const D2D1_RECT_F& rect, float currentValue);
 		void RenderUIWithTransition(UILayer& uiLayer);
+		void UpdateInitialControlGuide(double elapsedTime);
+		void DrawInitialControlGuide();
 		void SetMouseCursorVisible(bool visible);
 		void EnterStageEditor();
 		void ExitStageEditor();

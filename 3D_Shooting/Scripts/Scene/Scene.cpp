@@ -18,6 +18,8 @@ namespace shooting {
 		const float kOptionSliderTrackOffset = 118.0f;
 		const float kBombHudIconSize = 56.0f;
 		const float kBombHudMargin = 24.0f;
+		const double kInitialControlGuideDurationSeconds = 5.0;
+		const double kInitialControlGuideFadeSeconds = 0.8;
 
 		std::shared_ptr<BaseMesh> CreateBombPreviewDiscMesh(ID3D12GraphicsCommandList* pCommandList, size_t segments)
 		{
@@ -648,6 +650,15 @@ namespace shooting {
 		m_lastTotalDamageDealt = 0;
 		m_lastBestExplosionKills = 0;
 		m_gameState = GameState::Playing;
+		if (!m_hasShownInitialControlGuide)
+		{
+			m_hasShownInitialControlGuide = true;
+			m_initialControlGuideSecondsRemaining = kInitialControlGuideDurationSeconds;
+		}
+		else
+		{
+			m_initialControlGuideSecondsRemaining = 0.0;
+		}
 
 		SetMouseCursorVisible(false);
 		// インゲームBGMはGameStage側でプレイヤー登場演出が終わった後に開始する。
@@ -1032,6 +1043,51 @@ namespace shooting {
 		m_uiManager.Render(uiLayer);
 	}
 
+	void Scene::UpdateInitialControlGuide(double elapsedTime)
+	{
+		if (m_initialControlGuideSecondsRemaining <= 0.0)
+		{
+			return;
+		}
+
+		m_initialControlGuideSecondsRemaining = bsmUtil::Max(
+			0.0,
+			m_initialControlGuideSecondsRemaining - bsmUtil::Max(0.0, elapsedTime));
+	}
+
+	void Scene::DrawInitialControlGuide()
+	{
+		if (m_initialControlGuideSecondsRemaining <= 0.0)
+		{
+			return;
+		}
+
+		const float alpha = static_cast<float>(bsmUtil::Clamp(
+			m_initialControlGuideSecondsRemaining / kInitialControlGuideFadeSeconds,
+			0.0,
+			1.0));
+		const std::wstring guideText =
+			L"WASD 移動    Space ジャンプ    マウス 照準    左クリック 攻撃";
+
+		// HPゲージより少し上に出し、戦闘画面を隠しすぎない短い一行だけにする。
+		m_uiManager.AddText(
+			guideText,
+			UIAnchor::BottomCenter,
+			{ 2.0f, -103.0f },
+			{ 760.0f, 34.0f },
+			UITextAlign::Center,
+			D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.70f * alpha),
+			22.0f);
+		m_uiManager.AddText(
+			guideText,
+			UIAnchor::BottomCenter,
+			{ 0.0f, -105.0f },
+			{ 760.0f, 34.0f },
+			UITextAlign::Center,
+			D2D1::ColorF(1.0f, 0.92f, 0.50f, alpha),
+			22.0f);
+	}
+
 	void Scene::UpdateConstantBuffers()
 	{
 		if (m_activeStage)
@@ -1397,6 +1453,7 @@ namespace shooting {
 				30.0f);
 		}
 
+		DrawInitialControlGuide();
 
 		// ダメージ数
 		if (auto camera = gameStage->GetCamera())
@@ -1522,6 +1579,8 @@ namespace shooting {
 
 		if (m_gameState == GameState::Playing)
 		{
+			UpdateInitialControlGuide(elapsedTime);
+
 			if (m_activeStage)
 			{
 #if defined(_DEBUG)
