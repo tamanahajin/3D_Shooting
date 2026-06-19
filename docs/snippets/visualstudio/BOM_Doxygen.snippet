@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>BOM Doxygen file comment</Title>
+      <Shortcut>doxfile</Shortcut>
+      <Description>Doxygen用のファイルコメントを挿入します。</Description>
+      <Author>BOM!BOM!BOM!</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>file</ID>
+          <ToolTip>ファイル名</ToolTip>
+          <Default>FileName.h</Default>
+        </Literal>
+        <Literal>
+          <ID>brief</ID>
+          <ToolTip>ファイルの概要</ToolTip>
+          <Default>このファイルの役割</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="cpp" Delimiter="$"><![CDATA[/*!
+@file $file$
+@brief $brief$
+*/]]></Code>
+    </Snippet>
+  </CodeSnippet>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>BOM Doxygen class comment</Title>
+      <Shortcut>doxclass</Shortcut>
+      <Description>Doxygen用のクラスコメントを挿入します。</Description>
+      <Author>BOM!BOM!BOM!</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>brief</ID>
+          <ToolTip>クラスの概要</ToolTip>
+          <Default>このクラスの役割</Default>
+        </Literal>
+        <Literal>
+          <ID>detail</ID>
+          <ToolTip>補足説明</ToolTip>
+          <Default>主な責務や使い方</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="cpp" Delimiter="$"><![CDATA[/*!
+@brief $brief$
+
+$detail$
+*/]]></Code>
+    </Snippet>
+  </CodeSnippet>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>BOM Doxygen function comment</Title>
+      <Shortcut>doxfn</Shortcut>
+      <Description>Doxygen用の関数コメントを挿入します。</Description>
+      <Author>BOM!BOM!BOM!</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>brief</ID>
+          <ToolTip>関数の概要</ToolTip>
+          <Default>この関数の役割</Default>
+        </Literal>
+        <Literal>
+          <ID>param</ID>
+          <ToolTip>引数名</ToolTip>
+          <Default>param</Default>
+        </Literal>
+        <Literal>
+          <ID>param_desc</ID>
+          <ToolTip>引数の説明</ToolTip>
+          <Default>引数の説明</Default>
+        </Literal>
+        <Literal>
+          <ID>return_desc</ID>
+          <ToolTip>戻り値の説明</ToolTip>
+          <Default>戻り値の説明</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="cpp" Delimiter="$"><![CDATA[/*!
+@brief $brief$
+@param[in] $param$ $param_desc$
+@return $return_desc$
+*/]]></Code>
+    </Snippet>
+  </CodeSnippet>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>BOM Doxygen function comment no return</Title>
+      <Shortcut>doxvoid</Shortcut>
+      <Description>戻り値なし関数向けのDoxygenコメントを挿入します。</Description>
+      <Author>BOM!BOM!BOM!</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>brief</ID>
+          <ToolTip>関数の概要</ToolTip>
+          <Default>この関数の役割</Default>
+        </Literal>
+        <Literal>
+          <ID>param</ID>
+          <ToolTip>引数名</ToolTip>
+          <Default>param</Default>
+        </Literal>
+        <Literal>
+          <ID>param_desc</ID>
+          <ToolTip>引数の説明</ToolTip>
+          <Default>引数の説明</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="cpp" Delimiter="$"><![CDATA[/*!
+@brief $brief$
+@param[in] $param$ $param_desc$
+*/]]></Code>
+    </Snippet>
+  </CodeSnippet>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>BOM Doxygen brief comment</Title>
+      <Shortcut>doxbrief</Shortcut>
+      <Description>短いDoxygenコメントを挿入します。</Description>
+      <Author>BOM!BOM!BOM!</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>brief</ID>
+          <ToolTip>概要</ToolTip>
+          <Default>概要</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="cpp" Delimiter="$"><![CDATA[/*! @brief $brief$ */]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
