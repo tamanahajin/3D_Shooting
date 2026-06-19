@@ -349,6 +349,12 @@
     <ClCompile Include="Scripts\Scene\Scene.cpp">
       <Filter>Scripts\Sources\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Scene\SceneState.cpp">
+      <Filter>Scripts\Sources\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Scene\SceneUI.cpp">
+      <Filter>Scripts\Sources\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\UI\ScreenTransition.cpp">
       <Filter>Scripts\Sources\UI</Filter>
     </ClCompile>
@@ -413,6 +419,9 @@
     </ClInclude>
     <ClInclude Include="Scripts\Player\PlayerWeapon.h">
       <Filter>Scripts\Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Scene\SceneConstants.h">
+      <Filter>Scripts\Headers\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Scene\Scene.h">
       <Filter>Scripts\Headers\Scene</Filter>

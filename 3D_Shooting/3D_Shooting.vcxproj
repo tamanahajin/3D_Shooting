@@ -109,6 +109,8 @@
     <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp" />
     <ClCompile Include="Scripts\Player\PlayerWeapon.cpp" />
     <ClCompile Include="Scripts\Scene\Scene.cpp" />
+    <ClCompile Include="Scripts\Scene\SceneState.cpp" />
+    <ClCompile Include="Scripts\Scene\SceneUI.cpp" />
     <ClCompile Include="Scripts\UI\ScreenTransition.cpp" />
     <ClCompile Include="Scripts\Stage\StageEditor.cpp" />
     <ClCompile Include="Scripts\Stage\StageObjectCatalog.cpp" />
@@ -226,6 +228,7 @@
     <ClInclude Include="Project.h" />
     <ClInclude Include="ProjectUtil.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Scripts\Scene\SceneConstants.h" />
     <ClInclude Include="Scripts\Scene\Scene.h" />
     <ClInclude Include="Scripts\UI\ScreenTransition.h" />
     <ClInclude Include="Scripts\Stage\StageEditor.h" />
