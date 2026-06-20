@@ -107,6 +107,12 @@ namespace shooting {
 		UINT m_dxgiFactoryFlags;
 		ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
 		ComPtr<ID3D12Fence> m_fence;
+		ComPtr<ID3D12QueryHeap> m_gpuFrameTimingQueryHeap;
+		ComPtr<ID3D12Resource> m_gpuFrameTimingReadback;
+		ComPtr<ID3D12CommandAllocator> m_gpuFrameTimingBeginCommandAllocators[FrameCount];
+		ComPtr<ID3D12CommandAllocator> m_gpuFrameTimingEndCommandAllocators[FrameCount];
+		ComPtr<ID3D12GraphicsCommandList> m_gpuFrameTimingBeginCommandLists[FrameCount];
+		ComPtr<ID3D12GraphicsCommandList> m_gpuFrameTimingEndCommandLists[FrameCount];
 
 		// BaseScene rendering resources
 		std::unique_ptr<BaseScene> m_scene;
@@ -126,6 +132,9 @@ namespace shooting {
 		UINT   m_frameIndex;
 		HANDLE m_fenceEvent;
 		UINT64 m_fenceValues[FrameCount];
+		UINT64 m_gpuTimestampFrequency;
+		bool m_gpuFrameTimingEnabled;
+		bool m_gpuFrameTimingFrameValid[FrameCount];
 
 		// Window state
 		bool m_windowVisible;
@@ -161,6 +170,11 @@ namespace shooting {
 		void SelectAdapter(UINT index);
 		void SelectGPUPreference(UINT index);
 		void CalculateFrameStats();
+		void CreateGpuFrameTimingResources();
+		void ReleaseGpuFrameTimingResources();
+		bool BeginGpuFrameTiming();
+		void EndGpuFrameTiming(bool timingActive);
+		void TryCollectGpuFrameTime(UINT frameIndex);
 		void WaitForGpu(ID3D12CommandQueue* pCommandQueue);
 		void MoveToNextFrame();
 	};

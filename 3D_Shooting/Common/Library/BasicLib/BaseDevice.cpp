@@ -18,6 +18,10 @@ namespace shooting {
 
 	namespace
 	{
+		constexpr UINT kGpuTimestampQueryCountPerFrame = 2;
+		constexpr UINT kGpuTimestampBeginIndexOffset = 0;
+		constexpr UINT kGpuTimestampEndIndexOffset = 1;
+
 		void OutputDeviceRemovedReason(ID3D12Device* device, HRESULT fallback)
 		{
 			const HRESULT reason = device ? device->GetDeviceRemovedReason() : fallback;
@@ -45,6 +49,9 @@ namespace shooting {
 		m_adapterChangeEvent(NULL),
 		m_adapterChangeRegistrationCookie(0),
 		m_fenceValues{},
+		m_gpuTimestampFrequency(0),
+		m_gpuFrameTimingEnabled(false),
+		m_gpuFrameTimingFrameValid{},
 		m_windowVisible(true),
 		m_dxgiFactoryFlags(0),
 		m_windowedMode(true)
@@ -210,6 +217,8 @@ namespace shooting {
 				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 			}
 		}
+
+		CreateGpuFrameTimingResources();
 	}
 
 	// レンダリングに必要なアセットを読み込みます。
@@ -326,6 +335,7 @@ namespace shooting {
 #endif
 		// シーン側のGPUリソースを先に解放
 		m_scene->ReleaseD3DObjects();
+		ReleaseGpuFrameTimingResources();
 		if (m_enableUI)
 		{
 			m_uiLayer.reset();
@@ -497,6 +507,7 @@ namespace shooting {
 #endif
 				const bool uiWillRender = (m_enableUI && m_uiLayer);
 				bool bSetBackbufferReadyForPresent = !uiWillRender && !hasImGuiLayer;
+				const bool gpuFrameTimingActive = BeginGpuFrameTiming();
 				m_scene->Render(m_commandQueue.Get(), bSetBackbufferReadyForPresent);
 
 				if (uiWillRender)
@@ -518,6 +529,7 @@ namespace shooting {
 						true);
 				}
 #endif
+				EndGpuFrameTiming(gpuFrameTimingActive);
 
 				// Present and update the frame index for the next frame.
 				// When using sync interval 0, it is recommended to always pass the tearing flag when it is supported.
@@ -770,6 +782,190 @@ namespace shooting {
 		}
 	}
 
+	void BaseDevice::CreateGpuFrameTimingResources()
+	{
+		ReleaseGpuFrameTimingResources();
+		if (!m_device || !m_commandQueue)
+		{
+			return;
+		}
+
+		if (FAILED(m_commandQueue->GetTimestampFrequency(&m_gpuTimestampFrequency)) ||
+			m_gpuTimestampFrequency == 0)
+		{
+			// GPUタイムスタンプに対応していない環境では、CPU側ベンチマークだけを継続する。
+			OutputDebugStringW(L"GPU timestamp query is not supported on this command queue.\n");
+			m_gpuTimestampFrequency = 0;
+			return;
+		}
+
+		D3D12_QUERY_HEAP_DESC queryHeapDesc = {};
+		queryHeapDesc.Count = FrameCount * kGpuTimestampQueryCountPerFrame;
+		queryHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
+		ThrowIfFailed(m_device->CreateQueryHeap(&queryHeapDesc, IID_PPV_ARGS(&m_gpuFrameTimingQueryHeap)));
+		NAME_D3D12_OBJECT(m_gpuFrameTimingQueryHeap);
+
+		const UINT64 readbackBufferSize =
+			static_cast<UINT64>(sizeof(UINT64)) * queryHeapDesc.Count;
+		ThrowIfFailed(m_device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(readbackBufferSize),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&m_gpuFrameTimingReadback)));
+		NAME_D3D12_OBJECT(m_gpuFrameTimingReadback);
+
+		for (UINT i = 0; i < FrameCount; ++i)
+		{
+			ThrowIfFailed(m_device->CreateCommandAllocator(
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&m_gpuFrameTimingBeginCommandAllocators[i])));
+			ThrowIfFailed(m_device->CreateCommandAllocator(
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&m_gpuFrameTimingEndCommandAllocators[i])));
+
+			ThrowIfFailed(m_device->CreateCommandList(
+				0,
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				m_gpuFrameTimingBeginCommandAllocators[i].Get(),
+				nullptr,
+				IID_PPV_ARGS(&m_gpuFrameTimingBeginCommandLists[i])));
+			ThrowIfFailed(m_gpuFrameTimingBeginCommandLists[i]->Close());
+
+			ThrowIfFailed(m_device->CreateCommandList(
+				0,
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				m_gpuFrameTimingEndCommandAllocators[i].Get(),
+				nullptr,
+				IID_PPV_ARGS(&m_gpuFrameTimingEndCommandLists[i])));
+			ThrowIfFailed(m_gpuFrameTimingEndCommandLists[i]->Close());
+
+			m_gpuFrameTimingFrameValid[i] = false;
+		}
+
+		m_gpuFrameTimingEnabled = true;
+	}
+
+	void BaseDevice::ReleaseGpuFrameTimingResources()
+	{
+		m_gpuFrameTimingEnabled = false;
+		m_gpuTimestampFrequency = 0;
+		m_gpuFrameTimingQueryHeap.Reset();
+		m_gpuFrameTimingReadback.Reset();
+		for (UINT i = 0; i < FrameCount; ++i)
+		{
+			m_gpuFrameTimingBeginCommandLists[i].Reset();
+			m_gpuFrameTimingEndCommandLists[i].Reset();
+			m_gpuFrameTimingBeginCommandAllocators[i].Reset();
+			m_gpuFrameTimingEndCommandAllocators[i].Reset();
+			m_gpuFrameTimingFrameValid[i] = false;
+		}
+	}
+
+	bool BaseDevice::BeginGpuFrameTiming()
+	{
+		if (!m_gpuFrameTimingEnabled ||
+			!BenchmarkRecorder::Instance().IsRunning() ||
+			!m_commandQueue ||
+			!m_gpuFrameTimingQueryHeap)
+		{
+			return false;
+		}
+
+		const UINT queryIndex =
+			(m_frameIndex * kGpuTimestampQueryCountPerFrame) + kGpuTimestampBeginIndexOffset;
+		m_gpuFrameTimingFrameValid[m_frameIndex] = false;
+
+		auto& allocator = m_gpuFrameTimingBeginCommandAllocators[m_frameIndex];
+		auto& commandList = m_gpuFrameTimingBeginCommandLists[m_frameIndex];
+		ThrowIfFailed(allocator->Reset());
+		ThrowIfFailed(commandList->Reset(allocator.Get(), nullptr));
+		commandList->EndQuery(m_gpuFrameTimingQueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, queryIndex);
+		ThrowIfFailed(commandList->Close());
+
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		return true;
+	}
+
+	void BaseDevice::EndGpuFrameTiming(bool timingActive)
+	{
+		if (!timingActive ||
+			!m_commandQueue ||
+			!m_gpuFrameTimingQueryHeap ||
+			!m_gpuFrameTimingReadback)
+		{
+			return;
+		}
+
+		const UINT queryBase = m_frameIndex * kGpuTimestampQueryCountPerFrame;
+		const UINT endQueryIndex = queryBase + kGpuTimestampEndIndexOffset;
+		const UINT64 readbackOffset = static_cast<UINT64>(sizeof(UINT64)) * queryBase;
+
+		auto& allocator = m_gpuFrameTimingEndCommandAllocators[m_frameIndex];
+		auto& commandList = m_gpuFrameTimingEndCommandLists[m_frameIndex];
+		ThrowIfFailed(allocator->Reset());
+		ThrowIfFailed(commandList->Reset(allocator.Get(), nullptr));
+		commandList->EndQuery(m_gpuFrameTimingQueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, endQueryIndex);
+		commandList->ResolveQueryData(
+			m_gpuFrameTimingQueryHeap.Get(),
+			D3D12_QUERY_TYPE_TIMESTAMP,
+			queryBase,
+			kGpuTimestampQueryCountPerFrame,
+			m_gpuFrameTimingReadback.Get(),
+			readbackOffset);
+		ThrowIfFailed(commandList->Close());
+
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		m_gpuFrameTimingFrameValid[m_frameIndex] = true;
+	}
+
+	void BaseDevice::TryCollectGpuFrameTime(UINT frameIndex)
+	{
+		if (!m_gpuFrameTimingEnabled ||
+			frameIndex >= FrameCount ||
+			!m_gpuFrameTimingFrameValid[frameIndex] ||
+			!m_gpuFrameTimingReadback ||
+			m_gpuTimestampFrequency == 0)
+		{
+			return;
+		}
+
+		// MoveToNextFrameで該当フレームのFence待機が終わった後に読むため、
+		// ここではGPUがResolveQueryDataを書き終えている前提で安全に読み戻せる。
+		m_gpuFrameTimingFrameValid[frameIndex] = false;
+		const UINT queryBase = frameIndex * kGpuTimestampQueryCountPerFrame;
+		const UINT64 readbackOffset = static_cast<UINT64>(sizeof(UINT64)) * queryBase;
+		const UINT64 readbackEnd =
+			readbackOffset + (sizeof(UINT64) * kGpuTimestampQueryCountPerFrame);
+
+		UINT8* mappedData = nullptr;
+		const CD3DX12_RANGE readRange(readbackOffset, readbackEnd);
+		if (FAILED(m_gpuFrameTimingReadback->Map(0, &readRange, reinterpret_cast<void**>(&mappedData))))
+		{
+			return;
+		}
+
+		const UINT64* timestamps =
+			reinterpret_cast<const UINT64*>(mappedData + readbackOffset);
+		const UINT64 beginTimestamp = timestamps[kGpuTimestampBeginIndexOffset];
+		const UINT64 endTimestamp = timestamps[kGpuTimestampEndIndexOffset];
+		const CD3DX12_RANGE writeRange(0, 0);
+		m_gpuFrameTimingReadback->Unmap(0, &writeRange);
+
+		if (endTimestamp <= beginTimestamp)
+		{
+			return;
+		}
+
+		const double gpuFrameMs =
+			static_cast<double>(endTimestamp - beginTimestamp) * 1000.0 /
+			static_cast<double>(m_gpuTimestampFrequency);
+		BenchmarkRecorder::Instance().RecordGpuFrameTime(gpuFrameMs);
+	}
+
 	// Wait for pending GPU work to complete.
 	void BaseDevice::WaitForGpu(ID3D12CommandQueue* pCommandQueue)
 	{
@@ -810,6 +1006,7 @@ namespace shooting {
 			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
 			WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 		}
+		TryCollectGpuFrameTime(m_frameIndex);
 		m_scene->SetFrameIndex(m_frameIndex);
 
 		// Set the fence value for the next frame.

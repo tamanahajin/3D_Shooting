@@ -22,7 +22,7 @@ namespace shooting {
 			return total / static_cast<double>(values.size());
 		}
 
-		double CalculateOnePercentLowFps(const std::vector<double>& frameTimesMs)
+		double CalculateWorstOnePercentAverageMs(const std::vector<double>& frameTimesMs)
 		{
 			if (frameTimesMs.empty())
 			{
@@ -45,13 +45,25 @@ namespace shooting {
 				worstTotalMs += worstFrames[i];
 			}
 
-			const double averageWorstFrameMs = worstTotalMs / static_cast<double>(sampleCount);
+			return worstTotalMs / static_cast<double>(sampleCount);
+		}
+
+		double CalculateOnePercentLowFps(const std::vector<double>& frameTimesMs)
+		{
+			const double averageWorstFrameMs = CalculateWorstOnePercentAverageMs(frameTimesMs);
 			return averageWorstFrameMs > 0.0 ? 1000.0 / averageWorstFrameMs : 0.0;
 		}
 
-		std::wstring ToWideString(const std::string& text)
+		std::filesystem::path GetExecutableDirectory()
 		{
-			return std::wstring(text.begin(), text.end());
+			wchar_t modulePath[MAX_PATH] = {};
+			if (::GetModuleFileNameW(nullptr, modulePath, static_cast<DWORD>(_countof(modulePath))) == 0)
+			{
+				std::error_code errorCode;
+				return std::filesystem::current_path(errorCode);
+			}
+
+			return std::filesystem::path(modulePath).parent_path();
 		}
 	}
 
@@ -87,14 +99,18 @@ namespace shooting {
 
 		m_IsRunning = false;
 		m_LastSummary = BuildSummary();
-		if (writeCsv)
+		const bool csvWritten = !writeCsv || WriteSummaryCsv(m_LastSummary);
+		if (csvWritten)
 		{
-			WriteSummaryCsv(m_LastSummary);
+			ShowNotification(L"ベンチマーク計測終了", kBenchmarkNotificationSeconds);
 		}
-		ShowNotification(L"ベンチマーク計測終了", kBenchmarkNotificationSeconds);
+		else
+		{
+			ShowNotification(L"ベンチマークCSV保存失敗", kBenchmarkNotificationSeconds);
+		}
 
 		std::wostringstream message;
-		message << L"Benchmark stopped. CSV: " << ToWideString(m_LastSummary.outputPath) << L"\n";
+		message << L"Benchmark stopped. CSV: " << m_LastSummary.outputPath << L"\n";
 		OutputDebugStringW(message.str().c_str());
 	}
 
@@ -156,6 +172,16 @@ namespace shooting {
 		}
 	}
 
+	void BenchmarkRecorder::RecordGpuFrameTime(double milliseconds)
+	{
+		if (!m_IsRunning || milliseconds <= 0.0 || !std::isfinite(milliseconds))
+		{
+			return;
+		}
+
+		m_GpuFrameTimesMs.push_back(milliseconds);
+	}
+
 	void BenchmarkRecorder::AddSectionTime(BenchmarkSection section, double milliseconds)
 	{
 		if (!m_IsRunning || milliseconds <= 0.0)
@@ -208,6 +234,7 @@ namespace shooting {
 		m_ElapsedSeconds = 0.0;
 		m_FrameCount = 0;
 		m_FrameTimesMs.clear();
+		m_GpuFrameTimesMs.clear();
 		m_CurrentSectionMs.fill(0.0);
 		m_TotalSectionMs.fill(0.0);
 		m_MaxSectionMs.fill(0.0);
@@ -242,6 +269,14 @@ namespace shooting {
 		summary.averageFps = m_ElapsedSeconds > 0.0 ? static_cast<double>(m_FrameCount) / m_ElapsedSeconds : 0.0;
 		summary.minimumFps = maximumFrameMs > 0.0 ? 1000.0 / maximumFrameMs : 0.0;
 		summary.onePercentLowFps = CalculateOnePercentLowFps(m_FrameTimesMs);
+		summary.gpuFrameCount = static_cast<int>(m_GpuFrameTimesMs.size());
+		summary.averageGpuFrameMs = CalculateAverage(m_GpuFrameTimesMs);
+		const auto maxGpuFrameIt =
+			std::max_element(m_GpuFrameTimesMs.begin(), m_GpuFrameTimesMs.end());
+		summary.maximumGpuFrameMs =
+			maxGpuFrameIt != m_GpuFrameTimesMs.end() ? *maxGpuFrameIt : 0.0;
+		summary.onePercentWorstGpuFrameMs =
+			CalculateWorstOnePercentAverageMs(m_GpuFrameTimesMs);
 
 		const double frameDivisor = m_FrameCount > 0 ? static_cast<double>(m_FrameCount) : 1.0;
 		const size_t enemyIndex = static_cast<size_t>(BenchmarkSection::EnemyUpdate);
@@ -259,21 +294,37 @@ namespace shooting {
 		return summary;
 	}
 
-	void BenchmarkRecorder::WriteSummaryCsv(const BenchmarkSummary& summary)
+	bool BenchmarkRecorder::WriteSummaryCsv(const BenchmarkSummary& summary)
 	{
-		// ベンチマーク結果の保存先は毎回必要になるため、filesystemで安全に作成しておく。
-		std::error_code errorCode;
-		std::filesystem::create_directories(kBenchmarkOutputDirectory, errorCode);
+		const std::filesystem::path outputPath(summary.outputPath);
+		const std::filesystem::path outputDirectory = outputPath.parent_path();
 
-		std::ofstream file{ std::filesystem::path(summary.outputPath) };
+		// ベンチマーク結果はexeの隣へ出す。作成失敗時は通知とDebug出力で原因を追えるようにする。
+		std::error_code errorCode;
+		std::filesystem::create_directories(outputDirectory, errorCode);
+		if (errorCode)
+		{
+			std::wostringstream message;
+			message << L"Benchmark CSV directory create failed: "
+				<< outputDirectory.wstring()
+				<< L" / "
+				<< errorCode.message().c_str()
+				<< L"\n";
+			OutputDebugStringW(message.str().c_str());
+			return false;
+		}
+
+		std::ofstream file{ outputPath };
 		if (!file)
 		{
-			std::wstring message = L"Benchmark CSV write failed: " + ToWideString(summary.outputPath) + L"\n";
-			OutputDebugStringW(message.c_str());
-			return;
+			std::wostringstream message;
+			message << L"Benchmark CSV write failed: " << outputPath.wstring() << L"\n";
+			OutputDebugStringW(message.str().c_str());
+			return false;
 		}
 
 		file << "Build,計測時間,平均FPS,最低FPS,遅かったフレーム群の平均FPS,平均ms,"
+			<< "平均GPUms,最大GPUms,遅かったGPUフレーム群の平均ms,GPU計測フレーム数,"
 			<< "平均敵更新ms,最大敵更新ms,平均衝突ms,最大衝突ms,"
 			<< "Raycast回数,最大衝突回数,敵数,最後のWave\n";
 
@@ -284,6 +335,10 @@ namespace shooting {
 			<< summary.minimumFps << ','
 			<< summary.onePercentLowFps << ','
 			<< summary.averageFrameMs << ','
+			<< summary.averageGpuFrameMs << ','
+			<< summary.maximumGpuFrameMs << ','
+			<< summary.onePercentWorstGpuFrameMs << ','
+			<< summary.gpuFrameCount << ','
 			<< summary.averageEnemyUpdateMs << ','
 			<< summary.maximumEnemyUpdateMs << ','
 			<< summary.averageCollisionMs << ','
@@ -292,17 +347,19 @@ namespace shooting {
 			<< summary.maximumCollisionCheckCount << ','
 			<< summary.maximumAliveEnemyCount << ','
 			<< summary.lastWave << '\n';
+
+		return true;
 	}
 
-	std::string BenchmarkRecorder::MakeOutputPath() const
+	std::filesystem::path BenchmarkRecorder::MakeOutputPath() const
 	{
 		SYSTEMTIME time{};
 		GetLocalTime(&time);
 
-		char fileName[MAX_PATH] = {};
-		sprintf_s(
+		wchar_t fileName[MAX_PATH] = {};
+		swprintf_s(
 			fileName,
-			"benchmark_%04d%02d%02d_%02d%02d%02d.csv",
+			L"benchmark_%04d%02d%02d_%02d%02d%02d.csv",
 			time.wYear,
 			time.wMonth,
 			time.wDay,
@@ -311,8 +368,8 @@ namespace shooting {
 			time.wSecond);
 
 		const std::filesystem::path outputPath =
-			std::filesystem::path(kBenchmarkOutputDirectory) / fileName;
-		return outputPath.string();
+			GetExecutableDirectory() / kBenchmarkOutputDirectory / fileName;
+		return outputPath.lexically_normal();
 	}
 
 	std::string BenchmarkRecorder::GetBuildName()

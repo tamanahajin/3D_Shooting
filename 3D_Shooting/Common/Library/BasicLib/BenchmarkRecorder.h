@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <array>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -24,7 +25,7 @@ namespace shooting {
 	struct BenchmarkSummary
 	{
 		std::string buildName;
-		std::string outputPath;
+		std::wstring outputPath;
 		double durationSeconds = 0.0;
 		int frameCount = 0;
 		double averageFps = 0.0;
@@ -32,6 +33,10 @@ namespace shooting {
 		double onePercentLowFps = 0.0;
 		double averageFrameMs = 0.0;
 		double maximumFrameMs = 0.0;
+		double averageGpuFrameMs = 0.0;
+		double maximumGpuFrameMs = 0.0;
+		double onePercentWorstGpuFrameMs = 0.0;
+		int gpuFrameCount = 0;
 		double averageEnemyUpdateMs = 0.0;
 		double maximumEnemyUpdateMs = 0.0;
 		double averageCollisionMs = 0.0;
@@ -54,13 +59,14 @@ namespace shooting {
 		bool IsRunning() const { return m_IsRunning; }
 
 		void RecordFrame(double elapsedSeconds, const BenchmarkFrameStats& stats);
+		void RecordGpuFrameTime(double milliseconds);
 		void AddSectionTime(BenchmarkSection section, double milliseconds);
 		void IncrementRaycastCount();
 		void UpdateNotification(double elapsedSeconds);
 		void ClearNotification();
 
 		const BenchmarkSummary& GetLastSummary() const { return m_LastSummary; }
-		const std::string& GetLastOutputPath() const { return m_LastSummary.outputPath; }
+		const std::wstring& GetLastOutputPath() const { return m_LastSummary.outputPath; }
 		bool HasNotification() const { return m_NotificationSecondsRemaining > 0.0 && !m_NotificationText.empty(); }
 		const std::wstring& GetNotificationText() const { return m_NotificationText; }
 
@@ -70,8 +76,8 @@ namespace shooting {
 		void ResetRunState();
 		void ResetCurrentFrameCounters();
 		BenchmarkSummary BuildSummary() const;
-		void WriteSummaryCsv(const BenchmarkSummary& summary);
-		std::string MakeOutputPath() const;
+		bool WriteSummaryCsv(const BenchmarkSummary& summary);
+		std::filesystem::path MakeOutputPath() const;
 		static std::string GetBuildName();
 		void ShowNotification(const std::wstring& text, double durationSeconds);
 
@@ -81,6 +87,7 @@ namespace shooting {
 		int m_FrameCount = 0;
 
 		std::vector<double> m_FrameTimesMs;
+		std::vector<double> m_GpuFrameTimesMs;
 		std::array<double, static_cast<size_t>(BenchmarkSection::Count)> m_CurrentSectionMs;
 		std::array<double, static_cast<size_t>(BenchmarkSection::Count)> m_TotalSectionMs;
 		std::array<double, static_cast<size_t>(BenchmarkSection::Count)> m_MaxSectionMs;
