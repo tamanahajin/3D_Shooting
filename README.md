@@ -57,8 +57,6 @@ Releaseビルドで計測し、動画と対応するCSVを同じ項目内にま�
 | 最適化前 | [before.mp4（約100MB）](./docs/performance/before.mp4) | [before.csv](./docs/performance/before.csv) |
 | 最適化後 | [after.mp4（約92MB）](./docs/performance/after.mp4)    | [after.csv](./docs/performance/after.csv)   |
 
-GitHub README上で動画が重い場合は、MP4リンクを直接開いて確認してください。
-
 主な比較対象:
 
 - 敵の個別描画からインスタンシング描画への変更
@@ -109,63 +107,13 @@ GPUフレーム時間も短縮されており、敵のインスタンシング�
 
 敵更新時間はやや増えていますが、衝突処理時間は短縮されています。敵数と処理フレーム数が増えた状態でも平均FPSとGPU時間が改善しているため、描画負荷削減の効果が大きい結果になっています。
 
-### 処理量の参考値
-
-| 指標        | 最適化前  | 最適化後  |
-| --------- | -----:| -----:|
-| Raycast回数 | 3,434 | 4,916 |
-| 最大衝突回数    | 120   | 144   |
-
-Raycast回数は30秒間の合計値です。FPS上限を外した計測では、最適化後の方が処理したフレーム数も多くなるため、合計回数だけで負荷の増減を判断することはできません。
-
-最低FPSは単発の重いフレームに影響されやすいため、継続的な安定性を見る際は「遅かったフレーム群の平均FPS」も重視しています。今後は解像度、カメラ位置、移動経路、攻撃タイミングまで固定し、描画時間とフレーム単位の処理回数も記録する予定です。
-
-## 主な特徴
-
-### 爆発による集団戦
-
-- 爆弾による範囲ダメージ
-- 敵の吹き飛ばしとランダム回転
-- 爆発時のカメラシェイク
-- ヒットストップ、死亡演出、効果音
-- 1回の爆発による最大撃破数の記録
-
-### 大量の敵に対応した処理
-
-- 敵の位置、速度、HP、アニメーション状態を配列で管理
-- 敵の更新処理をバッチ化
-- インスタンシングによる敵の一括描画
-- 敵コリジョン用Proxyのプール化
-- 敵生成を複数フレームへ分散し、スパイク対策
-- 軽量な地形解決処理による移動とスポーン位置の補正
-
-### データ駆動のゲーム設定
-
-- 敵ステータスとウェーブ設定をJSONから読み込み
-- ステージの高さ、坂、配置物をCSVから生成
-- 木や岩などの配置、回転、セル内位置をゲーム内エディタで編集
-
-主なデータファイル:
-
-- [`EnemyWaveConfig.json`](./3D_Shooting/Assets/Data/EnemyWaveConfig.json)
-- [`stage_heights.csv`](./3D_Shooting/Assets/Stage/stage_heights.csv)
-- [`stage_objects.csv`](./3D_Shooting/Assets/Stage/stage_objects.csv)
-- [`stage_props.csv`](./3D_Shooting/Assets/Stage/stage_props.csv)
-
-### ステージと描画
-
-- 高台、坂、外周壁を含む地形
-- 敵スポーン
-- フォグ、シャドウ、アニメーション
-- HP回復、爆弾補充アイテム
-
 ## 技術的な見どころ
 
 | テーマ      | 代表ファイル                                                                                       | 見どころ                                 |
 | -------- | -------------------------------------------------------------------------------------------- | ------------------------------------ |
 | 敵の配列管理   | [`EnemyController.h`](./3D_Shooting/Scripts/Enemy/EnemyController.h)                         | 敵をGameObject大量生成ではなく、状態配列として管理       |
 | 敵移動と地形追従 | [`EnemyMovement.cpp`](./3D_Shooting/Scripts/Enemy/EnemyMovement.cpp)                         | 追跡、分離力、重力、ノックバック、地形高さ解決を一括更新         |
-| 敵描画      | [`EnemyRenderers.cpp`](./3D_Shooting/Scripts/Enemy/EnemyRenderers.cpp)                       | インスタンシング描画と比較用個別描画の切り替え              |
+| 敵描画      | [`EnemyRenderers.cpp`](./3D_Shooting/Scripts/Enemy/EnemyRenderers.cpp)                       | インスタンシング描画                           |
 | 敵生成      | [`EnemySpawner.cpp`](./3D_Shooting/Scripts/Enemy/EnemySpawner.cpp)                           | 敵生成を数フレームへ分散し、生成時のFPS低下を抑制           |
 | 地形高さ解決   | [`StageGroundResolver.cpp`](./3D_Shooting/Scripts/Stage/StageGroundResolver.cpp)             | プレイヤーと敵が高台・坂へ安定して接地するための共通処理         |
 | ステージ生成   | [`GameStageTerrain.cpp`](./3D_Shooting/Scripts/Stage/GameStageTerrain.cpp)                   | CSVから高台・坂を生成し、軽量な地形判定用データを登録         |
