@@ -100,7 +100,7 @@
     <ClCompile Include="Scripts\Stage\GameStage.cpp" />
     <ClCompile Include="Scripts\Stage\GameStageEnvironment.cpp" />
     <ClCompile Include="Scripts\Stage\GameStageEnvironmentCommon.cpp" />
-    <ClCompile Include="Scripts\Stage\GameStageProps.cpp" />
+    <ClCompile Include="Scripts\Stage\GameStagePlacementObjects.cpp" />
     <ClCompile Include="Scripts\Stage\GameStageSpawnResolver.cpp" />
     <ClCompile Include="Scripts\Stage\GameStageTerrain.cpp" />
     <ClCompile Include="Scripts\Item\Item.cpp" />
@@ -118,7 +118,7 @@
     <ClCompile Include="Scripts\UI\ScreenTransition.cpp" />
     <ClCompile Include="Scripts\Stage\StageEditor.cpp" />
     <ClCompile Include="Scripts\Stage\StageObjectCatalog.cpp" />
-    <ClCompile Include="Scripts\Stage\StagePropPlacement.cpp" />
+    <ClCompile Include="Scripts\Stage\StageEditorObjectPlacement.cpp" />
     <ClCompile Include="Scripts\Stage\StageGroundResolver.cpp" />
     <ClCompile Include="Scripts\Stage\TitleStage.cpp" />
     <ClCompile Include="Scripts\Enemy\SeekObject.cpp" />
@@ -238,7 +238,7 @@
     <ClInclude Include="Scripts\Stage\StageEditor.h" />
     <ClInclude Include="Scripts\Stage\GameStageEnvironmentCommon.h" />
     <ClInclude Include="Scripts\Stage\StageObjectCatalog.h" />
-    <ClInclude Include="Scripts\Stage\StagePropPlacement.h" />
+    <ClInclude Include="Scripts\Stage\StageEditorObjectPlacement.h" />
     <ClInclude Include="Scripts\Stage\StageGroundResolver.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Scripts\Stage\TitleStage.h" />

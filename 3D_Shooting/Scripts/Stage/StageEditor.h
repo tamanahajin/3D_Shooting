@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "stdafx.h"
-#include "StagePropPlacement.h"
+#include "StageEditorObjectPlacement.h"
 
 namespace shooting {
 
@@ -43,15 +43,15 @@ namespace shooting {
 			const std::shared_ptr<Camera>& camera,
 			float screenWidth,
 			float screenHeight) const;
-		StagePropPlacement* FindPropAtCell(int row, int column);
-		const StagePropPlacement* FindPropAtCell(int row, int column) const;
-		void RemovePropAtCell(int row, int column);
+		StageEditorObjectPlacement* FindObjectPlacementAtCell(int row, int column);
+		const StageEditorObjectPlacement* FindObjectPlacementAtCell(int row, int column) const;
+		void RemoveObjectPlacementAtCell(int row, int column);
 		int GetIndex(int row, int column) const;
 		bool IsValidCell(int row, int column) const;
 
 		std::vector<int> m_objects;
 		std::vector<int> m_heights;
-		std::vector<StagePropPlacement> m_propPlacements;
+		std::vector<StageEditorObjectPlacement> m_editorObjectPlacements;
 		int m_rowCount = 0;
 		int m_columnCount = 0;
 		int m_selectedRow = -1;

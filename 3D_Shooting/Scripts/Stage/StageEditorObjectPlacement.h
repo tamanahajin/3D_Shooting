@@ -5,9 +5,9 @@
 namespace shooting {
 
 	/*!
-	@brief ステージグリッド上へ手動配置する自然物1件分のデータ
+	@brief ステージエディタで手動配置するオブジェクト1件分のデータ
 	*/
-	struct StagePropPlacement
+	struct StageEditorObjectPlacement
 	{
 		int row = 0;
 		int column = 0;
@@ -17,34 +17,34 @@ namespace shooting {
 		int subColumn = 1;
 	};
 
-	const int kStagePropSubcellCount = 3;
+	const int kStageEditorObjectSubcellCount = 3;
 
 	/*!
 	@brief 3x3サブセル番号から、親セル中心を基準にしたXZオフセットを求める
 
 	subRowは画面上から下、subColumnは画面左から右の順で0～2を使用する。
 	*/
-	Vec3 CalculateStagePropSubcellOffset(
+	Vec3 CalculateStageEditorObjectSubcellOffset(
 		int subRow,
 		int subColumn,
 		float parentCellSize);
 
 	/*!
-	@brief ステージ配置物CSVの読み書きを担当する
+	@brief ステージエディタ配置物CSVの読み書きを担当する
 
 	エディタとゲーム本体で同じ形式を使うため、CSVの解析処理をこのクラスへ集約する。
 	*/
-	class StagePropPlacementFile
+	class StageEditorObjectPlacementFile
 	{
 	public:
 		static const wchar_t* GetRelativePath();
 		static bool Load(
 			const std::wstring& path,
-			std::vector<StagePropPlacement>& outPlacements,
+			std::vector<StageEditorObjectPlacement>& outPlacements,
 			std::string& outErrorMessage);
 		static bool Save(
 			const std::wstring& path,
-			const std::vector<StagePropPlacement>& placements,
+			const std::vector<StageEditorObjectPlacement>& placements,
 			std::string& outErrorMessage);
 	};
 

@@ -1,5 +1,9 @@
-﻿#include "stdafx.h"
-#include "StagePropPlacement.h"
+﻿/*!
+@file StageEditorObjectPlacement.cpp
+@brief ステージエディタで置いた配置物をCSVとして読み書きする
+*/
+#include "stdafx.h"
+#include "StageEditorObjectPlacement.h"
 
 #include <algorithm>
 #include <cmath>
@@ -12,7 +16,7 @@ namespace shooting {
 
 	namespace
 	{
-		const wchar_t* kStagePropPlacementCsv = L"Stage/stage_props.csv";
+		const wchar_t* kStageEditorObjectPlacementCsv = L"Stage/stage_props.csv";
 
 		std::wstring WidenUtf8(const std::string& value)
 		{
@@ -86,32 +90,32 @@ namespace shooting {
 		bool IsValidSubcell(int subRow, int subColumn)
 		{
 			return subRow >= 0 &&
-				subRow < kStagePropSubcellCount &&
+				subRow < kStageEditorObjectSubcellCount &&
 				subColumn >= 0 &&
-				subColumn < kStagePropSubcellCount;
+				subColumn < kStageEditorObjectSubcellCount;
 		}
 
-		std::vector<StagePropPlacement>::iterator FindPlacementAtCell(
-			std::vector<StagePropPlacement>& placements,
+		std::vector<StageEditorObjectPlacement>::iterator FindPlacementAtCell(
+			std::vector<StageEditorObjectPlacement>& placements,
 			int row,
 			int column)
 		{
 			return std::find_if(
 				placements.begin(),
 				placements.end(),
-				[row, column](const StagePropPlacement& placement)
+				[row, column](const StageEditorObjectPlacement& placement)
 				{
 					return placement.row == row && placement.column == column;
 				});
 		}
 	}
 
-	const wchar_t* StagePropPlacementFile::GetRelativePath()
+	const wchar_t* StageEditorObjectPlacementFile::GetRelativePath()
 	{
-		return kStagePropPlacementCsv;
+		return kStageEditorObjectPlacementCsv;
 	}
 
-	Vec3 CalculateStagePropSubcellOffset(
+	Vec3 CalculateStageEditorObjectSubcellOffset(
 		int subRow,
 		int subColumn,
 		float parentCellSize)
@@ -122,7 +126,7 @@ namespace shooting {
 		}
 
 		const float subcellSize =
-			parentCellSize / static_cast<float>(kStagePropSubcellCount);
+			parentCellSize / static_cast<float>(kStageEditorObjectSubcellCount);
 		const float x =
 			(static_cast<float>(subColumn) - 1.0f) * subcellSize;
 		const float z =
@@ -130,9 +134,9 @@ namespace shooting {
 		return Vec3(x, 0.0f, z);
 	}
 
-	bool StagePropPlacementFile::Load(
+	bool StageEditorObjectPlacementFile::Load(
 		const std::wstring& path,
-		std::vector<StagePropPlacement>& outPlacements,
+		std::vector<StageEditorObjectPlacement>& outPlacements,
 		std::string& outErrorMessage)
 	{
 		outPlacements.clear();
@@ -148,7 +152,7 @@ namespace shooting {
 		std::ifstream file{ std::filesystem::path(path), std::ios::binary };
 		if (!file.is_open())
 		{
-			outErrorMessage = "Stage prop CSV open failed.";
+			outErrorMessage = "Stage editor object CSV open failed.";
 			return false;
 		}
 
@@ -168,7 +172,7 @@ namespace shooting {
 			std::replace(line.begin(), line.end(), '\t', ' ');
 
 			std::stringstream stream(line);
-			StagePropPlacement placement;
+			StageEditorObjectPlacement placement;
 			std::string modelName;
 			if (!(stream >> placement.row >> placement.column >> modelName >> placement.yRotationDegrees))
 			{
@@ -181,7 +185,7 @@ namespace shooting {
 				}
 
 				outErrorMessage =
-					"Invalid stage prop CSV line: " + std::to_string(lineNumber);
+					"Invalid stage editor object CSV line: " + std::to_string(lineNumber);
 				return false;
 			}
 
@@ -193,7 +197,7 @@ namespace shooting {
 				if (!(stream >> subColumnToken))
 				{
 					outErrorMessage =
-						"Invalid stage prop subcell at line: " + std::to_string(lineNumber);
+						"Invalid stage editor object subcell at line: " + std::to_string(lineNumber);
 					return false;
 				}
 
@@ -206,7 +210,7 @@ namespace shooting {
 					(subColumnStream >> invalidToken))
 				{
 					outErrorMessage =
-						"Invalid stage prop subcell at line: " + std::to_string(lineNumber);
+						"Invalid stage editor object subcell at line: " + std::to_string(lineNumber);
 					return false;
 				}
 			}
@@ -215,7 +219,7 @@ namespace shooting {
 			if (stream >> extraToken)
 			{
 				outErrorMessage =
-					"Too many stage prop values at line: " + std::to_string(lineNumber);
+					"Too many stage editor object values at line: " + std::to_string(lineNumber);
 				return false;
 			}
 
@@ -226,7 +230,7 @@ namespace shooting {
 				!IsValidSubcell(placement.subRow, placement.subColumn))
 			{
 				outErrorMessage =
-					"Invalid stage prop value at line: " + std::to_string(lineNumber);
+					"Invalid stage editor object value at line: " + std::to_string(lineNumber);
 				return false;
 			}
 
@@ -234,7 +238,7 @@ namespace shooting {
 			if (placement.modelName.empty())
 			{
 				outErrorMessage =
-					"Invalid stage prop model name at line: " + std::to_string(lineNumber);
+					"Invalid stage editor object model name at line: " + std::to_string(lineNumber);
 				return false;
 			}
 			placement.yRotationDegrees = NormalizeDegrees(placement.yRotationDegrees);
@@ -257,18 +261,18 @@ namespace shooting {
 		return true;
 	}
 
-	bool StagePropPlacementFile::Save(
+	bool StageEditorObjectPlacementFile::Save(
 		const std::wstring& path,
-		const std::vector<StagePropPlacement>& placements,
+		const std::vector<StageEditorObjectPlacement>& placements,
 		std::string& outErrorMessage)
 	{
 		outErrorMessage.clear();
 
-		std::vector<StagePropPlacement> sortedPlacements = placements;
+		std::vector<StageEditorObjectPlacement> sortedPlacements = placements;
 		std::sort(
 			sortedPlacements.begin(),
 			sortedPlacements.end(),
-			[](const StagePropPlacement& left, const StagePropPlacement& right)
+			[](const StageEditorObjectPlacement& left, const StageEditorObjectPlacement& right)
 			{
 				if (left.row != right.row)
 				{
@@ -289,7 +293,7 @@ namespace shooting {
 			std::filesystem::create_directories(parentPath, errorCode);
 			if (errorCode)
 			{
-				outErrorMessage = "Stage prop CSV save directory create failed.";
+				outErrorMessage = "Stage editor object CSV save directory create failed.";
 				return false;
 			}
 		}
@@ -300,7 +304,7 @@ namespace shooting {
 			std::ios::binary | std::ios::trunc };
 		if (!file.is_open())
 		{
-			outErrorMessage = "Stage prop CSV save failed.";
+			outErrorMessage = "Stage editor object CSV save failed.";
 			return false;
 		}
 
@@ -315,7 +319,7 @@ namespace shooting {
 				!std::isfinite(placement.yRotationDegrees) ||
 				!IsValidSubcell(placement.subRow, placement.subColumn))
 			{
-				outErrorMessage = "Invalid stage prop data.";
+				outErrorMessage = "Invalid stage editor object data.";
 				return false;
 			}
 
@@ -331,7 +335,7 @@ namespace shooting {
 
 		if (!file.good())
 		{
-			outErrorMessage = "Stage prop CSV write failed.";
+			outErrorMessage = "Stage editor object CSV write failed.";
 			return false;
 		}
 		return true;

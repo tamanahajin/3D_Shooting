@@ -1,5 +1,5 @@
 ﻿/*!
-@file GameStageProps.cpp
+@file GameStagePlacementObjects.cpp
 @brief GameStageの自然物と編集済み配置物の生成
 */
 
@@ -107,21 +107,21 @@ namespace shooting {
 			}
 
 			// エディタで指定した配置物を、ランダム自然物と同じインスタンシング描画へ追加する。
-			void AddEditedStageProps(
+			void AddEditedStageObjects(
 				GameStage& stage,
 				std::map<std::wstring, StageObjectBatch>& batches,
 				std::vector<PlacementCircle>& occupied,
 				const StageLayoutGrid& grid)
 			{
-				std::vector<StagePropPlacement> placements;
+				std::vector<StageEditorObjectPlacement> placements;
 				std::string errorMessage;
-				if (!StagePropPlacementFile::Load(
-						App::GetRelativeAssetsDir() + StagePropPlacementFile::GetRelativePath(),
+				if (!StageEditorObjectPlacementFile::Load(
+						App::GetRelativeAssetsDir() + StageEditorObjectPlacementFile::GetRelativePath(),
 						placements,
 						errorMessage))
 				{
 #if defined(_DEBUG)
-					OutputDebugStringA(("Stage prop load failed: " + errorMessage + "\n").c_str());
+					OutputDebugStringA(("Stage editor object load failed: " + errorMessage + "\n").c_str());
 #endif
 					return;
 				}
@@ -147,7 +147,7 @@ namespace shooting {
 						placement.row,
 						placement.column,
 						0.0f);
-					position = position + CalculateStagePropSubcellOffset(
+					position = position + CalculateStageEditorObjectSubcellOffset(
 						placement.subRow,
 						placement.subColumn,
 						kStageLayoutCellSize);
@@ -188,7 +188,7 @@ namespace shooting {
 		AddHeightVariationOccupancy(occupied);
 
 		// 手動配置を先に占有登録し、後から生成するランダム自然物との重なりを防ぐ。
-		AddEditedStageProps(*this, batches, occupied, LoadStageLayoutGrid());
+		AddEditedStageObjects(*this, batches, occupied, LoadStageLayoutGrid());
 
 		std::mt19937 gen = CreateStagePlacementRandomEngine();
 

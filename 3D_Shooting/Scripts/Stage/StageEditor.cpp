@@ -289,22 +289,22 @@ namespace shooting {
 	{
 		std::vector<int> objects;
 		std::vector<int> heights;
-		std::vector<StagePropPlacement> propPlacements;
+		std::vector<StageEditorObjectPlacement> editorObjectPlacements;
 		int objectRows = 0;
 		int objectColumns = 0;
 		int heightRows = 0;
 		int heightColumns = 0;
-		std::string propError;
+		std::string editorObjectError;
 
 		const std::wstring assets = App::GetRelativeAssetsDir();
 		if (!LoadCsvGrid(assets + kObjectCsvPath, objects, objectRows, objectColumns) ||
 			!LoadCsvGrid(assets + kHeightCsvPath, heights, heightRows, heightColumns) ||
-			!StagePropPlacementFile::Load(
-				assets + StagePropPlacementFile::GetRelativePath(),
-				propPlacements,
-				propError))
+			!StageEditorObjectPlacementFile::Load(
+				assets + StageEditorObjectPlacementFile::GetRelativePath(),
+				editorObjectPlacements,
+				editorObjectError))
 		{
-			m_statusText = propError.empty() ? "CSV load failed." : propError;
+			m_statusText = editorObjectError.empty() ? "CSV load failed." : editorObjectError;
 			return false;
 		}
 		if (objectRows != heightRows || objectColumns != heightColumns)
@@ -312,18 +312,18 @@ namespace shooting {
 			m_statusText = "CSV grid sizes do not match.";
 			return false;
 		}
-		for (const auto& placement : propPlacements)
+		for (const auto& placement : editorObjectPlacements)
 		{
 			if (placement.row >= objectRows || placement.column >= objectColumns)
 			{
-				m_statusText = "Stage prop is outside the grid.";
+				m_statusText = "Stage editor object is outside the grid.";
 				return false;
 			}
 		}
 
 		m_objects = std::move(objects);
 		m_heights = std::move(heights);
-		m_propPlacements = std::move(propPlacements);
+		m_editorObjectPlacements = std::move(editorObjectPlacements);
 		m_rowCount = objectRows;
 		m_columnCount = objectColumns;
 		m_loaded = true;
@@ -341,7 +341,7 @@ namespace shooting {
 	bool StageEditor::Save()
 	{
 		const std::wstring assets = App::GetRelativeAssetsDir();
-		std::string propError;
+		std::string editorObjectError;
 		if (!SaveCsvGrid(
 				assets + kObjectCsvPath,
 				m_objects,
@@ -352,12 +352,12 @@ namespace shooting {
 				m_heights,
 				m_rowCount,
 				m_columnCount) ||
-			!StagePropPlacementFile::Save(
-				assets + StagePropPlacementFile::GetRelativePath(),
-				m_propPlacements,
-				propError))
+			!StageEditorObjectPlacementFile::Save(
+				assets + StageEditorObjectPlacementFile::GetRelativePath(),
+				m_editorObjectPlacements,
+				editorObjectError))
 		{
-			m_statusText = propError.empty() ? "CSV save failed." : propError;
+			m_statusText = editorObjectError.empty() ? "CSV save failed." : editorObjectError;
 			return false;
 		}
 
@@ -584,17 +584,17 @@ namespace shooting {
 			IM_COL32(255, 215, 40, 255),
 			3.0f);
 
-		const auto* placement = FindPropAtCell(m_selectedRow, m_selectedColumn);
+		const auto* placement = FindObjectPlacementAtCell(m_selectedRow, m_selectedColumn);
 		if (placement)
 		{
 			const float subcellSize =
-				kStageCellSize / static_cast<float>(kStagePropSubcellCount);
+				kStageCellSize / static_cast<float>(kStageEditorObjectSubcellCount);
 			const float minX = centerX - halfCell;
 			const float minZ = centerZ - halfCell;
 			const ImU32 subgridColor = IM_COL32(80, 220, 235, 210);
 
 			// 選択中の親セルだけ3x3へ分割し、配置位置とステージ上の向きを対応させる。
-			for (int line = 1; line < kStagePropSubcellCount; ++line)
+			for (int line = 1; line < kStageEditorObjectSubcellCount; ++line)
 			{
 				const float x = minX + (static_cast<float>(line) * subcellSize);
 				ImVec2 start{};
@@ -633,7 +633,7 @@ namespace shooting {
 				}
 			}
 
-			const Vec3 offset = CalculateStagePropSubcellOffset(
+			const Vec3 offset = CalculateStageEditorObjectSubcellOffset(
 				placement->subRow,
 				placement->subColumn,
 				kStageCellSize);
@@ -745,8 +745,8 @@ namespace shooting {
 				}
 
 				ImGui::Separator();
-				const StagePropPlacement* selectedPlacement =
-					FindPropAtCell(m_selectedRow, m_selectedColumn);
+				const StageEditorObjectPlacement* selectedPlacement =
+					FindObjectPlacementAtCell(m_selectedRow, m_selectedColumn);
 				const std::string currentModelName = selectedPlacement
 					? NarrowUtf8(selectedPlacement->modelName)
 					: "None";
@@ -803,20 +803,20 @@ namespace shooting {
 
 				if (removePlacement)
 				{
-					RemovePropAtCell(m_selectedRow, m_selectedColumn);
+					RemoveObjectPlacementAtCell(m_selectedRow, m_selectedColumn);
 					m_dirty = true;
 					m_statusText = "Modified.";
 				}
 				else if (!selectedModelName.empty())
 				{
-					auto* placement = FindPropAtCell(m_selectedRow, m_selectedColumn);
+					auto* placement = FindObjectPlacementAtCell(m_selectedRow, m_selectedColumn);
 					if (!placement)
 					{
-						StagePropPlacement newPlacement;
+						StageEditorObjectPlacement newPlacement;
 						newPlacement.row = m_selectedRow;
 						newPlacement.column = m_selectedColumn;
 						newPlacement.modelName = selectedModelName;
-						m_propPlacements.push_back(newPlacement);
+						m_editorObjectPlacements.push_back(newPlacement);
 					}
 					else
 					{
@@ -827,19 +827,19 @@ namespace shooting {
 				}
 
 				auto* editablePlacement =
-					FindPropAtCell(m_selectedRow, m_selectedColumn);
+					FindObjectPlacementAtCell(m_selectedRow, m_selectedColumn);
 				if (editablePlacement)
 				{
 					ImGui::TextUnformatted("Position in Cell");
-					const char* subcellLabels[kStagePropSubcellCount][kStagePropSubcellCount] =
+					const char* subcellLabels[kStageEditorObjectSubcellCount][kStageEditorObjectSubcellCount] =
 					{
 						{ "NW##PropPos00", "N##PropPos01", "NE##PropPos02" },
 						{ "W##PropPos10", "C##PropPos11", "E##PropPos12" },
 						{ "SW##PropPos20", "S##PropPos21", "SE##PropPos22" },
 					};
-					for (int subRow = 0; subRow < kStagePropSubcellCount; ++subRow)
+					for (int subRow = 0; subRow < kStageEditorObjectSubcellCount; ++subRow)
 					{
-						for (int subColumn = 0; subColumn < kStagePropSubcellCount; ++subColumn)
+						for (int subColumn = 0; subColumn < kStageEditorObjectSubcellCount; ++subColumn)
 						{
 							const bool isSelected =
 								editablePlacement->subRow == subRow &&
@@ -871,7 +871,7 @@ namespace shooting {
 							{
 								ImGui::PopStyleColor(3);
 							}
-							if (subColumn + 1 < kStagePropSubcellCount)
+							if (subColumn + 1 < kStageEditorObjectSubcellCount)
 							{
 								ImGui::SameLine();
 							}
@@ -950,41 +950,41 @@ namespace shooting {
 		return (row * m_columnCount) + column;
 	}
 
-	StagePropPlacement* StageEditor::FindPropAtCell(int row, int column)
+	StageEditorObjectPlacement* StageEditor::FindObjectPlacementAtCell(int row, int column)
 	{
 		const auto found = std::find_if(
-			m_propPlacements.begin(),
-			m_propPlacements.end(),
-			[row, column](const StagePropPlacement& placement)
+			m_editorObjectPlacements.begin(),
+			m_editorObjectPlacements.end(),
+			[row, column](const StageEditorObjectPlacement& placement)
 			{
 				return placement.row == row && placement.column == column;
 			});
-		return found != m_propPlacements.end() ? &(*found) : nullptr;
+		return found != m_editorObjectPlacements.end() ? &(*found) : nullptr;
 	}
 
-	const StagePropPlacement* StageEditor::FindPropAtCell(int row, int column) const
+	const StageEditorObjectPlacement* StageEditor::FindObjectPlacementAtCell(int row, int column) const
 	{
 		const auto found = std::find_if(
-			m_propPlacements.begin(),
-			m_propPlacements.end(),
-			[row, column](const StagePropPlacement& placement)
+			m_editorObjectPlacements.begin(),
+			m_editorObjectPlacements.end(),
+			[row, column](const StageEditorObjectPlacement& placement)
 			{
 				return placement.row == row && placement.column == column;
 			});
-		return found != m_propPlacements.end() ? &(*found) : nullptr;
+		return found != m_editorObjectPlacements.end() ? &(*found) : nullptr;
 	}
 
-	void StageEditor::RemovePropAtCell(int row, int column)
+	void StageEditor::RemoveObjectPlacementAtCell(int row, int column)
 	{
-		m_propPlacements.erase(
+		m_editorObjectPlacements.erase(
 			std::remove_if(
-				m_propPlacements.begin(),
-				m_propPlacements.end(),
-				[row, column](const StagePropPlacement& placement)
+				m_editorObjectPlacements.begin(),
+				m_editorObjectPlacements.end(),
+				[row, column](const StageEditorObjectPlacement& placement)
 				{
 					return placement.row == row && placement.column == column;
 				}),
-			m_propPlacements.end());
+			m_editorObjectPlacements.end());
 	}
 
 	bool StageEditor::IsValidCell(int row, int column) const

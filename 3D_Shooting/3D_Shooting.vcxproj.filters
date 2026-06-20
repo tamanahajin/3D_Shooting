@@ -319,7 +319,7 @@
     <ClCompile Include="Scripts\Stage\GameStageEnvironmentCommon.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Stage\GameStageProps.cpp">
+    <ClCompile Include="Scripts\Stage\GameStagePlacementObjects.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Stage\GameStageSpawnResolver.cpp">
@@ -385,7 +385,7 @@
     <ClCompile Include="Scripts\Stage\StageObjectCatalog.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Stage\StagePropPlacement.cpp">
+    <ClCompile Include="Scripts\Stage\StageEditorObjectPlacement.cpp">
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -450,7 +450,7 @@
     <ClInclude Include="Scripts\Stage\StageObjectCatalog.h">
       <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Stage\StagePropPlacement.h">
+    <ClInclude Include="Scripts\Stage\StageEditorObjectPlacement.h">
       <Filter>Scripts\Headers\Stage</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Stage\StageGroundResolver.h">

@@ -25,7 +25,7 @@
 #include "Scripts/Bullet/BulletPool.h"
 #include "Scripts/Bullet/BulletManager.h"
 #include "Scripts/Stage/StageObjectCatalog.h"
-#include "Scripts/Stage/StagePropPlacement.h"
+#include "Scripts/Stage/StageEditorObjectPlacement.h"
 #include "Scripts/Stage/Character.h"
 #include "Scripts/Enemy/EnemyStatus.h"
 #include "Scripts/Enemy/EnemyController.h"
