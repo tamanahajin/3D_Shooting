@@ -1,6 +1,6 @@
 ﻿/*!
 @file EnemyStatus.h
-@brief 敵1体分の調整値
+@brief 敵1体分の調整値をまとめる
 */
 
 #pragma once
@@ -9,10 +9,9 @@
 namespace shooting {
 
 	/*!
-	@brief 敵1体分の調整値
+	@brief HP、移動、当たり判定、被弾演出など敵種別ごとに変えたい値
 
-	HP、移動速度、当たり判定、被弾演出など、敵種別ごとに変えたい値をまとめる。
-	EnemyController はこの設定値を敵の実行時状態へコピーして保持する。
+	EnemyController はこの設定を生成時に EnemyState へコピーして使う。
 	*/
 	struct EnemyStatus
 	{

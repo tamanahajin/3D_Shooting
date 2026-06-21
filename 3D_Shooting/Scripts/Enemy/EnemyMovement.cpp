@@ -1,21 +1,8 @@
-﻿/*!
-@file EnemyMovement.cpp
-@brief 敵バッチの移動、分離、地形追従
-敵同士の簡易分離はグリッドで近傍だけを見て軽量化する。
-このファイルでは追跡、重力、坂や高台の地形解決もまとめて行う。
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
-	/*!
-	@brief 空間グリッドのセル座標を m_cellMap 用のキーへ変換する
-	@param x セルX座標
-	@param z セルZ座標
-	@return 2次元セルを表す64bitキー
-	*/
 	long long EnemyController::MakeCellKey(int x, int z) const
 	{
 		// 空間グリッドのセル座標をmapのキーにするため、X/Zを1つの64bit値へ詰める。
@@ -25,12 +12,6 @@ namespace shooting {
 		return static_cast<long long>((ux << 32) ^ uz);
 	}
 
-	/*!
-	@brief 敵同士の分離計算に使う空間グリッドを作る
-
-	敵数が増えても全組み合わせ比較を避けるため、現在位置からセル座標を求めて
-	m_cellMap に敵インデックスを登録する。
-	*/
 	void EnemyController::BuildSpatialGrid()
 	{
 		// 敵同士の分離計算で全組み合わせを見ると重くなるため、
@@ -44,7 +25,6 @@ namespace shooting {
 		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
 			const auto& enemy = m_enemies[i];
-			// 死亡済み・非アクティブの敵は移動にも分離にも参加させない。
 			if (!enemy.active || enemy.isDead)
 			{
 				continue;
@@ -56,13 +36,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 指定敵に働く分離力を計算する
-	@param index 対象敵のインデックス
-	@return 近い敵から離れる水平ベクトル
-
-	自分のセルと周囲8セルだけを調べ、近い敵ほど強く押し返す。
-	*/
 	Vec3 EnemyController::CalculateSeparation(size_t index) const
 	{
 		if (index >= m_enemies.size())
@@ -104,7 +77,6 @@ namespace shooting {
 						continue;
 					}
 
-					// 近い敵ほど強く離れるよう、距離の二乗に反比例する力を足す。
 					steeringForce += toAgent * (1.0f / distSq);
 				}
 			}
@@ -113,13 +85,6 @@ namespace shooting {
 		return steeringForce;
 	}
 
-	/*!
-	@brief 敵の向きを水平速度方向へなめらかに補間する
-	@param enemy 更新対象の敵状態
-	@param lerpFact 回転補間率。1.0以上なら即座に目標向きへ合わせる
-
-	上下方向の速度は向きに使わず、見た目のY軸回転だけを調整する。
-	*/
 	void EnemyController::RotateToVelocity(EnemyState& enemy, float lerpFact)
 	{
 		// 見た目の向きだけを移動方向へ寄せる。移動ベクトルがほぼゼロなら向きを維持する。
@@ -154,15 +119,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief CSV地形と中央床に対して敵の接地位置を解決する
-	@param enemy 更新対象の敵状態
-	@param elapsedTime 経過時間
-	@return 接地できた場合は true
-
-	敵バッチ側の状態を StageGroundResolveState へ詰め替え、
-	StageGroundResolver の共通処理で段差・坂・床高さを解決する。
-	*/
 	bool EnemyController::ResolveGeneratedGround(EnemyState& enemy, double elapsedTime)
 	{
 		auto gameStage = m_gameStage.lock();
@@ -212,23 +168,14 @@ namespace shooting {
 			}
 		}
 
-		// 解決に成功した結果だけを敵状態へ戻す。失敗時は呼び出し側で未接地として扱う。
 		enemy.position = groundState.position;
 		enemy.gravityVelocity = groundState.gravityVelocity;
 		enemy.isGround = groundState.isGrounded;
 		return groundState.isGrounded;
 	}
 
-	/*!
-	@brief 敵配列の移動、重力、地形追従、死亡状態を更新する
-	@param elapsedTime 経過時間
-
-	1フレーム内で追跡目標取得、分離力計算、通常移動またはノックバック、
-	地形解決、アニメーション、プロキシ同期の順に処理する。
-	*/
 	void EnemyController::OnUpdate(double elapsedTime)
 	{
-		// この関数が敵バッチの主更新。処理順は「目標取得 → 分離力計算 → 各敵の移動/接地/同期」。
 		ScopedBenchmarkTimer benchmarkTimer(BenchmarkSection::EnemyUpdate);
 
 		if (m_enemies.empty())
@@ -272,7 +219,6 @@ namespace shooting {
 		const Vec3 gravity(0.0f, -9.8f, 0.0f);
 		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
-			// ここから先は1体分の状態更新。GameObjectを増やさず配列上の状態だけを進める。
 			auto& enemy = m_enemies[i];
 			if (!enemy.active)
 			{
@@ -281,7 +227,6 @@ namespace shooting {
 
 			enemy.previousPosition = enemy.position;
 
-			// 描画演出用タイマー。実座標には影響せず、インスタンス描画時のフラッシュや押されに使う。
 			if (enemy.damageFlashTimer > 0.0)
 			{
 				enemy.damageFlashTimer -= elapsedTime;
@@ -332,7 +277,6 @@ namespace shooting {
 					enemy.knockbackSpinTimer = 0.0;
 				}
 
-				// このフレーム分の回転を累積する。軸と速度は爆風を受けた瞬間にランダム決定済み。
 				Quat deltaRotation;
 				deltaRotation.rotationAxis(enemy.knockbackSpinAxis, enemy.knockbackSpinSpeed * dt);
 
@@ -349,12 +293,10 @@ namespace shooting {
 				enemy.knockbackSpinTimer = 0.0;
 			}
 
-			// ステージ外へ落ちた敵は、地形解決より先に死亡扱いへ切り替える。
 			KillByFall(enemy);
 
 			if (enemy.isDead)
 			{
-				// 死亡後も落下や残ったノックバックは少し進め、アニメーション終了後にプロキシを外す。
 				ChangeAnimation(enemy, AnimState::Dead);
 				enemy.gravityVelocity += gravity * dt;
 				enemy.position.y += enemy.gravityVelocity.y * dt;
@@ -412,7 +354,6 @@ namespace shooting {
 					Steering::AccumulateForce(enemy.force, separation, 20.0f);
 				}
 
-				// 通常移動は水平面だけで積分する。上下方向は重力と地形解決に任せる。
 				enemy.velocity += enemy.force * dt;
 				enemy.velocity.y = 0.0f;
 				enemy.position += enemy.velocity * dt;
@@ -428,17 +369,14 @@ namespace shooting {
 			{
 				if (enemy.isGround && enemy.knockbackControlTimer <= 0.0)
 				{
-					// 接地して操作不能時間も終わったら、水平ノックバックを止めて通常追跡へ戻す。
 					enemy.knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 				}
 				else
 				{
-					// 空中または操作不能中は、爆風で与えた水平速度をそのまま位置へ反映する。
 					enemy.position += enemy.knockbackVelocity * dt;
 				}
 			}
 
-			// 上下方向は常に重力で更新し、接地判定で必要なら地面高さへ戻す。
 			enemy.gravityVelocity += gravity * dt;
 			enemy.position.y += enemy.gravityVelocity.y * dt;
 			enemy.gravityVelocity.x = 0.0f;
@@ -466,19 +404,11 @@ namespace shooting {
 
 			UpdateAnimation(enemy, elapsedTime);
 			RotateToVelocity(enemy, 0.35f);
-			// CollisionManagerが見るプロキシTransformへ、配列側で決めた最終位置を同期する。
 			SyncProxyTransform(i);
 			enemy.isGround = resolvedGeneratedGround;
 		}
 	}
 
-	/*!
-	@brief プロキシ側で補正された Transform を敵配列へ戻す
-	@param elapsedTime 経過時間。この処理では使用しない
-
-	CollisionManager が押し戻した位置を次フレームのバッチ更新に反映し、
-	配列状態と当たり判定位置のずれを防ぐ。
-	*/
 	void EnemyController::OnUpdate2(double elapsedTime)
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);

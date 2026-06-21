@@ -1,33 +1,15 @@
-﻿/*!
-@file EnemyCombat.cpp
-@brief 敵バッチのダメージ、死亡、ノックバック処理
-HPや被弾演出の状態はEnemyStateに集約し、物理プロキシからはindex指定でここへ転送する。
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
 	namespace {
-		/*!
-		@brief 指定範囲内の乱数を返す
-		@param minValue 最小値
-		@param maxValue 最大値
-		@return minValue から maxValue までの乱数
-		*/
 		float RandomRange(float minValue, float maxValue)
 		{
 			return minValue + (maxValue - minValue) * Util::RandZeroToOne(true);
 		}
 	}
 
-	/*!
-	@brief 敵を死亡状態へ切り替える
-	@param enemy 対象敵の状態
-
-	HP、移動力、ノックバック、遅延死亡フラグをリセットし、死亡アニメーションを先頭から再生する。
-	*/
 	void EnemyController::KillEnemy(EnemyState& enemy)
 	{
 		if (enemy.isDead)
@@ -53,10 +35,6 @@ namespace shooting {
 		ChangeAnimation(enemy, AnimState::Dead, true);
 	}
 
-	/*!
-	@brief 落下死ラインを超えた敵を死亡させる
-	@param enemy 対象敵の状態
-	*/
 	void EnemyController::KillByFall(EnemyState& enemy)
 	{
 		if (enemy.position.y >= kFallDeathY)
@@ -67,11 +45,6 @@ namespace shooting {
 		KillEnemy(enemy);
 	}
 
-	/*!
-	@brief 敵の頭上付近にダメージ数値を表示する
-	@param index 対象敵のインデックス
-	@param info ダメージ情報
-	*/
 	void EnemyController::ShowDamageNumber(size_t index, const DamageInfo& info)
 	{
 		if (info.m_Damage <= 0 || index >= m_enemies.size())
@@ -88,13 +61,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 通常被弾時の押され演出を開始する
-	@param enemy 対象敵の状態
-	@param info ダメージ情報
-
-	実座標は動かさず、描画用の位置補正と傾きに使う方向だけを決める。
-	*/
 	void EnemyController::StartHitPush(EnemyState& enemy, const DamageInfo& info)
 	{
 		enemy.hitPushDuration = enemy.status.hitPushDuration;
@@ -129,14 +95,6 @@ namespace shooting {
 		enemy.hitPushDirection = direction;
 	}
 
-	/*!
-	@brief 指定敵へダメージを適用する
-	@param index 対象敵のインデックス
-	@param info ダメージ量、攻撃者、死亡遅延などの情報
-	@return このダメージで即死亡、または着地後の死亡が確定した場合は true
-
-	爆弾などで死亡遅延が指定された場合は、HPを一時的に1へ戻して着地後に死亡させる。
-	*/
 	bool EnemyController::ApplyDamage(size_t index, const DamageInfo& info)
 	{
 		if (index >= m_enemies.size())
@@ -187,13 +145,6 @@ namespace shooting {
 		return false;
 	}
 
-	/*!
-	@brief 指定敵へ爆風などのノックバック速度を与える
-	@param index 対象敵のインデックス
-	@param velocity 与える速度。水平成分と上方向成分を分けて扱う
-
-	通常の追跡速度は弱め、一定時間はAI制御よりノックバックを優先する。
-	*/
 	void EnemyController::AddKnockback(size_t index, const Vec3& velocity)
 	{
 		if (index >= m_enemies.size())
@@ -219,13 +170,6 @@ namespace shooting {
 		AddRandomRotation(index);
 	}
 
-	/*!
-	@brief 指定敵へランダムな回転を与える
-	@param index 対象敵のインデックス
-
-	主に爆発で吹っ飛ぶときに使用する。
-	移動方向を表す enemy.rotation は書き換えず、描画用の knockbackSpinRotation だけを更新する。
-	*/
 	void EnemyController::AddRandomRotation(size_t index)
 	{
 		if (index >= m_enemies.size())
@@ -262,13 +206,6 @@ namespace shooting {
 		enemy.knockbackSpinRotation.identity();
 	}
 
-	/*!
-	@brief プロキシ側で検出した接地衝突を敵状態へ反映する
-	@param index 対象敵のインデックス
-	@param pair 衝突情報
-
-	CollisionManager 側の床押し戻し結果を、バッチ配列側の接地状態と重力速度へ戻す。
-	*/
 	void EnemyController::NotifyGroundCollision(size_t index, const CollisionPair& pair)
 	{
 		if (index >= m_enemies.size())

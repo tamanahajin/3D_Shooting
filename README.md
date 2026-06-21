@@ -13,7 +13,7 @@ DirectX 12とC++で開発している、3Dサバイバルシューティング�
 - ステージをCSV、敵とWaveをJSONへ寄せ、他の人が調整しやすいよう意識した作り
 - ImGui製ステージエディタ、ベンチマーク計測、Debug表示など、開発用ツールも実装
 
-## ひとくち動画
+## 紹介動画
 
 https://github.com/user-attachments/assets/c555f9e1-e7af-41cf-a216-cf6c2c06bd4a
 

@@ -1,9 +1,4 @@
-﻿/*!
-@file EnemyWaveConfigLoader.cpp
-@brief 敵ステータスとWave設定への変換・検証
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "EnemyWaveConfigLoader.h"
 #include "Common/Library/BasicLib/JsonLoader.h"
 #include <cmath>

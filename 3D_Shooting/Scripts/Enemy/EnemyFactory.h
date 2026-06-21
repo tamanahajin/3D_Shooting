@@ -1,6 +1,6 @@
 ﻿/*!
 @file EnemyFactory.h
-@brief 敵生成ファクトリ
+@brief 検証済み生成位置を EnemyController へ登録する敵生成ファクトリ
 */
 
 #pragma once
@@ -19,15 +19,17 @@ namespace shooting {
 	};
 
 	/*!
-	@brief 敵生成の責務を持つクラス
+	@brief EnemySpawner が決めた位置へ敵を実体登録するクラス
 
-	EnemySpawner が決めた検証済み位置を受け取り、
-	実際に EnemyController へ登録する処理だけを担当する。
+	生成位置の抽選や地形検証は持たず、敵種別とステータスを EnemyController の配列へ渡す責務に絞る。
 	*/
 	class EnemyFactory
 	{
 	public:
 		
+		/*!
+		@brief 敵生成位置の抽選条件
+		*/
 		struct SpawnSettings
 		{
 			float minDistance = 5.0f;   // 中心位置から最低限離す距離
@@ -37,6 +39,9 @@ namespace shooting {
 			int maxAttempts = 50;       // 位置再抽選の最大回数
 		};
 
+		/*!
+		@brief 複数体生成を1単位として扱うための入力情報
+		*/
 		struct SpawnBatchDesc
 		{
 			EnemyKind kind = EnemyKind::Default;
@@ -61,13 +66,6 @@ namespace shooting {
 		std::weak_ptr<EnemyController> m_controller;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
-		/*!
-		@brief 検証済み位置へ敵を登録する
-		@param kind 敵種別
-		@param position 検証済み生成位置
-		@param status 敵ステータス
-		@return 生成された敵のインデックス。失敗時は size_t(-1)
-		*/
 		size_t CreateEnemyAtResolvedPosition(
 			EnemyKind kind,
 			const Vec3& position,

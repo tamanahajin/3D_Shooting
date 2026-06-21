@@ -1,20 +1,8 @@
-﻿/*!
-@file EnemyController.cpp
-@brief 敵バッチ管理の基本ライフサイクル
-
-敵は大量生成されるため、1体ごとのGameObject更新を避けて、このクラスの配列で状態をまとめて更新する。
-このファイルには生成、初期登録、プロキシ同期、数の問い合わせなど、中心となる管理処理だけを置く。
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
-	/*!
-	@brief 敵バッチコントローラを生成する
-	@param stage 所属するステージ
-	*/
 	EnemyController::EnemyController(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
@@ -22,12 +10,6 @@ namespace shooting {
 
 	EnemyController::~EnemyController() {}
 
-	/*!
-	@brief ステージ参照と共有オブジェクト登録を初期化する
-
-	敵バッチ本体は描画しないため、描画と shadow を無効化する。
-	他のオブジェクトは共有キーからこのコントローラを取得する。
-	*/
 	void EnemyController::OnCreate()
 	{
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
@@ -41,25 +23,11 @@ namespace shooting {
 		AddTag(L"EnemyController");
 	}
 
-	/*!
-	@brief 既定ステータスで敵を追加する
-	@param startPosition 生成位置
-	@return 追加された敵のインデックス
-	*/
 	size_t EnemyController::AddEnemy(const Vec3& startPosition)
 	{
 		return AddEnemy(startPosition, EnemyStatus());
 	}
 
-	/*!
-	@brief 指定ステータスで敵を追加する
-	@param startPosition 生成位置
-	@param status HP、移動速度、当たり判定などの敵設定
-	@return 割り当てられた敵スロットのインデックス
-
-	死亡済みスロットがあれば EnemyState 全体を初期値から上書きして再利用する。
-	空きがない場合だけ m_enemies を拡張し、当たり判定は EnemyCollisionProxy へ割り当てる。
-	*/
 	size_t EnemyController::AddEnemy(const Vec3& startPosition, const EnemyStatus& status)
 	{
 		size_t index = m_enemies.size();
@@ -98,13 +66,6 @@ namespace shooting {
 		return index;
 	}
 
-	/*!
-	@brief 敵コリジョンプロキシを事前生成してプールへ入れる
-	@param count 確保しておきたいプロキシ数
-
-	生成スパイクの主因は EnemyCollisionProxy の GameObject と CollisionCapsule 作成が
-	Wave開始フレームに集中すること。先に非アクティブ状態で作っておけば、Wave中は再設定だけで済む。
-	*/
 	void EnemyController::PrewarmCollisionProxyPool(int count)
 	{
 		auto gameStage = m_gameStage.lock();
@@ -119,6 +80,7 @@ namespace shooting {
 			return;
 		}
 
+		// Wave開始フレームにEnemyCollisionProxyの生成が集中しないよう、先に非アクティブ状態で作っておく。
 		const Vec3 pooledPosition(0.0f, -1000.0f, 0.0f);
 		const EnemyStatus defaultStatus;
 		for (int i = 0; i < missingCount; ++i)
@@ -132,22 +94,11 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 全敵に適用する移動速度倍率を設定する
-	@param multiplier 速度倍率。0.1未満は0.1に丸める
-	*/
 	void EnemyController::SetMoveSpeedMultiplier(float multiplier)
 	{
 		m_moveSpeedMultiplier = bsmUtil::Max(0.1f, multiplier);
 	}
 
-	/*!
-	@brief 配列側の位置・回転・スケールをプロキシTransformへ同期する
-	@param index 同期する敵のインデックス
-
-	CollisionManager はプロキシの Transform を参照するため、
-	バッチ配列で更新した結果を毎フレームここで戻す。
-	*/
 	void EnemyController::SyncProxyTransform(size_t index)
 	{
 		if (index >= m_enemies.size())
@@ -172,21 +123,12 @@ namespace shooting {
 		transform->SetScale(m_enemies[index].status.modelScale);
 	}
 
-	/*!
-	@brief 空きプロキシを取得し、なければ新規作成する
-	@param index 割り当てる敵のインデックス
-	@param startPosition 生成位置
-	@param status 敵設定
-	@return 使用可能な EnemyCollisionProxy
-
-	EnemyCollisionProxy は Transform と CollisionCapsule を持つため、毎回 AddGameObject すると
-	Wave開始時にコンポーネント生成コストが集中する。プールに戻したものを優先して再利用する。
-	*/
 	std::shared_ptr<EnemyCollisionProxy> EnemyController::AcquireCollisionProxy(
 		size_t index,
 		const Vec3& startPosition,
 		const EnemyStatus& status)
 	{
+		// Wave開始時のコンポーネント生成コストを抑えるため、プールに戻したプロキシを優先する。
 		while (!m_collisionProxyPool.empty())
 		{
 			auto proxy = m_collisionProxyPool.back();
@@ -213,10 +155,6 @@ namespace shooting {
 			status);
 	}
 
-	/*!
-	@brief 使用済みプロキシをプールへ戻す
-	@param proxy 戻すプロキシ
-	*/
 	void EnemyController::ReleaseCollisionProxy(const std::shared_ptr<EnemyCollisionProxy>& proxy)
 	{
 		if (!proxy)
@@ -228,13 +166,6 @@ namespace shooting {
 		m_collisionProxyPool.push_back(proxy);
 	}
 
-	/*!
-	@brief 敵プロキシと敵状態スロットをそれぞれのプールへ戻す
-	@param index 削除する敵のインデックス
-
-	配列要素を詰めると既存プロキシの index がずれるため、要素は残して空きインデックスとして記録する。
-	同じ敵を二重に返却しないよう、すでに非アクティブな場合は何もしない。
-	*/
 	void EnemyController::RemoveEnemyProxy(size_t index)
 	{
 		if (index >= m_enemies.size())
@@ -245,6 +176,7 @@ namespace shooting {
 		auto& enemy = m_enemies[index];
 		if (!enemy.active)
 		{
+			// 二重返却すると同じスロットが複数回再利用候補に入ってしまう。
 			return;
 		}
 
@@ -260,11 +192,6 @@ namespace shooting {
 		m_freeEnemyIndices.push_back(index);
 	}
 
-	/*!
-	@brief 指定敵が現在生存しているかを判定する
-	@param index 対象敵のインデックス
-	@return 生存中なら true
-	*/
 	bool EnemyController::IsEnemyAlive(size_t index) const
 	{
 		if (index >= m_enemies.size())
@@ -276,10 +203,6 @@ namespace shooting {
 		return enemy.active && !enemy.isDead && enemy.hp > 0;
 	}
 
-	/*!
-	@brief 生存敵数を数える
-	@return active かつ死亡していない敵の数
-	*/
 	int EnemyController::GetAliveEnemyCount() const
 	{
 		int count = 0;
@@ -293,10 +216,6 @@ namespace shooting {
 		return count;
 	}
 
-	/*!
-	@brief 現在確保されている敵状態スロット数を取得する
-	@return 再利用待ちの空きスロットを含む m_enemies の要素数
-	*/
 	int EnemyController::GetTotalEnemyCount() const
 	{
 		return static_cast<int>(m_enemies.size());

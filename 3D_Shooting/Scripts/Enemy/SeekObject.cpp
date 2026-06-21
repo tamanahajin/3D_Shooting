@@ -1,9 +1,4 @@
-﻿/*!
-@file Character.cpp
-@brief 配置オブジェクト 実体
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
@@ -73,7 +68,6 @@ namespace shooting {
 		}
 	}
 
-	//初期化
 	void SeekObject::OnCreate()
 	{
 		auto ptrTransform = GetComponent<Transform>();
@@ -82,11 +76,9 @@ namespace shooting {
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 		SetBatchUpdateManaged(true);
 
-		//オブジェクトのグループを得る
 		auto group = GetStage()->GetSharedObjectGroup(L"SeekGroup");
 		group->IntoGroup(GetThis<SeekObject>());
 		
-		// コリジョン
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
 		const float radius = 0.2f;
@@ -95,21 +87,17 @@ namespace shooting {
 		ptrColl->SetMakedHeight(segmentHeight);
 
 		auto ptrGra = AddComponent<Gravity>();
-		//分離行動をつける
 		auto separationSteering = GetBehavior<SeparationSteering>();
 		separationSteering->SetGameObjectGroup(group);
 		
 		// 描画は EnemyInstancedRenderer でまとめて行う
 
-		// アニメーション
 		auto anim = GetBehavior<AnimationStateBehavior>();
 		anim->SetFallbackMeshKey(L"ENEMY_MODEL_SKINNED");
 		anim->ChangeAnimation(AnimState::Idle);
-		//透明処理をする
 		SetAlphaActive(false);
 		AddTag(L"Enemy");
 
-		// HP設定
 		auto hp = AddComponent<Health>();
 		hp->SetMaxHP(20);
 		hp->SetHP(20);
@@ -145,7 +133,6 @@ namespace shooting {
 			anim->ChangeAnimation(AnimState::Dead);
 		};
 
-		// ステートマシン
 		m_stateMachine.reset(new StateMachine<SeekObject>(GetThis<SeekObject>()));
 		m_stateMachine->ChangeState(SeekFarState::Instance());
 
@@ -289,7 +276,6 @@ namespace shooting {
 		m_isGround = false;
 	}
 
-	//操作
 	void SeekObject::OnUpdate(double elapsedTime)
 	{
 		if (IsBatchUpdateManaged())
@@ -341,22 +327,19 @@ namespace shooting {
 			m_steeringUpdateTimer += m_steeringUpdateInterval;
 
 			m_force = Vec3(0);
-			m_stateMachine->Update(); // この中で SetForce / ApplyForce される
+			m_stateMachine->Update();
 		}
 		else
 		{
-			// 前回の force を使って移動だけ継続
 			ApplyForce();
 		}
 
-		// 向き更新は velocity ベース
 		if (bsmUtil::lengthSqr(m_velocity) > 1e-6f)
 		{
 			auto ptrUtil = GetBehavior<UtilBehavior>();
 			ptrUtil->RotToHead(m_velocity, 0.35f);
 		}
 
-		// 地面判定をリセット
 		m_isGround = false;
 	}
 
@@ -372,18 +355,13 @@ namespace shooting {
 
 	void SeekObject::CheckGroundCollision(const CollisionPair& pair)
 	{
-		// 衝突法線のY成分をチェック（上向きの法線 = 地面との衝突）
-		// 0.7f は約45度（cos(45°) ? 0.707）
-		// これより大きい = より水平に近い面 = 地面とみなす
 		if (pair.m_SrcHitNormal.y > 0.7f)
 		{
 			m_isGround = true;
 
-			// 重力速度をリセット（地面に着地）
 			auto grav = GetComponent<Gravity>();
 			auto gravVel = grav->GetGravityVelocity();
 
-			// 下向きの速度の場合のみリセット（着地時）
 			if (gravVel.y < 0.0f)
 			{
 				grav->SetGravityVelocity(Vec3(gravVel.x, 0.0f, gravVel.z));
@@ -436,11 +414,6 @@ namespace shooting {
 		force += ptrSep->Execute(force);
 		Obj->SetForce(force);
 		Obj->ApplyForce();
-		float f = bsm::bsmUtil::length(Obj->GetComponent<Transform>()->GetPosition() - Obj->GetTargetPos());
-		if (f < Obj->GetStateChangeSize())
-		{
-			//Obj->GetStateMachine()->ChangeState(SeekNearState::Instance());
-		}
 	}
 
 	void SeekFarState::Exit(const std::shared_ptr<SeekObject>& Obj)

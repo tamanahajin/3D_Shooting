@@ -1,6 +1,6 @@
 ﻿/*!
 @file EnemySpawner.h
-@brief 敵の生成位置抽選と分割生成キュー
+@brief 敵の生成位置抽選と分割生成キューを扱う
 */
 
 #pragma once
@@ -18,10 +18,9 @@ namespace shooting {
 	class EnemyController;
 
 	/*!
-	@brief 敵の生成位置抽選と数フレーム分散生成を担当する
+	@brief WaveController が決めた生成数を、位置抽選と分割生成に落とし込む
 
-	WaveController は「いつ・何体出すか」だけを決め、
-	このクラスが「どこに・何体ずつ生成するか」を処理する。
+	ウェーブ進行とは分離し、ステージ上に生成できる位置かどうかの検証もここでまとめて行う。
 	*/
 	class EnemySpawner
 	{
@@ -32,47 +31,25 @@ namespace shooting {
 		void SetSpawnPositionResolver(const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
 		bool IsValid() const;
 
-		/*!
-		@brief 敵種別ごとのステータスを設定する
-		@param kind 敵種別
-		@param status 適用する敵ステータス
-		*/
 		void SetStatus(EnemyKind kind, const EnemyStatus& status);
-		/*!
-		@brief 敵種別ごとのステータスを取得する
-		@param kind 敵種別
-		@return 指定種別の設定。なければ Default、さらに無ければ既定値
-		*/
 		EnemyStatus GetStatus(EnemyKind kind) const;
 
 		/*!
-		@brief 指定した生成バッチを即時に処理する
-		@param desc 生成バッチ情報
-		@return 実際に生成できた敵数
+		@brief 指定数の敵を同じフレーム内で生成する
 		*/
 		int CreateEnemiesAround(const EnemyFactory::SpawnBatchDesc& desc);
 		/*!
-		@brief 指定した生成バッチを分割生成キューへ積む
-		@param desc 生成バッチ情報
+		@brief 敵生成を数フレームに分散するためのキューへ積む
 		*/
 		void QueueEnemies(const EnemyFactory::SpawnBatchDesc& desc);
 		/*!
-		@brief 分割生成キューを1フレームぶん進める
-		@param maxProcessCount 今回処理する最大数
-		@return 今回実際に生成できた敵数
+		@brief 分割生成キューを1フレーム分だけ処理する
 		*/
 		int ProcessPendingSpawns(int maxProcessCount);
-		/*!
-		@brief 分割生成キューに未生成分が残っているかを判定する
-		@return 未生成分がある場合は true
-		*/
 		bool HasPendingSpawns() const { return !m_pendingSpawnBatches.empty(); }
 		void ClearPendingSpawns();
 
 	private:
-		/*!
-		@brief フレームをまたいで消化する敵生成バッチ
-		*/
 		struct PendingSpawnBatch
 		{
 			EnemyFactory::SpawnBatchDesc desc;
@@ -88,21 +65,29 @@ namespace shooting {
 		std::mt19937 m_randomEngine;
 
 		void PrepareEnemyFactory();
+		/*!
+		@brief 分割生成中に敵ステータスが変わらないよう、生成開始時の設定を固定する
+		*/
 		EnemyFactory::SpawnBatchDesc MakeFixedStatusDesc(const EnemyFactory::SpawnBatchDesc& desc) const;
 		/*!
-		@brief 敵生成を1フレーム分だけ進める
-		@brief スパイク防止
+		@brief 生成バッチの一部だけを処理し、残りを次フレームへ残せるようにする
 		*/
 		int ProcessSpawnBatchStep(
 			const EnemyFactory::SpawnBatchDesc& desc,
 			int maxProcessCount,
 			std::vector<Vec3>& acceptedPositions,
 			int& processedCount);
+		/*!
+		@brief 地形・配置物・同じバッチ内の敵間隔を満たす生成位置を探す
+		*/
 		bool TryFindSpawnPosition(
 			const EnemyFactory::SpawnBatchDesc& desc,
 			const EnemyStatus& status,
 			const std::vector<Vec3>& acceptedPositions,
 			Vec3& outPosition);
+		/*!
+		@brief ステージ側の生成可否ルールに合わせて候補位置を補正する
+		*/
 		bool TryResolveSpawnPosition(
 			const Vec3& candidatePosition,
 			const EnemyStatus& status,

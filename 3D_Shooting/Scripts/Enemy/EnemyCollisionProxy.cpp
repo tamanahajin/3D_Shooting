@@ -1,24 +1,8 @@
-﻿/*!
-@file EnemyCollisionProxy.cpp
-@brief 敵1体分の軽量コリジョンプロキシ
-
-敵の本体状態はEnemyControllerの配列で持つ。
-ここでは衝突イベントだけを受けて、対象indexの敵へダメージや接地情報を転送する。
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
-	/*!
-	@brief 敵1体分のコリジョンプロキシを生成する
-	@param stage 所属するステージ
-	@param controller 敵本体の状態を持つバッチコントローラ
-	@param enemyIndex m_enemies 内の対応インデックス
-	@param startPosition 初期位置
-	@param status 当たり判定サイズとモデルスケールを含む敵設定
-	*/
 	EnemyCollisionProxy::EnemyCollisionProxy(
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyController>& controller,
@@ -39,11 +23,6 @@ namespace shooting {
 
 	EnemyCollisionProxy::~EnemyCollisionProxy() {}
 
-	/*!
-	@brief Transform と Capsule Collision を初期化する
-
-	描画は EnemyInstancedRenderer がまとめて行うため、このプロキシは描画せず衝突だけを担当する。
-	*/
 	void EnemyCollisionProxy::OnCreate()
 	{
 		SetBatchUpdateManaged(true);
@@ -68,22 +47,13 @@ namespace shooting {
 		AddTag(L"UseStageObjectCollision");
 	}
 
-	/*!
-	@brief プールから取り出したプロキシを新しい敵に割り当てる
-	@param controller 敵本体の状態を持つバッチコントローラ
-	@param enemyIndex m_enemies 内の対応インデックス
-	@param startPosition 初期位置
-	@param status 当たり判定サイズとモデルスケールを含む敵設定
-
-	敵生成時に GameObject と CollisionCapsule を毎回作り直すとスパイクになりやすい。
-	この関数では既存プロキシを再利用し、敵配列への参照と当たり判定サイズだけを更新する。
-	*/
 	void EnemyCollisionProxy::ResetForEnemy(
 		const std::shared_ptr<EnemyController>& controller,
 		size_t enemyIndex,
 		const Vec3& startPosition,
 		const EnemyStatus& status)
 	{
+		// 敵生成時にGameObjectとCollisionCapsuleを毎回作り直すとスパイクになりやすい。
 		m_controller = controller;
 		m_enemyIndex = enemyIndex;
 		m_startPosition = startPosition;
@@ -121,12 +91,6 @@ namespace shooting {
 		AddTag(L"UseStageObjectCollision");
 	}
 
-	/*!
-	@brief 使用中プロキシをプールへ戻せる状態にする
-
-	CollisionManager は GameObject の updateActive と Collision の updateActive を見るため、
-	両方を無効化しておけばステージに残したまま判定対象から外せる。
-	*/
 	void EnemyCollisionProxy::DeactivateForPool()
 	{
 		m_inUse = false;
@@ -140,17 +104,12 @@ namespace shooting {
 
 		if (auto collision = GetComponent<CollisionCapsule>(false))
 		{
+			// ステージ上に残したまま再利用するため、CollisionManagerの判定対象からだけ外す。
 			collision->SetUpdateActive(false);
 			collision->SetDrawActive(false);
 		}
 	}
 
-	/*!
-	@brief 衝突相手の種類に応じて敵バッチへ処理を転送する
-	@param pair CollisionManager から渡された衝突情報
-
-	床は接地通知、弾はダメージ、爆弾は爆弾側の衝突処理へ渡す。
-	*/
 	void EnemyCollisionProxy::HandleCollision(const CollisionPair& pair)
 	{
 		if (!m_inUse)
@@ -217,29 +176,16 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 衝突開始時のイベントを共通処理へ渡す
-	@param pair 衝突情報
-	*/
 	void EnemyCollisionProxy::OnCollisionEnter(const CollisionPair& pair)
 	{
 		HandleCollision(pair);
 	}
 
-	/*!
-	@brief 衝突継続時のイベントを共通処理へ渡す
-	@param pair 衝突情報
-	*/
 	void EnemyCollisionProxy::OnCollisionExecute(const CollisionPair& pair)
 	{
 		HandleCollision(pair);
 	}
 
-	/*!
-	@brief 対応する敵へダメージを適用する
-	@param info ダメージ情報
-	@return このダメージで即死亡、または着地後の死亡が確定した場合は true
-	*/
 	bool EnemyCollisionProxy::ApplyDamage(const DamageInfo& info)
 	{
 		if (!m_inUse)
@@ -251,10 +197,6 @@ namespace shooting {
 		return controller ? controller->ApplyDamage(m_enemyIndex, info) : false;
 	}
 
-	/*!
-	@brief 対応する敵へノックバックを与える
-	@param velocity 与える速度
-	*/
 	void EnemyCollisionProxy::AddKnockback(const Vec3& velocity)
 	{
 		if (!m_inUse)
@@ -269,10 +211,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 対応する敵が生存中かを取得する
-	@return 生存中なら true
-	*/
 	bool EnemyCollisionProxy::IsAlive() const
 	{
 		if (!m_inUse)

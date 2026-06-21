@@ -1,6 +1,6 @@
 ﻿/*!
 @file WaveController.h
-@brief 敵ウェーブ管理
+@brief 敵ウェーブの進行、敵数計算、速度倍率、生成キューを管理する
 */
 
 #pragma once
@@ -15,10 +15,7 @@ namespace shooting {
 	class EnemyController;
 
 	/*!
-	@brief ウェーブ進行と敵生成数に関する設定
-
-	ウェーブ間隔、初期敵数、ウェーブごとの増加数、速度上昇間隔、
-	スポーン距離など、敵ウェーブ全体の調整値をまとめる。
+	@brief ウェーブ進行と生成位置抽選に使う調整値
 	*/
 	struct WaveSettings
 	{
@@ -35,80 +32,39 @@ namespace shooting {
 	};
 
 	/*!
-	@brief ウェーブの状態管理と敵生成指示を担当するクラス
+	@brief ウェーブ状態と敵生成指示を担当するクラス
 
-	GameStage はスポーン中心位置を渡すだけにし、
-	何ウェーブ目か、何体出すか、速度倍率をここに集約する。
-	生成位置抽選と分割生成は EnemySpawner に任せる。
+	GameStage は生成中心位置を渡すだけにし、敵数・速度倍率・分割生成キューの進行をここへ集約する。
 	*/
 	class WaveController
 	{
 	public:
-		/*!
-		@brief 既定設定でウェーブコントローラを生成する
-		*/
 		WaveController()
 		{
 			m_statusByKind[EnemyKind::Default] = EnemyStatus();
 		}
-		/*!
-		@brief 敵バッチコントローラを指定して生成する
-		@param controller 敵生成先のバッチコントローラ
-		*/
 		explicit WaveController(const std::shared_ptr<EnemyController>& controller);
 
-		/*!
-		@brief 敵生成先のバッチコントローラを設定する
-		@param controller 敵生成先のバッチコントローラ
-		*/
 		void SetController(const std::shared_ptr<EnemyController>& controller);
-		/*!
-		@brief 敵生成位置の検証先を設定する
-		@param resolver ステージ固有の生成位置解決処理
-		*/
 		void SetEnemySpawnPositionResolver(
 			const std::shared_ptr<EnemySpawnPositionResolver>& resolver);
-		/*!
-		@brief ウェーブが敵を生成できる状態かを判定する
-		@return 敵生成先と EnemySpawner が有効なら true
-		*/
 		bool IsValid() const;
-		/*!
-		@brief 敵種別ごとのステータスを設定する
-		@param kind 敵種別
-		@param status 適用する敵ステータス
-		*/
 		void SetEnemyStatus(EnemyKind kind, const EnemyStatus& status);
-		/*!
-		@brief 敵種別ごとのステータスを取得する
-		@param kind 敵種別
-		@return 指定種別の設定。なければ Default、さらに無ければ既定値
-		*/
 		EnemyStatus GetEnemyStatus(EnemyKind kind) const;
 
 		/*!
-		@brief ウェーブタイマーを進め、時間切れなら次ウェーブを開始する
-		@param elapsedTime 経過時間
-		@param spawnCenter 敵生成の中心位置
+		@brief ウェーブタイマーと分割生成キューを進める
+
+		生成キューが残っている間は次ウェーブのタイマーを止め、生成待ちの重なりを避ける。
 		*/
 		void Update(double elapsedTime, const Vec3& spawnCenter);
 		/*!
-		@brief 次のウェーブ番号へ進めて敵を生成する
-		@param spawnCenter 敵生成の中心位置
+		@brief 次ウェーブへ進め、敵生成バッチをキューへ積む
 		*/
 		void StartNextWave(const Vec3& spawnCenter);
-		/*!
-		@brief 次に開始するウェーブ番号を設定する
-		@param wave 次に開始したいウェーブ番号
-		*/
 		void SetNextWaveNumber(int wave);
 		/*!
-		@brief 任意の敵数と生成設定で敵バッチを生成する
-		@param center 生成中心
-		@param count 生成数
-		@param settings 配置ルール
-		@param kind 敵種別
-		@return 実際に生成できた敵数
+		@brief ウェーブ管理外から任意条件で敵生成を行う
 		*/
 		int CreateEnemy(
 			const Vec3& center,
@@ -116,36 +72,16 @@ namespace shooting {
 			const EnemyFactory::SpawnSettings& settings,
 			EnemyKind kind = EnemyKind::Default);
 
-		/*!
-		@brief これまでのウェーブ生成で作った敵総数を取得する
-		@return 敵総生成数
-		*/
 		int GetTotalEnemyCount() const { return m_totalEnemyCount; }
-		/*!
-		@brief 現在のウェーブ番号を取得する
-		@return 現在ウェーブ番号
-		*/
 		int GetCurrentWave() const { return m_currentWave; }
-		/*!
-		@brief 次ウェーブまでの残り時間を取得する
-		@return 秒単位の残り時間
-		*/
 		double GetWaveTimeRemaining() const { return m_waveTimer; }
-		/*!
-		@brief ウェーブ設定を編集用に取得する
-		@return ウェーブ設定
-		*/
 		WaveSettings& GetSettings() { return m_settings; }
-		/*!
-		@brief ウェーブ設定を参照用に取得する
-		@return ウェーブ設定
-		*/
 		const WaveSettings& GetSettings() const { return m_settings; }
 
 		/*!
 		@brief 指定ウェーブで生成する敵数を計算する
-		@param wave ウェーブ番号
-		@return 生成する敵数
+
+		DebugSettings の敵数上書きが有効な場合は、通常の増加式よりそちらを優先する。
 		*/
 		int GetEnemyCountForWave(int wave) const
 		{
@@ -167,8 +103,6 @@ namespace shooting {
 
 		/*!
 		@brief 指定ウェーブの基本速度倍率を計算する
-		@param wave ウェーブ番号
-		@return デバッグ倍率を含まない速度倍率
 		*/
 		float GetEnemySpeedMultiplierForWave(int wave) const
 		{
@@ -182,9 +116,7 @@ namespace shooting {
 		}
 
 		/*!
-		@brief 指定ウェーブの最終速度倍率を計算する
-		@param wave ウェーブ番号
-		@return デバッグ設定を掛けた速度倍率
+		@brief デバッグ倍率を含めた最終速度倍率を計算する
 		*/
 		float GetAppliedEnemySpeedMultiplierForWave(int wave) const
 		{
@@ -206,34 +138,22 @@ namespace shooting {
 		std::shared_ptr<EnemySpawner> m_enemySpawner;
 		std::map<EnemyKind, EnemyStatus> m_statusByKind;
 
-		/*!
-		@brief 現在の敵バッチコントローラを取得する
-		@return 有効なら EnemyController、無効なら nullptr
-		*/
 		std::shared_ptr<EnemyController> GetController() const;
 		/*!
-		@brief EnemySpawner を作成または更新する
-		@param controller 敵生成先のバッチコントローラ
+		@brief EnemySpawner を現在の Controller と設定へ同期する
 		*/
 		void PrepareEnemySpawner(const std::shared_ptr<EnemyController>& controller);
 		/*!
 		@brief 敵生成バッチを分割生成キューへ積む
-		@param desc 生成バッチ情報
+
+		同じウェーブ内で敵ステータスが途中変更されないよう、Spawner 側で設定を固定する。
 		*/
 		void QueueEnemy(const EnemyFactory::SpawnBatchDesc& desc);
 		/*!
-		@brief 分割生成キューを1フレームぶん進める
+		@brief DebugSettings の生成数上限に従ってキューを1フレーム分進める
 		*/
 		void ProcessPendingEnemySpawns();
-		/*!
-		@brief 分割生成キューに未生成分が残っているかを判定する
-		@return 未生成分がある場合は true
-		*/
 		bool HasPendingEnemySpawns() const;
-		/*!
-		@brief 1フレームに生成する敵数を取得する
-		@return 1以上の生成数
-		*/
 		int GetEnemySpawnPerFrame() const;
 	};
 

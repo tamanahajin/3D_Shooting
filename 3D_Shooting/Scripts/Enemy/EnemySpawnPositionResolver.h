@@ -1,6 +1,6 @@
 ﻿/*!
 @file EnemySpawnPositionResolver.h
-@brief 敵生成位置の検証インターフェース
+@brief 敵生成候補をステージ上の有効位置へ解決するインターフェース
 */
 
 #pragma once
@@ -9,7 +9,7 @@
 namespace shooting {
 
 	/*!
-	@brief 敵生成候補を検証するための入力情報
+	@brief 敵生成位置を検証するための入力情報
 	*/
 	struct EnemySpawnPositionRequest
 	{
@@ -19,7 +19,7 @@ namespace shooting {
 	};
 
 	/*!
-	@brief 敵生成候補をステージ上の有効な位置へ解決するインターフェース
+	@brief ステージ固有の生成可否ルールを EnemySpawner から切り離すためのインターフェース
 	*/
 	class EnemySpawnPositionResolver
 	{
@@ -27,10 +27,7 @@ namespace shooting {
 		virtual ~EnemySpawnPositionResolver() = default;
 
 		/*!
-		@brief 敵生成候補を検証し、採用可能な位置へ補正する
-		@param request 生成候補と敵の占有情報
-		@param outPosition 採用可能な生成位置
-		@return 採用可能な場合は true
+		@brief 候補位置を、地形・壁・配置物などを考慮した採用可能位置へ補正する
 		*/
 		virtual bool TryResolveEnemySpawnPosition(
 			const EnemySpawnPositionRequest& request,

@@ -1,22 +1,15 @@
-﻿/*!
-@file EnemyRenderers.cpp
-@brief 敵のインスタンシング描画と比較用個別描画
-
-EnemyControllerが保持する敵配列から描画用データだけを受け取り、InstancedSkinnedDrawに渡す。
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Project.h"
 
 namespace shooting {
 
 	namespace {
-		/*!
-		@brief 被弾押され演出の現在強度を計算する
-		@param timer 残り時間
-		@param duration 全体時間
-		@return 0.0から1.0の演出強度
-		*/
+		const std::wstring kEnemyBlobShadowMeshKey = L"ENEMY_BLOB_SHADOW_MODEL";
+		const Col4 kEnemyBlobShadowColor(0.0f, 0.0f, 0.0f, 0.24f);
+		const Vec3 kEnemyBlobShadowScale(0.42f, 1.0f, 0.32f);
+		const float kEnemyBlobShadowLift = 0.06f;
+		const float kEnemyModelOffsetCompensation = 0.35f;
+
 		float GetHitPushPower(double timer, double duration)
 		{
 			if (timer <= 0.0 || duration <= 0.0)
@@ -24,33 +17,21 @@ namespace shooting {
 				return 0.0f;
 			}
 
-			// remainingRateは「押され演出があとどれだけ残っているか」を0.0～1.0で表す。
-			// 被弾直後を最大にして、その後すぐ元の位置へ戻すための基準値。
+			// 被弾直後を最大にして、その後すぐ元の位置へ戻す。
 			float remainingRate = static_cast<float>(timer / duration);
 			remainingRate = bsmUtil::Clamp(remainingRate, 0.0f, 1.0f);
 
-			// 二乗しておくと、最初だけ強く押されて後半は素早く収束する。
-			// 左右への往復動作ではなく「一瞬押された」見た目にするため、sin波は使わない。
+			// 二乗で後半を早く収束させ、「一瞬押された」見た目に寄せる。
 			return remainingRate * remainingRate;
 		}
 
-		/*!
-		@brief 被弾押され演出の描画位置オフセットを計算する
-		@param direction 押される水平方向
-		@param distance 最大押し戻し距離
-		@param pushPower 現在の演出強度
-		@return 描画用の位置オフセット
-		*/
 		Vec3 GetHitPushOffset(const Vec3& direction, float distance, float pushPower)
 		{
-			// pushPowerが0なら位置補正は不要。描画位置をそのまま使う。
 			if (pushPower == 0.0f || distance <= 0.0f)
 			{
 				return Vec3(0.0f, 0.0f, 0.0f);
 			}
 
-			// directionは「攻撃者から敵へ向かう水平ベクトル」。
-			// その方向へ少しだけ描画位置をずらすと、敵が撃たれて後ろに押されたように見える。
 			Vec3 pushDirection = direction;
 			pushDirection.y = 0.0f;
 			if (!bsmUtil::IsFiniteVec3(pushDirection) || bsmUtil::lengthSqr(pushDirection) <= 1e-6f)
@@ -60,18 +41,10 @@ namespace shooting {
 			}
 
 			pushDirection.normalize();
-			// distanceは最大押し戻し量、pushPowerは現在フレームの戻り具合。
 			// 実座標ではなく描画位置だけに加えるため、移動AIやコリジョンには影響しない。
 			return pushDirection * (distance * pushPower);
 		}
 
-		/*!
-		@brief 被弾押され演出の描画用傾き回転を計算する
-		@param direction 押される水平方向
-		@param leanAngle 最大傾き角
-		@param pushPower 現在の演出強度
-		@return 描画用の追加回転
-		*/
 		Quat GetHitPushRotation(const Vec3& direction, float leanAngle, float pushPower)
 		{
 			Quat rotation;
@@ -81,8 +54,7 @@ namespace shooting {
 				return rotation;
 			}
 
-			// 押された方向と直交する軸で少し傾ける。
-			// 位置補正だけより「体が押された」印象が出るが、こちらも描画用の回転だけに限定する。
+			// 位置補正だけより「体が押された」印象を出すため、描画用の回転だけを少し足す。
 			Vec3 axis(direction.z, 0.0f, -direction.x);
 			if (!bsmUtil::IsFiniteVec3(axis) || bsmUtil::lengthSqr(axis) <= 1e-6f)
 			{
@@ -95,20 +67,11 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 敵インスタンシング描画オブジェクトを生成する
-	@param stage 所属するステージ
-	*/
 	EnemyInstancedRenderer::EnemyInstancedRenderer(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
 	}
 
-	/*!
-	@brief 敵インスタンシング描画オブジェクトを生成し、参照先コントローラを保持する
-	@param stage 所属するステージ
-	@param controller 描画元になる敵バッチコントローラ
-	*/
 	EnemyInstancedRenderer::EnemyInstancedRenderer(
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyController>& controller) :
@@ -119,9 +82,6 @@ namespace shooting {
 
 	EnemyInstancedRenderer::~EnemyInstancedRenderer() {}
 
-	/*!
-	@brief 敵モデル用の InstancedSkinnedDraw を作成する
-	*/
 	void EnemyInstancedRenderer::OnCreate()
 	{
 		m_draw = AddComponent<InstancedSkinnedDraw>();
@@ -132,10 +92,6 @@ namespace shooting {
 		AddTag(L"EnemyRenderer");
 	}
 
-	/*!
-	@brief 保持している敵バッチから描画インスタンスを受け取り、GPU用バッファを更新する
-	@param elapsedTime 経過時間。この処理では使用しない
-	*/
 	void EnemyInstancedRenderer::OnUpdate2(double elapsedTime)
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
@@ -159,10 +115,6 @@ namespace shooting {
 		m_draw->BuildInstanceBuffer();
 	}
 
-	/*!
-	@brief インスタンシング描画の有効状態を切り替える
-	@param enabled 有効にする場合は true
-	*/
 	void EnemyInstancedRenderer::SetRenderingEnabled(bool enabled)
 	{
 		if (m_renderingEnabled == enabled)
@@ -183,10 +135,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 通常描画プロキシを生成する
-	@param stage 所属するステージ
-	*/
 	EnemyIndividualDrawProxy::EnemyIndividualDrawProxy(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
@@ -194,9 +142,6 @@ namespace shooting {
 
 	EnemyIndividualDrawProxy::~EnemyIndividualDrawProxy() {}
 
-	/*!
-	@brief 敵1体分の通常スキンメッシュ描画を作成する
-	*/
 	void EnemyIndividualDrawProxy::OnCreate()
 	{
 		SetBatchUpdateManaged(true);
@@ -212,10 +157,6 @@ namespace shooting {
 		SetRenderingEnabled(false);
 	}
 
-	/*!
-	@brief インスタンス描画用データを通常描画用 Transform とアニメーションへ反映する
-	@param source EnemyController が作成した描画用データ
-	*/
 	void EnemyIndividualDrawProxy::ApplyInstanceSource(const SkinnedInstanceSource& source)
 	{
 		Vec3 scale;
@@ -240,10 +181,6 @@ namespace shooting {
 		SetRenderingEnabled(true);
 	}
 
-	/*!
-	@brief プロキシの描画・更新を切り替える
-	@param enabled 有効にする場合は true
-	*/
 	void EnemyIndividualDrawProxy::SetRenderingEnabled(bool enabled)
 	{
 		SetUpdateActive(enabled);
@@ -251,20 +188,11 @@ namespace shooting {
 		SetShadowActive(false);
 	}
 
-	/*!
-	@brief 通常描画レンダラーを生成する
-	@param stage 所属するステージ
-	*/
 	EnemyIndividualRenderer::EnemyIndividualRenderer(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
 	}
 
-	/*!
-	@brief 通常描画レンダラーを生成し、参照先コントローラを保持する
-	@param stage 所属するステージ
-	@param controller 描画元になる敵バッチコントローラ
-	*/
 	EnemyIndividualRenderer::EnemyIndividualRenderer(
 		const std::shared_ptr<Stage>& stage,
 		const std::shared_ptr<EnemyController>& controller) :
@@ -275,9 +203,6 @@ namespace shooting {
 
 	EnemyIndividualRenderer::~EnemyIndividualRenderer() {}
 
-	/*!
-	@brief 通常描画レンダラー本体を初期化する
-	*/
 	void EnemyIndividualRenderer::OnCreate()
 	{
 		SetDrawActive(false);
@@ -287,10 +212,6 @@ namespace shooting {
 		AddTag(L"EnemyIndividualRenderer");
 	}
 
-	/*!
-	@brief 描画に必要なプロキシ数を揃える
-	@param requiredCount 必要なプロキシ数
-	*/
 	void EnemyIndividualRenderer::ResizeDrawProxies(size_t requiredCount)
 	{
 		auto stage = GetStage(false);
@@ -323,9 +244,6 @@ namespace shooting {
 		m_drawProxies.resize(requiredCount);
 	}
 
-	/*!
-	@brief 生成済みプロキシをステージから外す
-	*/
 	void EnemyIndividualRenderer::ClearDrawProxies()
 	{
 		auto stage = GetStage(false);
@@ -345,10 +263,6 @@ namespace shooting {
 		m_drawProxies.clear();
 	}
 
-	/*!
-	@brief 保持している敵バッチから描画データを受け取り、通常描画プロキシへ同期する
-	@param elapsedTime 経過時間。この処理では使用しない
-	*/
 	void EnemyIndividualRenderer::OnUpdate2(double elapsedTime)
 	{
 		UNREFERENCED_PARAMETER(elapsedTime);
@@ -381,10 +295,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 通常描画経路の有効状態を切り替える
-	@param enabled 有効にする場合は true
-	*/
 	void EnemyIndividualRenderer::SetRenderingEnabled(bool enabled)
 	{
 		if (m_renderingEnabled == enabled)
@@ -404,13 +314,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 敵配列からスキンメッシュ描画用インスタンス配列を作成する
-	@param outSources 出力先のインスタンス配列
-	@param modelOffset モデル原点補正
-
-	被弾押され演出はここで描画用行列にだけ反映し、敵の実座標やコリジョンには影響させない。
-	*/
 	void EnemyController::FillInstanceSources(std::vector<SkinnedInstanceSource>& outSources, const Vec3& modelOffset) const
 	{
 		outSources.clear();

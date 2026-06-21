@@ -3,20 +3,12 @@
 
 namespace shooting {
 
-	/*!
-	@brief 敵バッチコントローラを指定して生成する
-	@param controller 敵生成先のバッチコントローラ
-	*/
 	WaveController::WaveController(const std::shared_ptr<EnemyController>& controller) :
 		WaveController()
 	{
 		SetController(controller);
 	}
 
-	/*!
-	@brief 敵生成先のバッチコントローラを設定する
-	@param controller 敵生成先のバッチコントローラ
-	*/
 	void WaveController::SetController(const std::shared_ptr<EnemyController>& controller)
 	{
 		m_controller = controller;
@@ -33,20 +25,11 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief ウェーブが敵を生成できる状態かを判定する
-	@return 敵生成先と EnemySpawner が有効なら true
-	*/
 	bool WaveController::IsValid() const
 	{
 		return !m_controller.expired() && m_enemySpawner && m_enemySpawner->IsValid();
 	}
 
-	/*!
-	@brief 敵種別ごとのステータスを設定する
-	@param kind 敵種別
-	@param status 適用する敵ステータス
-	*/
 	void WaveController::SetEnemyStatus(EnemyKind kind, const EnemyStatus& status)
 	{
 		m_statusByKind[kind] = status;
@@ -56,11 +39,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 敵種別ごとのステータスを取得する
-	@param kind 敵種別
-	@return 指定種別の設定。なければ Default、さらに無ければ既定値
-	*/
 	EnemyStatus WaveController::GetEnemyStatus(EnemyKind kind) const
 	{
 		auto it = m_statusByKind.find(kind);
@@ -78,11 +56,6 @@ namespace shooting {
 		return EnemyStatus();
 	}
 
-	/*!
-	@brief ウェーブタイマーを進め、時間切れなら次ウェーブを開始する
-	@param elapsedTime 経過時間
-	@param spawnCenter 敵生成の中心位置
-	*/
 	void WaveController::Update(double elapsedTime, const Vec3& spawnCenter)
 	{
 		ProcessPendingEnemySpawns();
@@ -105,12 +78,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 次のウェーブ番号へ進めて敵を生成する
-	@param spawnCenter 敵生成の中心位置
-
-	ウェーブ番号から敵数と速度倍率を計算し、敵生成キューへ積む。
-	*/
 	void WaveController::StartNextWave(const Vec3& spawnCenter)
 	{
 		auto controller = GetController();
@@ -142,24 +109,12 @@ namespace shooting {
 		ProcessPendingEnemySpawns();
 	}
 
-	/*!
-	@brief 次に開始するウェーブ番号を設定する
-	@param wave 次に開始したいウェーブ番号
-	*/
 	void WaveController::SetNextWaveNumber(int wave)
 	{
 		m_currentWave = wave > 1 ? wave - 1 : 0;
 		m_waveTimer = 0.0;
 	}
 
-	/*!
-	@brief 任意の敵数と生成設定で敵バッチを生成する
-	@param center 生成中心
-	@param count 生成数
-	@param settings 配置ルール
-	@param kind 敵種別
-	@return 実際に生成できた敵数
-	*/
 	int WaveController::CreateEnemy(
 		const Vec3& center,
 		int count,
@@ -189,21 +144,11 @@ namespace shooting {
 		return createdCount;
 	}
 
-	/*!
-	@brief 現在の敵バッチコントローラを取得する
-	@return 有効なら EnemyController、無効なら nullptr
-	*/
 	std::shared_ptr<EnemyController> WaveController::GetController() const
 	{
 		return m_controller.lock();
 	}
 
-	/*!
-	@brief EnemySpawner を作成または更新する
-	@param controller 敵生成先のバッチコントローラ
-
-	保持している敵種別ごとのステータスも、Spawner 側へ再同期する。
-	*/
 	void WaveController::PrepareEnemySpawner(const std::shared_ptr<EnemyController>& controller)
 	{
 		if (!controller)
@@ -227,13 +172,6 @@ namespace shooting {
 		}
 	}
 
-	/*!
-	@brief 敵生成バッチを分割生成キューへ積む
-	@param desc 生成バッチ情報
-
-	ステータスをここで固定しておくと、生成が複数フレームに分かれても
-	同じウェーブ内の敵設定が途中で変わらない。
-	*/
 	void WaveController::QueueEnemy(const EnemyFactory::SpawnBatchDesc& desc)
 	{
 		if (!m_enemySpawner || desc.count <= 0)
@@ -244,11 +182,6 @@ namespace shooting {
 		m_enemySpawner->QueueEnemies(desc);
 	}
 
-	/*!
-	@brief 分割生成キューを1フレームぶん進める
-
-	DebugSettings の enemySpawnPerFrame 体まで生成し、残りは次フレームへ回す。
-	*/
 	void WaveController::ProcessPendingEnemySpawns()
 	{
 		if (!m_enemySpawner)
@@ -264,10 +197,6 @@ namespace shooting {
 		return m_enemySpawner && m_enemySpawner->HasPendingSpawns();
 	}
 
-	/*!
-	@brief 1フレームに生成する敵数を取得する
-	@return 1以上の生成数
-	*/
 	int WaveController::GetEnemySpawnPerFrame() const
 	{
 		const int spawnPerFrame = GameDebugSettingsStore::Get().enemySpawnPerFrame;

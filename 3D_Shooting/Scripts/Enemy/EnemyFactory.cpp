@@ -62,7 +62,6 @@ namespace shooting {
 			return static_cast<size_t>(-1);
 		}
 
-		// 敵の実体はEnemyControllerの配列に追加する。
 		// 今後、敵種別ごとのモデル差分が必要になったら、このswitchに分岐を追加する。
 		switch (kind)
 		{

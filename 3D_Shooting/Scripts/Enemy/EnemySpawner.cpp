@@ -1,9 +1,4 @@
-﻿/*!
-@file EnemySpawner.cpp
-@brief 敵の生成位置抽選と分割生成キュー
-*/
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "EnemySpawner.h"
 #include <cmath>
 
@@ -212,7 +207,6 @@ namespace shooting {
 		int processedThisStep = 0;
 		while (processedCount < desc.count && processedThisStep < maxProcessCount)
 		{
-			// 生成候補をランダムに作る
 			Vec3 position(desc.center.x, desc.settings.spawnY, desc.center.z);
 			const bool foundPosition = TryFindSpawnPosition(
 				desc,
