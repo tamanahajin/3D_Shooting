@@ -67,6 +67,7 @@ namespace shooting {
 		{
 			return m_elapsedTime;
 		}
+		virtual void WaitForGpuIdle() override;
 	protected:
 		virtual void OnInit();
 		virtual void OnKeyDown(UINT8 key);

@@ -606,6 +606,11 @@ namespace shooting {
 		}
 	}
 
+	void BaseDevice::WaitForGpuIdle()
+	{
+		WaitForGpu(m_commandQueue.Get());
+	}
+
 	void BaseDevice::SelectAdapter(UINT index)
 	{
 		if (index != m_activeAdapter && index < m_gpuAdapterDescs.size() && m_gpuAdapterDescs[index].supportsDx12FL11)

@@ -181,6 +181,11 @@ namespace shooting {
 			auto actStagePtr = GetActiveStage(false);
 			if (actStagePtr)
 			{
+				if (m_pPrimDevice)
+				{
+					// GPUは数フレーム前の描画を実行中の場合があるため、旧ステージの描画リソースを解放する前に待つ。
+					m_pPrimDevice->WaitForGpuIdle();
+				}
 				//破棄を伝える
 				actStagePtr->OnDestroy();
 				actStagePtr = nullptr;

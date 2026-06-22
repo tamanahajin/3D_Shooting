@@ -39,6 +39,7 @@ namespace shooting {
 		virtual void OnUpdateDraw();
 		virtual void OnSizeChanged(UINT width, UINT height, bool minimized) = 0;
 		virtual void OnDestroy() = 0;
+		virtual void WaitForGpuIdle() {}
 
 		// Samples override the event handlers to handle specific messages.
 		// 日本語： サンプルはイベントハンドラをオーバーライドして、特定のメッセージを処理します。
