@@ -3,6 +3,7 @@
 @brief 衝突判定コンポーネント実体
 */
 #include "stdafx.h"
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
 
 namespace shooting {
 
@@ -555,6 +556,7 @@ namespace shooting {
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		BenchmarkRecorder::Instance().CountDrawCall();
 		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 	}
 

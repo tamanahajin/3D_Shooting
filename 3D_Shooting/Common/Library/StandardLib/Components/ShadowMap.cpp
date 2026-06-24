@@ -4,6 +4,7 @@
 */
 
 #include "stdafx.h"
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
 #include "Project.h"
 
 namespace shooting {
@@ -254,6 +255,7 @@ namespace shooting {
 
 		pCommandList->IASetVertexBuffers(0, 1, &mesh->GetVertexBufferView());
 		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		BenchmarkRecorder::Instance().CountDrawCall();
 		pCommandList->DrawIndexedInstanced(mesh->GetNumIndices(), 1, 0, 0, 0);
 	}
 

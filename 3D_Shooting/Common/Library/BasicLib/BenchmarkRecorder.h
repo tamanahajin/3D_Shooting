@@ -42,6 +42,8 @@ namespace shooting {
 		double averageCollisionMs = 0.0;
 		double maximumCollisionMs = 0.0;
 		int totalRaycastCount = 0;
+		double averageDrawCallCount = 0.0;
+		int maximumDrawCallCount = 0;
 		int maximumCollisionCheckCount = 0;
 		int maximumTotalEnemyCount = 0;
 		int maximumAliveEnemyCount = 0;
@@ -64,6 +66,7 @@ namespace shooting {
 		void IncrementRaycastCount();
 		void UpdateNotification(double elapsedSeconds);
 		void ClearNotification();
+		void CountDrawCall();
 
 		const BenchmarkSummary& GetLastSummary() const { return m_LastSummary; }
 		const std::wstring& GetLastOutputPath() const { return m_LastSummary.outputPath; }
@@ -94,6 +97,9 @@ namespace shooting {
 
 		int m_CurrentFrameRaycastCount = 0;
 		int m_TotalRaycastCount = 0;
+		int m_currentFrameDrawCallCount = 0;
+		int m_totalDrawCallCount = 0;
+		int m_maximumDrawCallCount = 0;
 		int m_MaxCollisionCheckCount = 0;
 		int m_MaxTotalEnemyCount = 0;
 		int m_MaxAliveEnemyCount = 0;

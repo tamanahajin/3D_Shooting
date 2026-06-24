@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "Common/Library/BasicLib/BenchmarkRecorder.h"
 #include "Project.h"
 
 namespace shooting {
@@ -513,6 +514,7 @@ namespace shooting {
 
 			pCommandList->IASetVertexBuffers(0, 2, views);
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+			BenchmarkRecorder::Instance().CountDrawCall();
 			pCommandList->DrawIndexedInstanced(
 				mesh->GetNumIndices(),
 				static_cast<UINT>(m_InstanceData.size()),
@@ -567,6 +569,7 @@ namespace shooting {
 
 			pCommandList->IASetVertexBuffers(0, 2, views);
 			pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+			BenchmarkRecorder::Instance().CountDrawCall();
 			pCommandList->DrawIndexedInstanced(
 				mesh->GetNumIndices(),
 				static_cast<UINT>(m_ShadowInstanceData.size()),
@@ -1206,6 +1209,7 @@ namespace shooting {
 
 		pCommandList->IASetVertexBuffers(0, 2, views);
 		pCommandList->IASetIndexBuffer(&mesh->GetIndexBufferView());
+		BenchmarkRecorder::Instance().CountDrawCall();
 		pCommandList->DrawIndexedInstanced(
 			mesh->GetNumIndices(),
 			static_cast<UINT>(m_InstanceData.size()),

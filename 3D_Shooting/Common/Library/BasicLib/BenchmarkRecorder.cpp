@@ -151,6 +151,11 @@ namespace shooting {
 		}
 
 		m_TotalRaycastCount += m_CurrentFrameRaycastCount;
+		m_totalDrawCallCount += m_currentFrameDrawCallCount;
+		if (m_currentFrameDrawCallCount > m_maximumDrawCallCount)
+		{
+			m_maximumDrawCallCount = m_currentFrameDrawCallCount;
+		}
 		if (stats.collisionCheckCount > m_MaxCollisionCheckCount)
 		{
 			m_MaxCollisionCheckCount = stats.collisionCheckCount;
@@ -208,6 +213,16 @@ namespace shooting {
 		m_CurrentFrameRaycastCount++;
 	}
 
+	void BenchmarkRecorder::CountDrawCall()
+	{
+		if (!m_IsRunning)
+		{
+			return;
+		}
+
+		m_currentFrameDrawCallCount++;
+	}
+
 	void BenchmarkRecorder::UpdateNotification(double elapsedSeconds)
 	{
 		if (m_NotificationSecondsRemaining <= 0.0)
@@ -240,6 +255,9 @@ namespace shooting {
 		m_MaxSectionMs.fill(0.0);
 		m_CurrentFrameRaycastCount = 0;
 		m_TotalRaycastCount = 0;
+		m_currentFrameDrawCallCount = 0;
+		m_totalDrawCallCount = 0;
+		m_maximumDrawCallCount = 0;
 		m_MaxCollisionCheckCount = 0;
 		m_MaxTotalEnemyCount = 0;
 		m_MaxAliveEnemyCount = 0;
@@ -250,6 +268,7 @@ namespace shooting {
 	{
 		m_CurrentSectionMs.fill(0.0);
 		m_CurrentFrameRaycastCount = 0;
+		m_currentFrameDrawCallCount = 0;
 	}
 
 	BenchmarkSummary BenchmarkRecorder::BuildSummary() const
@@ -287,6 +306,9 @@ namespace shooting {
 		summary.maximumCollisionMs = m_MaxSectionMs[collisionIndex];
 
 		summary.totalRaycastCount = m_TotalRaycastCount;
+		summary.averageDrawCallCount =
+			static_cast<double>(m_totalDrawCallCount) / frameDivisor;
+		summary.maximumDrawCallCount = m_maximumDrawCallCount;
 		summary.maximumCollisionCheckCount = m_MaxCollisionCheckCount;
 		summary.maximumTotalEnemyCount = m_MaxTotalEnemyCount;
 		summary.maximumAliveEnemyCount = m_MaxAliveEnemyCount;
@@ -326,7 +348,8 @@ namespace shooting {
 		file << "Build,計測時間,平均FPS,最低FPS,遅かったフレーム群の平均FPS,平均ms,"
 			<< "平均GPUms,最大GPUms,遅かったGPUフレーム群の平均ms,GPU計測フレーム数,"
 			<< "平均敵更新ms,最大敵更新ms,平均衝突ms,最大衝突ms,"
-			<< "Raycast回数,最大衝突回数,敵数,最後のWave\n";
+			<< "Raycast回数,平均ドローコール数,最大ドローコール数,"
+			<< "最大衝突回数,敵数,最後のWave\n";
 
 		file << std::fixed << std::setprecision(3)
 			<< summary.buildName << ','
@@ -344,6 +367,8 @@ namespace shooting {
 			<< summary.averageCollisionMs << ','
 			<< summary.maximumCollisionMs << ','
 			<< summary.totalRaycastCount << ','
+			<< summary.averageDrawCallCount << ','
+			<< summary.maximumDrawCallCount << ','
 			<< summary.maximumCollisionCheckCount << ','
 			<< summary.maximumAliveEnemyCount << ','
 			<< summary.lastWave << '\n';

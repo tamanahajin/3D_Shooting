@@ -1,6 +1,6 @@
 ﻿/*!
 @file EnemyRenderers.h
-@brief 敵のインスタンシング描画と比較用通常描画を扱う
+@brief 敵のインスタンシング描画と通常描画を扱う
 */
 
 #pragma once
