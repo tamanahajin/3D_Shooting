@@ -25,6 +25,13 @@ namespace shooting {
 	class EnemyController : public GameObject
 	{
 	private:
+		enum class LandingDeathState
+		{
+			None,
+			WaitingForAirborne,
+			WaitingForLanding
+		};
+
 		struct EnemyState
 		{
 			Vec3 position = Vec3(0.0f, 0.0f, 0.0f);
@@ -36,6 +43,7 @@ namespace shooting {
 			// 爆弾などの吹っ飛び用。通常の追跡移動とは別に制御する。
 			Vec3 knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 			double knockbackControlTimer = 0.0;
+			double knockbackLaunchTimer = 0.0;
 
 			// rotationは移動方向の向きとして使うため、爆風演出は別クォータニオンに分けて保持する。
 			Quat knockbackSpinRotation = Quat();
@@ -67,9 +75,8 @@ namespace shooting {
 			bool isDead = false;
 			bool deathAnimFinished = false;
 
-			// 爆弾で致死ダメージを受けた場合、吹っ飛びが見えるよう着地まで死亡を遅らせる。
-			bool delayDeathUntilLanding = false;
-			bool delayedDeathWasAirborne = false;
+			// 致死ダメージ後の離陸待ちと着地待ちを区別し、その場で死亡することを防ぐ。
+			LandingDeathState landingDeathState = LandingDeathState::None;
 			double delayedDeathMinTimer = 0.0;
 
 			EnemyStatus status;
@@ -127,6 +134,7 @@ namespace shooting {
 		void StartHitPush(EnemyState& enemy, const DamageInfo& info);
 		void KillEnemy(EnemyState& enemy);
 		void KillByFall(EnemyState& enemy);
+		bool IsKnockbackActive(const EnemyState& enemy) const;
 		void RotateToVelocity(EnemyState& enemy, float lerpFact);
 		/*!
 		@brief CSV地形・坂・高台・中央床に対して敵の接地位置を解決する
@@ -184,6 +192,10 @@ namespace shooting {
 		*/
 		void NotifyGroundCollision(size_t index, const CollisionPair& pair);
 		bool IsEnemyAlive(size_t index) const;
+		/*!
+		@brief 指定した敵がプレイヤーへ接触ダメージを与えられるか返す
+		*/
+		bool CanDamagePlayer(size_t index) const;
 		int GetAliveEnemyCount() const;
 		int GetTotalEnemyCount() const;
 		/*!

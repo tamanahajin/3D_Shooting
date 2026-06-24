@@ -155,6 +155,15 @@ namespace shooting {
 			}
 		}
 
+		if (enemy.knockbackLaunchTimer > 0.0 && groundState.gravityVelocity.y > 0.0f)
+		{
+			// 爆風直後は浅い地面への食い込みを接地として拾うと上昇速度が消えるため、離陸を優先する。
+			enemy.position = groundState.position;
+			enemy.gravityVelocity = groundState.gravityVelocity;
+			enemy.isGround = false;
+			return false;
+		}
+
 		// CSV地形で接地できない場合でも、中央の旧ベース床だけはフォールバックとして扱う。
 		// これがないとCSV外の通常床上で敵が落下扱いになり続ける。
 		if (!TryResolveStageGround(*gameStage, groundState))
@@ -172,6 +181,15 @@ namespace shooting {
 		enemy.gravityVelocity = groundState.gravityVelocity;
 		enemy.isGround = groundState.isGrounded;
 		return groundState.isGrounded;
+	}
+
+	bool EnemyController::IsKnockbackActive(const EnemyState& enemy) const
+	{
+		return enemy.landingDeathState != LandingDeathState::None ||
+			enemy.knockbackSpinSpeed != 0.0f ||
+			enemy.knockbackLaunchTimer > 0.0 ||
+			enemy.knockbackControlTimer > 0.0 ||
+			(bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
 	}
 
 	void EnemyController::OnUpdate(double elapsedTime)
@@ -255,6 +273,15 @@ namespace shooting {
 				}
 			}
 
+			if (enemy.knockbackLaunchTimer > 0.0)
+			{
+				enemy.knockbackLaunchTimer -= elapsedTime;
+				if (enemy.knockbackLaunchTimer < 0.0)
+				{
+					enemy.knockbackLaunchTimer = 0.0;
+				}
+			}
+
 			// 爆弾でHPが0になった敵は、最低時間だけ飛ばしてから接地死亡にする。
 			if (enemy.delayedDeathMinTimer > 0.0)
 			{
@@ -265,8 +292,7 @@ namespace shooting {
 				}
 			}
 
-			const bool knockbackActive = enemy.knockbackControlTimer > 0.0
-				|| (bsmUtil::lengthSqr(enemy.knockbackVelocity) > 1e-4f && !enemy.isGround);
+			const bool knockbackActive = IsKnockbackActive(enemy);
 
 			// 爆風回転は描画用クォータニオンだけを進める。
 			if (enemy.knockbackSpinTimer > 0.0)
@@ -385,21 +411,20 @@ namespace shooting {
 			// CSV地形や中央床に合わせて最終位置を補正する。失敗時は未接地として落下を継続する。
 			const bool resolvedGeneratedGround = ResolveGeneratedGround(enemy, elapsedTime);
 
-			if (enemy.delayDeathUntilLanding)
+			if (enemy.landingDeathState == LandingDeathState::WaitingForAirborne &&
+				!resolvedGeneratedGround)
 			{
-				if (!resolvedGeneratedGround)
-				{
-					// 一度でも空中になったことを記録し、地面上で即死亡しないようにする。
-					enemy.delayedDeathWasAirborne = true;
-				}
-				else if (enemy.delayedDeathWasAirborne && enemy.delayedDeathMinTimer <= 0.0)
-				{
-					// 爆弾で致死ダメージを受けた敵は、吹っ飛びが見えるよう着地してから死亡させる。
-					KillEnemy(enemy);
-					UpdateAnimation(enemy, elapsedTime);
-					SyncProxyTransform(i);
-					continue;
-				}
+				enemy.landingDeathState = LandingDeathState::WaitingForLanding;
+			}
+			else if (enemy.landingDeathState == LandingDeathState::WaitingForLanding &&
+				resolvedGeneratedGround &&
+				enemy.delayedDeathMinTimer <= 0.0)
+			{
+				// 空中状態を経由した敵だけを着地時に死亡させ、爆風で飛ぶ演出を保証する。
+				KillEnemy(enemy);
+				UpdateAnimation(enemy, elapsedTime);
+				SyncProxyTransform(i);
+				continue;
 			}
 
 			UpdateAnimation(enemy, elapsedTime);

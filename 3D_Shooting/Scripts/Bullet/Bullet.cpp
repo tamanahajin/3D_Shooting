@@ -411,6 +411,7 @@ namespace shooting {
 
 			auto bombTrans = GetComponent<Transform>();
 			auto targetTrans = target->GetComponent<Transform>();
+			Vec3 knockbackVelocity(0.0f, 10.0f, 0.0f);
 			if (bombTrans && targetTrans)
 			{
 				Vec3 explosionCenter = bombTrans->GetPosition();
@@ -428,10 +429,11 @@ namespace shooting {
 				float maxKnockbackDist = m_explosionScale * 0.5f;
 				float strength = 1.15f - bsmUtil::Min(distance / maxKnockbackDist, 1.0f);
 				strength = bsmUtil::Max(strength, 0.45f);
-				Vec3 knockbackVelocity = knockbackDir * (10.0f * strength);
+				knockbackVelocity = knockbackDir * (10.0f * strength);
 				knockbackVelocity.y = 18.0f * strength;
-				enemyProxy->AddKnockback(knockbackVelocity);
 			}
+			// Transformを取得できない場合も、致死敵が離陸待ちのまま残らないよう上向き速度は必ず与える。
+			enemyProxy->AddKnockback(knockbackVelocity);
 			return;
 		}
 

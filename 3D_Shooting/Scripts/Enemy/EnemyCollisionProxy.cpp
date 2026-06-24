@@ -221,5 +221,16 @@ namespace shooting {
 		auto controller = m_controller.lock();
 		return controller ? controller->IsEnemyAlive(m_enemyIndex) : false;
 	}
+
+	bool EnemyCollisionProxy::CanDamagePlayer() const
+	{
+		if (!m_inUse)
+		{
+			return false;
+		}
+
+		auto controller = m_controller.lock();
+		return controller ? controller->CanDamagePlayer(m_enemyIndex) : false;
+	}
 }
 

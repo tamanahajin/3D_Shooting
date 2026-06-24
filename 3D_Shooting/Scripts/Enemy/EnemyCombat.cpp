@@ -4,6 +4,10 @@
 namespace shooting {
 
 	namespace {
+		constexpr float kMinimumKnockbackUpwardSpeed = 10.0f;
+		constexpr float kKnockbackInitialLift = 0.08f;
+		constexpr double kKnockbackLaunchSeconds = 0.12;
+
 		float RandomRange(float minValue, float maxValue)
 		{
 			return minValue + (maxValue - minValue) * Util::RandZeroToOne(true);
@@ -20,13 +24,13 @@ namespace shooting {
 		enemy.hp = 0;
 		enemy.isDead = true;
 		enemy.deathAnimFinished = false;
-		enemy.delayDeathUntilLanding = false;
-		enemy.delayedDeathWasAirborne = false;
+		enemy.landingDeathState = LandingDeathState::None;
 		enemy.delayedDeathMinTimer = 0.0;
 		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.knockbackControlTimer = 0.0;
+		enemy.knockbackLaunchTimer = 0.0;
 		// 死亡アニメーションへ入る時は、爆風用の描画回転を残さない。
 		enemy.knockbackSpinRotation.identity();
 		enemy.knockbackSpinAxis = Vec3(0.0f, 1.0f, 0.0f);
@@ -104,7 +108,10 @@ namespace shooting {
 
 		auto& enemy = m_enemies[index];
 		// 着地後の死亡が確定している敵は、別の攻撃で撃破数やダメージを重複計上しない。
-		if (!enemy.active || enemy.isDead || enemy.delayDeathUntilLanding || info.m_Damage <= 0)
+		if (!enemy.active ||
+			enemy.isDead ||
+			enemy.landingDeathState != LandingDeathState::None ||
+			info.m_Damage <= 0)
 		{
 			return false;
 		}
@@ -132,8 +139,7 @@ namespace shooting {
 			{
 				// 爆弾の致死ダメージは即死亡にせず、吹っ飛んだ後の接地で死亡させる。
 				enemy.hp = 1;
-				enemy.delayDeathUntilLanding = true;
-				enemy.delayedDeathWasAirborne = false;
+				enemy.landingDeathState = LandingDeathState::WaitingForAirborne;
 				enemy.delayedDeathMinTimer = 0.12;
 				return true;
 			}
@@ -159,13 +165,22 @@ namespace shooting {
 		}
 
 		enemy.knockbackVelocity = Vec3(velocity.x, 0.0f, velocity.z);
-		enemy.gravityVelocity.y = bsmUtil::Max(enemy.gravityVelocity.y, velocity.y);
+		// 爆心より下にいる場合も下向きや接地速度に負けないよう、上昇速度の最低値を保証する。
+		enemy.gravityVelocity.y = bsmUtil::Max(
+			enemy.gravityVelocity.y,
+			bsmUtil::Max(velocity.y, kMinimumKnockbackUpwardSpeed));
 		enemy.gravityVelocity.x = 0.0f;
 		enemy.gravityVelocity.z = 0.0f;
+		enemy.position.y += kKnockbackInitialLift;
 		enemy.velocity *= 0.2f;
 		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.isGround = false;
 		enemy.knockbackControlTimer = 0.45;
+		enemy.knockbackLaunchTimer = kKnockbackLaunchSeconds;
+		if (enemy.landingDeathState == LandingDeathState::WaitingForAirborne)
+		{
+			enemy.landingDeathState = LandingDeathState::WaitingForLanding;
+		}
 
 		AddRandomRotation(index);
 	}
@@ -216,6 +231,12 @@ namespace shooting {
 		auto& enemy = m_enemies[index];
 		if (!enemy.active)
 		{
+			return;
+		}
+
+		if (enemy.knockbackLaunchTimer > 0.0 && enemy.gravityVelocity.y > 0.0f)
+		{
+			// 離陸直後の床接触は前フレームの重なりが残っているだけなので、接地へ戻さない。
 			return;
 		}
 

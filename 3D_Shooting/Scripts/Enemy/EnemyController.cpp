@@ -203,6 +203,20 @@ namespace shooting {
 		return enemy.active && !enemy.isDead && enemy.hp > 0;
 	}
 
+	bool EnemyController::CanDamagePlayer(size_t index) const
+	{
+		if (index >= m_enemies.size())
+		{
+			return false;
+		}
+
+		const auto& enemy = m_enemies[index];
+		return enemy.active &&
+			!enemy.isDead &&
+			enemy.hp > 0 &&
+			!IsKnockbackActive(enemy);
+	}
+
 	int EnemyController::GetAliveEnemyCount() const
 	{
 		int count = 0;

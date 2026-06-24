@@ -712,6 +712,13 @@ namespace shooting {
 		// 敵タグを持つオブジェクトとの衝突か確認
 		if (otherObj->FindTag(L"Enemy"))
 		{
+			auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(otherObj);
+			if (enemyProxy && !enemyProxy->CanDamagePlayer())
+			{
+				// 爆風で制御を失っている敵との接触を、通常攻撃として扱わない。
+				return;
+			}
+
 			// Healthコンポーネントを取得してダメージを適用
 			auto hp = GetComponent<Health>();
 			if (hp && !hp->IsDead())
