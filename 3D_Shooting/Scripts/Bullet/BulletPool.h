@@ -23,13 +23,37 @@ namespace shooting {
 		struct BulletSlot
 		{
 			std::shared_ptr<BulletType> bullet;
-			bool active = false; // 「プール的に使用中か」
+			bool inUse = false;
 		};
 
 		std::vector<BulletSlot> m_bulletSlots;
 		std::vector<uint32_t>   m_freeIndices;
 
 		static constexpr size_t poolSize = 100;
+
+		void ActivateSlot(BulletSlot& slot)
+		{
+			if (!slot.bullet) return;
+
+			slot.bullet->ResetForSpawn();
+			slot.inUse = true;
+			slot.bullet->SetActive(true);
+		}
+
+		void ReturnSlotToPool(BulletSlot& slot)
+		{
+			if (!slot.bullet) return;
+
+			slot.inUse = false;
+			slot.bullet->SetActive(false);
+			slot.bullet->OnReturnToPool();
+
+			if (auto transform = slot.bullet->GetComponent<Transform>(false))
+			{
+				transform->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
+				transform->SetScale(Vec3(1.0f, 1.0f, 1.0f));
+			}
+		}
 
 	public:
 		explicit BulletPool(const std::shared_ptr<Stage>& stagePtr)
@@ -55,13 +79,9 @@ namespace shooting {
 				// Stageに弾オブジェクトを事前生成
 				auto bullet = stagePtr->AddGameObject<BulletType>(initParam);
 
-				// プール待機状態にする
-				bullet->SetActive(false);
-				bullet->SetUpdateActive(false);
-
 				BulletSlot slot;
 				slot.bullet = bullet;
-				slot.active = false;
+				ReturnSlotToPool(slot);
 
 				m_bulletSlots.push_back(std::move(slot));
 				m_freeIndices.push_back(static_cast<uint32_t>(i));
@@ -77,24 +97,12 @@ namespace shooting {
 			for (size_t i = 0; i < m_bulletSlots.size(); ++i)
 			{
 				auto& slot = m_bulletSlots[i];
-				if (!slot.active || !slot.bullet) continue;
+				if (!slot.inUse || !slot.bullet) continue;
 
 				// 弾が終了していれば回収
 				if (!slot.bullet->IsActive())
 				{
-					slot.active = false;
-
-					slot.bullet->SetUpdateActive(false);
-					slot.bullet->SetDrawActive(true);
-					slot.bullet->SetShadowActive(true);
-					slot.bullet->OnReturnToPool();
-
-					if (auto trans = slot.bullet->GetComponent<Transform>())
-					{
-						trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
-						trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
-					}
-
+					ReturnSlotToPool(slot);
 					m_freeIndices.push_back(static_cast<uint32_t>(i));
 				}
 			}
@@ -109,17 +117,7 @@ namespace shooting {
 				auto& slot = m_bulletSlots[i];
 				if (!slot.bullet) continue;
 
-				slot.active = false;
-				slot.bullet->SetActive(false);
-				slot.bullet->SetUpdateActive(false);
-				slot.bullet->OnReturnToPool();
-
-				if (auto trans = slot.bullet->GetComponent<Transform>())
-				{
-					trans->SetPosition(Vec3(0.0f, -100.0f, 0.0f));
-					trans->SetScale(Vec3(1.0f, 1.0f, 1.0f));
-				}
-
+				ReturnSlotToPool(slot);
 				m_freeIndices.push_back(static_cast<uint32_t>(i));
 			}
 		}
@@ -143,7 +141,6 @@ namespace shooting {
 				m_freeIndices.pop_back();
 
 				auto& slot = m_bulletSlots[index];
-				slot.active = true;
 
 				if (auto trans = slot.bullet->GetComponent<Transform>())
 				{
@@ -155,10 +152,8 @@ namespace shooting {
 				// ResetForSpawn の前に、ターゲット等をセット
 				std::forward<SetupFn>(setup)(*slot.bullet);
 
-				// ここで弾道計算などが走る
-				slot.bullet->ResetForSpawn();
-
-				slot.bullet->SetUpdateActive(true);
+				// ターゲット設定後に弾固有の初期化と有効化を行う。
+				ActivateSlot(slot);
 				return;
 			}
 
@@ -169,13 +164,10 @@ namespace shooting {
 			tp.scale = scale;
 
 			auto bullet = stagePtr->AddGameObject<BulletType>(tp);
-			std::forward<SetupFn>(setup)(*bullet);
-			bullet->ResetForSpawn();
-			bullet->SetUpdateActive(true);
-
 			BulletSlot slot;
 			slot.bullet = bullet;
-			slot.active = true;
+			std::forward<SetupFn>(setup)(*slot.bullet);
+			ActivateSlot(slot);
 			m_bulletSlots.push_back(std::move(slot));
 		}
 	};

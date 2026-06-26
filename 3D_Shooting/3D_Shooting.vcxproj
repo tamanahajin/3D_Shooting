@@ -21,8 +21,10 @@
   <ItemGroup>
     <ClCompile Include="Common\Library\StandardLib\Components\BombTuning.cpp" />
     <ClCompile Include="Scripts\Bullet\Bullet.cpp" />
+    <ClCompile Include="Scripts\Bullet\ExplosionResolver.cpp" />
     <ClCompile Include="Scripts\Bullet\BulletManager.cpp" />
     <ClCompile Include="Scripts\Stage\Character.cpp" />
+    <ClCompile Include="Common\Library\BasicLib\BallisticTrajectory.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp" />
     <ClCompile Include="Common\Library\BasicLib\JsonLoader.cpp" />
     <ClCompile Include="Scripts\Enemy\EnemyAnimation.cpp" />
@@ -133,10 +135,12 @@
   <ItemGroup>
     <ClInclude Include="Common\Library\StandardLib\Components\BombTuning.h" />
     <ClInclude Include="Scripts\Bullet\Bullet.h" />
+    <ClInclude Include="Scripts\Bullet\ExplosionResolver.h" />
     <ClInclude Include="Scripts\Bullet\BulletManager.h" />
     <ClInclude Include="Scripts\Bullet\BulletPool.h" />
     <ClInclude Include="Scripts\Bullet\BulletType.h" />
     <ClInclude Include="Scripts\Stage\Character.h" />
+    <ClInclude Include="Common\Library\BasicLib\BallisticTrajectory.h" />
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h" />
     <ClInclude Include="Common\Library\BasicLib\JsonLoader.h" />
     <ClInclude Include="DebugSettings.h" />

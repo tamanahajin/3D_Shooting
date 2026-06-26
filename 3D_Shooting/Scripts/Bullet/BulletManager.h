@@ -4,7 +4,6 @@
 #include "IBulletPool.h"
 #include "BulletPool.h"
 #include "Bullet.h"
-#include "BulletType.h"
 #include <utility>
 
 namespace shooting {
@@ -55,43 +54,11 @@ namespace shooting {
 			return static_cast<BulletPool<BulletT>*>(m_pools[typeId].get());
 		}
 
-		// テンプレの発射API
-		template <class BulletT>
-		void Fire(const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
-		{
-			GetOrCreatePool<BulletT>()->Spawn(pos, rot, scale);
-		}
-
-		void FireBombTo(const Vec3& pos, const Quat& rot, const Vec3& target, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
-		{
-			// 「Spawnする直前に SetTarget」できるよう、Pool側に preReset を渡す版が理想
-			GetOrCreatePool<BombBullet>()->Spawn(pos, rot, scale, [&](BombBullet& b){
-				b.SetTarget(target);
-			});
-		}
-
 		template <class BulletT, class SetupFn>
 		void FireEx(const Vec3& pos, const Quat& rot,
 					const Vec3& scale, SetupFn&& setup)
 		{
 			GetOrCreatePool<BulletT>()->Spawn(pos, rot, scale, std::forward<SetupFn>(setup));
-		}
-
-		// BulletType で切り替える発射API
-		void FireByType(BulletType type, const Vec3& pos, const Quat& rot, const Vec3& scale = Vec3(0.1f, 0.1f, 0.1f))
-		{
-			switch (type)
-			{
-			case BulletType::Default:
-				Fire<DefaultBullet>(pos, rot, scale);
-				break;
-			case BulletType::Bomb:
-				Fire<BombBullet>(pos, rot, scale);
-				break;
-			default:
-				Fire<DefaultBullet>(pos, rot, scale);
-				break;
-			}
 		}
 	};
 

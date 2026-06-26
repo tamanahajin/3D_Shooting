@@ -11,6 +11,9 @@ namespace shooting {
 	/// </summary>
 	class IBullet : public GameObject
 	{
+	private:
+		bool m_isActive = false;
+
 	public:
 		explicit IBullet(const std::shared_ptr<Stage>& stage)
 			: GameObject(stage)
@@ -19,16 +22,25 @@ namespace shooting {
 		virtual ~IBullet() = default;
 
 		/// <summary>
-		/// 「プールから使用中か？」の判定。
-		/// 弾が寿命切れ/命中などで終了したら false にする。
+		/// プールから貸し出されている弾かを返す。
 		/// </summary>
-		virtual bool IsActive() const noexcept = 0;
+		bool IsActive() const noexcept
+		{
+			return m_isActive;
+		}
 
 		/// <summary>
-		/// アクティブ状態の設定。
-		/// Pool側が回収時に false を入れたり、Spawn時に true を入れたりする。
+		/// 弾の使用状態とGameObject側の有効状態をまとめて切り替える。
 		/// </summary>
-		virtual void SetActive(bool active) noexcept = 0;
+		void SetActive(bool active) noexcept
+		{
+			m_isActive = active;
+
+			// 個別に変更すると待機中の弾が描画・衝突対象へ残るため、ここで同期する。
+			SetUpdateActive(active);
+			SetDrawActive(active);
+			SetShadowActive(active);
+		}
 
 		/// <summary>
 		/// プールから再使用するときに、内部状態を初期化する。

@@ -71,6 +71,7 @@ using namespace DirectX;
 //BaseLib
 //シンプルオブジェクト
 #include "BaseMath.h"
+#include "BallisticTrajectory.h"
 namespace shooting { namespace bsm {} }
 using namespace shooting::bsm;
 

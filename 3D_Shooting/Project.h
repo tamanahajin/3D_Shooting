@@ -20,6 +20,7 @@
 #include "Scripts/Camera/MainCamera.h"
 #include "Scripts/Combat/HitStopController.h"
 #include "Scripts/Bullet/IBullet.h"
+#include "Scripts/Bullet/ExplosionResolver.h"
 #include "Scripts/Bullet/Bullet.h"
 #include "Scripts/Bullet/IBulletPool.h"
 #include "Scripts/Bullet/BulletPool.h"

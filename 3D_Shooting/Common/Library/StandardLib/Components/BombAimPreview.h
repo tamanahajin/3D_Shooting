@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include <vector>
 #include <cmath>
 #include "BombTuning.h"
+#include "BallisticTrajectory.h"
 
 namespace shooting {
 
@@ -99,17 +100,6 @@ namespace shooting {
 
 	private:
 		static Vec3 SafeNormalize(const Vec3& v);
-
-		bool SolveBallistic_ApexHeight(
-			const Vec3& p0,
-			const Vec3& p1,
-			const Vec3& gravity,
-			float arcHeight,
-			Vec3& outV0,
-			float& outT
-		) const;
-
-		static Vec3 SamplePos(const Vec3& p0, const Vec3& v0, const Vec3& g, float t);
 		void SetMarkersVisible(bool v);
 	};
 

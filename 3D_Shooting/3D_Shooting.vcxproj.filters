@@ -277,6 +277,9 @@
     <ClCompile Include="Scripts\Bullet\Bullet.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Bullet\ExplosionResolver.cpp">
+      <Filter>Scripts\Sources\Bullet</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Bullet\BulletManager.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
@@ -404,6 +407,9 @@
       <Filter>Scripts\Sources\Stage</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\BenchmarkRecorder.cpp">
+      <Filter>Libs\BasicLib\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Library\BasicLib\BallisticTrajectory.cpp">
       <Filter>Libs\BasicLib\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Common\Library\BasicLib\JsonLoader.cpp">
@@ -672,6 +678,9 @@
     <ClInclude Include="Scripts\Bullet\Bullet.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Bullet\ExplosionResolver.h">
+      <Filter>Scripts\Headers\Bullet</Filter>
+    </ClInclude>
     <ClInclude Include="Scripts\Bullet\BulletType.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
@@ -742,6 +751,9 @@
       <Filter>Scripts\Headers\Combat</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\BenchmarkRecorder.h">
+      <Filter>Libs\BasicLib\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Library\BasicLib\BallisticTrajectory.h">
       <Filter>Libs\BasicLib\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\BasicLib\JsonLoader.h">

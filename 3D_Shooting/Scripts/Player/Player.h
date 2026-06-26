@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "Project.h"
+#include "../Bullet/BulletType.h"
 
 namespace shooting {
 

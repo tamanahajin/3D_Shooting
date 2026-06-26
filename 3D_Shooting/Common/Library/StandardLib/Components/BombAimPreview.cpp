@@ -170,13 +170,19 @@ namespace shooting {
 			}
 		}
 
-		const Vec3 deltaXZ(ringCenter.x - m_Start.x, 0.0f, ringCenter.z - m_Start.z);
-		const float distXZ = deltaXZ.length();
-		const float arcHeight = m_Tuning.arcHeightBase + (distXZ * m_Tuning.arcHeightPerDistXZ);
+		const float arcHeight = BallisticTrajectory::CalculateArcHeight(
+			m_Start,
+			ringCenter,
+			m_Tuning.arcHeightBase,
+			m_Tuning.arcHeightPerDistXZ);
 
-		Vec3 v0;
-		float T = 0.0f;
-		if (!SolveBallistic_ApexHeight(m_Start, ringCenter, m_Tuning.gravity, arcHeight, v0, T))
+		BallisticTrajectorySolution trajectory;
+		if (!BallisticTrajectory::TrySolveApexHeight(
+			m_Start,
+			ringCenter,
+			m_Tuning.gravity,
+			arcHeight,
+			trajectory))
 		{
 			SetMarkersVisible(false);
 			return;
@@ -188,8 +194,16 @@ namespace shooting {
 		{
 			const float ratio0 = static_cast<float>(i) / static_cast<float>(m_LineSegmentCount);
 			const float ratio1 = static_cast<float>(i + 1) / static_cast<float>(m_LineSegmentCount);
-			const Vec3 p0 = SamplePos(m_Start, v0, m_Tuning.gravity, T * ratio0);
-			const Vec3 p1 = SamplePos(m_Start, v0, m_Tuning.gravity, T * ratio1);
+			const Vec3 p0 = BallisticTrajectory::SamplePosition(
+				m_Start,
+				trajectory.initialVelocity,
+				m_Tuning.gravity,
+				trajectory.duration * ratio0);
+			const Vec3 p1 = BallisticTrajectory::SamplePosition(
+				m_Start,
+				trajectory.initialVelocity,
+				m_Tuning.gravity,
+				trajectory.duration * ratio1);
 			const Vec3 segment = p1 - p0;
 			const float length = segment.length();
 
@@ -225,39 +239,6 @@ namespace shooting {
 		const float len2 = (v.x * v.x + v.y * v.y + v.z * v.z);
 		if (len2 < 1e-8f) return Vec3(0, 1, 0);
 		return v / std::sqrt(len2);
-	}
-
-	bool BombAimPreview::SolveBallistic_ApexHeight(
-		const Vec3& p0,
-		const Vec3& p1,
-		const Vec3& gravity,
-		float arcHeight,
-		Vec3& outV0,
-		float& outT) const
-	{
-		const float g = -gravity.y;
-		if (g <= 1e-6f) return false;
-
-		const float apexY = bsmUtil::Max(p0.y, p1.y) + arcHeight;
-		const float h0 = bsmUtil::Max(0.0f, apexY - p0.y);
-		const float h1 = bsmUtil::Max(0.0f, apexY - p1.y);
-
-		const float vY0 = std::sqrt(2.0f * g * h0);
-		const float tUp = vY0 / g;
-		const float tDown = std::sqrt(2.0f * h1 / g);
-		const float totalT = bsmUtil::Max(0.001f, tUp + tDown);
-
-		const Vec3 deltaXZ(p1.x - p0.x, 0.0f, p1.z - p0.z);
-		const Vec3 vXZ = deltaXZ * (1.0f / totalT);
-
-		outV0 = Vec3(vXZ.x, vY0, vXZ.z);
-		outT = totalT;
-		return true;
-	}
-
-	Vec3 BombAimPreview::SamplePos(const Vec3& p0, const Vec3& v0, const Vec3& g, float t)
-	{
-		return p0 + (v0 * t) + (g * (0.5f * t * t));
 	}
 
 }

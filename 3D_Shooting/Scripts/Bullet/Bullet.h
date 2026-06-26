@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include <unordered_set>
+#include "ExplosionResolver.h"
+#include "BallisticTrajectory.h"
 #include <DirectXMath.h>
 
 namespace shooting {
@@ -12,7 +13,6 @@ namespace shooting {
 	{
 	private:
 		float  m_speed = 15.0f;
-		bool   m_isActive = false;
 
 		// 寿命（秒）
 		double m_lifeTime = 5.0;
@@ -24,17 +24,13 @@ namespace shooting {
 		virtual ~DefaultBullet() = default;
 
 		// ----- IBullet -----
-		bool IsActive() const noexcept override;
-		void SetActive(bool active) noexcept override;
-
 		/// <summary>
 		/// プールから再利用される直前に呼ばれる。
-		/// 寿命だけをリセットして Active にする。
+		/// 寿命をリセットする。
 		/// </summary>
 		virtual void ResetForSpawn() noexcept override
 		{
 			m_elapsedTime = 0.0;
-			SetActive(true);
 		}
 
 		// ----- GameObject -----
@@ -56,10 +52,16 @@ namespace shooting {
 	//  爆風の範囲はここでは「TransformのScaleを一気に大きくする」ことで表現。
 	//  もし CollisionSphere が Scale に追従しない設計なら、CollisionSphere の半径APIに置き換える。
 	//============================================================
-	class BombBullet : public DefaultBullet
+	class BombBullet : public IBullet
 	{
 	private:
-		// 飛翔速度（DefaultBulletの速度とは別扱いにしている）
+		enum class BombState
+		{
+			Flying,
+			Exploding
+		};
+
+		// 飛翔速度
 		float  m_speed = 10.0f;
 
 		// 爆発までの時間
@@ -81,27 +83,11 @@ namespace shooting {
 		bool  m_useGeneratedGroundImpact = true;
 		float m_arcHeightPerDistXZ = 0.0f;
 
-		// 爆発状態
-		bool   m_exploding = false;
+		BombState m_state = BombState::Flying;
 		double m_explosionDuration = 0.08; // 爆風が有効な時間
 		double m_explosionTimer = 0.0;
+		ExplosionResolver m_explosionResolver;
 
-		// 爆風のスケール（Transform.Scale）
-		float  m_explosionScale = 3.0f;
-
-		// 範囲ダメージ
-		int    m_explosionDamage = 10;
-
-		// 爆発中の多重ヒット防止
-		std::unordered_set<const GameObject*> m_hitOnce;
-		// この爆弾1個で死亡が確定した敵数。BEST EXPLOSION の更新に使う。
-		int m_explosionKillCount = 0;
-
-		bool SolveBallisticApexHeight(
-			const Vec3& p0, const Vec3& p1,
-			const Vec3& gravity, float arcHeight,
-			Vec3& outV0, float& outT
-		) const;
 		bool TryGetStageGroundHeight(const Vec3& position, float& outHeight) const noexcept;
 		Vec3 SnapTargetToStageGround(const Vec3& target) const noexcept;
 		bool TryResolveTerrainImpact(
@@ -117,7 +103,7 @@ namespace shooting {
 
 		void OnReturnToPool() noexcept override
 		{
-			if (auto trans = GetComponent<Transform>())
+			if (auto trans = GetComponent<Transform>(false))
 			{
 				trans->SetScale(Vec3(0.1f, 0.1f, 0.1f));
 			}
@@ -145,7 +131,7 @@ namespace shooting {
 
 			// CollisionSphere の半径が「scale * 0.5」仕様なので、
 			// radius を合わせたいなら scale = radius * 2 にするのが基本。
-			m_explosionScale = t.explosionRadius * 2.0f;
+			m_explosionResolver.SetExplosionScale(t.explosionRadius * 2.0f);
 		}
 
 		// ----- GameObject -----
@@ -156,7 +142,6 @@ namespace shooting {
 
 	private:
 		void StartExplosion(const std::shared_ptr<GameObject>& firstHit);
-		void TryApplyExplosionDamage(const std::shared_ptr<GameObject>& target);
 	};
 
 }

@@ -13,8 +13,7 @@ namespace shooting {
 		// 共有登録
 		GetStage()->SetSharedGameObject(L"BulletManager", GetThis<BulletManager>());
 
-		// 事前にプール作成（ここで必要な弾だけ作ればOK）
-		GetOrCreatePool<DefaultBullet>();
+		// 通常射撃はヒットスキャン方式なので、実体を生成する爆弾のプールだけを準備する。
 		GetOrCreatePool<BombBullet>();
 	}
 
