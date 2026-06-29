@@ -19,9 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common\Library\StandardLib\Components\BombTuning.cpp" />
+    <ClCompile Include="Common\Library\StandardLib\Components\WeaponTuning.cpp" />
     <ClCompile Include="Scripts\Bullet\Bullet.cpp" />
     <ClCompile Include="Scripts\Bullet\ExplosionResolver.cpp" />
+    <ClCompile Include="Scripts\Bullet\BombImpactResolver.cpp" />
     <ClCompile Include="Scripts\Bullet\BulletManager.cpp" />
     <ClCompile Include="Scripts\Stage\Character.cpp" />
     <ClCompile Include="Common\Library\BasicLib\BallisticTrajectory.cpp" />
@@ -133,9 +134,10 @@
     <ClCompile Include="Scripts\Stage\WorldObjects.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\Library\StandardLib\Components\BombTuning.h" />
+    <ClInclude Include="Common\Library\StandardLib\Components\WeaponTuning.h" />
     <ClInclude Include="Scripts\Bullet\Bullet.h" />
     <ClInclude Include="Scripts\Bullet\ExplosionResolver.h" />
+    <ClInclude Include="Scripts\Bullet\BombImpactResolver.h" />
     <ClInclude Include="Scripts\Bullet\BulletManager.h" />
     <ClInclude Include="Scripts\Bullet\BulletPool.h" />
     <ClInclude Include="Scripts\Bullet\BulletType.h" />
@@ -249,6 +251,7 @@
     <ClInclude Include="Scripts\UI\UIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\WeaponTuning.json" />
     <None Include="Assets\Data\EnemyWaveConfig.json" />
     <None Include="Assets\Stage\stage_props.csv" />
     <None Include="Common\Library\StandardLib\Shaders\BcINCCommon.hlsli" />

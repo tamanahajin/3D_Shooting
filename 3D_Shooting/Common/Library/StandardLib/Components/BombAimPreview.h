@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include <vector>
-#include <cmath>
-#include "BombTuning.h"
+#include "WeaponTuning.h"
 #include "BallisticTrajectory.h"
 
 namespace shooting {
@@ -61,7 +60,7 @@ namespace shooting {
 		Vec3  m_HitNormal = Vec3(0, 1, 0);
 		bool  m_HasHit = false;
 
-		BombTuning m_Tuning{};
+		WeaponTuning m_Tuning{};
 		float m_MaxRange = 500.0f;
 
 		bool  m_MarkersShown = false;
@@ -80,8 +79,8 @@ namespace shooting {
 		{
 		}
 
-		const BombTuning& GetTuning() const { return m_Tuning; }
-		void SetTuning(const BombTuning& t) { m_Tuning = t; }
+		const WeaponTuning& GetTuning() const { return m_Tuning; }
+		void SetTuning(const WeaponTuning& t) { m_Tuning = t; }
 
 		void SetMaxRange(float maxRange) { m_MaxRange = maxRange; }
 		float GetMaxRange() const { return m_MaxRange; }
@@ -99,7 +98,6 @@ namespace shooting {
 		void OnUpdate(double elapsedTime) override;
 
 	private:
-		static Vec3 SafeNormalize(const Vec3& v);
 		void SetMarkersVisible(bool v);
 	};
 

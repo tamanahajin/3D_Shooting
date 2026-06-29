@@ -12,10 +12,10 @@ namespace shooting {
 	class DefaultBullet : public IBullet
 	{
 	private:
-		float  m_speed = 15.0f;
+		float  m_speed = 0.0f;
 
 		// 寿命（秒）
-		double m_lifeTime = 5.0;
+		double m_lifeTime = 0.0;
 		// 経過時間（秒）
 		double m_elapsedTime = 0.0;
 
@@ -62,10 +62,10 @@ namespace shooting {
 		};
 
 		// 飛翔速度
-		float  m_speed = 10.0f;
+		float  m_speed = 0.0f;
 
 		// 爆発までの時間
-		const double m_defaultFuseTime = 3.0;
+		double m_defaultFuseTime = 0.0;
 		double m_fuseTime = m_defaultFuseTime;
 
 		Vec3  m_velocity = Vec3(0, 0, 0);
@@ -74,7 +74,8 @@ namespace shooting {
 		Vec3  m_targetNormal = Vec3(0, 1, 0);
 		bool  m_hasTarget = false;
 		bool  m_hasTargetSurface = false;
-		float m_arcHeight = 1.5f;
+		std::weak_ptr<GameObject> m_impactIgnoredObject;
+		float m_arcHeight = 0.0f;
 		Vec3  m_startPos = Vec3(0, 0, 0);   // p0（発射時位置）
 		Vec3  m_v0 = Vec3(0, 0, 0);   // v0（発射時初速）
 		float m_flyTime = 0.0f;          // 発射からの経過 t
@@ -84,16 +85,10 @@ namespace shooting {
 		float m_arcHeightPerDistXZ = 0.0f;
 
 		BombState m_state = BombState::Flying;
-		double m_explosionDuration = 0.08; // 爆風が有効な時間
+		double m_explosionDuration = 0.0; // 爆風が有効な時間
 		double m_explosionTimer = 0.0;
 		ExplosionResolver m_explosionResolver;
 
-		bool TryGetStageGroundHeight(const Vec3& position, float& outHeight) const noexcept;
-		Vec3 SnapTargetToStageGround(const Vec3& target) const noexcept;
-		bool TryResolveTerrainImpact(
-			const Vec3& previousPosition,
-			const Vec3& currentPosition,
-			Vec3& outImpactPosition) const noexcept;
 	public:
 		BombBullet(const std::shared_ptr<Stage>& stagePtr, const TransParam& param);
 		virtual ~BombBullet() = default;
@@ -116,18 +111,29 @@ namespace shooting {
 			m_targetNormal = Vec3(0, 1, 0);
 			m_hasTarget = true;
 			m_hasTargetSurface = false;
+			m_impactIgnoredObject.reset();
 		}
 
-		void SetAimFromPreview(const Vec3& target, const BombTuning& t, const Vec3& targetNormal, bool hasTargetSurface)
+		void SetAimFromPreview(
+			const Vec3& target,
+			const WeaponTuning& t,
+			const Vec3& targetNormal,
+			bool hasTargetSurface,
+			const std::shared_ptr<GameObject>& ignoredObject = nullptr)
 		{
 			m_targetPos = target;
 			m_targetNormal = targetNormal;
 			m_hasTarget = true;
 			m_hasTargetSurface = hasTargetSurface;
+			m_impactIgnoredObject = ignoredObject;
 
+			m_speed = t.bombSpeed;
+			m_defaultFuseTime = t.bombFuseTime;
+			m_explosionDuration = t.explosionDuration;
 			m_arcHeight = t.arcHeightBase;
 			m_gravity = t.gravity;
 			m_arcHeightPerDistXZ = t.arcHeightPerDistXZ;
+			m_explosionResolver.SetExplosionDamage(t.explosionDamage);
 
 			// CollisionSphere の半径が「scale * 0.5」仕様なので、
 			// radius を合わせたいなら scale = radius * 2 にするのが基本。

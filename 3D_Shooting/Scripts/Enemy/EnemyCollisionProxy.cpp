@@ -232,5 +232,16 @@ namespace shooting {
 		auto controller = m_controller.lock();
 		return controller ? controller->CanDamagePlayer(m_enemyIndex) : false;
 	}
+
+	int EnemyCollisionProxy::GetContactDamage() const
+	{
+		if (!m_inUse)
+		{
+			return 0;
+		}
+
+		auto controller = m_controller.lock();
+		return controller ? controller->GetContactDamage(m_enemyIndex) : 0;
+	}
 }
 

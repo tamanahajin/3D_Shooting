@@ -26,6 +26,7 @@ namespace shooting {
 	public:
 		void Reset() noexcept;
 		void SetExplosionScale(float scale) noexcept { m_explosionScale = scale; }
+		void SetExplosionDamage(int damage) noexcept { m_explosionDamage = damage; }
 		float GetExplosionScale() const noexcept { return m_explosionScale; }
 		int GetExplosionDamage() const noexcept { return m_explosionDamage; }
 

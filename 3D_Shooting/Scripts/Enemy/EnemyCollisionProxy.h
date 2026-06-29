@@ -71,6 +71,7 @@ namespace shooting {
 		void AddKnockback(const Vec3& velocity);
 		bool IsAlive() const;
 		bool CanDamagePlayer() const;
+		int GetContactDamage() const;
 	};
 
 }

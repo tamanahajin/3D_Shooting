@@ -271,13 +271,16 @@
     <ClCompile Include="Common\Library\StandardLib\Components\WaveEffectDraw.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Library\StandardLib\Components\BombTuning.cpp">
+    <ClCompile Include="Common\Library\StandardLib\Components\WeaponTuning.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Bullet\Bullet.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Bullet\ExplosionResolver.cpp">
+      <Filter>Scripts\Sources\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Bullet\BombImpactResolver.cpp">
       <Filter>Scripts\Sources\Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Bullet\BulletManager.cpp">
@@ -681,6 +684,9 @@
     <ClInclude Include="Scripts\Bullet\ExplosionResolver.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Bullet\BombImpactResolver.h">
+      <Filter>Scripts\Headers\Bullet</Filter>
+    </ClInclude>
     <ClInclude Include="Scripts\Bullet\BulletType.h">
       <Filter>Scripts\Headers\Bullet</Filter>
     </ClInclude>
@@ -708,7 +714,7 @@
     <ClInclude Include="Common\Library\StandardLib\Components\BombAimPreview.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Common\Library\StandardLib\Components\BombTuning.h">
+    <ClInclude Include="Common\Library\StandardLib\Components\WeaponTuning.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h">
@@ -761,6 +767,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\PlayerTuning.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="Assets\Data\WeaponTuning.json">
+      <Filter>Data</Filter>
+    </None>
     <None Include="Assets\Data\EnemyWaveConfig.json">
       <Filter>Data</Filter>
     </None>

@@ -1,0 +1,41 @@
+﻿{
+  "stats": {
+    "maxHp": 20,
+    "initialBombAmmo": 0
+  },
+  "movement": {
+    "moveSpeed": 6.0,
+    "jumpSpeed": 4.0
+  },
+  "model": {
+    "scale": 0.01
+  },
+  "collision": {
+    "capsuleRadius": 0.2,
+    "capsuleSegmentHeight": 0.3
+  },
+  "camera": {
+    "targetHeight": 1.0
+  },
+  "damage": {
+    "invincibleTime": 0.3
+  },
+  "death": {
+    "hitStopDuration": 0.18,
+    "hitStopTimeScale": 0.03,
+    "soundDelay": 1.1,
+    "animationTimeScale": 0.25
+  },
+  "spawnIntro": {
+    "walkDirection": [0.0, 0.0, 1.0],
+    "walkDistance": 2.4,
+    "portalOnlyDuration": 1.0,
+    "duration": 1.05,
+    "portalBackOffset": 0.25,
+    "portalHeight": 0.85,
+    "portalScale": 1.15,
+    "cameraDistance": 4.2,
+    "cameraHeight": 1.35,
+    "cameraLookHeight": 1.0
+  }
+}

@@ -130,45 +130,15 @@ namespace shooting {
 		m_LastBuiltTarget = m_Target;
 		m_HasCachedLayout = true;
 
-		auto stage = GetGameObject()->GetStage();
-		auto colMgr = stage ? stage->GetCollisionManager() : nullptr;
-
-		Vec3 ringCenter = m_Target;
-		Vec3 ringNormal = Vec3(0, 1, 0);
-		bool resolvedSurface = false;
-
-		if (m_HasHit)
-		{
-			ringCenter = m_Target;
-			ringNormal = SafeNormalize(m_HitNormal);
-			resolvedSurface = true;
-		}
-		else if (auto gameStage = std::dynamic_pointer_cast<GameStage>(stage))
-		{
-			float groundY = 0.0f;
-			if (gameStage->TryGetSlopeGroundHeight(m_Target, groundY))
-			{
-				ringCenter = m_Target;
-				ringCenter.y = groundY;
-				ringNormal = Vec3(0, 1, 0);
-				resolvedSurface = true;
-			}
-		}
-
-		if (!resolvedSurface && colMgr)
-		{
-			const float probeHeight = 5.0f;
-			const float probeDistance = bsmUtil::Max(20.0f, std::fabs(m_Start.y - m_Target.y) + 20.0f);
-			const Vec3 probeStart(m_Target.x, bsmUtil::Max(m_Start.y, m_Target.y) + probeHeight, m_Target.z);
-			const Vec3 down(0, -1, 0);
-
-			RaycastHit hit;
-			if (colMgr->SphereCast(probeStart, down, probeDistance, 0.1f, hit, GetGameObject(), { L"Bullet", L"Enemy", L"Item" }))
-			{
-				ringCenter = hit.m_Point;
-				ringNormal = SafeNormalize(hit.m_Normal);
-			}
-		}
+		const BombImpactSurface surface = BombImpactResolver::ResolveTargetSurface(
+			GetGameObject()->GetStage(),
+			GetGameObject(),
+			m_Start,
+			m_Target,
+			m_HitNormal,
+			m_HasHit);
+		const Vec3 ringCenter = surface.position;
+		const Vec3 ringNormal = surface.normal;
 
 		const float arcHeight = BallisticTrajectory::CalculateArcHeight(
 			m_Start,
@@ -232,13 +202,6 @@ namespace shooting {
 
 		for (auto& d : m_PathMarkers) d->SetDrawActive(v);
 		if (m_AreaMarker) m_AreaMarker->SetDrawActive(v);
-	}
-
-	Vec3 BombAimPreview::SafeNormalize(const Vec3& v)
-	{
-		const float len2 = (v.x * v.x + v.y * v.y + v.z * v.z);
-		if (len2 < 1e-8f) return Vec3(0, 1, 0);
-		return v / std::sqrt(len2);
 	}
 
 }

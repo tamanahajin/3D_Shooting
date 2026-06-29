@@ -206,6 +206,7 @@ namespace shooting {
 		{
 			EnemyStatus status;
 			if (!ReadInteger(value, "maxHp", valuePath, status.maxHp, outError) ||
+				!ReadInteger(value, "contactDamage", valuePath, status.contactDamage, outError) ||
 				!ReadFloat(value, "moveSpeed", valuePath, status.moveSpeed, outError) ||
 				!ReadVec3(value, "modelScale", valuePath, status.modelScale, outError) ||
 				!ReadFloat(value, "collisionRadius", valuePath, status.collisionRadius, outError) ||
@@ -222,6 +223,7 @@ namespace shooting {
 			}
 
 			if (status.maxHp <= 0 ||
+				status.contactDamage < 0 ||
 				status.moveSpeed < 0.0f ||
 				status.modelScale.x <= 0.0f ||
 				status.modelScale.y <= 0.0f ||

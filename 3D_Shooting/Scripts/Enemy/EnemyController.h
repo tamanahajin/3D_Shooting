@@ -196,6 +196,8 @@ namespace shooting {
 		@brief 指定した敵がプレイヤーへ接触ダメージを与えられるか返す
 		*/
 		bool CanDamagePlayer(size_t index) const;
+		/*! @brief 指定した敵がプレイヤーへ接触時に与えるダメージを返す */
+		int GetContactDamage(size_t index) const;
 		int GetAliveEnemyCount() const;
 		int GetTotalEnemyCount() const;
 		/*!

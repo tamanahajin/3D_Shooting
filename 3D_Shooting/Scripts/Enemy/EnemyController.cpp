@@ -217,6 +217,17 @@ namespace shooting {
 			!IsKnockbackActive(enemy);
 	}
 
+	int EnemyController::GetContactDamage(size_t index) const
+	{
+		if (index >= m_enemies.size())
+		{
+			return 0;
+		}
+
+		const auto& enemy = m_enemies[index];
+		return enemy.active ? enemy.status.contactDamage : 0;
+	}
+
 	int EnemyController::GetAliveEnemyCount() const
 	{
 		int count = 0;

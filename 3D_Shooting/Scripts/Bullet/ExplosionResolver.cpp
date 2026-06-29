@@ -36,7 +36,7 @@ namespace shooting {
 		{
 			if (auto camera = std::dynamic_pointer_cast<MainCamera>(stage->GetCamera()))
 			{
-				const auto& tuning = GetBombTuning();
+				const auto& tuning = GetWeaponTuning();
 				camera->RequestCameraShake(
 					explosionPosition,
 					tuning.cameraShakeIntensity,

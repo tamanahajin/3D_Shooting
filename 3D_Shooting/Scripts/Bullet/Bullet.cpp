@@ -23,6 +23,10 @@ namespace shooting {
 
 	void DefaultBullet::OnCreate()
 	{
+		const auto& tuning = GetWeaponTuning();
+		m_speed = tuning.defaultBulletSpeed;
+		m_lifeTime = tuning.defaultBulletLifeTime;
+
 		// 衝突
 		auto ptrColl = AddComponent<CollisionSphere>();
 		ptrColl->SetFixed(false);
@@ -41,7 +45,7 @@ namespace shooting {
 
 		// ダメージ（このプロジェクトでは OnCollisionEnter から ApplyDamage を呼ぶ）
 		auto dmg = AddComponent<DamageDealer>();
-		dmg->SetDamage(3);
+		dmg->SetDamage(tuning.defaultBulletDamage);
 		dmg->SetDestroyOnHit(true);
 
 		// 無視オブジェクト
@@ -134,6 +138,13 @@ namespace shooting {
 
 	void BombBullet::OnCreate()
 	{
+		const auto& tuning = GetWeaponTuning();
+		m_speed = tuning.bombSpeed;
+		m_defaultFuseTime = tuning.bombFuseTime;
+		m_explosionDuration = tuning.explosionDuration;
+		m_explosionResolver.SetExplosionDamage(tuning.explosionDamage);
+		m_explosionResolver.SetExplosionScale(tuning.explosionRadius * 2.0f);
+
 		auto ptrColl = AddComponent<CollisionSphere>();
 		ptrColl->SetFixed(false);
 
@@ -172,7 +183,7 @@ namespace shooting {
 		}
 
 		auto dmg = AddComponent<DamageDealer>();
-		dmg->SetDamage(m_explosionResolver.GetExplosionDamage());
+		dmg->SetDamage(tuning.explosionDamage);
 		dmg->SetDestroyOnHit(false);
 
 		if (auto col = GetComponent<Collision>(false))
@@ -221,7 +232,12 @@ namespace shooting {
 				m_velocity = BallisticTrajectory::SampleVelocity(m_v0, m_gravity, t);
 
 				Vec3 impactPosition;
-				if (m_useGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, impactPosition))
+				if (m_useGeneratedGroundImpact &&
+					BombImpactResolver::TryResolveGeneratedGroundImpact(
+						GetStage(false),
+						previousPosition,
+						tp.position,
+						impactPosition))
 				{
 					tp.position = impactPosition;
 					StartExplosion(nullptr);
@@ -245,7 +261,12 @@ namespace shooting {
 				tp.position += m_velocity * dt;
 
 				Vec3 directImpactPosition;
-				if (m_useGeneratedGroundImpact && TryResolveTerrainImpact(previousPosition, tp.position, directImpactPosition))
+				if (m_useGeneratedGroundImpact &&
+					BombImpactResolver::TryResolveGeneratedGroundImpact(
+						GetStage(false),
+						previousPosition,
+						tp.position,
+						directImpactPosition))
 				{
 					tp.position = directImpactPosition;
 					StartExplosion(nullptr);
@@ -306,68 +327,17 @@ namespace shooting {
 		m_explosionResolver.StartExplosion(GetThis<GameObject>(), firstHit);
 	}
 
-	bool BombBullet::TryGetStageGroundHeight(const Vec3& position, float& outHeight) const noexcept
-	{
-		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
-		if (!gameStage)
-		{
-			return false;
-		}
-
-		return gameStage->TryGetSlopeGroundHeight(position, outHeight);
-	}
-
-	Vec3 BombBullet::SnapTargetToStageGround(const Vec3& target) const noexcept
-	{
-		Vec3 snapped = target;
-		float groundY = 0.0f;
-		if (TryGetStageGroundHeight(target, groundY))
-		{
-			snapped.y = groundY;
-		}
-		return snapped;
-	}
-
-	bool BombBullet::TryResolveTerrainImpact(
-		const Vec3& previousPosition,
-		const Vec3& currentPosition,
-		Vec3& outImpactPosition) const noexcept
-	{
-		float currentGroundY = 0.0f;
-		if (!TryGetStageGroundHeight(currentPosition, currentGroundY))
-		{
-			return false;
-		}
-
-		float previousGroundY = currentGroundY;
-		TryGetStageGroundHeight(previousPosition, previousGroundY);
-
-		const float previousClearance = previousPosition.y - previousGroundY;
-		const float currentClearance = currentPosition.y - currentGroundY;
-		const float impactTolerance = 0.08f;
-		if (currentClearance > impactTolerance)
-		{
-			return false;
-		}
-		if (previousClearance <= currentClearance && currentClearance > -impactTolerance)
-		{
-			return false;
-		}
-
-		const float denom = previousClearance - currentClearance;
-		float t = denom > 1e-5f ? previousClearance / denom : 1.0f;
-		if (t < 0.0f) t = 0.0f;
-		if (t > 1.0f) t = 1.0f;
-
-		outImpactPosition = previousPosition + ((currentPosition - previousPosition) * t);
-		float impactGroundY = currentGroundY;
-		TryGetStageGroundHeight(outImpactPosition, impactGroundY);
-		outImpactPosition.y = impactGroundY;
-		return true;
-	}
-
 	void BombBullet::ResetForSpawn() noexcept
 	{
+		const auto& tuning = GetWeaponTuning();
+		m_speed = tuning.bombSpeed;
+		m_defaultFuseTime = tuning.bombFuseTime;
+		m_explosionDuration = tuning.explosionDuration;
+		m_arcHeight = tuning.arcHeightBase;
+		m_gravity = tuning.gravity;
+		m_arcHeightPerDistXZ = tuning.arcHeightPerDistXZ;
+		m_explosionResolver.SetExplosionDamage(tuning.explosionDamage);
+		m_explosionResolver.SetExplosionScale(tuning.explosionRadius * 2.0f);
 		m_fuseTime = m_defaultFuseTime;
 		m_state = BombState::Flying;
 		m_explosionTimer = 0.0;
@@ -394,14 +364,27 @@ namespace shooting {
 		{
 			m_v0 = trans->GetForward() * m_speed;
 			m_velocity = m_v0;
+			m_impactIgnoredObject.reset();
 			return;
 		}
 
-		m_useGeneratedGroundImpact = !m_hasTargetSurface || m_targetNormal.y > 0.45f;
-		if (m_useGeneratedGroundImpact)
+		auto ignoredObject = m_impactIgnoredObject.lock();
+		if (!ignoredObject)
 		{
-			m_targetPos = SnapTargetToStageGround(m_targetPos);
+			ignoredObject = GetThis<GameObject>();
 		}
+		const BombImpactSurface surface = BombImpactResolver::ResolveTargetSurface(
+			GetStage(false),
+			ignoredObject,
+			m_startPos,
+			m_targetPos,
+			m_targetNormal,
+			m_hasTargetSurface);
+		m_targetPos = surface.position;
+		m_targetNormal = surface.normal;
+		m_hasTargetSurface = surface.hasSurface;
+		m_useGeneratedGroundImpact =
+			BombImpactResolver::ShouldCheckGeneratedGroundImpact(m_hasTargetSurface, m_targetNormal);
 
 		const float arcHeight = BallisticTrajectory::CalculateArcHeight(
 			m_startPos,
@@ -441,5 +424,6 @@ namespace shooting {
 		// 繰り返し時の防止
 		m_hasTarget = false;
 		m_hasTargetSurface = false;
+		m_impactIgnoredObject.reset();
 	}
 }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include "WeaponTuning.h"
 #include <type_traits>
 #include <utility>
 
@@ -28,8 +29,6 @@ namespace shooting {
 
 		std::vector<BulletSlot> m_bulletSlots;
 		std::vector<uint32_t>   m_freeIndices;
-
-		static constexpr size_t poolSize = 100;
 
 		void ActivateSlot(BulletSlot& slot)
 		{
@@ -64,6 +63,7 @@ namespace shooting {
 
 		void OnCreate() override
 		{
+			const size_t poolSize = static_cast<size_t>(GetWeaponTuning().bulletPoolInitialSize);
 			m_bulletSlots.reserve(poolSize);
 
 			auto stagePtr = GetStage();
