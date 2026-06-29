@@ -114,6 +114,7 @@
     <ClCompile Include="Scripts\Player\PlayerAimResolver.cpp" />
     <ClCompile Include="Scripts\Player\PlayerCombat.cpp" />
     <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp" />
+    <ClCompile Include="Scripts\Player\PlayerTuning.cpp" />
     <ClCompile Include="Scripts\Player\PlayerWeapon.cpp" />
     <ClCompile Include="Scripts\Scene\Scene.cpp" />
     <ClCompile Include="Scripts\Scene\SceneState.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Scripts\Player\Player.h" />
     <ClInclude Include="Scripts\Player\PlayerAimResolver.h" />
     <ClInclude Include="Scripts\Player\PlayerShotEffects.h" />
+    <ClInclude Include="Scripts\Player\PlayerTuning.h" />
     <ClInclude Include="Scripts\Player\PlayerWeapon.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="ProjectUtil.h" />
@@ -251,6 +253,7 @@
     <ClInclude Include="Scripts\UI\UIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\PlayerTuning.json" />
     <None Include="Assets\Data\WeaponTuning.json" />
     <None Include="Assets\Data\EnemyWaveConfig.json" />
     <None Include="Assets\Stage\stage_props.csv" />

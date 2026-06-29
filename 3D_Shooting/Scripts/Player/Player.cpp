@@ -5,25 +5,6 @@ namespace shooting {
 
 	namespace
 	{
-		const Vec3 kSpawnIntroWalkDirection(0.0f, 0.0f, 1.0f);
-		const float kSpawnIntroWalkDistance = 2.4f;
-		const double kSpawnIntroPortalOnlyDuration = 1.0;
-		const double kSpawnIntroDuration = 1.05;
-		const float kSpawnIntroPortalBackOffset = 0.25f;
-		const float kSpawnIntroPortalHeight = 0.85f;
-		const float kSpawnIntroPortalScale = 1.15f;
-		const float kSpawnIntroCameraDistance = 4.2f;
-		const float kSpawnIntroCameraHeight = 1.35f;
-		const float kSpawnIntroCameraLookHeight = 1.0f;
-		// 死亡した瞬間にゲーム内時間をほぼ停止させる時間。
-		const double kDeathHitStopDuration = 0.18;
-		// 完全停止を避けつつ、死亡した瞬間を強調するための時間倍率。
-		const double kDeathHitStopTimeScale = 0.03;
-		// 死亡判定から死亡SEを鳴らすまでの実時間。
-		const double kDeathSoundDelay = 1.1;
-		// 死亡モーションを通常より遅く再生し、ゲームオーバーになったことを強調する。
-		const double kDeathAnimationTimeScale = 0.25;
-
 		float SmoothStep(float t)
 		{
 			t = bsmUtil::Clamp(t, 0.0f, 1.0f);
@@ -34,13 +15,15 @@ namespace shooting {
 		{
 		private:
 			float m_elapsed = 0.0f;
-			float m_lifeTime = static_cast<float>(kSpawnIntroPortalOnlyDuration + kSpawnIntroDuration);
+			float m_lifeTime = 0.0f;
 
 		public:
 			PlayerSpawnPortal(const std::shared_ptr<Stage>& stage, const TransParam& param)
 				: GameObject(stage)
 			{
 				m_transParam = param;
+				const auto& tuning = GetPlayerTuning();
+				m_lifeTime = static_cast<float>(tuning.spawnIntroPortalOnlyDuration + tuning.spawnIntroDuration);
 			}
 
 			void OnCreate() override
@@ -80,7 +63,7 @@ namespace shooting {
 
 	Player::Player(const std::shared_ptr<Stage>& stage, const TransParam& param) :
 		GameObject(stage),
-		m_speed(6.0f),
+		m_speed(GetPlayerTuning().moveSpeed),
 		m_isGround(false)
 	{
 		m_transParam = param;
@@ -88,16 +71,18 @@ namespace shooting {
 
 	void Player::StartDeathPresentation()
 	{
+		const auto& tuning = GetPlayerTuning();
+
 		// ヒットストップ直後に聞こえるよう、死亡SEは実時間タイマーで遅延再生する。
 		m_deathSoundPending = true;
-		m_deathSoundDelayTimer = kDeathSoundDelay;
+		m_deathSoundDelayTimer = tuning.deathSoundDelay;
 		// 死亡SEは残し、インゲームBGMだけを停止してゲームオーバーを明確にする。
 		GameAudio::Instance().StopBgm();
 
 		auto gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
 		if (gameStage)
 		{
-			gameStage->RequestHitStop(kDeathHitStopDuration, kDeathHitStopTimeScale);
+			gameStage->RequestHitStop(tuning.deathHitStopDuration, tuning.deathHitStopTimeScale);
 		}
 	}
 
@@ -134,9 +119,23 @@ namespace shooting {
 			: 1.0;
 		if (m_isDead)
 		{
-			playbackTimeScale *= kDeathAnimationTimeScale;
+			playbackTimeScale *= GetPlayerTuning().deathAnimationTimeScale;
 		}
 		anim->SetPlaybackTimeScale(playbackTimeScale);
+	}
+
+	void Player::UpdateDamageInvincibleTimer(double elapsedTime)
+	{
+		if (elapsedTime <= 0.0 || m_damageInvincibleTimer <= 0.0)
+		{
+			return;
+		}
+
+		m_damageInvincibleTimer -= elapsedTime;
+		if (m_damageInvincibleTimer < 0.0)
+		{
+			m_damageInvincibleTimer = 0.0;
+		}
 	}
 
 	bool Player::UpdateDeathState()
@@ -255,6 +254,7 @@ namespace shooting {
 		}
 
 		UpdateAnimationPlaybackRate(rawElapsedTime, elapsedTime);
+		UpdateDamageInvincibleTimer(elapsedTime);
 		if (UpdateDeathState() || UpdateSpawnIntroState(elapsedTime))
 		{
 			return;
@@ -373,18 +373,22 @@ namespace shooting {
 
 	void Player::OnCreate()
 	{
+		const auto& tuning = GetPlayerTuning();
+		m_speed = tuning.moveSpeed;
+		m_bombAmmo = tuning.initialBombAmmo;
+
 		GetStage()->SetSharedGameObject(L"Player", GetThis<Player>());
 
 		auto ptrTransform = GetComponent<Transform>();
 		//ptrTransform->SetPosition(m_startPos);
-		ptrTransform->SetScale(0.01f, 0.01f, 0.01f);
+		ptrTransform->SetScale(tuning.modelScale, tuning.modelScale, tuning.modelScale);
 		ptrTransform->SetRotation(0.0f, 0.0f, 0.0f);
 
 		// コリジョン
 		auto ptrColl = AddComponent<CollisionCapsule>();
 		ptrColl->SetDebugDraw(false);
-		const float radius = 0.2f;
-		const float segmentHeight = 0.3f;
+		const float radius = tuning.collisionCapsuleRadius;
+		const float segmentHeight = tuning.collisionCapsuleSegmentHeight;
 		ptrColl->SetMakedRadius(radius);
 		ptrColl->SetMakedHeight(segmentHeight);
 		//重力をつける
@@ -416,14 +420,14 @@ namespace shooting {
 			//MainCameraである
 			//MainCameraに注目するオブジェクト（プレイヤー）の設定
 			m_mainCamera->SetTargetObject(GetThis<GameObject>());
-			m_mainCamera->SetTargetToAt(Vec3(0, 1.0f, 0));
+			m_mainCamera->SetTargetToAt(Vec3(0.0f, tuning.cameraTargetHeight, 0.0f));
 		}
 
 		AddTag(L"Player");
 
 		auto hp = AddComponent<Health>();
-		hp->SetMaxHP(20);
-		hp->SetHP(20);
+		hp->SetMaxHP(tuning.maxHp);
+		hp->SetHP(tuning.maxHp);
 
 		// HealthはPlayerが所有するため、コールバックからPlayerを強参照すると自己循環になる。
 		std::weak_ptr<Player> weakSelf = GetThis<Player>();
@@ -465,8 +469,8 @@ namespace shooting {
 		auto damageEffect = AddComponent<DamageEffect>();
 
 		m_bombPreview = AddComponent<BombAimPreview>();
-		m_bombPreview->SetTuning(GetBombTuning());
-		m_bombPreview->SetMaxRange(20.0f); // 最大到達距離を設定
+		m_bombPreview->SetTuning(GetWeaponTuning());
+		m_bombPreview->SetMaxRange(GetWeaponTuning().bombMaxRange);
 
 		BeginSpawnIntro();
 	}
@@ -480,6 +484,8 @@ namespace shooting {
 
 	void Player::BeginSpawnIntro()
 	{
+		const auto& tuning = GetPlayerTuning();
+
 		auto transform = GetComponent<Transform>(false);
 		if (!transform)
 		{
@@ -490,7 +496,7 @@ namespace shooting {
 		m_spawnIntroSePlayed = false;
 		m_spawnIntroTimer = 0.0;
 		m_spawnIntroEndPosition = transform->GetPosition();
-		m_spawnIntroStartPosition = m_spawnIntroEndPosition - (kSpawnIntroWalkDirection * kSpawnIntroWalkDistance);
+		m_spawnIntroStartPosition = m_spawnIntroEndPosition - (tuning.spawnIntroWalkDirection * tuning.spawnIntroWalkDistance);
 		m_spawnIntroStartPosition.y = m_spawnIntroEndPosition.y;
 		transform->SetPosition(m_spawnIntroStartPosition);
 
@@ -498,14 +504,14 @@ namespace shooting {
 
 		if (auto util = GetBehavior<UtilBehavior>())
 		{
-			util->RotToHead(kSpawnIntroWalkDirection, 1.0f);
+			util->RotToHead(tuning.spawnIntroWalkDirection, 1.0f);
 		}
 		UpdateSpawnIntroCamera(m_spawnIntroStartPosition);
 
 		TransParam portalParam;
-		portalParam.position = m_spawnIntroStartPosition - (kSpawnIntroWalkDirection * kSpawnIntroPortalBackOffset)
-			+ Vec3(0.0f, kSpawnIntroPortalHeight, 0.0f);
-		portalParam.scale = Vec3(kSpawnIntroPortalScale, kSpawnIntroPortalScale, kSpawnIntroPortalScale);
+		portalParam.position = m_spawnIntroStartPosition - (tuning.spawnIntroWalkDirection * tuning.spawnIntroPortalBackOffset)
+			+ Vec3(0.0f, tuning.spawnIntroPortalHeight, 0.0f);
+		portalParam.scale = Vec3(tuning.spawnIntroPortalScale, tuning.spawnIntroPortalScale, tuning.spawnIntroPortalScale);
 		portalParam.quaternion.rotationRollPitchYawFromVector(Vec3(XM_PIDIV2, 0.0f, 0.0f));
 		GetStage()->AddGameObject<PlayerSpawnPortal>(portalParam);
 
@@ -524,8 +530,9 @@ namespace shooting {
 			return false;
 		}
 
+		const auto& tuning = GetPlayerTuning();
 		m_spawnIntroTimer += elapsedTime;
-		const double walkTimer = m_spawnIntroTimer - kSpawnIntroPortalOnlyDuration;
+		const double walkTimer = m_spawnIntroTimer - tuning.spawnIntroPortalOnlyDuration;
 
 		if (walkTimer < 0.0)
 		{
@@ -552,7 +559,7 @@ namespace shooting {
 			}
 		}
 
-		const float rawT = static_cast<float>(walkTimer / kSpawnIntroDuration);
+		const float rawT = static_cast<float>(walkTimer / tuning.spawnIntroDuration);
 		const float t = SmoothStep(rawT);
 
 		auto transform = GetComponent<Transform>(false);
@@ -565,7 +572,7 @@ namespace shooting {
 
 		if (auto util = GetBehavior<UtilBehavior>())
 		{
-			util->RotToHead(kSpawnIntroWalkDirection, 1.0f);
+			util->RotToHead(tuning.spawnIntroWalkDirection, 1.0f);
 		}
 
 		if (rawT < 1.0f)
@@ -610,11 +617,12 @@ namespace shooting {
 			return;
 		}
 
+		const auto& tuning = GetPlayerTuning();
 		// プレイヤーは+Z方向へ歩くので、カメラも+Z側に置くとキャラの正面が見える。
-		const Vec3 at = playerPosition + Vec3(0.0f, kSpawnIntroCameraLookHeight, 0.0f);
+		const Vec3 at = playerPosition + Vec3(0.0f, tuning.spawnIntroCameraLookHeight, 0.0f);
 		const Vec3 eye = playerPosition
-			+ (kSpawnIntroWalkDirection * kSpawnIntroCameraDistance)
-			+ Vec3(0.0f, kSpawnIntroCameraHeight, 0.0f);
+			+ (tuning.spawnIntroWalkDirection * tuning.spawnIntroCameraDistance)
+			+ Vec3(0.0f, tuning.spawnIntroCameraHeight, 0.0f);
 		m_mainCamera->SetSpawnIntroView(true, eye, at);
 	}
 
@@ -623,7 +631,7 @@ namespace shooting {
 		if (m_isGround)
 		{
 			auto grav = GetComponent<Gravity>();
-			grav->StartJump(Vec3(0, 4.0f, 0));
+			grav->StartJump(Vec3(0.0f, GetPlayerTuning().jumpSpeed, 0.0f));
 			m_isGround = false;
 		}
 	}
@@ -697,41 +705,60 @@ namespace shooting {
 		ResolveSlopeCollision(elapsedTime);
 	}
 
+	void Player::TryApplyEnemyContactDamage(const std::shared_ptr<GameObject>& enemyObject)
+	{
+		if (!enemyObject || !enemyObject->FindTag(L"Enemy") || m_damageInvincibleTimer > 0.0)
+		{
+			return;
+		}
+
+		auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(enemyObject);
+		if (!enemyProxy)
+		{
+			return;
+		}
+		if (!enemyProxy->CanDamagePlayer())
+		{
+			// 爆風で制御を失っている敵との接触を、通常攻撃として扱わない。
+			return;
+		}
+
+		auto hp = GetComponent<Health>();
+		if (!hp || hp->IsDead())
+		{
+			return;
+		}
+
+		const int contactDamage = enemyProxy->GetContactDamage();
+		if (contactDamage <= 0)
+		{
+			return;
+		}
+
+		const int hpBefore = hp->GetHP();
+
+		DamageInfo damageInfo;
+		damageInfo.m_Damage = contactDamage;
+		hp->ApplyDamage(damageInfo);
+
+		if (hp->GetHP() < hpBefore)
+		{
+			m_damageInvincibleTimer = GetPlayerTuning().damageInvincibleTime;
+		}
+	}
+
 	void Player::OnCollisionEnter(const CollisionPair& pair)
 	{
 		CheckGroundCollision(pair);
 		CheckItemPickup(pair);
 
-		// 敵との衝突をチェック
 		auto other = pair.m_Dest.lock();
 		if (!other) return;
 
 		auto otherObj = other->GetGameObject();
 		if (!otherObj) return;
 
-		// 敵タグを持つオブジェクトとの衝突か確認
-		if (otherObj->FindTag(L"Enemy"))
-		{
-			auto enemyProxy = std::dynamic_pointer_cast<EnemyCollisionProxy>(otherObj);
-			if (enemyProxy && !enemyProxy->CanDamagePlayer())
-			{
-				// 爆風で制御を失っている敵との接触を、通常攻撃として扱わない。
-				return;
-			}
-
-			// Healthコンポーネントを取得してダメージを適用
-			auto hp = GetComponent<Health>();
-			if (hp && !hp->IsDead())
-			{
-				// ダメージ情報を作成（敵との接触は1ダメージ）
-				DamageInfo damageInfo;
-				damageInfo.m_Damage = 1;
-				//damageInfo.m_Attacker = otherObj;
-					
-				// ダメージを適用
-				hp->ApplyDamage(damageInfo);
-			}
-		}
+		TryApplyEnemyContactDamage(otherObj);
 	}
 
 	void Player::OnCollisionExecute(const CollisionPair& pair)

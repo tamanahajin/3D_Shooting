@@ -9,7 +9,6 @@ namespace shooting {
 	{
 		const float kNormalShotCameraAimBacktrack = 0.25f;
 		const float kNormalShotMuzzleBlockMargin = 0.03f;
-		const float kBombStartBodyCenterHeight = 0.65f;
 
 		bool TryGetCameraRay(
 			const std::shared_ptr<MainCamera>& camera,
@@ -181,7 +180,8 @@ namespace shooting {
 			return result;
 		}
 
-		result.start = transform->GetPosition() + Vec3(0.0f, kBombStartBodyCenterHeight, 0.0f);
+		result.start = transform->GetPosition()
+			+ Vec3(0.0f, GetWeaponTuning().bombStartBodyCenterHeight, 0.0f);
 		result.aimPoint = rayOrigin + rayDirection * maxRange;
 
 		RaycastHit physicalHit;

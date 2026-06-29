@@ -41,6 +41,7 @@
 #include "Scripts/Item/ItemFactory.h"
 #include "Scripts/Item/ItemSpawner.h"
 #include "Scripts/Player/Player.h"
+#include "Scripts/Player/PlayerTuning.h"
 #include "Scripts/Player/PlayerWeapon.h"
 #include "Scripts/Stage/GameStage.h"
 #include "Scripts/Stage/TitleStage.h"

@@ -35,6 +35,7 @@ namespace shooting {
 		void UpdateDeathSound(double rawElapsedTime);
 		/*! @brief ヒットストップと死亡演出をアニメーション再生倍率へ反映する */
 		void UpdateAnimationPlaybackRate(double rawElapsedTime, double gameElapsedTime);
+		void UpdateDamageInvincibleTimer(double elapsedTime);
 		/*! @brief 死亡中または落下死を処理する @return 以降の通常更新を止める場合はtrue */
 		bool UpdateDeathState();
 		/*! @brief 登場演出を更新する @return 登場演出中の場合はtrue */
@@ -51,6 +52,7 @@ namespace shooting {
 		void FireBomb(const PlayerBombAim& aim);
 		/*! @brief 解決済みの照準結果を使って通常弾を発射する */
 		void FireNormalShot(const PlayerNormalShotAim& aim);
+		void TryApplyEnemyContactDamage(const std::shared_ptr<GameObject>& enemyObject);
 		//入力ハンドラー
 		InputHandler<Player> m_inputHandler;
 		//スピード
@@ -77,6 +79,8 @@ namespace shooting {
 		bool m_deathAnimFinished = false;
 		bool m_deathSoundPending = false;
 		double m_deathSoundDelayTimer = 0.0;
+		// 敵に接触し続けた状態でも、被弾後すぐにHPが連続で減らないようにする。
+		double m_damageInvincibleTimer = 0.0;
 		bool m_spawnIntroActive = false;
 		bool m_spawnIntroCharacterVisible = true;
 		bool m_spawnIntroSePlayed = false;

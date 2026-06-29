@@ -361,6 +361,9 @@
     <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp">
       <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Player\PlayerTuning.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Player\PlayerWeapon.cpp">
       <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
@@ -436,6 +439,9 @@
       <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Player\PlayerShotEffects.h">
+      <Filter>Scripts\Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Player\PlayerTuning.h">
       <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Player\PlayerWeapon.h">

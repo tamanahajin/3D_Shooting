@@ -7,12 +7,6 @@ namespace shooting {
 
 	namespace
 	{
-		const float kNormalShotRange = 60.0f;
-		const int kNormalShotDamage = 1;
-		const double kNormalShotCooldown = 0.12;
-		const double kBombShotCooldown = 1.0;
-		const Vec3 kBombProjectileScale(0.01f, 0.01f, 0.01f);
-
 		void ApplyHitscanDamage(
 			const std::shared_ptr<GameObject>& shooter,
 			const RaycastHit& hit,
@@ -76,6 +70,7 @@ namespace shooting {
 		const bool fireInput = input.KeyDown(VK_LBUTTON);
 		const bool canFire = !hitStopActive && fireInput && m_shotCool <= 0.0;
 		const bool bombMode = IsBombMode();
+		const auto& tuning = GetWeaponTuning();
 		auto collisionManager = m_collisionManager.lock();
 
 		PlayerBombAim bombAim;
@@ -121,7 +116,7 @@ namespace shooting {
 			GetThis<Player>(),
 			m_mainCamera,
 			collisionManager,
-			kNormalShotRange);
+			tuning.normalShotRange);
 		if (normalAim.isValid)
 		{
 			FireNormalShot(normalAim);
@@ -163,18 +158,19 @@ namespace shooting {
 		const Vec3 target = aim.aimPoint;
 		const Vec3 hitNormal = aim.hitNormal;
 		const bool hasHit = aim.hasHit;
-		const BombTuning tuning = m_bombPreview->GetTuning();
+		const WeaponTuning tuning = m_bombPreview->GetTuning();
+		const std::shared_ptr<GameObject> shooter = GetThis<GameObject>();
 		bulletManager->FireEx<BombBullet>(
 			aim.start,
 			aim.rotation,
-			kBombProjectileScale,
-			[target, hitNormal, hasHit, tuning](BombBullet& bomb)
+			tuning.bombProjectileScale,
+			[target, hitNormal, hasHit, tuning, shooter](BombBullet& bomb)
 			{
-				bomb.SetAimFromPreview(target, tuning, hitNormal, hasHit);
+				bomb.SetAimFromPreview(target, tuning, hitNormal, hasHit, shooter);
 			});
 
 		GameAudio::Instance().PlaySound(GameSoundId::BombThrow);
-		m_shotCool = kBombShotCooldown;
+		m_shotCool = tuning.bombShotCooldown;
 		--m_bombAmmo;
 		if (m_bombAmmo <= 0)
 		{
@@ -191,14 +187,15 @@ namespace shooting {
 
 	void Player::FireNormalShot(const PlayerNormalShotAim& aim)
 	{
+		const auto& tuning = GetWeaponTuning();
 		GameAudio::Instance().PlaySound(GameSoundId::PlayerShot);
 		if (aim.hasHit)
 		{
-			ApplyHitscanDamage(GetThis<GameObject>(), aim.hit, kNormalShotDamage);
+			ApplyHitscanDamage(GetThis<GameObject>(), aim.hit, tuning.normalShotDamage);
 		}
 
 		FaceAttackTarget(aim.aimPoint);
-		m_shotCool = kNormalShotCooldown;
+		m_shotCool = tuning.normalShotCooldown;
 
 		Vec3 shotForward = aim.aimPoint - aim.muzzle;
 		if (shotForward.length() > 1e-6f)
