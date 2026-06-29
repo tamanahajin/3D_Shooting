@@ -40,11 +40,24 @@ namespace shooting {
 
 	void FrameResource::InitFrame()
 	{
+		// 前回このFrameResourceを使ったGPU処理は完了済みなので、退避していた旧リソースをここで解放する。
+		m_deferredReleaseResources.clear();
+
 		// Reset the main thread command allocator.
 		m_commandAllocator->Reset();
 		// Reset the worker command allocators.
 		ThrowIfFailed(m_contextCommandAllocator->Reset());
 	}
 
-}
+	void FrameResource::DeferReleaseResource(ComPtr<ID3D12Resource>& resource)
+	{
+		if (!resource)
+		{
+			return;
+		}
 
+		m_deferredReleaseResources.push_back(resource);
+		resource.Reset();
+	}
+
+}

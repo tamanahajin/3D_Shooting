@@ -35,8 +35,13 @@ namespace shooting {
 	{
 		if (kEnableFrameRateLimit)
 		{
+			// timeBeginPeriod(1) は、Windowsのタイマー精度を上げる処理
+			// Sleep(1) などの待機時間をできるだけ細かく扱いたいときに使う
 			m_timerPeriodRaised = (timeBeginPeriod(1) == TIMERR_NOERROR);
+			// 高精度タイマーの周波数を取得、1秒あたり何カウント進むか
 			QueryPerformanceFrequency(&m_frameLimiterFrequency);
+			// 現在時刻を高精度カウンタで取得
+			// FPS制限では「次のフレームを開始してよい時刻」
 			QueryPerformanceCounter(&m_nextFrameTime);
 		}
 

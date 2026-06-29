@@ -9,6 +9,21 @@ namespace shooting {
 		IMPLEMENT_DX12SHADER(InstancedPSPNTPL, App::GetShadersDir() + L"InstancedPSPNTPL.cso")
 	IMPLEMENT_DX12SHADER(InstancedVSShadowmap, App::GetShadersDir() + L"InstancedVSShadowmap.cso")
 
+	namespace {
+		void DeferReleaseGpuResource(ComPtr<ID3D12Resource>& resource)
+		{
+			auto scene = BaseScene::Get();
+			auto frameResource = scene ? scene->GetCurrentFrameResource() : nullptr;
+			if (frameResource)
+			{
+				frameResource->DeferReleaseResource(resource);
+				return;
+			}
+
+			resource.Reset();
+		}
+	}
+
 	InstancedStaticDraw::InstancedStaticDraw(const std::shared_ptr<GameObject>& gameObjectPtr) :
 	Component(gameObjectPtr)
 	{
@@ -162,7 +177,7 @@ namespace shooting {
 
 		if (!instanceBuffer || instanceBufferCapacityBytes < bufferSize)
 		{
-			instanceBuffer.Reset();
+			DeferReleaseGpuResource(instanceBuffer);
 			instanceBufferCapacityBytes = 0;
 
 			ThrowIfFailed(device->CreateCommittedResource(
@@ -173,6 +188,7 @@ namespace shooting {
 				nullptr,
 				IID_PPV_ARGS(&instanceBuffer)));
 
+			SetName(instanceBuffer.Get(), L"InstancedStaticDraw.InstanceBuffer");
 			instanceBufferCapacityBytes = bufferSize;
 		}
 
@@ -746,7 +762,7 @@ namespace shooting {
 			m_MappedInstanceBuffer = nullptr;
 		}
 
-		m_InstanceBuffer.Reset();
+		DeferReleaseGpuResource(m_InstanceBuffer);
 		m_InstanceBufferCapacityBytes = 0;
 
 		const UINT capacity = GetUploadBufferCapacity(bufferSize);
@@ -760,6 +776,7 @@ namespace shooting {
 			nullptr,
 			IID_PPV_ARGS(&m_InstanceBuffer)));
 
+		SetName(m_InstanceBuffer.Get(), L"InstancedSkinnedDraw.InstanceBuffer");
 		m_InstanceBufferCapacityBytes = capacity;
 
 		CD3DX12_RANGE readRange(0, 0);
@@ -778,13 +795,15 @@ namespace shooting {
 			return;
 		}
 
+		const bool replacingBoneBuffer = (m_BoneBuffer != nullptr);
+
 		if (m_BoneBuffer && m_MappedBoneBuffer)
 		{
 			m_BoneBuffer->Unmap(0, nullptr);
 			m_MappedBoneBuffer = nullptr;
 		}
 
-		m_BoneBuffer.Reset();
+		DeferReleaseGpuResource(m_BoneBuffer);
 		m_BoneBufferCapacityBytes = 0;
 
 		const UINT capacity = GetUploadBufferCapacity(bufferSize);
@@ -798,10 +817,12 @@ namespace shooting {
 			nullptr,
 			IID_PPV_ARGS(&m_BoneBuffer)));
 
+		SetName(m_BoneBuffer.Get(), L"InstancedSkinnedDraw.BoneBuffer");
 		m_BoneBufferCapacityBytes = capacity;
 
-		if (m_BoneSrvIndex == UINT_MAX)
+		if (m_BoneSrvIndex == UINT_MAX || replacingBoneBuffer)
 		{
+			// 旧フレームが参照中のSRVを上書きしないよう、作り直し時は新しいスロットを使う。
 			m_BoneSrvIndex = BaseScene::Get()->GetSrvNextIndex();
 		}
 

@@ -179,8 +179,6 @@ inline HRESULT ReadDataFromDDSFile(LPCWSTR filename, byte** data, UINT* offset, 
 	return S_OK;
 }
 
-// Assign a name to the object to aid with debugging.
-#if defined(_DEBUG) || defined(DBG)
 inline void SetName(ID3D12Object* pObject, LPCWSTR name)
 {
     if (pObject)
@@ -199,14 +197,6 @@ inline void SetNameIndexed(ID3D12Object* pObject, LPCWSTR name, UINT index)
         }
     }
 }
-#else
-inline void SetName(ID3D12Object*, LPCWSTR)
-{
-}
-inline void SetNameIndexed(ID3D12Object*, LPCWSTR, UINT)
-{
-}
-#endif
 
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.

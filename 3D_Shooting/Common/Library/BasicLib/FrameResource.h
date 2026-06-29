@@ -39,12 +39,14 @@ namespace shooting {
 
 		//BaseCross用
 		std::vector<BaseConstantBufferSet> m_baseConstantBufferSetVec;
+		std::vector<ComPtr<ID3D12Resource>> m_deferredReleaseResources;
 
 	public:
 		FrameResource(ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue);
 		virtual ~FrameResource();
 
 		virtual void InitFrame();
+		void DeferReleaseResource(ComPtr<ID3D12Resource>& resource);
 
 		template<typename T>
 		size_t AddBaseConstantBufferSet(ID3D12Device* pDevice) {

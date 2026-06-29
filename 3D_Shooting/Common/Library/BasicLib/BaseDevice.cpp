@@ -21,6 +21,225 @@ namespace shooting {
 		constexpr UINT kGpuTimestampQueryCountPerFrame = 2;
 		constexpr UINT kGpuTimestampBeginIndexOffset = 0;
 		constexpr UINT kGpuTimestampEndIndexOffset = 1;
+		constexpr bool kEnableDredDiagnostics = true;
+
+		std::string ToUtf8(const wchar_t* text)
+		{
+			if (!text)
+			{
+				return "";
+			}
+
+			const int size = WideCharToMultiByte(
+				CP_UTF8,
+				0,
+				text,
+				-1,
+				nullptr,
+				0,
+				nullptr,
+				nullptr);
+			if (size <= 1)
+			{
+				return "";
+			}
+
+			std::string result(static_cast<size_t>(size - 1), '\0');
+			WideCharToMultiByte(
+				CP_UTF8,
+				0,
+				text,
+				-1,
+				&result[0],
+				size,
+				nullptr,
+				nullptr);
+			return result;
+		}
+
+		const char* ToBreadcrumbOpName(D3D12_AUTO_BREADCRUMB_OP op)
+		{
+			switch (op)
+			{
+			case D3D12_AUTO_BREADCRUMB_OP_SETMARKER: return "SetMarker";
+			case D3D12_AUTO_BREADCRUMB_OP_BEGINEVENT: return "BeginEvent";
+			case D3D12_AUTO_BREADCRUMB_OP_ENDEVENT: return "EndEvent";
+			case D3D12_AUTO_BREADCRUMB_OP_DRAWINSTANCED: return "DrawInstanced";
+			case D3D12_AUTO_BREADCRUMB_OP_DRAWINDEXEDINSTANCED: return "DrawIndexedInstanced";
+			case D3D12_AUTO_BREADCRUMB_OP_EXECUTEINDIRECT: return "ExecuteIndirect";
+			case D3D12_AUTO_BREADCRUMB_OP_DISPATCH: return "Dispatch";
+			case D3D12_AUTO_BREADCRUMB_OP_COPYBUFFERREGION: return "CopyBufferRegion";
+			case D3D12_AUTO_BREADCRUMB_OP_COPYTEXTUREREGION: return "CopyTextureRegion";
+			case D3D12_AUTO_BREADCRUMB_OP_COPYRESOURCE: return "CopyResource";
+			case D3D12_AUTO_BREADCRUMB_OP_COPYTILES: return "CopyTiles";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCE: return "ResolveSubresource";
+			case D3D12_AUTO_BREADCRUMB_OP_CLEARRENDERTARGETVIEW: return "ClearRenderTargetView";
+			case D3D12_AUTO_BREADCRUMB_OP_CLEARUNORDEREDACCESSVIEW: return "ClearUnorderedAccessView";
+			case D3D12_AUTO_BREADCRUMB_OP_CLEARDEPTHSTENCILVIEW: return "ClearDepthStencilView";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOURCEBARRIER: return "ResourceBarrier";
+			case D3D12_AUTO_BREADCRUMB_OP_EXECUTEBUNDLE: return "ExecuteBundle";
+			case D3D12_AUTO_BREADCRUMB_OP_PRESENT: return "Present";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOLVEQUERYDATA: return "ResolveQueryData";
+			case D3D12_AUTO_BREADCRUMB_OP_BEGINSUBMISSION: return "BeginSubmission";
+			case D3D12_AUTO_BREADCRUMB_OP_ENDSUBMISSION: return "EndSubmission";
+			case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME: return "DecodeFrame";
+			case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES: return "ProcessFrames";
+			case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT: return "AtomicCopyBufferUint";
+			case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT64: return "AtomicCopyBufferUint64";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCEREGION: return "ResolveSubresourceRegion";
+			case D3D12_AUTO_BREADCRUMB_OP_WRITEBUFFERIMMEDIATE: return "WriteBufferImmediate";
+			case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME1: return "DecodeFrame1";
+			case D3D12_AUTO_BREADCRUMB_OP_SETPROTECTEDRESOURCESESSION: return "SetProtectedResourceSession";
+			case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME2: return "DecodeFrame2";
+			case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES1: return "ProcessFrames1";
+			case D3D12_AUTO_BREADCRUMB_OP_BUILDRAYTRACINGACCELERATIONSTRUCTURE: return "BuildRaytracingAccelerationStructure";
+			case D3D12_AUTO_BREADCRUMB_OP_EMITRAYTRACINGACCELERATIONSTRUCTUREPOSTBUILDINFO: return "EmitRaytracingAccelerationStructurePostbuildInfo";
+			case D3D12_AUTO_BREADCRUMB_OP_COPYRAYTRACINGACCELERATIONSTRUCTURE: return "CopyRaytracingAccelerationStructure";
+			case D3D12_AUTO_BREADCRUMB_OP_DISPATCHRAYS: return "DispatchRays";
+			case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEMETACOMMAND: return "InitializeMetaCommand";
+			case D3D12_AUTO_BREADCRUMB_OP_EXECUTEMETACOMMAND: return "ExecuteMetaCommand";
+			case D3D12_AUTO_BREADCRUMB_OP_ESTIMATEMOTION: return "EstimateMotion";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOLVEMOTIONVECTORHEAP: return "ResolveMotionVectorHeap";
+			case D3D12_AUTO_BREADCRUMB_OP_SETPIPELINESTATE1: return "SetPipelineState1";
+			case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEEXTENSIONCOMMAND: return "InitializeExtensionCommand";
+			case D3D12_AUTO_BREADCRUMB_OP_EXECUTEEXTENSIONCOMMAND: return "ExecuteExtensionCommand";
+			case D3D12_AUTO_BREADCRUMB_OP_DISPATCHMESH: return "DispatchMesh";
+			case D3D12_AUTO_BREADCRUMB_OP_ENCODEFRAME: return "EncodeFrame";
+			case D3D12_AUTO_BREADCRUMB_OP_RESOLVEENCODEROUTPUTMETADATA: return "ResolveEncoderOutputMetadata";
+			default: return "Unknown";
+			}
+		}
+
+		void AppendDredAllocationList(
+			std::ostringstream& stream,
+			const char* label,
+			const D3D12_DRED_ALLOCATION_NODE1* node)
+		{
+			stream << label << ":\r\n";
+			int count = 0;
+			while (node && count < 8)
+			{
+				const std::string objectName =
+					node->ObjectNameA ? node->ObjectNameA : ToUtf8(node->ObjectNameW);
+				stream
+					<< "  [" << count << "] type=" << static_cast<unsigned int>(node->AllocationType)
+					<< " name=" << (objectName.empty() ? "(unnamed)" : objectName)
+					<< "\r\n";
+				node = node->pNext;
+				++count;
+			}
+			if (node)
+			{
+				stream << "  ...\r\n";
+			}
+		}
+
+		void OutputDredData(ID3D12Device* device)
+		{
+			if (!device)
+			{
+				return;
+			}
+
+			ComPtr<ID3D12DeviceRemovedExtendedData1> dred;
+			if (FAILED(device->QueryInterface(IID_PPV_ARGS(&dred))))
+			{
+				ErrorLogger::Write(
+					"BaseDevice::OutputDredData",
+					"DRED interface is not available on this device.");
+				return;
+			}
+
+			std::ostringstream stream;
+			D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 breadcrumbs = {};
+			if (SUCCEEDED(dred->GetAutoBreadcrumbsOutput1(&breadcrumbs)))
+			{
+				// DREDのパンくずは、GPUがどのコマンド付近で止まったかを追うために残す。
+				stream << "DRED AutoBreadcrumbs:\r\n";
+				const D3D12_AUTO_BREADCRUMB_NODE1* node = breadcrumbs.pHeadAutoBreadcrumbNode;
+				int nodeCount = 0;
+				while (node && nodeCount < 8)
+				{
+					const std::string commandListName =
+						node->pCommandListDebugNameA ? node->pCommandListDebugNameA : ToUtf8(node->pCommandListDebugNameW);
+					const std::string commandQueueName =
+						node->pCommandQueueDebugNameA ? node->pCommandQueueDebugNameA : ToUtf8(node->pCommandQueueDebugNameW);
+					const UINT lastCompleted =
+						node->pLastBreadcrumbValue ? *node->pLastBreadcrumbValue : 0;
+					const UINT lastIndex =
+						node->BreadcrumbCount > 0
+						? bsmUtil::Min(lastCompleted, node->BreadcrumbCount - 1)
+						: 0;
+					const D3D12_AUTO_BREADCRUMB_OP lastOp =
+						(node->pCommandHistory && node->BreadcrumbCount > 0)
+						? node->pCommandHistory[lastIndex]
+						: D3D12_AUTO_BREADCRUMB_OP(0);
+
+					stream
+						<< "  Node " << nodeCount
+						<< ": queue=" << (commandQueueName.empty() ? "(unnamed)" : commandQueueName)
+						<< ", list=" << (commandListName.empty() ? "(unnamed)" : commandListName)
+						<< ", completed=" << lastCompleted << "/" << node->BreadcrumbCount
+						<< ", op=" << ToBreadcrumbOpName(lastOp)
+						<< "\r\n";
+
+					node = node->pNext;
+					++nodeCount;
+				}
+				if (node)
+				{
+					stream << "  ...\r\n";
+				}
+			}
+
+			D3D12_DRED_PAGE_FAULT_OUTPUT1 pageFault = {};
+			if (SUCCEEDED(dred->GetPageFaultAllocationOutput1(&pageFault)))
+			{
+				stream
+					<< "DRED PageFaultVA: 0x"
+					<< std::hex << static_cast<unsigned long long>(pageFault.PageFaultVA)
+					<< std::dec << "\r\n";
+				AppendDredAllocationList(
+					stream,
+					"ExistingAllocations",
+					pageFault.pHeadExistingAllocationNode);
+				AppendDredAllocationList(
+					stream,
+					"RecentFreedAllocations",
+					pageFault.pHeadRecentFreedAllocationNode);
+			}
+
+			const std::string text = stream.str();
+			if (!text.empty())
+			{
+				ErrorLogger::Write("BaseDevice::OutputDredData", text);
+			}
+		}
+
+		void EnableDredDiagnostics()
+		{
+			if (!kEnableDredDiagnostics)
+			{
+				return;
+			}
+
+			// Device Removed は再現時の情報が重要なので、ReleaseでもDREDを有効にして原因箇所をログへ残す。
+			ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> settings1;
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&settings1))))
+			{
+				settings1->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				settings1->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				settings1->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				return;
+			}
+
+			ComPtr<ID3D12DeviceRemovedExtendedDataSettings> settings;
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&settings))))
+			{
+				settings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+			}
+		}
 
 		void OutputDeviceRemovedReason(ID3D12Device* device, HRESULT fallback)
 		{
@@ -32,6 +251,7 @@ namespace shooting {
 				"BaseDevice::OutputDeviceRemovedReason",
 				reason,
 				"D3D12 device removed/reset detected.");
+			OutputDredData(device);
 		}
 	}
 
@@ -94,6 +314,7 @@ namespace shooting {
 	void BaseDevice::LoadPipeline()
 	{
 		m_dxgiFactoryFlags = 0;
+		EnableDredDiagnostics();
 
 #if defined(_DEBUG)
 		// デバッグ レイヤーを有効にします (グラフィックス ツールの「オプション機能」が必要です)。.
@@ -147,6 +368,7 @@ namespace shooting {
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // フラグ
 
 		ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+		NAME_D3D12_OBJECT(m_commandQueue);
 
 		// スワップチェーンの作成
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -826,9 +1048,11 @@ namespace shooting {
 			ThrowIfFailed(m_device->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(&m_gpuFrameTimingBeginCommandAllocators[i])));
+			NAME_D3D12_OBJECT_INDEXED(m_gpuFrameTimingBeginCommandAllocators, i);
 			ThrowIfFailed(m_device->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(&m_gpuFrameTimingEndCommandAllocators[i])));
+			NAME_D3D12_OBJECT_INDEXED(m_gpuFrameTimingEndCommandAllocators, i);
 
 			ThrowIfFailed(m_device->CreateCommandList(
 				0,
@@ -836,6 +1060,7 @@ namespace shooting {
 				m_gpuFrameTimingBeginCommandAllocators[i].Get(),
 				nullptr,
 				IID_PPV_ARGS(&m_gpuFrameTimingBeginCommandLists[i])));
+			NAME_D3D12_OBJECT_INDEXED(m_gpuFrameTimingBeginCommandLists, i);
 			ThrowIfFailed(m_gpuFrameTimingBeginCommandLists[i]->Close());
 
 			ThrowIfFailed(m_device->CreateCommandList(
@@ -844,6 +1069,7 @@ namespace shooting {
 				m_gpuFrameTimingEndCommandAllocators[i].Get(),
 				nullptr,
 				IID_PPV_ARGS(&m_gpuFrameTimingEndCommandLists[i])));
+			NAME_D3D12_OBJECT_INDEXED(m_gpuFrameTimingEndCommandLists, i);
 			ThrowIfFailed(m_gpuFrameTimingEndCommandLists[i]->Close());
 
 			m_gpuFrameTimingFrameValid[i] = false;
