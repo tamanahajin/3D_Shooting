@@ -57,6 +57,16 @@ namespace shooting {
 		m_currentBullet = BulletType::Bomb;
 	}
 
+	void Player::AddExperience(int amount)
+	{
+		m_playerLevel.AddExperience(amount);
+	}
+
+	int Player::CalculateGunDamage(int baseDamage) const
+	{
+		return bsmUtil::Max(0, baseDamage + m_playerLevel.GetGunDamageBonus());
+	}
+
 	void Player::UpdateCombat(double elapsedTime, bool hitStopActive)
 	{
 		m_shotCool -= elapsedTime;
@@ -191,7 +201,10 @@ namespace shooting {
 		GameAudio::Instance().PlaySound(GameSoundId::PlayerShot);
 		if (aim.hasHit)
 		{
-			ApplyHitscanDamage(GetThis<GameObject>(), aim.hit, tuning.normalShotDamage);
+			ApplyHitscanDamage(
+				GetThis<GameObject>(),
+				aim.hit,
+				CalculateGunDamage(tuning.normalShotDamage));
 		}
 
 		FaceAttackTarget(aim.aimPoint);

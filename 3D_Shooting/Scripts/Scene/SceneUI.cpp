@@ -529,9 +529,28 @@ namespace shooting {
 				{ 320.0f, 28.0f });
 		}
 
-		// 左下：現在所持している爆弾数
 		if (player)
 		{
+			m_uiManager.AddProgressBar(
+				L"",
+				static_cast<float>(player->GetExperience()),
+				static_cast<float>(player->GetRequiredExperience()),
+				UIAnchor::TopCenter,
+				{ 0.0f, 24.0f },
+				{ 420.0f, 18.0f },
+				D2D1::ColorF(0.12f, 0.52f, 1.0f, 0.95f));
+
+			const std::wstring levelText = L"LV " + std::to_wstring(player->GetLevel());
+			m_uiManager.AddText(
+				levelText,
+				UIAnchor::TopCenter,
+				{ 0.0f, 45.0f },
+				{ 180.0f, 28.0f },
+				UITextAlign::Center,
+				D2D1::ColorF(1.0f, 0.92f, 0.50f, 1.0f),
+				22.0f);
+
+			// 左下：現在所持している爆弾数
 			const std::wstring bombCountText =
 				L"x " + std::to_wstring(player->GetBombAmmo());
 

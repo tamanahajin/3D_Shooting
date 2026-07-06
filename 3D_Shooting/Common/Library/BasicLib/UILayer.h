@@ -35,7 +35,8 @@ namespace shooting {
 			const D2D1_RECT_F& rect,
 			float value,
 			float maxValue,
-			const std::wstring& label = L"");
+			const std::wstring& label = L"",
+			D2D1_COLOR_F fillColor = D2D1::ColorF(0.85f, 0.15f, 0.15f, 0.95f));
 
 		void AddSliderBlock(
 			const D2D1_RECT_F& rect,
@@ -96,6 +97,7 @@ namespace shooting {
 			float value = 0.0f;
 			float maxValue = 1.0f;
 			std::wstring label;
+			D2D1_COLOR_F fillColor = D2D1::ColorF(0.85f, 0.15f, 0.15f, 0.95f);
 		};
 
 		struct SliderBlock

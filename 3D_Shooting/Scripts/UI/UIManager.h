@@ -94,7 +94,8 @@ namespace shooting {
 			float maxValue,
 			UIAnchor anchor,
 			const UIPointF& offset,
-			const UISizeF& size);
+			const UISizeF& size,
+			D2D1_COLOR_F fillColor = D2D1::ColorF(0.85f, 0.15f, 0.15f, 0.95f));
 
 		void AddSlider(
 			const std::wstring& label,
@@ -139,6 +140,7 @@ namespace shooting {
 			UIAnchor anchor;
 			UIPointF offset;
 			UISizeF size;
+			D2D1_COLOR_F fillColor;
 		};
 
 		struct SliderCommand

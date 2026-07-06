@@ -17,6 +17,7 @@ namespace shooting {
 	{
 		int maxHp = 3;
 		int contactDamage = 1;
+		int experienceReward = 1;
 		float moveSpeed = 5.0f;
 		Vec3 modelScale = Vec3(0.01f, 0.01f, 0.01f);
 		float collisionRadius = 0.2f;

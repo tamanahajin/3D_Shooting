@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Libs">
@@ -83,6 +83,9 @@
     <Filter Include="Scripts\Headers\Item">
       <UniqueIdentifier>{f5ddd8bd-f317-4cd9-a511-af9ad51d63af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts\Headers\Experience">
+      <UniqueIdentifier>{2d6d5bb4-09b9-4d61-9a5f-7d960b1f08f2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Scripts\Headers\Player">
       <UniqueIdentifier>{49a54313-b085-4f11-9307-a68b35de4a5d}</UniqueIdentifier>
     </Filter>
@@ -112,6 +115,9 @@
     </Filter>
     <Filter Include="Scripts\Sources\Item">
       <UniqueIdentifier>{97422be1-ad40-4216-8a2b-c6ab0bcfcb6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sources\Experience">
+      <UniqueIdentifier>{34a325f2-b04a-4d35-9896-9e6800e4600b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Scripts\Sources\Player">
       <UniqueIdentifier>{78139eea-13f5-473d-81d0-58dbf9218e84}</UniqueIdentifier>
@@ -346,6 +352,12 @@
     <ClCompile Include="Scripts\Item\ItemSpawner.cpp">
       <Filter>Scripts\Sources\Item</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Experience\ExperienceOrb.cpp">
+      <Filter>Scripts\Sources\Experience</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Experience\ExperienceOrbSpawner.cpp">
+      <Filter>Scripts\Sources\Experience</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Camera\MainCamera.cpp">
       <Filter>Scripts\Sources\Camera</Filter>
     </ClCompile>
@@ -356,6 +368,9 @@
       <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Player\PlayerCombat.cpp">
+      <Filter>Scripts\Sources\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Player\PlayerLevel.cpp">
       <Filter>Scripts\Sources\Player</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp">
@@ -436,6 +451,9 @@
       <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Player\PlayerAimResolver.h">
+      <Filter>Scripts\Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Player\PlayerLevel.h">
       <Filter>Scripts\Headers\Player</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Player\PlayerShotEffects.h">
@@ -758,6 +776,12 @@
     </ClInclude>
     <ClInclude Include="Scripts\Item\ItemSpawner.h">
       <Filter>Scripts\Headers\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Experience\ExperienceOrb.h">
+      <Filter>Scripts\Headers\Experience</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Experience\ExperienceOrbSpawner.h">
+      <Filter>Scripts\Headers\Experience</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Combat\HitStopController.h">
       <Filter>Scripts\Headers\Combat</Filter>

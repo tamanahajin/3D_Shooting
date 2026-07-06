@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -109,10 +109,13 @@
     <ClCompile Include="Scripts\Item\Item.cpp" />
     <ClCompile Include="Scripts\Item\ItemFactory.cpp" />
     <ClCompile Include="Scripts\Item\ItemSpawner.cpp" />
+    <ClCompile Include="Scripts\Experience\ExperienceOrb.cpp" />
+    <ClCompile Include="Scripts\Experience\ExperienceOrbSpawner.cpp" />
     <ClCompile Include="Scripts\Camera\MainCamera.cpp" />
     <ClCompile Include="Scripts\Player\Player.cpp" />
     <ClCompile Include="Scripts\Player\PlayerAimResolver.cpp" />
     <ClCompile Include="Scripts\Player\PlayerCombat.cpp" />
+    <ClCompile Include="Scripts\Player\PlayerLevel.cpp" />
     <ClCompile Include="Scripts\Player\PlayerShotEffects.cpp" />
     <ClCompile Include="Scripts\Player\PlayerTuning.cpp" />
     <ClCompile Include="Scripts\Player\PlayerWeapon.cpp" />
@@ -230,10 +233,13 @@
     <ClInclude Include="Scripts\Item\Item.h" />
     <ClInclude Include="Scripts\Item\ItemFactory.h" />
     <ClInclude Include="Scripts\Item\ItemSpawner.h" />
+    <ClInclude Include="Scripts\Experience\ExperienceOrb.h" />
+    <ClInclude Include="Scripts\Experience\ExperienceOrbSpawner.h" />
     <ClInclude Include="Scripts\Bullet\IBulletPool.h" />
     <ClInclude Include="Scripts\Camera\MainCamera.h" />
     <ClInclude Include="Scripts\Player\Player.h" />
     <ClInclude Include="Scripts\Player\PlayerAimResolver.h" />
+    <ClInclude Include="Scripts\Player\PlayerLevel.h" />
     <ClInclude Include="Scripts\Player\PlayerShotEffects.h" />
     <ClInclude Include="Scripts\Player\PlayerTuning.h" />
     <ClInclude Include="Scripts\Player\PlayerWeapon.h" />

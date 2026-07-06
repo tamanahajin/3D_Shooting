@@ -20,6 +20,21 @@
   "damage": {
     "invincibleTime": 0.3
   },
+  "level": {
+    "initialLevel": 1,
+    "requiredExperienceBase": 8,
+    "requiredExperienceIncrease": 4,
+    "gunDamageBonusPerLevel": 1,
+    "experienceOrbPickupRadius": 1.0,
+    "experienceOrbCollectRadius": 0.35,
+    "experienceOrbAttractSpeed": 12.0,
+    "experienceOrbAttractHeight": 0.65,
+    "experienceOrbFloatAmplitude": 0.08,
+    "experienceOrbFloatSpeed": 3.0,
+    "experienceOrbScale": 0.085,
+    "experienceOrbDropHeightOffset": 0.35,
+    "experienceOrbPoolInitialSize": 128
+  },
   "death": {
     "hitStopDuration": 0.18,
     "hitStopTimeScale": 0.03,

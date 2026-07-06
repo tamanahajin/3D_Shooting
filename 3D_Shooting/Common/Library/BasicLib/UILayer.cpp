@@ -186,13 +186,15 @@ namespace shooting {
 		const D2D1_RECT_F& rect,
 		float value,
 		float maxValue,
-		const std::wstring& label)
+		const std::wstring& label,
+		D2D1_COLOR_F fillColor)
 	{
 		ProgressBarBlock block;
 		block.layout = rect;
 		block.value = value;
 		block.maxValue = (maxValue > 0.0f) ? maxValue : 1.0f;
 		block.label = label;
+		block.fillColor = fillColor;
 		m_progressBars.push_back(block);
 	}
 
@@ -281,8 +283,7 @@ namespace shooting {
 			m_textBrush->SetColor(D2D1::ColorF(0.12f, 0.12f, 0.12f, 0.80f));
 			m_d2dDeviceContext->FillRectangle(r, m_textBrush.Get());
 
-			// HP本体
-			m_textBrush->SetColor(D2D1::ColorF(0.85f, 0.15f, 0.15f, 0.95f));
+			m_textBrush->SetColor(bar.fillColor);
 			m_d2dDeviceContext->FillRectangle(fillRect, m_textBrush.Get());
 
 			// 枠

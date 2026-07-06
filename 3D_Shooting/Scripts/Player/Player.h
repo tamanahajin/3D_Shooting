@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "Project.h"
 #include "../Bullet/BulletType.h"
+#include "PlayerLevel.h"
+#include "PlayerTuning.h"
 
 namespace shooting {
 
@@ -72,6 +74,7 @@ namespace shooting {
 		// 現在の弾タイプ
 		BulletType m_currentBullet = BulletType::Default;
 		int m_bombAmmo = 0;
+		PlayerLevel m_playerLevel;
 
 		std::shared_ptr<BombAimPreview> m_bombPreview;
 
@@ -107,6 +110,13 @@ namespace shooting {
 		void AddBombAmmo(int amount);
 		int GetBombAmmo() const { return m_bombAmmo; }
 		bool IsBombMode() const { return m_currentBullet == BulletType::Bomb && m_bombAmmo > 0; }
+		void AddExperience(int amount);
+		int GetLevel() const { return m_playerLevel.GetLevel(); }
+		int GetExperience() const { return m_playerLevel.GetExperience(); }
+		int GetRequiredExperience() const { return m_playerLevel.GetRequiredExperience(); }
+		float GetExperienceRatio() const { return m_playerLevel.GetExperienceRatio(); }
+		float GetExperienceOrbPickupRadius() const { return GetPlayerTuning().experienceOrbPickupRadius; }
+		int CalculateGunDamage(int baseDamage) const;
 
 		bool IsDead() const { return m_isDead; }
 		bool IsDeathAnimationFinished() const { return m_deathAnimFinished; }

@@ -168,6 +168,7 @@ namespace shooting {
 			if (!ReadNumber(*wave, "intervalSeconds", "wave", settings.intervalSeconds, outError) ||
 				!ReadInteger(*wave, "firstWaveEnemyCount", "wave", settings.firstWaveEnemyCount, outError) ||
 				!ReadInteger(*wave, "addEnemyCountPerWave", "wave", settings.addEnemyCountPerWave, outError) ||
+				!ReadInteger(*wave, "addMaxHpPerWave", "wave", settings.addMaxHpPerWave, outError) ||
 				!ReadInteger(*wave, "speedUpEveryWaves", "wave", settings.speedUpEveryWaves, outError) ||
 				!ReadFloat(*wave, "speedMultiplierAddPerStep", "wave", settings.speedMultiplierAddPerStep, outError) ||
 				!ReadFloat(*wave, "spawnMinDistance", "wave", settings.spawnMinDistance, outError) ||
@@ -182,6 +183,7 @@ namespace shooting {
 			if (settings.intervalSeconds < 0.0 ||
 				settings.firstWaveEnemyCount < 0 ||
 				settings.addEnemyCountPerWave < 0 ||
+				settings.addMaxHpPerWave < 0 ||
 				settings.speedUpEveryWaves < 0 ||
 				settings.speedMultiplierAddPerStep < 0.0f ||
 				settings.spawnMinDistance < 0.0f ||
@@ -189,7 +191,7 @@ namespace shooting {
 				settings.minSpawnSpacing < 0.0f ||
 				settings.maxSpawnAttempts <= 0)
 			{
-				outError = "wave設定の範囲が不正です。距離、敵数、倍率は0以上、"
+				outError = "wave設定の範囲が不正です。距離、敵数、HP増加量、倍率は0以上、"
 					"spawnMaxDistanceはspawnMinDistance以上、maxSpawnAttemptsは1以上にしてください。";
 				return false;
 			}
@@ -207,6 +209,7 @@ namespace shooting {
 			EnemyStatus status;
 			if (!ReadInteger(value, "maxHp", valuePath, status.maxHp, outError) ||
 				!ReadInteger(value, "contactDamage", valuePath, status.contactDamage, outError) ||
+				!ReadInteger(value, "experienceReward", valuePath, status.experienceReward, outError) ||
 				!ReadFloat(value, "moveSpeed", valuePath, status.moveSpeed, outError) ||
 				!ReadVec3(value, "modelScale", valuePath, status.modelScale, outError) ||
 				!ReadFloat(value, "collisionRadius", valuePath, status.collisionRadius, outError) ||
@@ -224,6 +227,7 @@ namespace shooting {
 
 			if (status.maxHp <= 0 ||
 				status.contactDamage < 0 ||
+				status.experienceReward < 0 ||
 				status.moveSpeed < 0.0f ||
 				status.modelScale.x <= 0.0f ||
 				status.modelScale.y <= 0.0f ||

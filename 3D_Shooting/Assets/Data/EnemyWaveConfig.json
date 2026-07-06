@@ -3,6 +3,7 @@
     "intervalSeconds": 15.0,
     "firstWaveEnemyCount": 5,
     "addEnemyCountPerWave": 1,
+    "addMaxHpPerWave": 1,
     "speedUpEveryWaves": 5,
     "speedMultiplierAddPerStep": 0.08,
     "spawnMinDistance": 5.0,
@@ -15,6 +16,7 @@
     "Default": {
       "maxHp": 3,
       "contactDamage": 1,
+      "experienceReward": 1,
       "moveSpeed": 5.0,
       "modelScale": [0.01, 0.01, 0.01],
       "collisionRadius": 0.2,

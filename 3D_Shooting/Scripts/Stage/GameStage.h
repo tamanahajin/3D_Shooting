@@ -8,9 +8,10 @@
 
 namespace shooting {
 
-	class EnemyController;
-	class EnemyIndividualRenderer;
-	class EnemyInstancedRenderer;
+class EnemyController;
+class EnemyIndividualRenderer;
+class EnemyInstancedRenderer;
+class ExperienceOrbSpawner;
 
 	class GameStage : public Stage, public EnemySpawnPositionResolver, public ItemSpawnPositionResolver
 	{
@@ -99,6 +100,7 @@ namespace shooting {
 
 		WaveController m_waveController;
 		std::unique_ptr<ItemSpawner> m_itemSpawner;
+		std::shared_ptr<ExperienceOrbSpawner> m_experienceOrbSpawner;
 		std::vector<DamageNumberEntry> m_damageNumbers;
 		std::vector<SlopeCollisionEntry> m_slopeCollisions;
 		std::vector<PlatformSurfaceEntry> m_platformSurfaces;
@@ -188,6 +190,7 @@ namespace shooting {
 		void RecordExplosionKills(int killCount);
 
 		void SpawnDamageNumber(const Vec3& position, int damage);
+		void SpawnExperienceOrb(const Vec3& position, int experienceAmount);
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }
 		void RequestHitStop(double duration, double timeScale);
 		double GetGameDeltaTime(double rawDeltaTime) const;

@@ -255,6 +255,36 @@ namespace shooting {
 			return ReadOptionalNumber(*damage, "invincibleTime", "damage", tuning.damageInvincibleTime, outError);
 		}
 
+		bool ApplyLevelTuning(
+			const JsonValue& root,
+			PlayerTuning& tuning,
+			std::string& outError)
+		{
+			const JsonValue* level = nullptr;
+			if (!TryFindObject(root, "level", "root", level, outError))
+			{
+				return false;
+			}
+			if (!level)
+			{
+				return true;
+			}
+
+			return ReadOptionalInteger(*level, "initialLevel", "level", tuning.initialLevel, outError) &&
+				ReadOptionalInteger(*level, "requiredExperienceBase", "level", tuning.requiredExperienceBase, outError) &&
+				ReadOptionalInteger(*level, "requiredExperienceIncrease", "level", tuning.requiredExperienceIncrease, outError) &&
+				ReadOptionalInteger(*level, "gunDamageBonusPerLevel", "level", tuning.gunDamageBonusPerLevel, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbPickupRadius", "level", tuning.experienceOrbPickupRadius, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbCollectRadius", "level", tuning.experienceOrbCollectRadius, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbAttractSpeed", "level", tuning.experienceOrbAttractSpeed, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbAttractHeight", "level", tuning.experienceOrbAttractHeight, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbFloatAmplitude", "level", tuning.experienceOrbFloatAmplitude, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbFloatSpeed", "level", tuning.experienceOrbFloatSpeed, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbScale", "level", tuning.experienceOrbScale, outError) &&
+				ReadOptionalFloat(*level, "experienceOrbDropHeightOffset", "level", tuning.experienceOrbDropHeightOffset, outError) &&
+				ReadOptionalInteger(*level, "experienceOrbPoolInitialSize", "level", tuning.experienceOrbPoolInitialSize, outError);
+		}
+
 		bool ApplyDeathTuning(
 			const JsonValue& root,
 			PlayerTuning& tuning,
@@ -314,6 +344,19 @@ namespace shooting {
 				tuning.collisionCapsuleSegmentHeight <= 0.0f ||
 				tuning.cameraTargetHeight < 0.0f ||
 				tuning.damageInvincibleTime < 0.0 ||
+				tuning.initialLevel <= 0 ||
+				tuning.requiredExperienceBase <= 0 ||
+				tuning.requiredExperienceIncrease < 0 ||
+				tuning.gunDamageBonusPerLevel < 0 ||
+				tuning.experienceOrbPickupRadius <= 0.0f ||
+				tuning.experienceOrbCollectRadius <= 0.0f ||
+				tuning.experienceOrbAttractSpeed <= 0.0f ||
+				tuning.experienceOrbAttractHeight < 0.0f ||
+				tuning.experienceOrbFloatAmplitude < 0.0f ||
+				tuning.experienceOrbFloatSpeed < 0.0f ||
+				tuning.experienceOrbScale <= 0.0f ||
+				tuning.experienceOrbDropHeightOffset < 0.0f ||
+				tuning.experienceOrbPoolInitialSize < 0 ||
 				tuning.deathHitStopDuration < 0.0 ||
 				tuning.deathHitStopTimeScale < 0.0 ||
 				tuning.deathSoundDelay < 0.0 ||
@@ -373,6 +416,7 @@ namespace shooting {
 				!ApplyCollisionTuning(root, tuning, error) ||
 				!ApplyCameraTuning(root, tuning, error) ||
 				!ApplyDamageTuning(root, tuning, error) ||
+				!ApplyLevelTuning(root, tuning, error) ||
 				!ApplyDeathTuning(root, tuning, error) ||
 				!ApplySpawnIntroTuning(root, tuning, error) ||
 				!ValidatePlayerTuning(tuning, error))

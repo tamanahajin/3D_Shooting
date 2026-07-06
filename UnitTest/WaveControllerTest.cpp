@@ -41,5 +41,14 @@ namespace ShootingTests
 			Assert::AreEqual(1.0f, wave.GetEnemySpeedMultiplierForWave(4));
 			Assert::AreEqual(1.08f, wave.GetEnemySpeedMultiplierForWave(5));
 		}
+
+		TEST_METHOD(EnemyMaxHpIncreasesEveryWave)
+		{
+			WaveController wave;
+
+			Assert::AreEqual(3, wave.GetEnemyMaxHpForWave(3, 1));
+			Assert::AreEqual(4, wave.GetEnemyMaxHpForWave(3, 2));
+			Assert::AreEqual(7, wave.GetEnemyMaxHpForWave(3, 5));
+		}
 	};
 }

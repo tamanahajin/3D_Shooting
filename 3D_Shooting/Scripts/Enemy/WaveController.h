@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "DebugSettings.h"
 #include "EnemySpawner.h"
+#include <limits>
 #include <memory>
 #include <map>
 
@@ -22,6 +23,7 @@ namespace shooting {
 		double intervalSeconds = 15.0;
 		int firstWaveEnemyCount = 5;
 		int addEnemyCountPerWave = 1;
+		int addMaxHpPerWave = 1;
 		int speedUpEveryWaves = 5;
 		float speedMultiplierAddPerStep = 0.08f;
 		float spawnMinDistance = 5.0f;
@@ -51,6 +53,22 @@ namespace shooting {
 		bool IsValid() const;
 		void SetEnemyStatus(EnemyKind kind, const EnemyStatus& status);
 		EnemyStatus GetEnemyStatus(EnemyKind kind) const;
+		EnemyStatus GetEnemyStatusForWave(EnemyKind kind, int wave) const;
+		int GetEnemyMaxHpForWave(int baseMaxHp, int wave) const
+		{
+			const int normalizedBaseMaxHp = baseMaxHp > 0 ? baseMaxHp : 1;
+			if (wave <= 1 || m_settings.addMaxHpPerWave <= 0)
+			{
+				return normalizedBaseMaxHp;
+			}
+
+			const long long hpBonus =
+				static_cast<long long>(wave - 1) * static_cast<long long>(m_settings.addMaxHpPerWave);
+			const long long scaledMaxHp = static_cast<long long>(normalizedBaseMaxHp) + hpBonus;
+			return scaledMaxHp > (std::numeric_limits<int>::max)()
+				? (std::numeric_limits<int>::max)()
+				: static_cast<int>(scaledMaxHp);
+		}
 
 		/*!
 		@brief ウェーブタイマーと分割生成キューを進める

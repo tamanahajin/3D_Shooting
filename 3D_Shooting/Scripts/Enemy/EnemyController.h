@@ -74,6 +74,7 @@ namespace shooting {
 			bool isGround = false;
 			bool isDead = false;
 			bool deathAnimFinished = false;
+			bool dropExperienceOnDeath = false;
 
 			// 致死ダメージ後の離陸待ちと着地待ちを区別し、その場で死亡することを防ぐ。
 			LandingDeathState landingDeathState = LandingDeathState::None;

@@ -33,6 +33,14 @@ namespace shooting {
 		}
 	}
 
+	void GameStage::SpawnExperienceOrb(const Vec3& position, int experienceAmount)
+	{
+		if (m_experienceOrbSpawner)
+		{
+			m_experienceOrbSpawner->Spawn(position, experienceAmount);
+		}
+	}
+
 	std::shared_ptr<EnemyController> GameStage::GetEnemyController() const
 	{
 		auto controllerObject = GetSharedGameObject(L"EnemyController", false);
@@ -325,6 +333,9 @@ namespace shooting {
 		param.position = Vec3(0.0f, 0.525f, 0.0f);
 		auto player = AddGameObject<Player>(param);
 		AddGameObject<PlayerWeapon>(player);
+		// 経験値オーブは敵撃破時に頻繁に出るため、専用スポナーで再利用する。
+		m_experienceOrbSpawner = AddGameObject<ExperienceOrbSpawner>();
+		m_experienceOrbSpawner->Prewarm(GetPlayerTuning().experienceOrbPoolInitialSize);
 		// 敵
 		auto enemyController = AddGameObject<EnemyController>();
 		m_waveController.SetEnemySpawnPositionResolver(GetThis<GameStage>());

@@ -83,7 +83,8 @@ namespace shooting {
 		float maxValue,
 		UIAnchor anchor,
 		const UIPointF& offset,
-		const UISizeF& size)
+		const UISizeF& size,
+		D2D1_COLOR_F fillColor)
 	{
 		ProgressBarCommand cmd;
 		cmd.label = label;
@@ -92,6 +93,7 @@ namespace shooting {
 		cmd.anchor = anchor;
 		cmd.offset = offset;
 		cmd.size = size;
+		cmd.fillColor = fillColor;
 		m_bars.push_back(cmd);
 	}
 
@@ -303,7 +305,8 @@ namespace shooting {
 				ResolveRect(screenW, screenH, bar.anchor, bar.offset, bar.size),
 				bar.value,
 				bar.maxValue,
-				bar.label);
+				bar.label,
+				bar.fillColor);
 		}
 
 		for (const auto& slider : m_sliders)

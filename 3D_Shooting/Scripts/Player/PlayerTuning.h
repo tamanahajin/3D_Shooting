@@ -23,6 +23,20 @@ namespace shooting {
 		// 接触中に衝突開始が再発しても連続被弾しないよう、被弾後だけ再ダメージを拒否する時間。
 		double damageInvincibleTime = 0.8;
 
+		int initialLevel = 1;
+		int requiredExperienceBase = 8;
+		int requiredExperienceIncrease = 4;
+		int gunDamageBonusPerLevel = 1;
+		float experienceOrbPickupRadius = 3.2f;
+		float experienceOrbCollectRadius = 0.35f;
+		float experienceOrbAttractSpeed = 12.0f;
+		float experienceOrbAttractHeight = 0.65f;
+		float experienceOrbFloatAmplitude = 0.08f;
+		float experienceOrbFloatSpeed = 3.0f;
+		float experienceOrbScale = 0.085f;
+		float experienceOrbDropHeightOffset = 0.35f;
+		int experienceOrbPoolInitialSize = 128;
+
 		double deathHitStopDuration = 0.18;
 		double deathHitStopTimeScale = 0.03;
 		double deathSoundDelay = 1.1;

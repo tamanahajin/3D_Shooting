@@ -56,6 +56,18 @@ namespace shooting {
 		return EnemyStatus();
 	}
 
+	EnemyStatus WaveController::GetEnemyStatusForWave(EnemyKind kind, int wave) const
+	{
+		EnemyStatus status = GetEnemyStatus(kind);
+		if (wave <= 1 || m_settings.addMaxHpPerWave <= 0)
+		{
+			return status;
+		}
+
+		status.maxHp = GetEnemyMaxHpForWave(status.maxHp, wave);
+		return status;
+	}
+
 	void WaveController::Update(double elapsedTime, const Vec3& spawnCenter)
 	{
 		ProcessPendingEnemySpawns();
@@ -96,6 +108,7 @@ namespace shooting {
 		m_waveTimer = m_settings.intervalSeconds;
 
 		EnemyFactory::SpawnBatchDesc spawnDesc;
+		spawnDesc.kind = EnemyKind::Default;
 		spawnDesc.count = GetEnemyCountForWave(m_currentWave);
 		spawnDesc.center = spawnCenter;
 		spawnDesc.settings.minDistance = m_settings.spawnMinDistance;
@@ -103,6 +116,8 @@ namespace shooting {
 		spawnDesc.settings.spawnY = spawnCenter.y;
 		spawnDesc.settings.minSpacing = m_settings.minSpawnSpacing;
 		spawnDesc.settings.maxAttempts = m_settings.maxSpawnAttempts;
+		spawnDesc.overrideStatus = true;
+		spawnDesc.status = GetEnemyStatusForWave(spawnDesc.kind, m_currentWave);
 
 		controller->SetMoveSpeedMultiplier(GetAppliedEnemySpeedMultiplierForWave(m_currentWave));
 		QueueEnemy(spawnDesc);
