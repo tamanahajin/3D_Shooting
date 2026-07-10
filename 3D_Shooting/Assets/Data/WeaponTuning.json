@@ -19,7 +19,7 @@
     "fuseTime": 3.0,
     "shotCooldown": 1.0,
     "explosionDuration": 0.08,
-    "explosionDamage": 10,
+    "explosionDamage": 99,
     "arcHeightBase": 1.5,
     "arcHeightPerDistXZ": 0.1,
     "gravity": [0.0, -20.0, 0.0],
