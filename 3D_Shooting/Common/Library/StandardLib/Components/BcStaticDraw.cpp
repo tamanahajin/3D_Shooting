@@ -222,7 +222,7 @@ namespace shooting {
 
 				Col4 diffuse = m_DiffuseColor;
 				Col4 alphaVector = (Col4)XMVectorReplicate(diffuse.w);
-				Col4 emissiveColor = Col4(0.0f);
+				Col4 emissiveColor = m_EmissiveColor;
 				Col4 ambientLightColor = (Col4)myLightSet->GetAmbient();
 
 				// emissive と ambientとライトをマージする

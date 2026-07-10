@@ -25,6 +25,7 @@ namespace shooting {
 		XMFLOAT4 m_FogColor;
 		XMFLOAT3 m_FogVector;
 		Col4 m_DiffuseColor = Col4(1.0f);
+		Col4 m_EmissiveColor = Col4(0.0f);
 		bool m_LightingEnabled = true;
 		std::vector<std::shared_ptr<BaseMaterial>> m_BaseMaterialVec;
 
@@ -52,6 +53,14 @@ namespace shooting {
 		const Col4& GetDiffuseColor() const
 		{
 			return m_DiffuseColor;
+		}
+		void SetEmissiveColor(const Col4& color)
+		{
+			m_EmissiveColor = color;
+		}
+		const Col4& GetEmissiveColor() const
+		{
+			return m_EmissiveColor;
 		}
 		void SetLightingEnabled(bool enabled)
 		{

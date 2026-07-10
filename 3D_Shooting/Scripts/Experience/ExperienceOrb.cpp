@@ -6,6 +6,7 @@ namespace shooting {
 	namespace
 	{
 		const Col4 kExperienceOrbColor(0.0f, 0.28f, 1.0f, 1.0f);
+		const Col4 kExperienceOrbEmissiveColor(0.0f, 0.18f, 0.9f, 1.0f);
 		const Vec3 kPoolPosition(0.0f, -1000.0f, 0.0f);
 	}
 
@@ -23,11 +24,13 @@ namespace shooting {
 		AddTag(L"ExperienceOrb");
 		SetShadowActive(false);
 
-		auto draw = AddComponent<WaveEffectDraw>();
+		auto draw = AddComponent<BcPNTStaticDraw>();
 		draw->AddBaseMesh(L"DEFAULT_SPHERE");
-		draw->SetColor(kExperienceOrbColor);
-		draw->SetWave(0.0f, 1.0f, 0.0f);
-		draw->SetEdgeMask(0.0f, 1.0f);
+		draw->SetDiffuseColor(kExperienceOrbColor);
+		draw->SetEmissiveColor(kExperienceOrbEmissiveColor);
+		draw->SetLightingEnabled(true);
+		draw->SetFogEnabled(true);
+		draw->SetOwnShadowActive(false);
 
 		DeactivateForPool();
 	}
