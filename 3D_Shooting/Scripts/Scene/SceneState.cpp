@@ -56,6 +56,7 @@ namespace shooting {
 		m_lastSurvivalTime = 0.0;
 		m_lastDefeatedEnemyCount = 0;
 		m_lastReachedWave = 0;
+		m_lastPlayerLevel = 1;
 		m_lastTotalDamageDealt = 0;
 		m_lastBestExplosionKills = 0;
 		m_gameState = GameState::Playing;

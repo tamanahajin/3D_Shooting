@@ -379,14 +379,15 @@ namespace shooting {
 					28.0f);
 			};
 
-			addResultRow(L"総撃破数", std::to_wstring(m_lastDefeatedEnemyCount), -42.0f);
-			addResultRow(L"到達ウェーブ", std::to_wstring(m_lastReachedWave), 4.0f);
-			addResultRow(L"与えた総ダメージ", std::to_wstring(m_lastTotalDamageDealt), 50.0f);
+			addResultRow(L"総撃破数", std::to_wstring(m_lastDefeatedEnemyCount), -48.0f);
+			addResultRow(L"到達ウェーブ", std::to_wstring(m_lastReachedWave), -10.0f);
+			addResultRow(L"プレイヤーレベル", std::to_wstring(m_lastPlayerLevel), 28.0f);
+			addResultRow(L"与えた総ダメージ", std::to_wstring(m_lastTotalDamageDealt), 66.0f);
 
 			m_uiManager.AddText(
 				L"BEST EXPLOSION",
 				UIAnchor::Center,
-				{ 0.0f, 108.0f },
+				{ 0.0f, 118.0f },
 				{ 460.0f, 36.0f },
 				UITextAlign::Center,
 				white,
@@ -400,7 +401,7 @@ namespace shooting {
 			m_uiManager.AddText(
 				bestExplosionText,
 				UIAnchor::Center,
-				{ 0.0f, 145.0f },
+				{ 0.0f, 153.0f },
 				{ 500.0f, 48.0f },
 				UITextAlign::Center,
 				yellow,

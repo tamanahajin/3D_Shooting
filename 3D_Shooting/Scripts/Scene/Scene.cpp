@@ -754,6 +754,7 @@ namespace shooting {
 					m_lastSurvivalTime = gameStage->GetSurvivalTime();
 					m_lastDefeatedEnemyCount = gameStage->GetDefeatedEnemyCount();
 					m_lastReachedWave = gameStage->GetCurrentWave();
+					m_lastPlayerLevel = player->GetLevel();
 					m_lastTotalDamageDealt = gameStage->GetTotalDamageDealt();
 					m_lastBestExplosionKills = gameStage->GetBestExplosionKills();
 					m_gameState = GameState::Result;

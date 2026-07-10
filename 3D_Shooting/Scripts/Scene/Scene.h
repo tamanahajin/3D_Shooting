@@ -32,6 +32,7 @@ namespace shooting {
 		double m_lastSurvivalTime = 0.0;
 		int m_lastDefeatedEnemyCount = 0;
 		int m_lastReachedWave = 0;
+		int m_lastPlayerLevel = 1;
 		long long m_lastTotalDamageDealt = 0;
 		int m_lastBestExplosionKills = 0;
 		int m_titleMenuIndex = 0;
