@@ -144,9 +144,16 @@ namespace shooting {
 
 		if (enemy.hp <= 0)
 		{
-			enemy.dropExperienceOnDeath = true;
 			if (info.m_DelayDeathUntilLanding)
 			{
+				// 爆弾撃破後も敵本体は吹っ飛ばすため、経験値だけは移動前の位置に先に落とす。
+				if (enemy.position.y >= kFallDeathY)
+				{
+					if (auto gameStage = m_gameStage.lock())
+					{
+						gameStage->SpawnExperienceOrb(enemy.position, enemy.status.experienceReward);
+					}
+				}
 				// 爆弾の致死ダメージは即死亡にせず、吹っ飛んだ後の接地で死亡させる。
 				enemy.hp = 1;
 				enemy.landingDeathState = LandingDeathState::WaitingForAirborne;
@@ -154,6 +161,7 @@ namespace shooting {
 				return true;
 			}
 
+			enemy.dropExperienceOnDeath = true;
 			KillEnemy(enemy);
 			return true;
 		}
