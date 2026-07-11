@@ -24,7 +24,6 @@ https://github.com/user-attachments/assets/c555f9e1-e7af-41cf-a216-cf6c2c06bd4a
 - グラフィックスAPI: DirectX 12
 - 開発言語: C++
 - 開発環境: Visual Studio 2022
-- 開発支援: Codex ※設計・実装内容は自分で説明できるよう整理
 - ベースフレームワーク: [yasyamanoi/BaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)
 
 本作は`BaseCrossDx12`をベースに、ゲームシステム、敵の配列管理、インスタンシング描画、ステージ生成、デバッグツールなどを追加・拡張して開発しています。
@@ -227,11 +226,5 @@ CSVは実行ファイルと同じ階層の`BenchmarkResults`ディレクトリ�
 BaseCrossDx12、DirectXTex、PhysX、Assimp、Dear ImGuiなどの第三者ソフトウェアには、それぞれのライセンスが適用されます。著作権表示とライセンス全文は[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)を参照してください。
 
 第三者ソフトウェアを除く本作独自のソースコード、モデル、画像、音声その他の素材には、現時点で利用ライセンスを設定していません。明示的な許諾がない限り、これらの再利用・再配布はできません。
-
-## 謝辞
-
-本作の開発には、[yasyamanoi氏のBaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)をベースフレームワークとして使用しています。
-
-## Author
 
 [tamanahajin](https://github.com/tamanahajin)
