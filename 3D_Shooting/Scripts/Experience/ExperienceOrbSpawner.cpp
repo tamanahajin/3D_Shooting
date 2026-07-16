@@ -61,7 +61,7 @@ namespace shooting {
 		return orb;
 	}
 
-	void ExperienceOrbSpawner::Spawn(const Vec3& position, int experienceAmount)
+	void ExperienceOrbSpawner::Spawn(const Vec3& position, int experienceAmount, const Quat& rotation)
 	{
 		if (experienceAmount <= 0)
 		{
@@ -76,7 +76,7 @@ namespace shooting {
 
 		Vec3 spawnPosition = position;
 		spawnPosition.y += GetPlayerTuning().experienceOrbDropHeightOffset;
-		orb->Activate(spawnPosition, experienceAmount);
+		orb->Activate(spawnPosition, experienceAmount, rotation);
 	}
 
 	void ExperienceOrbSpawner::ReleaseOrb(const std::shared_ptr<ExperienceOrb>& orb)

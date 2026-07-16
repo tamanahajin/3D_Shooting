@@ -33,11 +33,11 @@ namespace shooting {
 		}
 	}
 
-	void GameStage::SpawnExperienceOrb(const Vec3& position, int experienceAmount)
+	void GameStage::SpawnExperienceOrb(const Vec3& position, int experienceAmount, const Quat& rotation)
 	{
 		if (m_experienceOrbSpawner)
 		{
-			m_experienceOrbSpawner->Spawn(position, experienceAmount);
+			m_experienceOrbSpawner->Spawn(position, experienceAmount, rotation);
 		}
 	}
 

@@ -10,12 +10,14 @@ namespace shooting {
 
 	class ExperienceOrbSpawner;
 	class Player;
+	class BcPNTStaticDraw;
 
 	class ExperienceOrb : public GameObject
 	{
 	private:
 		std::weak_ptr<ExperienceOrbSpawner> m_spawner;
 		std::weak_ptr<Player> m_player;
+		std::weak_ptr<BcPNTStaticDraw> m_draw;
 		Vec3 m_basePosition = Vec3(0.0f, 0.0f, 0.0f);
 		int m_experienceAmount = 0;
 		double m_time = 0.0;
@@ -34,7 +36,7 @@ namespace shooting {
 		virtual void OnCreate() override;
 		virtual void OnUpdate(double elapsedTime) override;
 
-		void Activate(const Vec3& position, int experienceAmount);
+		void Activate(const Vec3& position, int experienceAmount, const Quat& rotation);
 		void DeactivateForPool();
 		bool IsActiveOrb() const { return m_active; }
 	};

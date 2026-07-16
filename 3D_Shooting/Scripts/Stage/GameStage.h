@@ -190,7 +190,7 @@ class ExperienceOrbSpawner;
 		void RecordExplosionKills(int killCount);
 
 		void SpawnDamageNumber(const Vec3& position, int damage);
-		void SpawnExperienceOrb(const Vec3& position, int experienceAmount);
+		void SpawnExperienceOrb(const Vec3& position, int experienceAmount, const Quat& rotation);
 		const std::vector<DamageNumberEntry>& GetDamageNumbers() const { return m_damageNumbers; }
 		void RequestHitStop(double duration, double timeScale);
 		double GetGameDeltaTime(double rawDeltaTime) const;

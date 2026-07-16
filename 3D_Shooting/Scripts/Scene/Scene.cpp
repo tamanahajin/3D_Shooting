@@ -577,6 +577,25 @@ namespace shooting {
 			}
 			RegisterModelMesh(L"HP_RECOVERY_ITEM_MODEL", heartMeshes);
 		}
+		// 経験値オーブ
+		{
+			auto crystalParts = BaseMesh::CreateModelMeshWithMaterial(
+				pCommandList,
+				App::GetRelativeAssetsDir(),
+				L"Model/crystal.fbx"
+			);
+
+			std::vector<std::shared_ptr<BaseMesh>> crystalMeshes;
+			for (size_t i = 0; i < crystalParts.size(); ++i)
+			{
+				crystalMeshes.push_back(crystalParts[i].mesh);
+				RegisterMaterial(
+					L"EXPERIENCE_ORB_MAT_" + std::to_wstring(i),
+					crystalParts[i].material
+				);
+			}
+			RegisterModelMesh(L"EXPERIENCE_ORB_MODEL", crystalMeshes);
+		}
 		// StageObjects
 		StageObjectCatalog::RegisterAssets(*this, pCommandList);
 

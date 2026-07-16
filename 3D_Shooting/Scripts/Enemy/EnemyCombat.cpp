@@ -25,7 +25,7 @@ namespace shooting {
 		{
 			if (auto gameStage = m_gameStage.lock())
 			{
-				gameStage->SpawnExperienceOrb(enemy.position, enemy.status.experienceReward);
+				gameStage->SpawnExperienceOrb(enemy.position, enemy.status.experienceReward, enemy.rotation);
 			}
 		}
 		enemy.dropExperienceOnDeath = false;
@@ -151,7 +151,7 @@ namespace shooting {
 				{
 					if (auto gameStage = m_gameStage.lock())
 					{
-						gameStage->SpawnExperienceOrb(enemy.position, enemy.status.experienceReward);
+						gameStage->SpawnExperienceOrb(enemy.position, enemy.status.experienceReward, enemy.rotation);
 					}
 				}
 				// 爆弾の致死ダメージは即死亡にせず、吹っ飛んだ後の接地で死亡させる。

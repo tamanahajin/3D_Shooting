@@ -34,7 +34,7 @@ namespace shooting {
 		float experienceOrbFloatAmplitude = 0.08f;
 		float experienceOrbFloatSpeed = 3.0f;
 		float experienceOrbScale = 0.085f;
-		float experienceOrbDropHeightOffset = 0.35f;
+		float experienceOrbDropHeightOffset = 0.20f;
 		int experienceOrbPoolInitialSize = 128;
 
 		double deathHitStopDuration = 0.18;

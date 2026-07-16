@@ -27,7 +27,7 @@ namespace shooting {
 		virtual void OnUpdate(double elapsedTime) override {}
 
 		void Prewarm(int count);
-		void Spawn(const Vec3& position, int experienceAmount);
+		void Spawn(const Vec3& position, int experienceAmount, const Quat& rotation);
 		void ReleaseOrb(const std::shared_ptr<ExperienceOrb>& orb);
 	};
 

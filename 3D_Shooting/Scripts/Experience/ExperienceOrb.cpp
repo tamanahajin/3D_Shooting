@@ -5,8 +5,12 @@ namespace shooting {
 
 	namespace
 	{
+		const wchar_t* kExperienceOrbModelKey = L"EXPERIENCE_ORB_MODEL";
+		const wchar_t* kExperienceOrbMaterialPrefix = L"EXPERIENCE_ORB_MAT_";
 		const Col4 kExperienceOrbColor(0.0f, 0.28f, 1.0f, 1.0f);
-		const Col4 kExperienceOrbEmissiveColor(0.0f, 0.18f, 0.9f, 1.0f);
+		const Col4 kExperienceOrbEmissiveBase(0.0f, 0.32f, 1.05f, 1.0f);
+		const Col4 kExperienceOrbEmissivePulse(0.0f, 0.16f, 0.35f, 0.0f);
+		const float kExperienceOrbGlowPulseSpeed = 3.0f;
 		const Vec3 kPoolPosition(0.0f, -1000.0f, 0.0f);
 	}
 
@@ -24,18 +28,33 @@ namespace shooting {
 		AddTag(L"ExperienceOrb");
 		SetShadowActive(false);
 
+		const auto& meshes = BaseScene::Get()->GetModelMesh(kExperienceOrbModelKey);
+
 		auto draw = AddComponent<BcPNTStaticDraw>();
-		draw->AddBaseMesh(L"DEFAULT_SPHERE");
+		m_draw = draw;
 		draw->SetDiffuseColor(kExperienceOrbColor);
-		draw->SetEmissiveColor(kExperienceOrbEmissiveColor);
+		draw->SetEmissiveColor(kExperienceOrbEmissiveBase);
 		draw->SetLightingEnabled(true);
 		draw->SetFogEnabled(true);
 		draw->SetOwnShadowActive(false);
 
+		if (!meshes.empty())
+		{
+			draw->AddBaseModelMesh(meshes);
+			for (size_t i = 0; i < meshes.size(); ++i)
+			{
+				draw->AddBaseMaterial(std::wstring(kExperienceOrbMaterialPrefix) + std::to_wstring(i));
+			}
+		}
+		else
+		{
+			draw->AddBaseMesh(L"DEFAULT_SPHERE");
+		}
+
 		DeactivateForPool();
 	}
 
-	void ExperienceOrb::Activate(const Vec3& position, int experienceAmount)
+	void ExperienceOrb::Activate(const Vec3& position, int experienceAmount, const Quat& rotation)
 	{
 		if (experienceAmount <= 0)
 		{
@@ -49,6 +68,12 @@ namespace shooting {
 		m_active = true;
 		m_attracting = false;
 
+		if (auto draw = m_draw.lock())
+		{
+			draw->SetDiffuseColor(kExperienceOrbColor);
+			draw->SetEmissiveColor(kExperienceOrbEmissiveBase);
+		}
+
 		SetUpdateActive(true);
 		SetDrawActive(true);
 		SetShadowActive(false);
@@ -56,6 +81,7 @@ namespace shooting {
 		if (auto transform = GetComponent<Transform>(false))
 		{
 			transform->SetPosition(position);
+			transform->SetQuaternion(rotation);
 			transform->SetScale(Vec3(
 				tuning.experienceOrbScale,
 				tuning.experienceOrbScale,
@@ -75,9 +101,15 @@ namespace shooting {
 		SetDrawActive(false);
 		SetShadowActive(false);
 
+		if (auto draw = m_draw.lock())
+		{
+			draw->SetEmissiveColor(kExperienceOrbEmissiveBase);
+		}
+
 		if (auto transform = GetComponent<Transform>(false))
 		{
 			transform->SetPosition(kPoolPosition);
+			transform->SetRotation(0.0f, 0.0f, 0.0f);
 			transform->SetToBefore();
 		}
 	}
@@ -136,6 +168,16 @@ namespace shooting {
 
 		m_time += elapsedTime;
 
+		if (auto draw = m_draw.lock())
+		{
+			const float glow = 0.5f + 0.5f * std::sin(static_cast<float>(m_time) * kExperienceOrbGlowPulseSpeed);
+			draw->SetEmissiveColor(Col4(
+				kExperienceOrbEmissiveBase.x + kExperienceOrbEmissivePulse.x * glow,
+				kExperienceOrbEmissiveBase.y + kExperienceOrbEmissivePulse.y * glow,
+				kExperienceOrbEmissiveBase.z + kExperienceOrbEmissivePulse.z * glow,
+				1.0f));
+		}
+
 		auto transform = GetComponent<Transform>(false);
 		auto player = GetPlayer();
 		if (!transform || !player || player->IsDead())
@@ -191,7 +233,6 @@ namespace shooting {
 		}
 
 		transform->SetPosition(currentPosition);
-		transform->SetRotation(0.0f, static_cast<float>(m_time) * 1.8f, 0.0f);
 	}
 
 }

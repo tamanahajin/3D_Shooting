@@ -32,7 +32,7 @@
     "experienceOrbFloatAmplitude": 0.08,
     "experienceOrbFloatSpeed": 3.0,
     "experienceOrbScale": 0.085,
-    "experienceOrbDropHeightOffset": 0.35,
+    "experienceOrbDropHeightOffset": 0.01,
     "experienceOrbPoolInitialSize": 128
   },
   "death": {
