@@ -212,9 +212,9 @@ CSVは実行ファイルと同じ階層の`BenchmarkResults`ディレクトリ�
 
 - OtoLogic  
   https://otologic.jp
-- Kenny
-  https://www.kenney.nl/assets/mini-dungeon
-  https://www.kenney.nl/assets/blaster-kit
+- Kenny  
+  https://www.kenney.nl/assets/mini-dungeon  
+  https://www.kenney.nl/assets/blaster-kit  
   https://www.kenney.nl/assets/nature-kit
 
 ## ライセンス
