@@ -212,6 +212,10 @@ CSVは実行ファイルと同じ階層の`BenchmarkResults`ディレクトリ�
 
 - OtoLogic  
   https://otologic.jp
+- Kenny
+  https://www.kenney.nl/assets/mini-dungeon
+  https://www.kenney.nl/assets/blaster-kit
+  https://www.kenney.nl/assets/nature-kit
 
 ## ライセンス
 
@@ -220,4 +224,3 @@ BaseCrossDx12、DirectXTex、PhysX、Assimp、Dear ImGuiなどの第三者ソフ
 
 第三者ソフトウェアを除く本作独自のソースコード、モデル、画像、音声その他の素材には、現時点で利用ライセンスを設定していません。明示的な許諾がない限り、これらの再利用・再配布はできません。
 
-[tamanahajin](https://github.com/tamanahajin)
