@@ -41,13 +41,14 @@ namespace shooting {
 			m_enemies.emplace_back();
 		}
 
-		// 再利用スロットには前の敵の速度、死亡状態、演出タイマーなどが残っている。
-		// EnemyStateを作り直してから必要な初期値を設定し、状態の持ち越しを防ぐ。
+		// 初期値を入れる
 		EnemyState enemy;
 		enemy.status = status;
 		enemy.position = startPosition;
 		enemy.previousPosition = startPosition;
 		enemy.rotation = Quat();
+		enemy.lifeState = EnemyLifeState::Spawning;
+		enemy.spawnIntroTimer = enemy.spawnIntroDuration;
 		enemy.steeringTimer = static_cast<double>(index & 3) * 0.0125;
 		enemy.steeringInterval = status.steeringInterval;
 		enemy.animationState = AnimState::Idle;
@@ -187,7 +188,6 @@ namespace shooting {
 		}
 
 		enemy.active = false;
-		enemy.deathAnimFinished = true;
 		enemy.proxy.reset();
 		m_freeEnemyIndices.push_back(index);
 	}
@@ -200,7 +200,7 @@ namespace shooting {
 		}
 
 		const auto& enemy = m_enemies[index];
-		return enemy.active && !enemy.isDead && enemy.hp > 0;
+		return enemy.active && enemy.lifeState != EnemyLifeState::Deading && enemy.hp > 0;
 	}
 
 	bool EnemyController::CanDamagePlayer(size_t index) const
@@ -212,7 +212,7 @@ namespace shooting {
 
 		const auto& enemy = m_enemies[index];
 		return enemy.active &&
-			!enemy.isDead &&
+			enemy.lifeState == EnemyLifeState::Alive &&
 			enemy.hp > 0 &&
 			!IsKnockbackActive(enemy);
 	}
@@ -233,7 +233,7 @@ namespace shooting {
 		int count = 0;
 		for (const auto& enemy : m_enemies)
 		{
-			if (enemy.active && !enemy.isDead && enemy.hp > 0)
+			if (enemy.active && enemy.lifeState != EnemyLifeState::Deading && enemy.hp > 0)
 			{
 				++count;
 			}

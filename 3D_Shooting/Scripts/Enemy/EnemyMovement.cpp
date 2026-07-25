@@ -25,7 +25,7 @@ namespace shooting {
 		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
 			const auto& enemy = m_enemies[i];
-			if (!enemy.active || enemy.isDead)
+			if (!enemy.active || enemy.lifeState == EnemyLifeState::Deading)
 			{
 				continue;
 			}
@@ -185,7 +185,8 @@ namespace shooting {
 
 	bool EnemyController::IsKnockbackActive(const EnemyState& enemy) const
 	{
-		return enemy.landingDeathState != LandingDeathState::None ||
+		return enemy.lifeState == EnemyLifeState::PendingDeathAirborne ||
+			enemy.lifeState == EnemyLifeState::PendingDeathLanding ||
 			enemy.knockbackSpinSpeed != 0.0f ||
 			enemy.knockbackLaunchTimer > 0.0 ||
 			enemy.knockbackControlTimer > 0.0 ||
@@ -227,7 +228,7 @@ namespace shooting {
 		BuildSpatialGrid();
 		for (size_t i = 0; i < m_enemies.size(); ++i)
 		{
-			if (m_enemies[i].active && !m_enemies[i].isDead)
+			if (m_enemies[i].active && m_enemies[i].lifeState != EnemyLifeState::Deading)
 			{
 				m_separationForces[i] = CalculateSeparation(i);
 			}
@@ -244,6 +245,34 @@ namespace shooting {
 			}
 
 			enemy.previousPosition = enemy.position;
+
+			if (enemy.spawnIntroTimer > 0.0)
+			{
+				enemy.spawnIntroTimer -= elapsedTime;
+				if (enemy.spawnIntroTimer < 0.0)
+				{
+					enemy.spawnIntroTimer = 0.0;
+				}
+			}
+
+			if (enemy.lifeState == EnemyLifeState::Spawning)
+			{
+				enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
+				enemy.force = Vec3(0.0f, 0.0f, 0.0f);
+				enemy.gravityVelocity = Vec3(0.0f, 0.0f, 0.0f);
+
+				if (enemy.spawnIntroTimer <= 0.0)
+				{
+					enemy.lifeState = EnemyLifeState::Alive;
+				}
+				else
+				{
+					ChangeAnimation(enemy, AnimState::Idle);
+					UpdateAnimation(enemy, elapsedTime);
+					SyncProxyTransform(i);
+					continue;
+				}
+			}
 
 			if (enemy.damageFlashTimer > 0.0)
 			{
@@ -321,7 +350,7 @@ namespace shooting {
 
 			KillByFall(enemy);
 
-			if (enemy.isDead)
+			if (enemy.lifeState == EnemyLifeState::Deading)
 			{
 				ChangeAnimation(enemy, AnimState::Dead);
 				enemy.gravityVelocity += gravity * dt;
@@ -411,12 +440,12 @@ namespace shooting {
 			// CSV地形や中央床に合わせて最終位置を補正する。失敗時は未接地として落下を継続する。
 			const bool resolvedGeneratedGround = ResolveGeneratedGround(enemy, elapsedTime);
 
-			if (enemy.landingDeathState == LandingDeathState::WaitingForAirborne &&
+			if (enemy.lifeState == EnemyLifeState::PendingDeathAirborne &&
 				!resolvedGeneratedGround)
 			{
-				enemy.landingDeathState = LandingDeathState::WaitingForLanding;
+				enemy.lifeState = EnemyLifeState::PendingDeathLanding;
 			}
-			else if (enemy.landingDeathState == LandingDeathState::WaitingForLanding &&
+			else if (enemy.lifeState == EnemyLifeState::PendingDeathLanding &&
 				resolvedGeneratedGround &&
 				enemy.delayedDeathMinTimer <= 0.0)
 			{
@@ -445,6 +474,12 @@ namespace shooting {
 			auto& enemy = m_enemies[i];
 			if (!enemy.active)
 			{
+				continue;
+			}
+
+			if (enemy.lifeState == EnemyLifeState::Spawning)
+			{
+				SyncProxyTransform(i);
 				continue;
 			}
 

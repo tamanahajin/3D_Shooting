@@ -16,7 +16,7 @@ namespace shooting {
 
 	void EnemyController::KillEnemy(EnemyState& enemy)
 	{
-		if (enemy.isDead)
+		if (enemy.lifeState == EnemyLifeState::Deading)
 		{
 			return;
 		}
@@ -31,9 +31,7 @@ namespace shooting {
 		enemy.dropExperienceOnDeath = false;
 
 		enemy.hp = 0;
-		enemy.isDead = true;
-		enemy.deathAnimFinished = false;
-		enemy.landingDeathState = LandingDeathState::None;
+		enemy.lifeState = EnemyLifeState::Deading;
 		enemy.delayedDeathMinTimer = 0.0;
 		enemy.force = Vec3(0.0f, 0.0f, 0.0f);
 		enemy.velocity = Vec3(0.0f, 0.0f, 0.0f);
@@ -116,10 +114,11 @@ namespace shooting {
 		}
 
 		auto& enemy = m_enemies[index];
-		// 着地後の死亡が確定している敵は、別の攻撃で撃破数やダメージを重複計上しない。
+		// 死亡中または着地後の死亡が確定している敵は、別の攻撃で撃破数やダメージを重複計上しない。
 		if (!enemy.active ||
-			enemy.isDead ||
-			enemy.landingDeathState != LandingDeathState::None ||
+			enemy.lifeState == EnemyLifeState::Deading ||
+			enemy.lifeState == EnemyLifeState::PendingDeathAirborne ||
+			enemy.lifeState == EnemyLifeState::PendingDeathLanding ||
 			info.m_Damage <= 0)
 		{
 			return false;
@@ -156,7 +155,7 @@ namespace shooting {
 				}
 				// 爆弾の致死ダメージは即死亡にせず、吹っ飛んだ後の接地で死亡させる。
 				enemy.hp = 1;
-				enemy.landingDeathState = LandingDeathState::WaitingForAirborne;
+				enemy.lifeState = EnemyLifeState::PendingDeathAirborne;
 				enemy.delayedDeathMinTimer = 0.12;
 				return true;
 			}
@@ -177,7 +176,9 @@ namespace shooting {
 		}
 
 		auto& enemy = m_enemies[index];
-		if (!enemy.active || enemy.isDead)
+		if (!enemy.active ||
+			(enemy.lifeState != EnemyLifeState::Alive &&
+				enemy.lifeState != EnemyLifeState::PendingDeathAirborne))
 		{
 			return;
 		}
@@ -195,9 +196,9 @@ namespace shooting {
 		enemy.isGround = false;
 		enemy.knockbackControlTimer = 0.45;
 		enemy.knockbackLaunchTimer = kKnockbackLaunchSeconds;
-		if (enemy.landingDeathState == LandingDeathState::WaitingForAirborne)
+		if (enemy.lifeState == EnemyLifeState::PendingDeathAirborne)
 		{
-			enemy.landingDeathState = LandingDeathState::WaitingForLanding;
+			enemy.lifeState = EnemyLifeState::PendingDeathLanding;
 		}
 
 		AddRandomRotation(index);
@@ -211,7 +212,7 @@ namespace shooting {
 		}
 
 		auto& enemy = m_enemies[index];
-		if (!enemy.active || enemy.isDead)
+		if (!enemy.active || enemy.lifeState == EnemyLifeState::Deading)
 		{
 			return;
 		}

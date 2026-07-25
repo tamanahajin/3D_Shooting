@@ -328,6 +328,17 @@ namespace shooting {
 
 			const float hitPushPower = GetHitPushPower(enemy.hitPushTimer, enemy.hitPushDuration);
 			Vec3 drawPosition = enemy.position + modelOffset + GetHitPushOffset(enemy.hitPushDirection, enemy.hitPushDistance, hitPushPower);
+
+			// 生成時に地面から生えるときの描画
+			float spawnT = 1.0f;
+			if (enemy.lifeState == EnemyLifeState::Spawning && enemy.spawnIntroDuration > 0.0)
+			{
+				spawnT = 1.0f - static_cast<float>(enemy.spawnIntroTimer / enemy.spawnIntroDuration);
+				spawnT = bsmUtil::Clamp(spawnT, 0.0f, 1.0f);
+			}
+			const float rise = spawnT * spawnT;
+			drawPosition.y -= enemy.spawnIntroDepth * (1.0f - rise);
+
 			Quat drawRotation = enemy.rotation;
 			if (hitPushPower != 0.0f)
 			{

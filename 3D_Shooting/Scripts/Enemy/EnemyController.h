@@ -16,6 +16,15 @@ namespace shooting {
 	class GameStage;
 	class EnemyCollisionProxy;
 
+	enum class EnemyLifeState
+	{
+		Spawning,             // 地面から出現中
+		Alive,                // 通常行動中
+		PendingDeathAirborne, // 爆風死亡予約: まだ空中へ飛ぶ前
+		PendingDeathLanding,  // 爆風死亡予約: 着地待ち
+		Deading               // 死亡アニメ中
+	};
+
 	/*!
 	@brief 敵の実行時状態を配列でまとめて管理するコントローラ
 
@@ -25,13 +34,6 @@ namespace shooting {
 	class EnemyController : public GameObject
 	{
 	private:
-		enum class LandingDeathState
-		{
-			None,
-			WaitingForAirborne,
-			WaitingForLanding
-		};
-
 		struct EnemyState
 		{
 			Vec3 position = Vec3(0.0f, 0.0f, 0.0f);
@@ -39,6 +41,11 @@ namespace shooting {
 			Vec3 velocity = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 force = Vec3(0.0f, 0.0f, 0.0f);
 			Vec3 gravityVelocity = Vec3(0.0f, 0.0f, 0.0f);
+
+			// 生成時、地面から生えてくる用の変数
+			double spawnIntroTimer = 0.0;
+			double spawnIntroDuration = 1.0;
+			float spawnIntroDepth = 0.7f;
 
 			// 爆弾などの吹っ飛び用。通常の追跡移動とは別に制御する。
 			Vec3 knockbackVelocity = Vec3(0.0f, 0.0f, 0.0f);
@@ -71,13 +78,11 @@ namespace shooting {
 
 			// active=falseになると更新・描画対象から外れ、次の敵生成時に同じスロットを再利用する。
 			bool active = true;
+			EnemyLifeState lifeState = EnemyLifeState::Alive;
 			bool isGround = false;
-			bool isDead = false;
-			bool deathAnimFinished = false;
 			bool dropExperienceOnDeath = false;
 
 			// 致死ダメージ後の離陸待ちと着地待ちを区別し、その場で死亡することを防ぐ。
-			LandingDeathState landingDeathState = LandingDeathState::None;
 			double delayedDeathMinTimer = 0.0;
 
 			EnemyStatus status;
