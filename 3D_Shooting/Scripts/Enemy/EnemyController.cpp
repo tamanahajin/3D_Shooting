@@ -3,6 +3,34 @@
 
 namespace shooting {
 
+	namespace {
+		Quat MakeSpawnRotationTowardPlayer(const std::shared_ptr<GameStage>& gameStage, const Vec3& startPosition)
+		{
+			Quat rotation;
+			if (!gameStage)
+			{
+				return rotation;
+			}
+
+			auto player = gameStage->GetSharedGameObject(L"Player", false);
+			auto playerTransform = player ? player->GetComponent<Transform>(false) : nullptr;
+			if (!playerTransform)
+			{
+				return rotation;
+			}
+
+			Vec3 toPlayer = playerTransform->GetWorldPosition() - startPosition;
+			toPlayer.y = 0.0f;
+			if (!bsmUtil::IsFiniteVec3(toPlayer) || bsmUtil::lengthSqr(toPlayer) <= 1e-6f)
+			{
+				return rotation;
+			}
+
+			rotation.facingY(toPlayer);
+			return rotation;
+		}
+	}
+
 	EnemyController::EnemyController(const std::shared_ptr<Stage>& stage) :
 		GameObject(stage)
 	{
@@ -46,7 +74,12 @@ namespace shooting {
 		enemy.status = status;
 		enemy.position = startPosition;
 		enemy.previousPosition = startPosition;
-		enemy.rotation = Quat();
+		auto gameStage = m_gameStage.lock();
+		if (!gameStage)
+		{
+			gameStage = std::dynamic_pointer_cast<GameStage>(GetStage(false));
+		}
+		enemy.rotation = MakeSpawnRotationTowardPlayer(gameStage, startPosition);
 		enemy.lifeState = EnemyLifeState::Spawning;
 		enemy.spawnIntroTimer = enemy.spawnIntroDuration;
 		enemy.steeringTimer = static_cast<double>(index & 3) * 0.0125;
