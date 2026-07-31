@@ -19,7 +19,7 @@ namespace shooting::scene_detail {
 	inline constexpr float kBombHudIconSize = 56.0f;
 	inline constexpr float kBombHudMargin = 24.0f;
 
-	inline constexpr double kInitialControlGuideDurationSeconds = 5.0;
+	inline constexpr double kInitialControlGuideDurationSeconds = 10.0;
 	inline constexpr double kInitialControlGuideFadeSeconds = 0.8;
 
 }
