@@ -14,7 +14,6 @@
 #include "Components/Component.h"
 #include "Objects/GameObject.h"
 #include "Components/Transform.h"
-#include "Components/Rigidbody.h"
 #include "Components/Gravity.h"
 #include "Components/Collision.h"
 #include "Components/DamageEffect.h"

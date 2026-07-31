@@ -90,7 +90,6 @@
     <ClCompile Include="Common\Library\StandardLib\Components\Health.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\InstancedStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\WaveEffectDraw.cpp" />
-    <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\ShadowMap.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\SpStaticDraw.cpp" />
     <ClCompile Include="Common\Library\StandardLib\Components\Transform.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="Common\Library\StandardLib\Components\Health.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\InstancedStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\WaveEffectDraw.h" />
-    <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\ShadowMap.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\SpStaticDraw.h" />
     <ClInclude Include="Common\Library\StandardLib\Components\Transform.h" />
@@ -625,14 +623,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)Temp\$(Configuration)\$(SolutionName)\</IntDir>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)..\Libs\include;$(SolutionDir)..\Libs\PhysX\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Libs\lib\$(Configuration)\;$(SolutionDir)..\Libs\PhysX\lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\Libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\Libs\lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)Temp\$(Configuration)\$(SolutionName)\</IntDir>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)..\Libs\include;$(SolutionDir)..\Libs\PhysX\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Libs\lib\$(Configuration)\;$(SolutionDir)..\Libs\PhysX\lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\Libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\Libs\lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -667,7 +665,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;$(ProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\Debug;$(ProjectDir)Shader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -675,14 +673,13 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir)Common\PhysX\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Common\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>4.0_level_9_3</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(ProjectDir)Common\PhysX\dlls\$(Configuration)\" "$(SolutionDir)$(Configuration)\"
-copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
+      <Command>copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -693,7 +690,7 @@ copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\T
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir)Shader;$(ProjectDir)Common\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Common;$(ProjectDir)Common\imgui;$(ProjectDir)Scripts;$(ProjectDir)Common\Library;$(ProjectDir)Common\Library\StandardLib;$(ProjectDir)Common\Library\BasicLib;$(ProjectDir)Common\Library\StandardLib\Objects;$(ProjectDir)Common\Library\StandardLib\Components;$(ProjectDir);$(ProjectDir)Common\Library\include;$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir)Shader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -703,14 +700,13 @@ copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\T
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir)Common\PhysX\lib\$(Configuration);$(ProjectDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Common\lib\$(Configuration);$(ProjectDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>4.0_level_9_3</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(ProjectDir)Common\PhysX\dlls\$(Configuration)\" "$(SolutionDir)$(Configuration)\"
-copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
+      <Command>copy /y "$(SolutionDir)THIRD_PARTY_NOTICES.md" "$(SolutionDir)$(Configuration)\THIRD_PARTY_NOTICES.md"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

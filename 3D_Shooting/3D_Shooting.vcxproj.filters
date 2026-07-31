@@ -262,9 +262,6 @@
     <ClCompile Include="Common\Library\StandardLib\Components\BombAimPreview.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Library\StandardLib\Components\Rigidbody.cpp">
-      <Filter>Libs\StandardLib\Components\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Common\Library\StandardLib\Components\ExplosionEffect.cpp">
       <Filter>Libs\StandardLib\Components\Sources</Filter>
     </ClCompile>
@@ -739,9 +736,6 @@
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\WeaponTuning.h">
-      <Filter>Libs\StandardLib\Components\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Library\StandardLib\Components\Rigidbody.h">
       <Filter>Libs\StandardLib\Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Common\Library\StandardLib\Components\ExplosionEffect.h">

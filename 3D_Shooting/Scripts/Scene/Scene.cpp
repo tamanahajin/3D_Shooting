@@ -382,7 +382,7 @@ namespace shooting {
 	{
 		if (m_activeStage)
 		{
-			// PhysXを破棄する前に、ステージ内コンポーネントへ外部リソースの解放を通知する。
+			// ステージ内コンポーネントへ外部リソースの解放を通知する。
 			m_activeStage->OnDestroy();
 			m_activeStage.reset();
 		}

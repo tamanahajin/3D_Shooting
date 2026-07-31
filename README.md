@@ -36,7 +36,6 @@ https://github.com/user-attachments/assets/c555f9e1-e7af-41cf-a216-cf6c2c06bd4a
 - DirectXTex
 - Dear ImGui
 - Assimp
-- NVIDIA PhysX
 - stb
 
 ## 使用素材・クレジット
@@ -53,7 +52,7 @@ https://github.com/user-attachments/assets/c555f9e1-e7af-41cf-a216-cf6c2c06bd4a
 ## ライセンス
 
 本作はMIT Licenseの[BaseCrossDx12](https://github.com/yasyamanoi/BaseCrossDx12)をベースに開発しています。  
-BaseCrossDx12、DirectXTex、PhysX、Assimp、Dear ImGuiなどの第三者ソフトウェアには、それぞれのライセンスが適用されます。著作権表示とライセンス全文は[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)を参照してください。
+BaseCrossDx12、DirectXTex、Assimp、Dear ImGuiなどの第三者ソフトウェアには、それぞれのライセンスが適用されます。著作権表示とライセンス全文は[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)を参照してください。
 
 第三者ソフトウェアを除く本作独自のソースコード、モデル、画像、音声その他の素材には、現時点で利用ライセンスを設定していません。明示的な許諾がない限り、これらの再利用・再配布はできません。
 

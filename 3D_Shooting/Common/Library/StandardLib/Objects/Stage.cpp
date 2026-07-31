@@ -164,7 +164,7 @@ namespace shooting {
 
 		for (auto& v : m_gameObjectVec)
 		{
-			// RigidbodyなどはOnDestroyで外部リソースを解放するため、オブジェクト破棄前に必ず通知する。
+			// コンポーネントが外部リソースを解放できるように、オブジェクト破棄前に必ず通知する。
 			v->ComponentDestroy();
 			v->OnDestroy();
 		}

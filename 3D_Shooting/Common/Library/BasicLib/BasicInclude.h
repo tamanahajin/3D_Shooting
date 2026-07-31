@@ -61,8 +61,6 @@
 #include <codecvt>
 using namespace DirectX;
 
-//PhysX
-#include "PxPhysicsAPI.h"
 //assimp
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -120,14 +118,4 @@ using namespace shooting::bsm;
 #pragma comment( lib, "d2d1.lib" )
 #pragma comment( lib, "dwrite.lib" )
 #pragma comment( lib, "windowscodecs.lib" )
-
-#pragma comment(lib, "PhysX_64.lib")
-#pragma comment(lib, "PhysXCommon_64.lib")
-#pragma comment(lib, "PhysXCooking_64.lib")
-#pragma comment(lib, "PhysXExtensions_static_64.lib")
-#pragma comment(lib, "PhysXFoundation_64.lib")
-#pragma comment(lib, "PhysXPvdSDK_static_64.lib")
-#pragma comment(lib, "PhysXTask_static_64.lib")
-#pragma comment(lib, "SceneQuery_static_64.lib")
-#pragma comment(lib, "SimulationController_static_64.lib")
 
